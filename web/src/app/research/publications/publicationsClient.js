@@ -65,65 +65,6 @@ const normalizePublication = (p, bySlugMap) => {
   };
 };
 
-/* Bib generator */
-const bibEscape = (s = "") =>
-  String(s)
-    .replace(/[{}]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-const asBibType = (kind) => {
-  const k = String(kind || "").toLowerCase();
-  if (k.includes("review") || k.includes("article")) return "article";
-  if (k.includes("paper") || k.includes("conference") || k.includes("proceeding")) return "inproceedings";
-  if (k.includes("thesis")) return "phdthesis";
-  return "misc";
-};
-
-const makeCiteKey = (pub, idx = 0) => {
-  const firstAuthor = pub.authors?.[0] || "item";
-  const a = slugify(firstAuthor).replace(/-/g, "");
-  const y = pub.year || "nd";
-  const t = slugify(pub.title).slice(0, 24).replace(/-/g, "");
-  return `${a}${y}-${t || "pub"}-${idx + 1}`;
-};
-
-const toBibEntry = (pub, idx = 0) => {
-  const type = asBibType(pub.kind);
-  const key = makeCiteKey(pub, idx);
-  const author = pub.authors?.length ? pub.authors.join(" and ") : undefined;
-
-  const fields = {
-    title: bibEscape(pub.title),
-    year: bibEscape(pub.year),
-    ...(author ? { author: bibEscape(author) } : {}),
-    ...(pub.description ? { abstract: bibEscape(pub.description) } : {}),
-    ...(pub.domain || pub.kind ? { keywords: bibEscape([pub.domain, pub.kind].filter(Boolean).join(", ")) } : {}),
-    ...(pub.docUrl ? { url: bibEscape(pub.docUrl), howpublished: bibEscape(pub.docUrl) } : {}),
-    ...(pub.kind ? { note: bibEscape(pub.kind) } : {}),
-    ...(pub.domain ? { institution: bibEscape(pub.domain) } : {}),
-  };
-
-  const fieldsString = Object.entries(fields)
-    .map(([k, v]) => `  ${k} = {${v}}`)
-    .join(",\n");
-
-  return `@${type}{${key},\n${fieldsString}\n}\n`;
-};
-
-const downloadBibSingle = (pub, idx = 0) => {
-  const entry = toBibEntry(pub, idx);
-  const blob = new Blob([entry], { type: "application/x-bibtex;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${makeCiteKey(pub, idx)}.bib`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-};
-
 export default function PublicationsClient({ publications: pubData, staff: staffData }) {
 
   // TODO: This can be replaced with Strapi function
@@ -365,17 +306,6 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                               </a>
                             )}
                           </div>
-                        </div>
-
-                        <div className="shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => downloadBibSingle(p, i)}
-                            className="text-xs rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Download .bib for this publication"
-                          >
-                            ⬇️ .bib
-                          </button>
                         </div>
                       </div>
                     </motion.li>

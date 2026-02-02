@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 export default function PublicationDetailClient({ publication }) {
   if (!publication) return <div className="p-6">Publication not found.</div>;
@@ -15,12 +16,15 @@ export default function PublicationDetailClient({ publication }) {
     projects = [],
     themes = [],
     datasets = [],
-    docUrl,
-    externalUrl,
+    attachments = [],
+    pdfFile,
+    bibFile,
     slug,
   } = publication;
 
-  const hasLinks = !!(docUrl || externalUrl);
+  const [activeTab, setActiveTab] = useState(
+    pdfFile?.url ? "pdf" : bibFile?.url ? "bib" : ""
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
@@ -52,27 +56,61 @@ export default function PublicationDetailClient({ publication }) {
             </p>
           ) : null}
 
-          {hasLinks ? (
-            <div className="mt-6 flex flex-wrap gap-3">
-              {docUrl ? (
-                <a
-                  href={docUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-                >
-                  View document
-                </a>
+          {(pdfFile?.url || bibFile?.url) ? (
+            <div className="mt-5">
+              <div className="inline-flex rounded-full border border-gray-200 dark:border-gray-800 p-1 bg-gray-50 dark:bg-gray-900">
+                {pdfFile?.url ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("pdf")}
+                    className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
+                      activeTab === "pdf"
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-600 dark:text-gray-300 hover:text-blue-600"
+                    }`}
+                  >
+                    PDF
+                  </button>
+                ) : null}
+                {bibFile?.url ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("bib")}
+                    className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
+                      activeTab === "bib"
+                        ? "bg-purple-600 text-white"
+                        : "text-gray-600 dark:text-gray-300 hover:text-purple-600"
+                    }`}
+                  >
+                    BibTeX
+                  </button>
+                ) : null}
+              </div>
+
+              {activeTab === "pdf" && pdfFile?.url ? (
+                <div className="mt-3">
+                  <a
+                    href={pdfFile.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+                  >
+                    Open PDF
+                  </a>
+                </div>
               ) : null}
-              {externalUrl ? (
-                <a
-                  href={externalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
-                >
-                  External link
-                </a>
+
+              {activeTab === "bib" && bibFile?.url ? (
+                <div className="mt-3">
+                  <a
+                    href={bibFile.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
+                  >
+                    Download BibTeX
+                  </a>
+                </div>
               ) : null}
             </div>
           ) : null}
@@ -137,6 +175,7 @@ export default function PublicationDetailClient({ publication }) {
                 <p className="mt-3 text-sm text-gray-500">No projects linked.</p>
               )}
             </div>
+
           </section>
 
           <aside className="space-y-6">
@@ -189,6 +228,94 @@ export default function PublicationDetailClient({ publication }) {
             </div>
           </aside>
         </div>
+
+        <section className="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Attachments</h2>
+          {attachments.length ? (
+            (() => {
+              const isImage = (file) => {
+                const mime = String(file.mime || "").toLowerCase();
+                const ext = String(file.ext || "").toLowerCase();
+                return mime.startsWith("image/") || [".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"].includes(ext);
+              };
+
+              const imageFiles = attachments.filter(isImage);
+              const otherFiles = attachments.filter((file) => !isImage(file));
+
+              return (
+                <div className="mt-4 space-y-6">
+                  {imageFiles.length ? (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Images</h3>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {imageFiles.map((file, idx) => (
+                          <a
+                            key={`${file.id || file.url || file.name}-${idx}`}
+                            href={file.url || "#"}
+                            target={file.url ? "_blank" : undefined}
+                            rel={file.url ? "noopener noreferrer" : undefined}
+                            className="group block rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-gray-50 dark:bg-gray-900"
+                          >
+                            <div className="aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                              {file.url ? (
+                                <img
+                                  src={file.url}
+                                  alt={file.name || "Publication attachment"}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                  loading="lazy"
+                                />
+                              ) : null}
+                            </div>
+                            <div className="p-3">
+                              <div className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">
+                                {file.name || "Image"}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {file.ext || file.mime || "image"}
+                              </div>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {otherFiles.length ? (
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Files</h3>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {otherFiles.map((file, idx) => (
+                          <a
+                            key={`${file.id || file.url || file.name}-${idx}`}
+                            href={file.url || "#"}
+                            target={file.url ? "_blank" : undefined}
+                            rel={file.url ? "noopener noreferrer" : undefined}
+                            className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 dark:border-gray-800 p-3 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+                          >
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                {file.name || "Attachment"}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {file.ext || file.mime || "file"}
+                                {typeof file.size === "number"
+                                  ? ` • ${(file.size / 1024).toFixed(2)} MB`
+                                  : ""}
+                              </div>
+                            </div>
+                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Download</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()
+          ) : (
+            <p className="mt-3 text-sm text-gray-500">No attachments yet.</p>
+          )}
+        </section>
       </div>
     </main>
   );

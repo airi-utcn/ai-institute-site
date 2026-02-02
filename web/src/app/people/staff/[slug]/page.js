@@ -54,7 +54,7 @@ export default async function StaffDetailPage({ params }) {
     authors: Array.isArray(pub.authors)
       ? pub.authors.map((author) => author?.name).filter(Boolean)
       : [],
-    docUrl: pub.docUrl || "",
+    pdfFile: pub.pdfFile || null,
   });
 
   const publications = publicationsRaw.map(normalizePublication);

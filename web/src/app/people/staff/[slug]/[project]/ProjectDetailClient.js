@@ -341,9 +341,9 @@ export default function ProjectDetailClient({
                               Details
                             </Link>
                           ) : null}
-                          {pub.docUrl || pub.externalUrl ? (
+                          {pub.pdfFile?.url ? (
                             <Link
-                               href={pub.docUrl || pub.externalUrl || "#"}
+                               href={pub.pdfFile.url}
                                target="_blank"
                                className="shrink-0 p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >

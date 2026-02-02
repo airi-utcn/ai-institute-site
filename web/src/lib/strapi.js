@@ -186,13 +186,22 @@ const SUPPORT_UNIT_POPULATE = {
 
 
 const PUBLICATION_POPULATE = {
-  fields: ['title', 'slug', 'year', 'kind', 'description', 'doc_url', 'external_url'],
+  fields: ['title', 'slug', 'year', 'kind', 'description'],
   populate: {
     domain: DEPARTMENT_POPULATE,
     projects: {
       fields: ['title', 'slug'],
     },
     authors: PERSON_FLAT_POPULATE,
+    pdfFile: {
+      fields: ['name', 'url', 'mime', 'ext', 'size'],
+    },
+    bibFile: {
+      fields: ['name', 'url', 'mime', 'ext', 'size'],
+    },
+    attachments: {
+      fields: ['name', 'url', 'mime', 'ext', 'size'],
+    },
   },
 };
 
@@ -545,6 +554,9 @@ export async function getPublications() {
       },
     });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -575,6 +587,9 @@ export async function getPublicationBySlug(slug) {
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
     setPopulate(params, 'populate[datasets]', { fields: ['title', 'slug', 'source_url', 'platform'] });
+    setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data?.[0] || null;
   } catch (error) {
@@ -942,6 +957,46 @@ export function transformPublicationData(strapiPubs) {
       };
     });
 
+    const pdfFile = (() => {
+      const file = attributes.pdfFile?.data ?? attributes.pdfFile;
+      if (!file) return null;
+      const fileData = file?.attributes ?? file ?? {};
+      return {
+        id: file?.id ?? null,
+        name: fileData.name || '',
+        url: resolveMediaUrl(file),
+        mime: fileData.mime || '',
+        ext: fileData.ext || '',
+        size: typeof fileData.size === 'number' ? fileData.size : null,
+      };
+    })();
+
+    const bibFile = (() => {
+      const file = attributes.bibFile?.data ?? attributes.bibFile;
+      if (!file) return null;
+      const fileData = file?.attributes ?? file ?? {};
+      return {
+        id: file?.id ?? null,
+        name: fileData.name || '',
+        url: resolveMediaUrl(file),
+        mime: fileData.mime || '',
+        ext: fileData.ext || '',
+        size: typeof fileData.size === 'number' ? fileData.size : null,
+      };
+    })();
+
+    const attachments = toArray(attributes.attachments?.data ?? attributes.attachments).map((file) => {
+      const fileData = file?.attributes ?? file ?? {};
+      return {
+        id: file?.id ?? null,
+        name: fileData.name || '',
+        url: resolveMediaUrl(file),
+        mime: fileData.mime || '',
+        ext: fileData.ext || '',
+        size: typeof fileData.size === 'number' ? fileData.size : null,
+      };
+    });
+
     const domainEntry = attributes.domain?.data ?? attributes.domain;
     const domainData = domainEntry?.attributes ?? domainEntry ?? {};
     const domain = domainData.name || (typeof attributes.domain === 'string' ? attributes.domain : '');
@@ -955,10 +1010,11 @@ export function transformPublicationData(strapiPubs) {
       kind: attributes.kind || '',
       description: stripHtml(attributes.description) || '',
       authors,
-      docUrl: attributes.doc_url || attributes.docUrl || '',
-      externalUrl: attributes.external_url || attributes.externalUrl || '',
+      pdfFile,
+      bibFile,
       themes,
       datasets,
+      attachments,
       projects,
       _strapi: pub,
     };

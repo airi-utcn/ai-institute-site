@@ -60,7 +60,7 @@ const normalizePublication = (p, bySlugMap) => {
     kind: p.kind || "",
     description: p.description || "",
     authors: authorsToNames(p.authors, bySlugMap),
-    docUrl: p.docUrl || p.url || p.link || p.doi || "",
+    pdfFile: p.pdfFile || null,
     projects: Array.isArray(p.projects) ? p.projects : [],
   };
 };
@@ -343,15 +343,15 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                                 View details
                               </Link>
                             ) : null}
-                            {p.docUrl && (
+                            {p.pdfFile?.url && (
                               <a
-                                href={p.docUrl}
+                                href={p.pdfFile.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition text-sm"
-                                aria-label="Open publication documentation in a new tab"
+                                aria-label="Open PDF in a new tab"
                               >
-                                View documentation
+                                Open PDF
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   className="h-4 w-4"

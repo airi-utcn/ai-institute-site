@@ -29,11 +29,23 @@
     "description": {
       "type": "richtext"
     },
-    "doc_url": {
-      "type": "text"
+    "pdfFile": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"]
     },
-    "external_url": {
-      "type": "text"
+    "bibFile": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"]
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["files", "images", "videos", "audios"]
     },
     "metadata": {
       "type": "json"

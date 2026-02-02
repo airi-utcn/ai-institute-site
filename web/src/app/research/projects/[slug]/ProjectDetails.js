@@ -305,14 +305,14 @@ export default function ProjectDetailsClient({ project }) {
                       View details
                     </Link>
                   ) : null}
-                  {pub.docUrl ? (
+                  {pub.pdfFile?.url ? (
                     <a
-                      href={pub.docUrl}
+                      href={pub.pdfFile.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-sm underline"
                     >
-                      View documentation
+                      View PDF
                     </a>
                   ) : null}
                 </div>

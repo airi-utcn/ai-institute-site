@@ -108,12 +108,13 @@ export default function Client({ projects: rawProjects = [] }) {
   const stats = useMemo(() => {
     const domains = new Set();
     const partners = new Set();
-    projects.forEach((p) => {
+    const industryProjects = projects.filter((p) => p.isIndustryEngagement);
+    industryProjects.forEach((p) => {
       p.domains.forEach((d) => d && domains.add(d));
       p.partners.forEach((x) => x && partners.add(x));
     });
     return {
-      projectCount: projects.length,
+      projectCount: industryProjects.length,
       domainCount: domains.size,
       partnerCount: partners.size,
     };

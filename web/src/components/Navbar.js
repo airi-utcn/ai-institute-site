@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
 import Logo5 from '../../public/media/Logos/Logo5.svg';
 import Logo5White from '../../public/media/Logos/Logo3.png';
 import { useTheme } from "@/components/ThemeProvider";
@@ -14,7 +15,6 @@ const navLinks = [
   { href: '/people/', label: 'People' },
   { href: '/news', label: 'News & Events' },
   { href: '/about', label: 'About' },
-  { href: '/search', label: 'Search' },
 ];
 
 const engagementMenu = [
@@ -64,12 +64,6 @@ const aboutMenu = [
   { href: '/contact', label: 'Contact' },
 ];
 
-const searchMenu = [
-  { href: '/search', label: 'Classic search' },
-  { href: '/search/chatbot', label: 'AIRi chatbot (LLM-based)' },
-  { href: '/search/knowledge-graph', label: 'Knowledge graphs navigator' },
-];
-
 function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
   return (
     <li
@@ -114,20 +108,24 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark } = useTheme();
+  const router = useRouter();
 
   const [isPeopleOpen, setIsPeopleOpen] = useState(false);
   const [engOpen, setEngOpen] = useState(false);
   const [researchOpen, setResearchOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
 
   const [engMobileOpen, setEngMobileOpen] = useState(false);
   const [peopleMobileOpen, setPeopleMobileOpen] = useState(false);
   const [researchMobileOpen, setResearchMobileOpen] = useState(false);
   const [newsMobileOpen, setNewsMobileOpen] = useState(false);
   const [aboutMobileOpen, setAboutMobileOpen] = useState(false);
-  const [searchMobileOpen, setSearchMobileOpen] = useState(false);
+
+  // Search state
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef(null);
 
   const desktopDropdowns = {
     'People':        { open: isPeopleOpen, setOpen: setIsPeopleOpen, items: peopleMenu },
@@ -135,7 +133,30 @@ export default function Navbar() {
     'Research':      { open: researchOpen, setOpen: setResearchOpen, items: researchMenu },
     'News & Events': { open: newsOpen,     setOpen: setNewsOpen,     items: newsMenu },
     'About':         { open: aboutOpen,    setOpen: setAboutOpen,    items: aboutMenu },
-    'Search':        { open: searchOpen,   setOpen: setSearchOpen,   items: searchMenu },
+  };
+
+  // Focus input when search expands
+  useEffect(() => {
+    if (searchExpanded && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchExpanded]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchExpanded(false);
+      setSearchQuery("");
+      setIsOpen(false);
+    }
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setSearchExpanded(false);
+      setSearchQuery("");
+    }
   };
 
   const Arrow = ({ open }) => (
@@ -232,7 +253,7 @@ export default function Navbar() {
                   open={dd.open}
                   setOpen={dd.setOpen}
                   items={dd.items}
-                  alignRight={link.label === 'Search' || link.label === 'About'}
+                  alignRight={link.label === 'About'}
                 />
               );
             }
@@ -244,11 +265,88 @@ export default function Navbar() {
               </li>
             );
           })}
+
+          {/* Search bar / icon */}
+          <li className="relative flex items-center ml-2">
+            <div className={`flex items-center transition-all duration-300 ${searchExpanded ? 'w-64' : 'w-auto'}`}>
+              {searchExpanded ? (
+                <form onSubmit={handleSearchSubmit} className="flex items-center w-full">
+                  <div className="relative flex-1">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearchKeyDown}
+                      placeholder="Search..."
+                      className="w-full pl-3 pr-8 py-1.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => { setSearchExpanded(false); setSearchQuery(""); }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                      aria-label="Close search"
+                    >
+                      <FaTimes className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSearchExpanded(true)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  aria-label="Open search"
+                >
+                  <FaSearch className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          </li>
         </ul>
       </div>
 
       {isOpen && (
         <ul className="md:hidden flex flex-col border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-2">
+          {/* Mobile search bar */}
+          <li className="px-4 py-2 mb-2">
+            <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search the site..."
+                  className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                Search
+              </button>
+            </form>
+            <div className="flex gap-2 mt-2 text-xs">
+              <Link
+                href="/search/chatbot"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={() => setIsOpen(false)}
+              >
+                AIRi chatbot
+              </Link>
+              <span className="text-gray-400">|</span>
+              <Link
+                href="/search/knowledge-graph"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={() => setIsOpen(false)}
+              >
+                Knowledge graphs
+              </Link>
+            </div>
+          </li>
+
           <MobileAccordion
             title="Research"
             open={researchMobileOpen}
@@ -278,12 +376,6 @@ export default function Navbar() {
             open={aboutMobileOpen}
             setOpen={setAboutMobileOpen}
             items={aboutMenu}
-          />
-          <MobileAccordion
-            title="Search"
-            open={searchMobileOpen}
-            setOpen={setSearchMobileOpen}
-            items={searchMenu}
           />
         </ul>
       )}

@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { toPublicationSlug } from "@/lib/slug";
+import { slugify, toPublicationSlug } from "@/lib/slug";
 
 export default function StaffDetailClient({ person, publications, projects, slug }) {
   const [view, setView] = useState("publications");
@@ -23,16 +23,6 @@ export default function StaffDetailClient({ person, publications, projects, slug
     (typeof project?.lead === "string"
       ? project.lead
       : project?.lead?.name || "");
-
-  const slugify = (s) =>
-    String(s || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
 
   // Publications processing
   const { yearOptions, kindOptions, domainOptions } = useMemo(() => {

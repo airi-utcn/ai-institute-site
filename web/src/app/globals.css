@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff !important;
+  --background: #ffffff;
   --foreground: #171717;
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --accent: #facc15;
+  --accent-dark: #eab308;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,27 +18,223 @@
   }
 }
 
+/* ============================================
+   DESIGN SYSTEM - REUSABLE COMPONENT CLASSES
+   ============================================ */
+
 @layer components {
+  /* --- Typography --- */
+  .heading-1 {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white;
+  }
+  
+  .heading-2 {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white;
+  }
+  
+  .heading-3 {
+    @apply text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white;
+  }
+  
+  .heading-accent {
+    @apply text-primary-600 dark:text-accent-400;
+  }
+  
+  .text-body {
+    @apply text-base text-gray-700 dark:text-gray-300 leading-relaxed;
+  }
+  
+  .text-muted {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+  
+  .text-subtle {
+    @apply text-sm text-gray-500 dark:text-gray-500;
+  }
+
+  /* Legacy classes for backward compatibility */
   .title-hero { @apply text-gray-900 dark:text-gray-50; }
   .muted { @apply text-gray-600 dark:text-gray-300; }
 
+  /* --- Page Layouts --- */
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12;
+  }
+  
+  .page-section {
+    @apply py-12 sm:py-16;
+  }
+  
+  .content-wrapper {
+    @apply bg-white dark:bg-gray-950 rounded-2xl shadow-soft border border-gray-100 dark:border-gray-800;
+  }
+  
+  .content-padding {
+    @apply p-6 sm:p-8 lg:p-10;
+  }
+
+  /* --- Cards --- */
   .card {
     @apply rounded-2xl border bg-white text-gray-900 border-gray-200 dark:bg-gray-900 dark:text-gray-100 dark:border-gray-800;
   }
 
   .card-hover {
-    @apply transition hover:shadow-lg hover:bg-gray-50 dark:hover:bg-gray-800/70;
+    @apply transition-all duration-200 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-700 hover:-translate-y-0.5;
+  }
+  
+  .card-interactive {
+    @apply card card-hover cursor-pointer;
+  }
+  
+  .card-featured {
+    @apply card bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600;
+  }
+  
+  .btn-accent {
+    @apply btn bg-accent-400 text-gray-900 hover:bg-accent-300 focus:ring-accent-500 dark:bg-accent-500 dark:hover:bg-accent-400;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-500 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700;
+  }
+  
+  .btn-outline {
+    @apply btn border-2 border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800;
+  }
+  
+  .btn-sm {
+    @apply px-4 py-2 text-sm rounded-lg;
+  }
+  
+  .btn-lg {
+    @apply px-8 py-4 text-base rounded-2xl;
+  }
+
+  /* --- Form Elements --- */
+  .input {
+    @apply w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors;
+  }
+  
+  .select {
+    @apply input appearance-none cursor-pointer;
+  }
+  
+  .label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+  }
+
+  /* --- Badges & Tags --- */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300;
+  }
+  
+  .badge-accent {
+    @apply badge bg-accent-100 text-accent-800 dark:bg-accent-900/40 dark:text-accent-300;
+  }
+  
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300;
+  }
+
+  /* --- Links --- */
+  .link {
+    @apply text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 underline-offset-2 hover:underline transition-colors;
+  }
+  
+  .link-accent {
+    @apply text-primary-600 dark:text-accent-400 hover:text-primary-700 dark:hover:text-accent-300 transition-colors;
+  }
+
+  /* --- Page Headers --- */
+  .page-header {
+    @apply text-center mb-10 sm:mb-12;
+  }
+  
+  .page-header-title {
+    @apply heading-1 heading-accent mb-4;
+  }
+  
+  .page-header-subtitle {
+    @apply text-body max-w-3xl mx-auto;
+  }
+
+  /* --- Hero Sections --- */
+  .hero-gradient {
+    @apply bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
+  }
+
+  /* --- Filter/Sidebar --- */
+  .filter-sidebar {
+    @apply border border-gray-200 dark:border-gray-800 rounded-xl p-4 space-y-3 bg-white dark:bg-gray-900;
+  }
+
+  /* --- Grid Layouts --- */
+  .grid-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .grid-cards-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+  }
+
+  /* --- Empty States --- */
+  .empty-state {
+    @apply text-center py-12 text-gray-500 dark:text-gray-400;
+  }
+
+  /* --- Dividers --- */
+  .divider {
+    @apply border-t border-gray-200 dark:border-gray-800;
+  }
+
+  /* --- Alerts/Notices --- */
+  .notice {
+    @apply rounded-xl border p-6 text-center;
+  }
+  
+  .notice-warning {
+    @apply notice border-accent-200 bg-accent-50 text-accent-800 dark:border-accent-700/50 dark:bg-accent-900/20 dark:text-accent-200;
+  }
+  
+  .notice-info {
+    @apply notice border-primary-200 bg-primary-50 text-primary-800 dark:border-primary-700/50 dark:bg-primary-900/20 dark:text-primary-200;
   }
 }
 
 @layer base {
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
     color: var(--foreground);
-    background: var(--background);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Better focus styles */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-500;
   }
 }
+
+/* ============================================
+   TIMELINE STYLES (existing)
+   ============================================ */
 
 .vertical-timeline::before {
   background: var(--icia-line, #3b82f6) !important;

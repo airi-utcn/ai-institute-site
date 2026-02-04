@@ -129,32 +129,29 @@ export default function PublicationsClient({ publications: pubData, staff: staff
   };
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400 text-center"
-          >
-            Publications
-          </motion.h1>
+          <motion.div variants={itemVariants} className="page-header">
+            <h1 className="page-header-title">Publications</h1>
+          </motion.div>
 
           {/* GRID: sidebar (filters) + list */}
-          <div className="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start">
             {/* Sidebar filters */}
-            <aside className="md:-ml-6">
-              <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 space-y-3">
+            <aside>
+              <div className="filter-sidebar">
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search title, author, type…"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="input"
                 />
 
                 <select
                   value={yearFilter}
                   onChange={(e) => setYearFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All years</option>
                   {yearOptions.map((y) => (
@@ -165,7 +162,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <select
                   value={authorFilter}
                   onChange={(e) => setAuthorFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All authors</option>
                   {authorOptions.map((a) => (
@@ -176,7 +173,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <select
                   value={domainFilter}
                   onChange={(e) => setDomainFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All departments</option>
                   {domainOptions.map((d) => (
@@ -187,7 +184,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <select
                   value={kindFilter}
                   onChange={(e) => setKindFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All types</option>
                   {kindOptions.map((k) => (
@@ -198,7 +195,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="w-full text-sm underline mt-1 opacity-80 hover:opacity-100"
+                  className="btn-secondary btn-sm w-full"
                 >
                   Reset filters
                 </button>
@@ -208,20 +205,20 @@ export default function PublicationsClient({ publications: pubData, staff: staff
             {/* Publications list */}
             <div>
               {filtered.length ? (
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {filtered.map((p, i) => (
                     <motion.li
                       key={`${p.title}-${i}`}
                       variants={itemVariants}
-                      className="rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+                      className="card card-hover p-5"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
+                          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                             {p.slug ? (
                               <Link
                                 href={`/research/publications/${encodeURIComponent(p.slug)}`}
-                                className="hover:underline"
+                                className="link-accent"
                               >
                                 {p.title}
                               </Link>
@@ -230,7 +227,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                             )}
                           </div>
 
-                          <div className="mt-1 text-sm text-gray-800 dark:text-gray-200 space-y-0.5">
+                          <div className="mt-2 text-sm text-muted space-y-1">
                             <div>
                               <span className="font-medium">Authors:</span>{" "}
                               {p.authors?.length ? p.authors.join(", ") : "—"}
@@ -255,12 +252,12 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                                       <Link
                                         key={`${projectSlug}-${idx}`}
                                         href={`/research/projects/${encodeURIComponent(projectSlug)}`}
-                                        className="px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-xs hover:underline"
+                                        className="badge-gray hover:bg-gray-200 dark:hover:bg-gray-700"
                                       >
                                         {label}
                                       </Link>
                                     ) : (
-                                      <span key={`${label}-${idx}`} className="px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700 text-xs">
+                                      <span key={`${label}-${idx}`} className="badge-gray">
                                         {label}
                                       </span>
                                     );
@@ -269,17 +266,17 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                               </div>
                             ) : null}
                             {p.description ? (
-                              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                              <p className="mt-2 text-body">
                                 {p.description}
                               </p>
                             ) : null}
                           </div>
 
-                          <div className="mt-3 flex flex-wrap gap-2">
+                          <div className="mt-4 flex flex-wrap gap-2">
                             {p.slug ? (
                               <Link
                                 href={`/research/publications/${encodeURIComponent(p.slug)}`}
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700/60 dark:text-blue-300 dark:hover:bg-blue-900/30 transition text-sm"
+                                className="btn-primary btn-sm"
                               >
                                 View details
                               </Link>
@@ -289,7 +286,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                                 href={p.pdfFile.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition text-sm"
+                                className="btn-outline btn-sm inline-flex items-center gap-2"
                                 aria-label="Open PDF in a new tab"
                               >
                                 Open PDF
@@ -312,7 +309,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">No publications found.</p>
+                <div className="empty-state">No publications found.</div>
               )}
             </div>
           </div>

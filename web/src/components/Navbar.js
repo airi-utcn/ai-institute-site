@@ -83,22 +83,22 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
         tabIndex={0}
         aria-haspopup="true"
         aria-expanded={open}
-        className="cursor-default"
+        className="px-3 py-2 rounded-lg text-sm font-medium cursor-default hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors inline-block"
       >
         {link.label}
       </span>
 
       <div
-        className={`absolute ${alignRight ? 'right-0' : 'left-0'} top-full z-50 ${open ? 'block' : 'hidden'} max-h-[70vh] overflow-auto min-w-64 max-w-[90vw]`}
+        className={`absolute ${alignRight ? 'right-0' : 'left-0'} top-full z-50 ${open ? 'block' : 'hidden'} max-h-[70vh] overflow-auto min-w-56 pt-1`}
         role="menu"
       >
-        <div className="pt-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-lg">
-          <ul className="py-2">
+        <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-lg overflow-hidden">
+          <ul className="py-1">
             {items.map((item) => (
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   {item.label}
                 </Link>
@@ -154,15 +154,15 @@ export default function Navbar() {
   );
 
   const MobileAccordion = ({ title, open, setOpen, items }) => (
-    <li className="px-4">
+    <li className="px-4 py-1">
       <button
         type="button"
-        className="w-full flex items-center justify-between rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3"
+        className="w-full flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-controls={`${title.toLowerCase().replace(/\s+/g, '-')}-mobile-panel`}
       >
-        <span className="uppercase tracking-wide font-semibold">{title}</span>
+        <span>{title}</span>
         <Arrow open={open} />
       </button>
 
@@ -172,12 +172,12 @@ export default function Navbar() {
           open ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <ul className="rounded-b-md border-x border-b border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+        <ul className="mt-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
           {items.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
-                className="block px-4 py-3 text-[16px] font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 onClick={() => {
                   setIsOpen(false);
                   setOpen(false);
@@ -194,18 +194,18 @@ export default function Navbar() {
 
   return (
     <nav
-      className="bg-white dark:bg-gray-950 text-black dark:text-white p-4 border-b-2 border-gray-300 dark:border-gray-800"
+      className="sticky top-0 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-800"
       role="navigation"
       aria-label="Main navigation"
     >
-      <div className="container mx-auto flex justify-between items-center">
-        <div className="flex items-center space-x-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        <div className="flex items-center">
           <Link href="/" aria-label="Home">
             <Image
               src={isDark && Logo5White ? Logo5White : Logo5}
               alt="AI Institute Logo"
-              width={200}
-              height={200}
+              width={160}
+              height={160}
               priority
               style={{ cursor: 'pointer', filter: !Logo5White && isDark ? 'invert(1) brightness(2)' : undefined }}
             />
@@ -213,36 +213,32 @@ export default function Navbar() {
         </div>
 
         <button
-          className="md:hidden text-2xl"
-
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           onClick={() => setIsOpen(!isOpen)}
-
           aria-label="Toggle menu"
           aria-expanded={isOpen}
         >
-          {isOpen ? <FaTimes /> : <FaBars />}
+          {isOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
         </button>
 
-        <ul className="hidden md:flex space-x-6 relative">
+        <ul className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
             const dd = desktopDropdowns[link.label];
             if (dd) {
               return (
                 <DesktopDropdown
                   key={link.href}
-
                   link={link}
                   open={dd.open}
                   setOpen={dd.setOpen}
                   items={dd.items}
                   alignRight={link.label === 'Search' || link.label === 'About'}
                 />
-
               );
             }
             return (
               <li key={link.href}>
-                <Link href={link.href} className="hover:underline">
+                <Link href={link.href} className="px-3 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                   {link.label}
                 </Link>
               </li>
@@ -252,7 +248,7 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <ul className="md:hidden flex flex-col items-stretch space-y-4 mt-4 bg-white dark:bg-gray-950 py-4 border-t border-gray-300 dark:border-gray-800">
+        <ul className="md:hidden flex flex-col border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-2">
           <MobileAccordion
             title="Research"
             open={researchMobileOpen}

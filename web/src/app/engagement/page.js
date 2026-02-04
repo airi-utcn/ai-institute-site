@@ -2,33 +2,38 @@ export const metadata = { title: "AIRi @ UTCN – Engagement" };
 import Link from "next/link";
 
 const items = [
-  { href: "/engagement/public", title: "Public engagement", desc: "Programe, resurse si media pentru public." },
-  { href: "/engagement/academic", title: "Academic engagement", desc: "Colaborari academice, cursuri, workshop-uri." },
-  { href: "/engagement/industry", title: "Industry engagement", desc: "Proiecte industriale, consultanta, training." },
-  { href: "/engagement/high-school", title: "High-school engagement", desc: "Competitii, evenimente, resurse pentru elevi." },
-  { href: "/engagement/partners", title: "Partners", desc: "CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, BDVA." },
-  { href: "/engagement/industrial-phd", title: "Industrial PhD", desc: "Programe doctorale cu parteneri industriali." },
+  { href: "/engagement/public", title: "Public Engagement", desc: "Programs, resources and media for the public.", icon: "👥" },
+  { href: "/engagement/academic", title: "Academic Engagement", desc: "Academic collaborations, courses, workshops.", icon: "🎓" },
+  { href: "/engagement/industry", title: "Industry Engagement", desc: "Industrial projects, consulting, training.", icon: "🏭" },
+  { href: "/engagement/high-school", title: "High-School Engagement", desc: "Competitions, events, resources for students.", icon: "📚" },
+  { href: "/engagement/partners", title: "Partners", desc: "CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, BDVA.", icon: "🤝" },
+  { href: "/engagement/industrial-phd", title: "Industrial PhD", desc: "Doctoral programs with industry partners.", icon: "🔬" },
 ];
 
 export default function EngagementPage() {
   return (
-    <main className="max-w-7xl mx-auto px-4 py-12">
-      <h1 className="title-hero text-3xl md:text-4xl font-semibold mb-6">Engagement</h1>
-      <p className="muted text-base mb-10 max-w-3xl">
-        Conectam AIRI @ UTCN cu publicul, mediul academic si industria.
-      </p>
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
+        <header className="page-header">
+          <h1 className="page-header-title">Engagement</h1>
+          <p className="page-header-subtitle">
+            Connecting AIRI @ UTCN with the public, academia, and industry.
+          </p>
+        </header>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it) => (
-          <Link
-            key={it.href}
-            href={it.href}
-            className="card card-hover block p-6"
-          >
-            <h2 className="title-hero text-xl font-semibold">{it.title}</h2>
-            <p className="muted mt-2 text-sm">{it.desc}</p>
-          </Link>
-        ))}
+        <div className="grid-cards">
+          {items.map((it) => (
+            <Link
+              key={it.href}
+              href={it.href}
+              className="card card-hover p-6 group"
+            >
+              <div className="text-3xl mb-3">{it.icon}</div>
+              <h2 className="heading-3 heading-accent group-hover:underline">{it.title}</h2>
+              <p className="text-muted mt-2 text-sm">{it.desc}</p>
+            </Link>
+          ))}
+        </div>
       </div>
     </main>
   );

@@ -3,6 +3,20 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useMemo } from "react";
+import PageHeader from "@/components/PageHeader";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function ResearchersClient({ staffData = [] }) {
   const researchers = Array.isArray(staffData) ? staffData : [];
@@ -19,88 +33,54 @@ export default function ResearchersClient({ staffData = [] }) {
   );
 
   return (
-    <main className="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
-      <motion.h1
-        className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
-        Researchers
-      </motion.h1>
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
+        <PageHeader
+          title="Researchers"
+          subtitle="This section lists our researchers involved in research activities."
+        />
 
-      <motion.p
-        className="text-gray-800 dark:text-gray-200 text-center max-w-3xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-      >
-        This section lists our researchers involved in research activities.
-      </motion.p>
-
-      {/* Researchers list */}
-      {researchersSorted.length === 0 ? (
-        <motion.p
-          className="mt-10 text-center text-gray-600 dark:text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-        >
-          No researchers available yet.
-        </motion.p>
-      ) : (
-        <motion.div
-          className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          initial="hidden"
-          animate="show"
-          variants={{
-            hidden: { opacity: 0 },
-            show: {
-              opacity: 1,
-              transition: { staggerChildren: 0.08, delayChildren: 0.15 },
-            },
-          }}
-        >
-          {researchersSorted.map((person) => (
-            <motion.article
-              key={person.slug}
-              className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-white dark:bg-gray-900 hover:shadow-lg transition-shadow"
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                show: { opacity: 1, y: 0 },
-              }}
-            >
-              <Link href={`/people/staff/${encodeURIComponent(person.slug)}`} className="block text-center">
-                <div className="relative w-36 h-36 mx-auto">
-                  {(() => {
-                    const imageSrc = person.image || "/people/Basic_avatar_image.png";
-                    return (
-                      <img
-                        src={imageSrc}
-                        alt={person.name}
-                        width={144}
-                        height={144}
-                        loading="lazy"
-                        className="absolute inset-0 w-full h-full rounded-full object-cover"
-                      />
-                    );
-                  })()}
-                </div>
-                <h2 className="mt-4 text-lg font-semibold">{person.name}</h2>
-                {person.title && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{person.title}</p>
-                )}
-                {person.email && (
-                  <p className="text-sm mt-1">{person.email}</p>
-                )}
-                {person.phone && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Phone: {person.phone}</p>
-                )}
-              </Link>
-            </motion.article>
-          ))}
-        </motion.div>
-      )}
+        {researchersSorted.length === 0 ? (
+          <div className="empty-state">
+            <p>No researchers available yet.</p>
+          </div>
+        ) : (
+          <motion.div
+            className="grid-cards"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+          >
+            {researchersSorted.map((person) => (
+              <motion.article
+                key={person.slug}
+                className="card card-hover p-5"
+                variants={itemVariants}
+              >
+                <Link href={`/people/staff/${encodeURIComponent(person.slug)}`} className="block text-center">
+                  <div className="relative w-32 h-32 mx-auto mb-4">
+                    <img
+                      src={person.image || "/people/Basic_avatar_image.png"}
+                      alt={person.name}
+                      width={128}
+                      height={128}
+                      loading="lazy"
+                      className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
+                    />
+                  </div>
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{person.name}</h2>
+                  {person.title && (
+                    <p className="text-sm text-muted mt-1">{person.title}</p>
+                  )}
+                  {person.email && (
+                    <p className="text-sm text-primary-600 dark:text-primary-400 mt-2">{person.email}</p>
+                  )}
+                </Link>
+              </motion.article>
+            ))}
+          </motion.div>
+        )}
+      </div>
     </main>
   );
 }

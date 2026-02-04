@@ -481,17 +481,17 @@ export default function DepartmentsClient({
   );
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl">
-        <div className="grid grid-cols-1">
-          <section className="p-6 md:p-8">
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
+        <div className="card p-6 md:p-8">
+          <section>
             {!selectedUnit && (
               <>
                 {Object.entries(departmentGroups).map(([type, units]) => (
                   <div key={type} className="mb-10">
                     <motion.h1
                       variants={itemVariants}
-                      className="text-4xl font-extrabold text-center mb-6 text-blue-600 dark:text-yellow-400 tracking-tight"
+                      className="heading-1 heading-accent text-center mb-6"
                     >
                       {typeLabel(type)}
                     </motion.h1>
@@ -502,7 +502,7 @@ export default function DepartmentsClient({
                           <motion.div
                             key={`${type}-${unit.slug || index}`}
                             variants={itemVariants}
-                            className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 md:p-5 border cursor-pointer"
+                            className="card card-hover p-4 md:p-5 cursor-pointer"
                             onClick={() => handleUnitClick(unit)}
                           >
                             <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
@@ -519,7 +519,7 @@ export default function DepartmentsClient({
                   <div className="mb-6">
                     <motion.h1
                       variants={itemVariants}
-                      className="text-4xl font-extrabold text-center mb-6 text-blue-600 dark:text-yellow-400 tracking-tight"
+                      className="heading-1 heading-accent text-center mb-6"
                     >
                       Support departments
                     </motion.h1>
@@ -529,7 +529,7 @@ export default function DepartmentsClient({
                           <motion.div
                             key={`support-${unit.slug || index}`}
                             variants={itemVariants}
-                            className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 md:p-5 border cursor-pointer"
+                            className="card card-hover p-4 md:p-5 cursor-pointer"
                             onClick={() => handleUnitClick(unit)}
                           >
                             <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-3">
@@ -548,7 +548,7 @@ export default function DepartmentsClient({
               <>
                 <h2
                   ref={titleRef}
-                  className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4"
+                  className="heading-2 heading-accent mb-4"
                 >
                   {selectedUnit.name}
                 </h2>
@@ -642,7 +642,7 @@ export default function DepartmentsClient({
               <>
                 <h2
                   ref={titleRef}
-                  className="text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4"
+                  className="heading-2 heading-accent mb-4"
                 >
                   {selectedUnit.name}
                 </h2>
@@ -656,7 +656,7 @@ export default function DepartmentsClient({
                         <>{hpcAIPage}</>
                       ) : (
                         selectedUnit.description && (
-                          <p className="text-gray-700 dark:text-gray-300">{selectedUnit.description}</p>
+                          <p className="text-body">{selectedUnit.description}</p>
                         )
                       )}
                     </motion.div>

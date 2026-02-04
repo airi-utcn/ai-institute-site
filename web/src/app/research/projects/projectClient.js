@@ -149,32 +149,29 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400 text-center"
-          >
-            Projects
-          </motion.h1>
+          <motion.div variants={itemVariants} className="page-header">
+            <h1 className="page-header-title">Projects</h1>
+          </motion.div>
 
           {/* GRID: sidebar (filters) + list */}
-          <div className="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start">
-            {/* Sidebar filtre */}
-            <aside className="md:-ml-6">
-              <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start">
+            {/* Sidebar filters */}
+            <aside>
+              <div className="filter-sidebar">
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search title, lead, department…"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="input"
                 />
 
                 <select
                   value={regionFilter}
                   onChange={(e) => setRegionFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All regions</option>
                   {regionOptions.map((r) => (
@@ -185,7 +182,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <select
                   value={domainFilter}
                   onChange={(e) => setDomainFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All departments</option>
                   {domainOptions.map((d) => (
@@ -196,7 +193,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <select
                   value={leadFilter}
                   onChange={(e) => setLeadFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All leads</option>
                   {leadOptions.map((l) => (
@@ -207,7 +204,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <select
                   value={memberFilter}
                   onChange={(e) => setMemberFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  className="select"
                 >
                   <option value="">All members</option>
                   {memberOptions.map((m) => (
@@ -218,7 +215,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="w-full text-sm underline mt-1 opacity-80 hover:opacity-100"
+                  className="btn-secondary btn-sm w-full"
                 >
                   Reset filters
                 </button>
@@ -228,15 +225,15 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
             {/* Project list */}
             <div>
               {filtered.length ? (
-                <ul className="space-y-4">
+                <ul className="space-y-3">
                   {filtered.map((p, i) => {
                     const projectSlug = p.slug;
                     const content = (
                       <div>
-                        <div className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:underline">
+                        <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
                           {p.title}
                         </div>
-                        <div className="mt-1 text-sm text-gray-800 dark:text-gray-200 space-y-0.5">
+                        <div className="mt-2 text-sm text-muted space-y-1">
                           <div>{p.lead ? `Lead: ${p.lead}` : "Lead: —"}</div>
                           <div className="flex gap-2 flex-wrap">
                             <span>Department:</span>
@@ -246,7 +243,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                                   <Link
                                     key={`${d.slug}-${idx}`}
                                     href={`/research/departments?unit=${encodeURIComponent(d.slug || slugify(d.name))}`}
-                                    className="underline decoration-dotted hover:decoration-solid"
+                                    className="link"
                                   >
                                     {d.name}
                                   </Link>
@@ -265,7 +262,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                       <motion.li
                         key={`${p.title}-${i}`}
                         variants={itemVariants}
-                        className="rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
+                        className="card card-hover p-5"
                       >
                         {projectSlug ? (
                           <Link
@@ -283,7 +280,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                   })}
                 </ul>
               ) : (
-                <p className="text-gray-500">No projects found.</p>
+                <div className="empty-state">No projects found.</div>
               )}
             </div>
           </div>

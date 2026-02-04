@@ -1,40 +1,30 @@
-export const metadata = { title: "AIRi @ UTCN – Engagement" };
-import Link from "next/link";
+export const metadata = { title: "Engagement – AIRi @ UTCN" };
 
-const items = [
-  { href: "/engagement/public", title: "Public Engagement", desc: "Programs, resources and media for the public.", icon: "👥" },
-  { href: "/engagement/academic", title: "Academic Engagement", desc: "Academic collaborations, courses, workshops.", icon: "🎓" },
-  { href: "/engagement/industry", title: "Industry Engagement", desc: "Industrial projects, consulting, training.", icon: "🏭" },
-  { href: "/engagement/high-school", title: "High-School Engagement", desc: "Competitions, events, resources for students.", icon: "📚" },
-  { href: "/engagement/partners", title: "Partners", desc: "CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, BDVA.", icon: "🤝" },
-  { href: "/engagement/industrial-phd", title: "Industrial PhD", desc: "Doctoral programs with industry partners.", icon: "🔬" },
+import { Suspense } from "react";
+import EngagementClient from "./EngagementClient";
+import CollaboratorsClient from "../collaborators/CollaboratorsClient";
+import { getProjects, transformProjectData } from "@/lib/strapi";
+
+const partners = [
+  { name: "CLAIRE", url: "https://claire-ai.org", blurb: "Confederation of Laboratories for AI Research in Europe." },
+  { name: "ELLIS", url: "https://ellis.eu", blurb: "European Laboratory for Learning and Intelligent Systems." },
+  { name: "AIoD", url: "https://www.ai4europe.eu", blurb: "AI on Demand Platform." },
+  { name: "euRobotics", url: "https://www.eu-robotics.net", blurb: "European robotics association." },
+  { name: "ADRA", url: "https://adr-association.eu", blurb: "AI, Data and Robotics Association." },
+  { name: "BDVA", url: "https://bdva.eu", blurb: "Big Data Value Association." },
 ];
 
-export default function EngagementPage() {
-  return (
-    <main className="page-container">
-      <div className="content-wrapper content-padding">
-        <header className="page-header">
-          <h1 className="page-header-title">Engagement</h1>
-          <p className="page-header-subtitle">
-            Connecting AIRI @ UTCN with the public, academia, and industry.
-          </p>
-        </header>
+export default async function EngagementPage() {
+  const strapiProjects = await getProjects();
+  const projects = transformProjectData(strapiProjects);
 
-        <div className="grid-cards">
-          {items.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              className="card card-hover p-6 group"
-            >
-              <div className="text-3xl mb-3">{it.icon}</div>
-              <h2 className="heading-3 heading-accent group-hover:underline">{it.title}</h2>
-              <p className="text-muted mt-2 text-sm">{it.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </main>
+  return (
+    <Suspense fallback={null}>
+      <EngagementClient
+        projects={projects}
+        partners={partners}
+        CollaboratorsClient={CollaboratorsClient}
+      />
+    </Suspense>
   );
 }

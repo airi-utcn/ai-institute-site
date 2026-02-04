@@ -17,21 +17,9 @@ const navLinks = [
   { href: '/about', label: 'About' },
 ];
 
-const engagementMenu = [
-  { href: '/engagement/public', label: 'Public engagement' },
-  { href: '/engagement/academic', label: 'Academic engagement' },
-  { href: '/engagement/industry', label: 'Industry engagement' },
-  { href: '/engagement/high-school', label: 'High-school engagement' },
-  { href: '/engagement/partners', label: 'Partners' },
-  { href: '/engagement/industrial-phd', label: 'Industrial PhD' },
-];
+// Engagement is now a single unified page with tabs, no dropdown needed
 
-const peopleMenu = [
-  { href: '/people/researchers', label: 'Researchers' },
-  { href: '/people/staff', label: 'Staff' },
-  { href: '/people/alumni', label: 'Alumni' },
-  { href: '/people/visiting_researchers', label: 'Visiting researchers' },
-];
+// People is now a single unified page, no dropdown needed
 
 const researchMenu = [
   { href: '/research/departments', label: 'Departments' },
@@ -110,14 +98,10 @@ export default function Navbar() {
   const { isDark } = useTheme();
   const router = useRouter();
 
-  const [isPeopleOpen, setIsPeopleOpen] = useState(false);
-  const [engOpen, setEngOpen] = useState(false);
   const [researchOpen, setResearchOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
 
-  const [engMobileOpen, setEngMobileOpen] = useState(false);
-  const [peopleMobileOpen, setPeopleMobileOpen] = useState(false);
   const [researchMobileOpen, setResearchMobileOpen] = useState(false);
   const [newsMobileOpen, setNewsMobileOpen] = useState(false);
   const [aboutMobileOpen, setAboutMobileOpen] = useState(false);
@@ -128,8 +112,6 @@ export default function Navbar() {
   const searchInputRef = useRef(null);
 
   const desktopDropdowns = {
-    'People':        { open: isPeopleOpen, setOpen: setIsPeopleOpen, items: peopleMenu },
-    'Engagement':    { open: engOpen,      setOpen: setEngOpen,      items: engagementMenu },
     'Research':      { open: researchOpen, setOpen: setResearchOpen, items: researchMenu },
     'News & Events': { open: newsOpen,     setOpen: setNewsOpen,     items: newsMenu },
     'About':         { open: aboutOpen,    setOpen: setAboutOpen,    items: aboutMenu },
@@ -353,18 +335,24 @@ export default function Navbar() {
             setOpen={setResearchMobileOpen}
             items={researchMenu}
           />
-          <MobileAccordion
-            title="Engagement"
-            open={engMobileOpen}
-            setOpen={setEngMobileOpen}
-            items={engagementMenu}
-          />
-          <MobileAccordion
-            title="People"
-            open={peopleMobileOpen}
-            setOpen={setPeopleMobileOpen}
-            items={peopleMenu}
-          />
+          <li className="px-4 py-1">
+            <Link
+              href="/engagement"
+              className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setIsOpen(false)}
+            >
+              Engagement
+            </Link>
+          </li>
+          <li className="px-4 py-1">
+            <Link
+              href="/people"
+              className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setIsOpen(false)}
+            >
+              People
+            </Link>
+          </li>
           <MobileAccordion
             title="News & Events"
             open={newsMobileOpen}

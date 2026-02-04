@@ -179,21 +179,43 @@ export default function DepartmentDetailClient({
               {department.coordinator && (
                 <motion.div variants={itemVariants} className="card p-6">
                   <h2 className="heading-3 heading-accent mb-4">Coordinator</h2>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <FaUsers className="text-2xl text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-white">
-                        {typeof department.coordinator === 'string' 
-                          ? department.coordinator 
-                          : department.coordinator.name || 'Unknown'}
-                      </p>
-                      {department.coordinator.title && (
-                        <p className="text-sm text-muted">{department.coordinator.title}</p>
-                      )}
-                    </div>
-                  </div>
+                  {(() => {
+                    const coordName = typeof department.coordinator === 'string' 
+                      ? department.coordinator 
+                      : department.coordinator.name || department.coordinator.fullName || 'Unknown';
+                    const coordSlug = department.coordinatorSlug || department.coordinator?.slug;
+                    const coordTitle = department.coordinator?.title || department.coordinator?.position;
+                    const coordType = department.coordinator?.type?.toLowerCase();
+                    
+                    // Determine the correct path based on person type
+                    const personPath = coordSlug 
+                      ? (coordType === 'staff' || coordType === 'personal' 
+                          ? `/people/staff/${coordSlug}` 
+                          : `/people/researchers/${coordSlug}`)
+                      : null;
+                    
+                    const content = (
+                      <div className={`flex items-center gap-4 ${personPath ? 'cursor-pointer group' : ''}`}>
+                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                          <FaUsers className="text-2xl text-gray-400" />
+                        </div>
+                        <div>
+                          <p className={`font-semibold text-gray-900 dark:text-white ${personPath ? 'group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors' : ''}`}>
+                            {coordName}
+                          </p>
+                          {coordTitle && (
+                            <p className="text-sm text-muted">{coordTitle}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                    
+                    return personPath ? (
+                      <Link href={personPath}>
+                        {content}
+                      </Link>
+                    ) : content;
+                  })()}
                 </motion.div>
               )}
 

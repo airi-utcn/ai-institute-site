@@ -1,7 +1,5 @@
-export const metadata = { title: "High-school engagement – AIRi @ UTCN" };
-
-import HighSchoolClient from "./Client";
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <HighSchoolClient />;
+  redirect('/engagement?tab=high-school');
 }

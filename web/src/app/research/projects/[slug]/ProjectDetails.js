@@ -1,328 +1,526 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Markdown from "markdown-to-jsx";
-import { toPublicationSlug } from "@/lib/slug";
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import {
+  FaArrowLeft,
+  FaUsers,
+  FaInfoCircle,
+  FaExternalLinkAlt,
+  FaFileAlt,
+  FaMapMarkerAlt,
+  FaChartLine,
+  FaHandshake,
+  FaLightbulb,
+  FaDatabase,
+  FaUserTie
+} from 'react-icons/fa';
+import { containerVariants, itemVariants } from '@/lib/animations';
 
-export default function ProjectDetailsClient({ project }) {
-  if (!project) return <div className="p-6">Project not found.</div>;
+// Helper to determine correct path for person type
+function getPersonPath(person) {
+  const type = person?.type?.toLowerCase() || '';
+  if (type === 'staff' || type === 'personal') {
+    return `/people/staff/${person.slug}`;
+  }
+  return `/people/researchers/${person.slug}`;
+}
 
-  const publications = project.publications || [];
-  const partnersText = Array.isArray(project.partners)
-    ? project.partners.filter(Boolean).join(", ")
-    : project.partners || "";
-
-  const bodyBlocks = Array.isArray(project.body) ? project.body : [];
-  const themes = Array.isArray(project.themes) ? project.themes : [];
-  const timeline = Array.isArray(project.timeline) ? project.timeline : [];
-  const hasBody = bodyBlocks.length > 0;
-
-  const explicitTeam = Array.isArray(project.team) ? project.team : [];
-  const memberFallback = Array.isArray(project.members) ? project.members : [];
-  const teamRoster = explicitTeam.length
-    ? explicitTeam
-        .map((entry) => {
-          const person = entry.person;
-          return {
-            name: person?.name || "",
-            slug: person?.slug || "",
-            title: person?.title || "",
-            role: entry.role || "",
-            isLead: !!entry.isLead,
-          };
-        })
-        .filter((entry) => entry.name)
-    : memberFallback
-        .map((member) => ({
-          name: member?.name || "",
-          slug: member?.slug || "",
-          title: member?.title || "",
-          role: "",
-          isLead: false,
-        }))
-        .filter((entry) => entry.name);
-
-  const teamSorted = [...teamRoster].sort((a, b) =>
-    (a?.name || "").localeCompare(b?.name || "", "ro", { sensitivity: "base", numeric: true })
+// Tab Button Component
+function TabButton({ active, onClick, icon: Icon, label, count }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+        active
+          ? 'bg-blue-600 text-white shadow-lg'
+          : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      <span>{label}</span>
+      {count !== undefined && count > 0 && (
+        <span className={`text-xs px-2 py-0.5 rounded-full ${
+          active ? 'bg-white/20' : 'bg-gray-300 dark:bg-gray-600'
+        }`}>
+          {count}
+        </span>
+      )}
+    </button>
   );
+}
 
-  const renderRichText = (content, key) => {
-    if (!content) return null;
-    const hasHtml = typeof content === "string" && /<\/?[a-z][\s\S]*>/i.test(content);
-    const richTextClass =
-      "text-sm leading-relaxed text-gray-700 dark:text-gray-300 [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:space-y-2 [&_ol]:list-decimal [&_ol]:ml-6 [&_ol]:space-y-2 [&_li]:marker:text-gray-500 dark:[&_li]:marker:text-gray-400 [&_hr]:my-6 [&_hr]:border-t-2 [&_hr]:border-gray-200 dark:[&_hr]:border-gray-700 [&_blockquote]:border-l-4 [&_blockquote]:border-gray-200 dark:[&_blockquote]:border-gray-700 [&_blockquote]:pl-4 [&_blockquote]:italic";
-
-    if (hasHtml) {
-      return (
-        <div
-          key={key}
-          className={richTextClass}
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
-      );
-    }
-
-    return (
-      <div key={key} className={richTextClass}>
-        <Markdown
-          options={{
-            overrides: {
-              img: {
-                component: (props) => (
-                  <img
-                    {...props}
-                    className="rounded-xl border border-gray-200 dark:border-gray-800"
-                  />
-                ),
-              },
-              a: {
-                component: (props) => (
-                  <a
-                    {...props}
-                    className="text-blue-600 dark:text-blue-400 hover:underline break-words"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  />
-                ),
-              },
-            },
-          }}
-        >
-          {content}
-        </Markdown>
-      </div>
-    );
-  };
-
-  const renderBlock = (block, index) => {
-    if (!block) return null;
-    switch (block.__component) {
-      case "shared.rich-text":
-        return renderRichText(block.body, `rich-${index}`);
-      case "shared.section":
-        return (
-          <section key={`section-${index}`} className="space-y-3">
-            {block.heading ? (
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {block.heading}
-              </h3>
-            ) : null}
-            {block.subheading ? (
-              <p className="text-sm text-gray-600 dark:text-gray-400">{block.subheading}</p>
-            ) : null}
-            {renderRichText(block.body, `section-body-${index}`)}
-            {block.media ? (
-              <img
-                src={block.media}
-                alt={block.heading || "Project media"}
-                className="w-full rounded-xl border border-gray-200 dark:border-gray-800"
-                loading="lazy"
-              />
-            ) : null}
-          </section>
-        );
-      case "shared.media":
-        return block.file ? (
-          <img
-            key={`media-${index}`}
-            src={block.file}
-            alt="Project media"
-            className="w-full rounded-xl border border-gray-200 dark:border-gray-800"
-            loading="lazy"
-          />
-        ) : null;
-      case "shared.slider":
-        return Array.isArray(block.files) && block.files.length ? (
-          <div key={`slider-${index}`} className="grid gap-3 sm:grid-cols-2">
-            {block.files.map((file, idx) => (
-              <img
-                key={`slider-${index}-${idx}`}
-                src={file}
-                alt="Project media"
-                className="w-full rounded-xl border border-gray-200 dark:border-gray-800"
-                loading="lazy"
-              />
-            ))}
-          </div>
-        ) : null;
-      default:
-        return null;
-    }
-  };
+// Person Card Component
+function PersonCard({ person, role }) {
+  const portraitUrl = person?.image || null;
 
   return (
-    <main className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
-      <h2 className="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-2">{project.title}</h2>
-
-      <div className="space-y-1 text-sm text-gray-700 dark:text-gray-300 mb-6">
-        {project.lead && (
-          <div>
-            <span className="font-medium">Lead:</span> {project.lead}
-          </div>
-        )}
-        {partnersText && (
-          <div>
-            <span className="font-medium">Collaborating organisations:</span> {partnersText}
-          </div>
-        )}
-        {project.region && (
-          <div>
-            <span className="font-medium">Region:</span> {project.region}
-          </div>
-        )}
-        {project.oficialUrl && (
-          <div>
-            <span className="font-medium">Official page:</span>{" "}
-            <a
-              href={project.oficialUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:opacity-80"
-              aria-label="Open official project page"
-            >
-              Click here
-            </a>
-          </div>
-        )}
-      </div>
-
-      <section className="border-t border-gray-200 dark:border-gray-800 pt-4 space-y-4">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Overview</h3>
-
-        {hasBody ? (
-          <div className="space-y-6">{bodyBlocks.map(renderBlock)}</div>
-        ) : project.abstract ? (
-          <p className="text-base leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-line">
-            {project.abstract}
-          </p>
-        ) : (
-          <p className="text-gray-600 dark:text-gray-400">No description available.</p>
-        )}
-
-        {project.docUrl ? (
-          <a
-            href={project.docUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition text-sm"
-            aria-label="Open project presentation"
-          >
-            Presentation
-          </a>
-        ) : null}
-
-        {themes.length ? (
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Themes</h4>
-            <div className="flex flex-wrap gap-2">
-              {themes.map((th, i) => (
-                <span
-                  key={`${th}-${i}`}
-                  className="px-2.5 py-1 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 text-xs"
-                >
-                  {th}
-                </span>
-              ))}
+    <Link href={getPersonPath(person)}>
+      <motion.div
+        variants={itemVariants}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 flex items-center gap-4 group cursor-pointer"
+      >
+        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+          {portraitUrl ? (
+            <Image
+              src={portraitUrl}
+              alt={person.name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <FaUsers className="w-6 h-6" />
             </div>
-          </div>
-        ) : null}
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
+            {person.name}
+          </h4>
+          {role && (
+            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+              {role}
+            </p>
+          )}
+          {person.title && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+              {person.title}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    </Link>
+  );
+}
 
-        {timeline.length ? (
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Timeline</h4>
-            <ul className="space-y-2">
-              {timeline.map((entry, idx) => (
-                <li key={`${entry.label}-${idx}`} className="text-sm text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">{entry.label}</span>
-                  {entry.date ? <span className="ml-2 text-xs opacity-70">{entry.date}</span> : null}
-                  {entry.description ? (
-                    <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {entry.description}
-                    </div>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </section>
+// Partner Card Component
+function PartnerCard({ partner }) {
+  const logoUrl = partner?.logo || null;
 
-      <section className="border-t border-gray-200 dark:border-gray-800 pt-4 mt-6 space-y-4">
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Team & publications</h3>
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center justify-center"
+    >
+      {logoUrl ? (
+        <Image
+          src={logoUrl}
+          alt={partner.name}
+          width={120}
+          height={60}
+          className="object-contain max-h-12"
+        />
+      ) : (
+        <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
+          {partner.name}
+        </span>
+      )}
+    </motion.div>
+  );
+}
 
-        {teamSorted.length ? (
-          <ul className="space-y-2">
-            {teamSorted.map((member) => (
-              <li key={member.slug || member.name} className="text-sm">
-                {member.slug ? (
-                  <Link
-                    href={`/people/staff/${encodeURIComponent(member.slug)}`}
-                    className="underline hover:opacity-80"
-                  >
-                    {member.name}
-                  </Link>
-                ) : (
-                  <span>{member.name}</span>
-                )}
-                {member.title ? <span className="ml-1 text-gray-600 dark:text-gray-400">— {member.title}</span> : null}
-                {member.role ? <span className="ml-2 text-xs opacity-70">({member.role})</span> : null}
-                {member.isLead ? <span className="ml-2 text-xs font-semibold text-blue-600">Lead</span> : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600 dark:text-gray-400">No team members linked.</p>
+// Info Card Component
+function InfoCard({ icon: Icon, label, value, href }) {
+  const content = (
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center gap-3">
+      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+        <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+      </div>
+      <div>
+        <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+          {label}
+        </p>
+        <p className="font-semibold text-gray-900 dark:text-white">
+          {value || 'N/A'}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} className="hover:scale-105 transition-transform">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
+}
+
+// Dataset Card Component
+function DatasetCard({ dataset }) {
+  return (
+    <motion.a
+      href={dataset.source_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      variants={itemVariants}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 hover:shadow-lg transition-all duration-300 group"
+    >
+      <div className="flex items-start gap-3">
+        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg flex-shrink-0">
+          <FaDatabase className="w-5 h-5 text-green-600 dark:text-green-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+            {dataset.title}
+          </h4>
+          {dataset.platform && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Platform: {dataset.platform}
+            </p>
+          )}
+        </div>
+        <FaExternalLinkAlt className="w-4 h-4 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors flex-shrink-0" />
+      </div>
+    </motion.a>
+  );
+}
+
+export default function ProjectDetails({ project }) {
+  const [activeTab, setActiveTab] = useState('overview');
+
+  if (!project) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">Project not found</p>
+      </div>
+    );
+  }
+
+  const heroImageUrl = project.heroImage || null;
+  const leadPerson = project.leadDetails || null;
+  const leadSlug = leadPerson?.slug || project.leadSlug || '';
+  const leadName = leadPerson?.name || project.leadName || project.lead || '';
+  const themes = (project.themesData && project.themesData.length > 0)
+    ? project.themesData
+    : (project.themes || []).map((name) => ({ name, slug: '' }));
+  const partners = (project.partnersData && project.partnersData.length > 0)
+    ? project.partnersData
+    : (project.partners || []).map((name) => ({ name, slug: '' }));
+  
+  // Combine lead and team members
+  const allTeam = [];
+  if (leadPerson) {
+    allTeam.push({ ...leadPerson, role: 'Project Lead' });
+  }
+  if (project.team && project.team.length > 0) {
+    project.team.forEach(member => {
+      if (member.person && member.person.slug !== leadSlug) {
+        allTeam.push({ ...member.person, role: member.role || 'Team Member' });
+      }
+    });
+  }
+  if (project.members && project.members.length > 0) {
+    project.members.forEach(member => {
+      if (member.slug !== leadSlug && !allTeam.find(t => t.slug === member.slug)) {
+        allTeam.push({ ...member, role: 'Team Member' });
+      }
+    });
+  }
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: FaInfoCircle },
+    { id: 'team', label: 'Team', icon: FaUsers, count: allTeam.length },
+  ];
+
+  // Add datasets tab if there are datasets
+  if (project.datasets && project.datasets.length > 0) {
+    tabs.push({ id: 'datasets', label: 'Datasets', icon: FaDatabase, count: project.datasets.length });
+  }
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gray-50 dark:bg-gray-900"
+    >
+      {/* Hero Section */}
+      <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-blue-800">
+        {heroImageUrl && (
+          <Image
+            src={heroImageUrl}
+            alt={project.title}
+            fill
+            className="object-cover opacity-30"
+          />
         )}
-
-        {publications.length ? (
-          <ul className="space-y-3">
-            {publications.map((pub, idx) => (
-              <li
-                key={`${pub.title || "pub"}-${idx}`}
-                className="border border-gray-200 dark:border-gray-800 rounded-lg p-3"
-              >
-                <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {toPublicationSlug(pub) ? (
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+          <div className="max-w-7xl mx-auto">
+            <Link
+              href="/research/projects"
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
+            >
+              <FaArrowLeft className="w-4 h-4" />
+              <span>Back to Projects</span>
+            </Link>
+            <motion.h1
+              variants={itemVariants}
+              className="text-3xl md:text-4xl font-bold text-white mb-2"
+            >
+              {project.title}
+            </motion.h1>
+            {themes && themes.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {themes.map(theme => (
+                  theme.slug ? (
                     <Link
-                      href={`/research/publications/${encodeURIComponent(toPublicationSlug(pub))}`}
-                      className="hover:underline"
+                      key={theme.slug}
+                      href={`/research/themes/${theme.slug}`}
+                      className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white hover:bg-white/30 transition-colors"
                     >
-                      {pub.title}
+                      {theme.name}
                     </Link>
                   ) : (
-                    pub.title
-                  )}
-                </div>
-                {pub.description ? (
-                  <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{pub.description}</p>
-                ) : null}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {toPublicationSlug(pub) ? (
-                    <Link
-                      href={`/research/publications/${encodeURIComponent(toPublicationSlug(pub))}`}
-                      className="inline-flex items-center gap-2 text-sm underline"
+                    <span
+                      key={theme.name}
+                      className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white"
                     >
-                      View details
-                    </Link>
-                  ) : null}
-                  {pub.pdfFile?.url ? (
-                    <a
-                      href={pub.pdfFile.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm underline"
-                    >
-                      View PDF
-                    </a>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600 dark:text-gray-400">No publications linked.</p>
+                      {theme.name}
+                    </span>
+                  )
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Info Cards */}
+        <motion.div
+          variants={containerVariants}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 mb-8 relative z-10"
+        >
+          {leadName && (
+            <InfoCard
+              icon={FaUserTie}
+              label="Lead"
+              value={leadName}
+              href={leadPerson?.slug ? getPersonPath(leadPerson) : undefined}
+            />
+          )}
+          {project.region && (
+            <InfoCard icon={FaMapMarkerAlt} label="Region" value={project.region} />
+          )}
+          {project.phase && (
+            <InfoCard icon={FaChartLine} label="Phase" value={project.phase} />
+          )}
+          {project.partners && project.partners.length > 0 && (
+            <InfoCard
+              icon={FaHandshake}
+              label="Partners"
+              value={`${project.partners.length} partner${project.partners.length > 1 ? 's' : ''}`}
+            />
+          )}
+        </motion.div>
+
+        {/* External Links */}
+        {(project.officialUrl || project.docUrl) && (
+          <motion.div variants={itemVariants} className="flex flex-wrap gap-3 mb-8">
+            {project.officialUrl && (
+              <a
+                href={project.officialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <FaExternalLinkAlt className="w-4 h-4" />
+                <span>Official Website</span>
+              </a>
+            )}
+            {project.docUrl && (
+              <a
+                href={project.docUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <FaFileAlt className="w-4 h-4" />
+                <span>Documentation</span>
+              </a>
+            )}
+          </motion.div>
         )}
-      </section>
-    </main>
+
+        {/* Tabs */}
+        <motion.div variants={itemVariants} className="flex flex-wrap gap-2 mb-8">
+          {tabs.map(tab => (
+            <TabButton
+              key={tab.id}
+              active={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              icon={tab.icon}
+              label={tab.label}
+              count={tab.count}
+            />
+          ))}
+        </motion.div>
+
+        {/* Tab Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === 'overview' && (
+            <div className="space-y-8">
+              {/* Abstract */}
+              {project.abstract && (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                >
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <FaLightbulb className="text-yellow-500" />
+                    Abstract
+                  </h2>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    {project.abstract}
+                  </p>
+                </motion.div>
+              )}
+
+              {/* Body Content */}
+              {project.body && project.body.length > 0 && (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                >
+                  <div className="prose dark:prose-invert max-w-none">
+                    {project.body.map((block, index) => {
+                      if (block.__component === 'shared.rich-text') {
+                        return (
+                          <div
+                            key={index}
+                            dangerouslySetInnerHTML={{ __html: block.body }}
+                          />
+                        );
+                      }
+                      if (block.__component === 'shared.section') {
+                        return (
+                          <div key={index} className="mb-6">
+                            {block.heading && (
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                {block.heading}
+                              </h3>
+                            )}
+                            {block.subheading && (
+                              <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                {block.subheading}
+                              </h4>
+                            )}
+                            {block.body && (
+                              <div dangerouslySetInnerHTML={{ __html: block.body }} />
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Domains / Research Themes */}
+              {project.domains && project.domains.length > 0 && (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                >
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                    Research Domains
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {project.domains.map(domain => (
+                      <Link
+                        key={domain.slug}
+                        href={`/research/themes/${domain.slug}`}
+                        className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                      >
+                        {domain.name}
+                      </Link>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Partners */}
+              {partners && partners.length > 0 && (
+                <motion.div
+                  variants={itemVariants}
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                >
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <FaHandshake className="text-blue-600" />
+                    Partners
+                  </h2>
+                  <motion.div
+                    variants={containerVariants}
+                    className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                  >
+                    {partners.map(partner => (
+                      <PartnerCard key={partner.slug || partner.name} partner={partner} />
+                    ))}
+                  </motion.div>
+                </motion.div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'team' && (
+            <div className="space-y-6">
+              {allTeam.length > 0 ? (
+                <motion.div
+                  variants={containerVariants}
+                  className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                >
+                  {allTeam.map((person, index) => (
+                    <PersonCard key={person.slug || index} person={person} role={person.role} />
+                  ))}
+                </motion.div>
+              ) : (
+                <div className="text-center py-12">
+                  <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No team members listed for this project.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'datasets' && (
+            <div className="space-y-6">
+              {project.datasets && project.datasets.length > 0 ? (
+                <motion.div
+                  variants={containerVariants}
+                  className="grid gap-4 md:grid-cols-2"
+                >
+                  {project.datasets.map((dataset, index) => (
+                    <DatasetCard key={dataset.slug || index} dataset={dataset} />
+                  ))}
+                </motion.div>
+              ) : (
+                <div className="text-center py-12">
+                  <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No datasets available for this project.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }

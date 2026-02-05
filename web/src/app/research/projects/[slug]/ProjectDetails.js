@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Markdown from 'markdown-to-jsx';
 import {
   FaArrowLeft,
   FaUsers,
@@ -19,9 +20,11 @@ import {
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 
-// Helper to determine correct path for person type
+// Helper to get person path
 function getPersonPath(person) {
-  return person?.slug ? `/people/${person.slug}` : '/people';
+  const slug = person?.slug ? encodeURIComponent(person.slug) : '';
+  if (!slug) return '/people';
+  return `/people/${slug}`;
 }
 
 // Tab Button Component
@@ -199,6 +202,44 @@ export default function ProjectDetails({ project }) {
     ? project.partnersData
     : (project.partners || []).map((name) => ({ name, slug: '' }));
   
+  const renderMarkdown = (markdown, key) => {
+    if (!markdown) return null;
+    const content = typeof markdown === 'string' ? markdown : String(markdown);
+    return (
+      <div
+        key={key}
+        className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 [&_a]:text-blue-600 dark:[&_a]:text-blue-400 hover:[&_a]:underline"
+      >
+        <Markdown
+          options={{
+            overrides: {
+              img: {
+                component: (props) => (
+                  <img {...props} className="rounded-xl shadow-md my-4 max-w-full h-auto" />
+                ),
+              },
+              a: {
+                component: (props) => (
+                  <a {...props} className="text-blue-600 dark:text-blue-400 hover:underline break-words" target="_blank" rel="noopener noreferrer" />
+                ),
+              },
+            },
+          }}
+        >
+          {content}
+        </Markdown>
+      </div>
+    );
+  };
+
+  const isSameMember = (a, b) => {
+    if (!a || !b) return false;
+    if (a.slug && b.slug) return a.slug === b.slug;
+    if (a.id && b.id) return a.id === b.id;
+    if (a.name && b.name) return a.name === b.name;
+    return false;
+  };
+
   // Combine lead and team members
   const allTeam = [];
   if (leadPerson) {
@@ -206,14 +247,15 @@ export default function ProjectDetails({ project }) {
   }
   if (project.team && project.team.length > 0) {
     project.team.forEach(member => {
-      if (member.person && member.person.slug !== leadSlug) {
-        allTeam.push({ ...member.person, role: member.role || 'Team Member' });
-      }
+      if (!member.person) return;
+      if (leadSlug && member.person.slug === leadSlug) return;
+      allTeam.push({ ...member.person, role: member.role || 'Team Member' });
     });
   }
   if (project.members && project.members.length > 0) {
     project.members.forEach(member => {
-      if (member.slug !== leadSlug && !allTeam.find(t => t.slug === member.slug)) {
+      if (leadSlug && member.slug === leadSlug) return;
+      if (!allTeam.find(t => isSameMember(t, member))) {
         allTeam.push({ ...member, role: 'Team Member' });
       }
     });
@@ -368,7 +410,12 @@ export default function ProjectDetails({ project }) {
           transition={{ duration: 0.3 }}
         >
           {activeTab === 'overview' && (
-            <div className="space-y-8">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={containerVariants}
+              className="space-y-8"
+            >
               {/* Abstract */}
               {project.abstract && (
                 <motion.div
@@ -391,38 +438,29 @@ export default function ProjectDetails({ project }) {
                   variants={itemVariants}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
                 >
-                  <div className="prose dark:prose-invert max-w-none">
-                    {project.body.map((block, index) => {
-                      if (block.__component === 'shared.rich-text') {
-                        return (
-                          <div
-                            key={index}
-                            dangerouslySetInnerHTML={{ __html: block.body }}
-                          />
-                        );
-                      }
-                      if (block.__component === 'shared.section') {
-                        return (
-                          <div key={index} className="mb-6">
-                            {block.heading && (
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                                {block.heading}
-                              </h3>
-                            )}
-                            {block.subheading && (
-                              <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                {block.subheading}
-                              </h4>
-                            )}
-                            {block.body && (
-                              <div dangerouslySetInnerHTML={{ __html: block.body }} />
-                            )}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
+                  {project.body.map((block, index) => {
+                    if (block.__component === 'shared.rich-text') {
+                      return renderMarkdown(block.body, `rich-${index}`);
+                    }
+                    if (block.__component === 'shared.section') {
+                      return (
+                        <div key={`section-${index}`} className="mb-6 last:mb-0">
+                          {block.heading && (
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                              {block.heading}
+                            </h3>
+                          )}
+                          {block.subheading && (
+                            <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              {block.subheading}
+                            </h4>
+                          )}
+                          {renderMarkdown(block.body, `section-${index}`)}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </motion.div>
               )}
 
@@ -460,6 +498,8 @@ export default function ProjectDetails({ project }) {
                     Partners
                   </h2>
                   <motion.div
+                    initial="hidden"
+                    animate="visible"
                     variants={containerVariants}
                     className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
                   >
@@ -469,13 +509,15 @@ export default function ProjectDetails({ project }) {
                   </motion.div>
                 </motion.div>
               )}
-            </div>
+            </motion.div>
           )}
 
           {activeTab === 'team' && (
             <div className="space-y-6">
               {allTeam.length > 0 ? (
                 <motion.div
+                  initial="hidden"
+                  animate="visible"
                   variants={containerVariants}
                   className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
                 >
@@ -498,6 +540,8 @@ export default function ProjectDetails({ project }) {
             <div className="space-y-6">
               {project.datasets && project.datasets.length > 0 ? (
                 <motion.div
+                  initial="hidden"
+                  animate="visible"
                   variants={containerVariants}
                   className="grid gap-4 md:grid-cols-2"
                 >

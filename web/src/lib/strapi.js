@@ -1112,6 +1112,7 @@ export function transformProjectData(strapiProjects) {
                 slug: personAttr.slug || '',
                 name: personAttr.fullName || personAttr.name || '',
                 title: personAttr.position || personAttr.title || '',
+                type: personAttr.type || '',
                 email: personAttr.email || '',
                 phone: personAttr.phone || '',
                 image: resolveMediaUrl(personAttr.portrait),
@@ -1174,6 +1175,7 @@ export function transformProjectData(strapiProjects) {
         name: memberAttr.fullName || memberAttr.name || '',
         // Map position (schema) to title (frontend)
         title: memberAttr.position || memberAttr.title || '',
+        type: memberAttr.type || '',
         email: memberAttr.email || '',
         phone: memberAttr.phone || '',
         image,
@@ -1211,6 +1213,7 @@ export function transformProjectData(strapiProjects) {
           name: leadAttr.fullName || leadAttr.name || '',
           // Map position (schema) to title (frontend)
           title: leadAttr.position || leadAttr.title || '',
+          type: leadAttr.type || '',
           email: leadAttr.email || '',
           phone: leadAttr.phone || '',
           image: resolveMediaUrl(leadAttr.portrait),

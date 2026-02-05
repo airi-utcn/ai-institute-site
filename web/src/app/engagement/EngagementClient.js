@@ -206,7 +206,7 @@ function AcademicContent({ subTab, setSubTab }) {
               A network of international academic collaborations, joint research programs, and institutional partnerships advancing AI research and education.
             </p>
           </SectionCard>
-          <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
+          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaGraduationCap}
               title="University Collaborations"
@@ -228,7 +228,7 @@ function AcademicContent({ subTab, setSubTab }) {
               Courses, summer schools, and workshops for students and researchers at all levels.
             </p>
           </SectionCard>
-          <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
+          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaChalkboardTeacher}
               title="Summer Schools"
@@ -282,7 +282,7 @@ function AcademicContent({ subTab, setSubTab }) {
               International exchange programs, joint PhD supervision, and research visit opportunities.
             </p>
           </SectionCard>
-          <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-3">
+          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
             <FeatureCard
               icon={FaUserGraduate}
               title="Co-supervision"
@@ -362,7 +362,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
       {subTab === 'overview' && (
         <div className="space-y-6">
           {/* Stats */}
-          <motion.div variants={containerVariants} className="grid grid-cols-3 gap-4">
+          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid grid-cols-3 gap-4">
             <motion.div variants={itemVariants} className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.projectCount}</div>
               <div className="text-sm text-gray-600 dark:text-gray-400">Projects</div>
@@ -422,7 +422,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
 
           {/* Projects Grid */}
           {filteredProjects.length > 0 ? (
-            <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
+            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
               {filteredProjects.map(project => (
                 <motion.div
                   key={project.slug || project.title}
@@ -507,7 +507,7 @@ function HighSchoolContent() {
         </p>
       </SectionCard>
 
-      <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-3">
+      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaGraduationCap}
           title="Competitions"
@@ -593,7 +593,7 @@ function IndustrialPhDContent() {
         </div>
       </SectionCard>
 
-      <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-3">
+      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaIndustry}
           title="For Companies"

@@ -428,6 +428,8 @@ export default function StaffDetailClient({ person, publications, projects, slug
           <div>
             {filteredPubs.length > 0 ? (
               <motion.div
+                initial="hidden"
+                animate="visible"
                 variants={containerVariants}
                 className="grid gap-4 md:grid-cols-2"
               >
@@ -450,6 +452,8 @@ export default function StaffDetailClient({ person, publications, projects, slug
           <div>
             {filteredProjects.length > 0 ? (
               <motion.div
+                initial="hidden"
+                animate="visible"
                 variants={containerVariants}
                 className="grid gap-4 md:grid-cols-2"
               >

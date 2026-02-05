@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Markdown from 'markdown-to-jsx';
 import {
@@ -63,11 +62,10 @@ function PersonCard({ person, role }) {
       >
         <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
           {portraitUrl ? (
-            <Image
+            <img
               src={portraitUrl}
               alt={person.name}
-              fill
-              className="object-cover"
+              className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -105,12 +103,10 @@ function PartnerCard({ partner }) {
       className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center justify-center"
     >
       {logoUrl ? (
-        <Image
+        <img
           src={logoUrl}
           alt={partner.name}
-          width={120}
-          height={60}
-          className="object-contain max-h-12"
+          className="object-contain max-h-12 max-w-[120px]"
         />
       ) : (
         <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
@@ -281,11 +277,10 @@ export default function ProjectDetails({ project }) {
       {/* Hero Section */}
       <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-blue-800">
         {heroImageUrl && (
-          <Image
+          <img
             src={heroImageUrl}
             alt={project.title}
-            fill
-            className="object-cover opacity-30"
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

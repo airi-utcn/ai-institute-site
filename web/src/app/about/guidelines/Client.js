@@ -5,7 +5,7 @@ import { FaBookOpen, FaChalkboardTeacher, FaFlask, FaIdBadge } from "react-icons
 
 const ITEMS = [
   { label: "Students",    href: "/engagement/academic",  icon: FaBookOpen },
-  { label: "Faculty",     href: "/people/alumni",       icon: FaChalkboardTeacher },
+  { label: "Faculty",     href: "/people",              icon: FaChalkboardTeacher },
   { label: "Researchers", href: "/research/departments", icon: FaFlask },
   { label: "Staff",       href: "/people",             icon: FaIdBadge },
 ];

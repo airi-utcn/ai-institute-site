@@ -236,7 +236,7 @@ export default function PeopleClient({
                 <PersonCard 
                   key={person.slug} 
                   person={person} 
-                  basePath="/people/staff"
+                  basePath="/people"
                 />
               ))}
             </motion.div>

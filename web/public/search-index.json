@@ -27,10 +27,10 @@
   { "title": "Engagement – Partners", "route": "/engagement/partners", "tags": ["engagement","partners"], "snippet": "Parteneri și colaboratori." },
   { "title": "Engagement – Industrial PhD", "route": "/engagement/industrial-phd", "tags": ["engagement","industrial phd","doctoral"], "snippet": "Doctorat industrial." },
 
-  { "title": "People – Researchers", "route": "/people/researchers", "tags": ["people","researchers"], "snippet": "Cercetători." },
-  { "title": "People – Staff", "route": "/people/staff", "tags": ["people","staff"], "snippet": "Personalul AIRi." },
-  { "title": "People – Alumni", "route": "/people/alumni", "tags": ["people","alumni"], "snippet": "Foști membri și alumni." },
-  { "title": "People – Visiting researchers", "route": "/people/visiting", "tags": ["people","visiting","researchers"], "snippet": "Cercetători vizitatori." },
+  { "title": "People – Researchers", "route": "/people", "tags": ["people","researchers"], "snippet": "Cercetători." },
+  { "title": "People – Staff", "route": "/people", "tags": ["people","staff"], "snippet": "Personalul AIRi." },
+  { "title": "People – Alumni", "route": "/people", "tags": ["people","alumni"], "snippet": "Foști membri și alumni." },
+  { "title": "People – Visiting researchers", "route": "/people", "tags": ["people","visiting","researchers"], "snippet": "Cercetători vizitatori." },
   { "title": "People – Solid Server", "route": "/people/solid-server", "tags": ["people","solid","server"], "snippet": "Solid Server." },
 
   { "title": "News & Events – News", "route": "/news", "tags": ["news","media"], "snippet": "Știri." },

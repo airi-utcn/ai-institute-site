@@ -1,0 +1,14 @@
+export const metadata = {
+  title: "AIRI - Resources",
+  description: "Explore tools, datasets, APIs, and learning resources curated by the Artificial Intelligence Research Institute",
+};
+
+import ResourcesClient from "./resourcesClient";
+import { getResources, transformResourceData } from "@/lib/strapi";
+
+export default async function ResourcesPage() {
+  const strapiResources = await getResources();
+  const resources = transformResourceData(strapiResources);
+
+  return <ResourcesClient resources={resources} />;
+}

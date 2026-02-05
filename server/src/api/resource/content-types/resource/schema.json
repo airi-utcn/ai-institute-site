@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "resources",
+  "info": {
+    "singularName": "resource",
+    "pluralName": "resources",
+    "displayName": "Resource",
+    "description": "External tools, datasets, software, and links curated by the institute"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "database",
+        "github",
+        "tool",
+        "code",
+        "document",
+        "book",
+        "api",
+        "cloud",
+        "ai",
+        "link"
+      ],
+      "default": "link",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "dataset",
+        "tool",
+        "software",
+        "documentation",
+        "api",
+        "library",
+        "framework",
+        "learning",
+        "other"
+      ],
+      "default": "other"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    },
+    "department": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::department.department"
+    },
+    "maintainers": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::person.person"
+    }
+  }
+}

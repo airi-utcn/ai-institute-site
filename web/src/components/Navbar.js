@@ -27,8 +27,7 @@ const researchMenu = [
   { href: '/research/projects', label: 'Projects' },
   { href: '/research/publications', label: 'Publications' },
   { href: '/research/thesis', label: 'Thesis' },
-  { href: '/research/tools', label: 'Tools' },
-  { href: '/research/datasets', label: 'Datasets' },
+  { href: '/resources', label: 'Resources' },
 ];
 
 const newsMenu = [

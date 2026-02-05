@@ -647,61 +647,6 @@ async function importDatasets(state) {
     }
   }
 
-  console.log(`\n⏳ Importing datasets (${total} records detected)`);
-
-  for (const owner of owners) {
-    const ownerDoc = lookupPerson(state, owner?.name);
-    const ownerId = getDocId(ownerDoc);
-
-    if (!Array.isArray(owner?.elements) || !owner?.elements.length) continue;
-
-    for (const dataset of owner.elements) {
-      const title = String(dataset?.title || '').trim();
-      if (!title) continue;
-
-      const slug = toSlug(title);
-      if (state.datasets[slug]) continue;
-
-      const existing = await findDocument('api::dataset.dataset', {
-        slug: { $eqi: slug },
-      });
-
-      if (existing) {
-        state.datasets[slug] = existing;
-        await publishDocument('api::dataset.dataset', getDocId(existing));
-        continue;
-      }
-
-      const url = dataset?.url || dataset?.description;
-      const payload = {
-        title,
-        slug,
-        summary: dataset?.description
-          ? String(dataset.description).trim().slice(0, 240)
-          : '',
-        description: extractString(dataset?.description),
-        tags: dataset?.tags || null,
-        source_url: url || '',
-        platform: dataset?.platform || 'dataverse',
-        publishedAt: nowISO(),
-      };
-
-      if (ownerId) {
-        payload.authors = { connect: [ownerId] };
-      }
-
-      const created = await strapi.documents('api::dataset.dataset').create({
-        data: payload,
-      });
-      await publishDocument('api::dataset.dataset', getDocId(created));
-
-      console.log(`  ✅ created dataset: ${title}`);
-
-      state.datasets[slug] = created;
-    }
-  }
-}
-
 async function importEvents(state) {
   try {
     const events = await readJson('news&events', 'eventsData.json');
@@ -823,7 +768,6 @@ async function runMigration() {
   await attachDepartmentLeads(state);
   await importPublications(state);
   await importProjects(state);
-  await importDatasets(state);
   await importEvents(state);
   await importSeminars(state);
 

@@ -38,6 +38,7 @@ export default {
       'api::partner.partner',
       'api::support-unit.support-unit',
       'api::news-article.news-article',
+      'api::resource.resource',
     ];
 
     let addedCount = 0;

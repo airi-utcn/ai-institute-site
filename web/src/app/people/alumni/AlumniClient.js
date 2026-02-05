@@ -69,7 +69,7 @@ export default function AlumniClient({ staffData = [] }) {
                 show: { opacity: 1, y: 0 },
               }}
             >
-              <Link href={`/people/staff/${encodeURIComponent(person.slug)}`} className="block text-center">
+              <Link href={`/people/${encodeURIComponent(person.slug)}`} className="block text-center">
                 <div className="relative w-36 h-36 mx-auto">
                   {(() => {
                     const imageSrc = person.image || "/people/Basic_avatar_image.png";

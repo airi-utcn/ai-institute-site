@@ -161,7 +161,7 @@ export default function ProjectDetailClient({
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <Link 
-            href={`/people/staff/${staffSlug}`}
+            href={`/people/${staffSlug}`}
             className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1"
           >
             ← Back to {staffSlug === leadSlug ? "Profile" : "Staff Profile"}
@@ -390,7 +390,7 @@ export default function ProjectDetailClient({
                 {leadMember && (
                   <div className="mb-4">
                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Lead</span>
-                     <Link href={leadMember.slug ? `/people/staff/${leadMember.slug}` : "#"} className={`flex items-center gap-3 group ${!leadMember.slug ? "pointer-events-none" : ""}`}>
+                     <Link href={leadMember.slug ? `/people/${leadMember.slug}` : "#"} className={`flex items-center gap-3 group ${!leadMember.slug ? "pointer-events-none" : ""}`}>
                         <img 
                           src={leadMember.image || FALLBACK_AVATAR} 
                           alt={leadMember.name}
@@ -413,7 +413,7 @@ export default function ProjectDetailClient({
                     <ul className="space-y-3">
                       {otherMembers.map((member) => (
                         <li key={member.slug || member.name}>
-                          <Link href={member.slug ? `/people/staff/${member.slug}` : "#"} className={`flex items-center gap-3 group ${!member.slug ? "pointer-events-none" : ""}`}>
+                          <Link href={member.slug ? `/people/${member.slug}` : "#"} className={`flex items-center gap-3 group ${!member.slug ? "pointer-events-none" : ""}`}>
                             <img 
                               src={member.image || FALLBACK_AVATAR} 
                               alt={member.name}

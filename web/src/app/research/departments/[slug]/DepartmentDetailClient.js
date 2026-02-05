@@ -185,14 +185,7 @@ export default function DepartmentDetailClient({
                       : department.coordinator.name || department.coordinator.fullName || 'Unknown';
                     const coordSlug = department.coordinatorSlug || department.coordinator?.slug;
                     const coordTitle = department.coordinator?.title || department.coordinator?.position;
-                    const coordType = department.coordinator?.type?.toLowerCase();
-                    
-                    // Determine the correct path based on person type
-                    const personPath = coordSlug 
-                      ? (coordType === 'staff' || coordType === 'personal' 
-                          ? `/people/staff/${coordSlug}` 
-                          : `/people/researchers/${coordSlug}`)
-                      : null;
+                    const personPath = coordSlug ? `/people/${coordSlug}` : null;
                     
                     const content = (
                       <div className={`flex items-center gap-4 ${personPath ? 'cursor-pointer group' : ''}`}>
@@ -258,7 +251,7 @@ export default function DepartmentDetailClient({
                       variants={itemVariants}
                       className="card card-hover p-4"
                     >
-                      <Link href={`/people/staff/${person.slug}`} className="block text-center">
+                      <Link href={`/people/${person.slug}`} className="block text-center">
                         <div className="w-20 h-20 mx-auto mb-3">
                           <img
                             src={person.image || "/people/Basic_avatar_image.png"}

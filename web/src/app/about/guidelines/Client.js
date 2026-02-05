@@ -7,7 +7,7 @@ const ITEMS = [
   { label: "Students",    href: "/engagement/academic",  icon: FaBookOpen },
   { label: "Faculty",     href: "/people/alumni",       icon: FaChalkboardTeacher },
   { label: "Researchers", href: "/research/departments", icon: FaFlask },
-  { label: "Staff",       href: "/people/staff",         icon: FaIdBadge },
+  { label: "Staff",       href: "/people",             icon: FaIdBadge },
 ];
 
 function Tile({ label, href, icon: Icon }) {

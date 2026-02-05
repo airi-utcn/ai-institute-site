@@ -7,11 +7,10 @@ import {
 } from "@/lib/strapi";
 import StaffDetailClient from "./StaffDetailClient";
 
-export default async function StaffDetailPage({ params }) {
-  // In Next.js 15+, params is a Promise
+export default async function PersonDetailPage({ params }) {
   const resolvedParams = await params;
   const slug = Array.isArray(resolvedParams?.slug) ? resolvedParams.slug[0] : resolvedParams?.slug;
-  
+
   if (!slug) {
     notFound();
   }
@@ -28,9 +27,8 @@ export default async function StaffDetailPage({ params }) {
     notFound();
   }
 
-  // Handle both Strapi 4 (with attributes) and Strapi 5 (flat) formats
   const personData = strapiPerson.attributes ?? strapiPerson;
-  
+
   const publicationsRaw = transformPublicationData(
     personData.publications?.data ?? personData.publications ?? []
   );
@@ -105,7 +103,6 @@ export default async function StaffDetailPage({ params }) {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-5xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -158,7 +155,6 @@ export default async function StaffDetailPage({ params }) {
         </div>
       </div>
 
-      {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
         <StaffDetailClient person={person} publications={publications} projects={projects} slug={slug} />
       </div>

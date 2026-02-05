@@ -21,11 +21,7 @@ import { containerVariants, itemVariants } from '@/lib/animations';
 
 // Helper to determine correct path for person type
 function getPersonPath(person) {
-  const type = person?.type?.toLowerCase() || '';
-  if (type === 'staff' || type === 'personal') {
-    return `/people/staff/${person.slug}`;
-  }
-  return `/people/researchers/${person.slug}`;
+  return person?.slug ? `/people/${person.slug}` : '/people';
 }
 
 // Tab Button Component

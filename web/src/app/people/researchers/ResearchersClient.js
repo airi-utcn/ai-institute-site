@@ -57,7 +57,7 @@ export default function ResearchersClient({ staffData = [] }) {
                 className="card card-hover p-5"
                 variants={itemVariants}
               >
-                <Link href={`/people/staff/${encodeURIComponent(person.slug)}`} className="block text-center">
+                <Link href={`/people/${encodeURIComponent(person.slug)}`} className="block text-center">
                   <div className="relative w-32 h-32 mx-auto mb-4">
                     <img
                       src={person.image || "/people/Basic_avatar_image.png"}

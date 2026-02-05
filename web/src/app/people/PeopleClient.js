@@ -25,7 +25,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-function PersonCard({ person, basePath = "/people/staff" }) {
+function PersonCard({ person, basePath = "/people" }) {
   return (
     <motion.article
       className="card card-hover p-5"

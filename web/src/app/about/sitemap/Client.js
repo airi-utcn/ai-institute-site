@@ -40,8 +40,8 @@ const SECTIONS = [
   {
     title: "People",
     links: [
-      { label: "Researchers", href: "/people/researchers" },
-      { label: "Staff", href: "/people/staff" },
+      { label: "Researchers", href: "/people" },
+      { label: "Staff", href: "/people" },
       { label: "Alumni", href: "/people/alumni" },
       { label: "Visiting researchers", href: "/people/visiting_researchers" },
     ],

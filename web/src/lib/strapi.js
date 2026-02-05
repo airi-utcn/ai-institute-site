@@ -32,7 +32,7 @@ const DEFAULT_REVALIDATE_SECONDS = 60; // 1 minute
 export const PERSON_TYPE_FILTERS = {
   staff: ['staff', 'personal'],
   researchers: ['researcher', 'research'],
-  visiting: ['visiting', 'visitor', 'visiting researcher', 'external', 'collaborator'],
+  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher', 'external', 'collaborator'],
   alumni: ['alumni', 'alumnus'], 
 };
 

@@ -10,8 +10,10 @@ import StaffDetailClient from "./StaffDetailClient";
 export default async function StaffDetailPage({ params }) {
   // In Next.js 15+, params is a Promise
   const resolvedParams = await params;
-  const slug = Array.isArray(resolvedParams?.slug) ? resolvedParams.slug[0] : resolvedParams?.slug;
-  
+  const slug = Array.isArray(resolvedParams?.slug)
+    ? resolvedParams.slug[0]
+    : resolvedParams?.slug;
+
   if (!slug) {
     notFound();
   }
@@ -30,17 +32,17 @@ export default async function StaffDetailPage({ params }) {
 
   // Handle both Strapi 4 (with attributes) and Strapi 5 (flat) formats
   const personData = strapiPerson.attributes ?? strapiPerson;
-  
+
   const publicationsRaw = transformPublicationData(
-    personData.publications?.data ?? personData.publications ?? []
+    personData.publications?.data ?? personData.publications ?? [],
   );
 
   const leadingProjectsRaw = transformProjectData(
-    personData.leading_projects?.data ?? personData.leading_projects ?? []
+    personData.leading_projects?.data ?? personData.leading_projects ?? [],
   );
 
   const memberProjectsRaw = transformProjectData(
-    personData.projects?.data ?? personData.projects ?? []
+    personData.projects?.data ?? personData.projects ?? [],
   );
 
   const normalizePublication = (pub) => ({
@@ -100,7 +102,8 @@ export default async function StaffDetailPage({ params }) {
 
   const person = {
     ...personEntry,
-    department: personEntry.department || personEntry.departmentInfo?.name || "",
+    department:
+      personEntry.department || personEntry.departmentInfo?.name || "",
   };
 
   return (
@@ -122,13 +125,93 @@ export default async function StaffDetailPage({ params }) {
             );
           })()}
         </div>
-        <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-2">{person.name}</h1>
-        {person.title && <p className="text-lg">{person.title}</p>}
-        {person.email && <p>{person.email}</p>}
-        {person.phone && <p>{person.phone}</p>}
+        <h1 className="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-2">
+          {person.name}
+        </h1>
+        {person.title && <p className="text-lg font-medium">{person.title}</p>}
+
+        {person.extraTitles && (
+          <div className="text-gray-600 dark:text-gray-400 mb-2">
+            {Array.isArray(person.extraTitles)
+              ? person.extraTitles.join(", ")
+              : typeof person.extraTitles === "object"
+                ? JSON.stringify(person.extraTitles) // Fallback if object
+                : String(person.extraTitles)}
+          </div>
+        )}
+
+        <div className="flex flex-col items-center gap-1 mt-2 text-gray-700 dark:text-gray-300">
+          {person.email && (
+            <a
+              href={`mailto:${person.email}`}
+              className="hover:text-blue-600 dark:hover:text-blue-400"
+            >
+              {person.email}
+            </a>
+          )}
+          {person.phone && <p>{person.phone}</p>}
+          {person.location && (
+            <p className="flex items-center gap-1">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {person.location}
+            </p>
+          )}
+        </div>
+
+        {person.socialLinks && person.socialLinks.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-4 mt-4">
+            {person.socialLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm"
+              >
+                <span>{link.label}</span>
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
-      <StaffDetailClient person={person} publications={publications} projects={projects} slug={slug} />
+      <StaffDetailClient
+        person={person}
+        publications={publications}
+        projects={projects}
+        slug={slug}
+      />
     </main>
   );
 }

@@ -1,7 +1,5 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import MediaClient from '../../media/MediaClient';
-
-export default function PublicEngagementPage() {
-  return <MediaClient />;
+export default function Page() {
+  redirect('/engagement?tab=public');
 }

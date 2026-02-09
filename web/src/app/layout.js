@@ -34,7 +34,7 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="antialiased min-h-screen flex flex-col transition-colors duration-300 bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+      <body className="antialiased min-h-screen flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
         <Script id="theme-init" strategy="beforeInteractive">
           {`
             try {
@@ -49,7 +49,7 @@ export default function RootLayout({ children }) {
 
         <ThemeProvider>
           <Navbar />
-          <main className="flex-grow bg-gray-50 dark:bg-gray-900">
+          <main className="flex-grow">
             {children}
           </main>
           <DarkModeBubble />

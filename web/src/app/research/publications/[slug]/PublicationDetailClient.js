@@ -127,7 +127,7 @@ export default function PublicationDetailClient({ publication }) {
                     return author?.slug ? (
                       <Link
                         key={`${author.slug}-${idx}`}
-                        href={`/people/staff/${encodeURIComponent(author.slug)}`}
+                        href={`/people/${encodeURIComponent(author.slug)}`}
                         className="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 text-sm hover:underline"
                       >
                         {label}

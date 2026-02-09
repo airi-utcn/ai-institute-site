@@ -51,12 +51,12 @@ export default function NewsClient({ newsItems = [] }) {
   const gridItems = heroKey ? filtered.filter((it) => (it.id ?? it.slug ?? it.title) !== heroKey) : filtered;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 text-gray-900 dark:text-gray-50">
+    <div className="page-container">
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-slate-900 via-blue-700 to-indigo-700 text-white rounded-3xl p-8 shadow-xl mb-10 overflow-hidden"
+        className="hero-gradient text-white rounded-2xl p-8 shadow-lg mb-10 overflow-hidden"
       >
         <div className="flex flex-col lg:flex-row gap-8 items-center">
           <div className="flex-1 space-y-3">
@@ -207,14 +207,14 @@ export default function NewsClient({ newsItems = [] }) {
           )}
 
           {gridItems.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid-cards">
               {gridItems.map((item) => (
                 <motion.article
                   key={item.id ?? item.slug ?? item.title}
                   variants={motionCard}
                   initial="hidden"
                   animate="visible"
-                  className="flex flex-col border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow"
+                  className="card card-hover overflow-hidden flex flex-col"
                 >
                   <div className="relative">
                     {item.image ? (
@@ -223,7 +223,7 @@ export default function NewsClient({ newsItems = [] }) {
                       <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">No image</div>
                     )}
                     <div className="absolute top-3 left-3">
-                      <span className="px-3 py-1 rounded-full bg-white/90 text-gray-800 text-xs font-semibold border border-gray-200">
+                      <span className="badge bg-white/95 text-gray-800 border border-gray-200">
                         {getCategoryLabel(item.category)}
                       </span>
                     </div>
@@ -235,7 +235,7 @@ export default function NewsClient({ newsItems = [] }) {
                     {item.summary && <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">{item.summary}</p>}
                     <div className="flex flex-wrap gap-2 pt-1">
                       {Array.isArray(item.tags) && item.tags.slice(0, 3).map((tag) => (
-                        <span key={tag} className="px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-xs text-gray-700 dark:text-gray-200">
+                        <span key={tag} className="badge-gray">
                           {tag}
                         </span>
                       ))}
@@ -247,7 +247,7 @@ export default function NewsClient({ newsItems = [] }) {
                       href={item.linkUrl || "#"}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
+                      className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
                     >
                       Read more
                       <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">

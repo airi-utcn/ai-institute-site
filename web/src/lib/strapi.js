@@ -32,7 +32,7 @@ const DEFAULT_REVALIDATE_SECONDS = 60; // 1 minute
 export const PERSON_TYPE_FILTERS = {
   staff: ['staff', 'personal'],
   researchers: ['researcher', 'research'],
-  visiting: ['visiting', 'visitor', 'visiting researcher', 'external', 'collaborator'],
+  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher', 'external', 'collaborator'],
   alumni: ['alumni', 'alumnus'], 
 };
 
@@ -600,12 +600,22 @@ export async function getPublicationBySlug(slug) {
 
 /**
  * Get all news articles from Strapi
+ * @param {Object} options - Options for the query
+ * @param {number} options.pageSize - Maximum number of articles to fetch
  * @returns {Promise<Array>} Array of news articles
  */
-export async function getNewsArticles() {
+export async function getNewsArticles(options = {}) {
+  const { pageSize } = options;
+  
   try {
     const params = new URLSearchParams();
     params.set('sort', 'publishedDate:desc');
+    
+    // Apply page size if specified
+    if (pageSize) {
+      params.set('pagination[pageSize]', String(pageSize));
+    }
+    
     // Minimal populate to avoid invalid media keys on Strapi and keep payload light
     params.append('fields[0]', 'title');
     params.append('fields[1]', 'slug');
@@ -1102,6 +1112,7 @@ export function transformProjectData(strapiProjects) {
                 slug: personAttr.slug || '',
                 name: personAttr.fullName || personAttr.name || '',
                 title: personAttr.position || personAttr.title || '',
+                type: personAttr.type || '',
                 email: personAttr.email || '',
                 phone: personAttr.phone || '',
                 image: resolveMediaUrl(personAttr.portrait),
@@ -1164,6 +1175,7 @@ export function transformProjectData(strapiProjects) {
         name: memberAttr.fullName || memberAttr.name || '',
         // Map position (schema) to title (frontend)
         title: memberAttr.position || memberAttr.title || '',
+        type: memberAttr.type || '',
         email: memberAttr.email || '',
         phone: memberAttr.phone || '',
         image,
@@ -1201,6 +1213,7 @@ export function transformProjectData(strapiProjects) {
           name: leadAttr.fullName || leadAttr.name || '',
           // Map position (schema) to title (frontend)
           title: leadAttr.position || leadAttr.title || '',
+          type: leadAttr.type || '',
           email: leadAttr.email || '',
           phone: leadAttr.phone || '',
           image: resolveMediaUrl(leadAttr.portrait),
@@ -1468,3 +1481,82 @@ export function transformSeminarData(strapiSeminars) {
     };
   });
 }
+
+/* --- Resource Fetcher --- */
+
+const RESOURCE_FIELDS = ['title', 'slug', 'description', 'url', 'icon', 'category', 'tags', 'featured'];
+
+const RESOURCE_POPULATE = {
+  department: {
+    fields: ['name', 'slug'],
+  },
+  maintainers: {
+    fields: ['fullName', 'slug'],
+  },
+};
+
+export async function getResources(options = {}) {
+  try {
+    const { category, featured } = options;
+    
+    const filters = {};
+    if (category) {
+      filters.category = { $eq: category };
+    }
+    if (featured !== undefined) {
+      filters.featured = { $eq: featured };
+    }
+    
+    return await fetchAllEntries('/resources', {
+      fields: RESOURCE_FIELDS,
+      populate: RESOURCE_POPULATE,
+      filters: Object.keys(filters).length ? filters : null,
+      sort: 'title:asc',
+    });
+  } catch (error) {
+    console.error('Failed to fetch resources:', error);
+    return [];
+  }
+}
+
+export function transformResourceData(strapiResources) {
+  const list = Array.isArray(strapiResources) ? strapiResources : strapiResources ? [strapiResources] : [];
+  
+  return list.map((res) => {
+    const attributes = res?.attributes ?? res ?? {};
+    
+    const maintainers = toArray(attributes.maintainers?.data ?? attributes.maintainers).map((m) => {
+      const mAttr = m?.attributes ?? m ?? {};
+      return {
+        name: mAttr.fullName || mAttr.name || '',
+        slug: mAttr.slug || '',
+      };
+    });
+    
+    const department = (() => {
+      const dept = attributes.department?.data ?? attributes.department;
+      if (!dept) return null;
+      const deptAttr = dept?.attributes ?? dept ?? {};
+      return {
+        name: deptAttr.name || '',
+        slug: deptAttr.slug || '',
+      };
+    })();
+    
+    return {
+      id: res?.id ?? null,
+      title: attributes.title || '',
+      slug: attributes.slug || '',
+      description: attributes.description || '',
+      url: attributes.url || '',
+      icon: attributes.icon || 'link',
+      category: attributes.category || 'other',
+      tags: attributes.tags || [],
+      featured: attributes.featured || false,
+      maintainers,
+      department,
+      _strapi: res,
+    };
+  });
+}
+

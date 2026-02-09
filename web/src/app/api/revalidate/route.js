@@ -2,10 +2,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 const MODEL_PATH_MAP = {
   "api::person.person": [
-    "/people/staff",
-    "/people/researchers",
-    "/people/visiting_researchers",
-    "/people/alumni",
+    "/people",
     "/research/departments",
   ],
   // To add here more, to be updated on webook receive. 

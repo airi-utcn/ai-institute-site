@@ -862,6 +862,40 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiPaperPaper extends Struct.CollectionTypeSchema {
+  collectionName: 'papers';
+  info: {
+    displayName: 'Paper';
+    pluralName: 'papers';
+    singularName: 'paper';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    abstract: Schema.Attribute.Text;
+    attachment: Schema.Attribute.Media<'files'>;
+    authors: Schema.Attribute.JSON;
+    cited_by: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    doi: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::paper.paper'> &
+      Schema.Attribute.Private;
+    openAlexId: Schema.Attribute.String & Schema.Attribute.Unique;
+    pdf_url: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    topics: Schema.Attribute.JSON;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    year: Schema.Attribute.Integer;
+  };
+}
+
 export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
   collectionName: 'people';
   info: {
@@ -1753,6 +1787,7 @@ declare module '@strapi/strapi' {
       'api::event.event': ApiEventEvent;
       'api::global.global': ApiGlobalGlobal;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
+      'api::paper.paper': ApiPaperPaper;
       'api::partner.partner': ApiPartnerPartner;
       'api::person.person': ApiPersonPerson;
       'api::project.project': ApiProjectProject;

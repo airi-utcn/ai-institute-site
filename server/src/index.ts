@@ -33,6 +33,7 @@ export default {
       'api::department.department',
       'api::project.project',
       'api::publication.publication',
+      'api::paper.paper',
       'api::dataset.dataset',
       'api::research-theme.research-theme',
       'api::partner.partner',

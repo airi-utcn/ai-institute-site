@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "papers",
+  "info": {
+    "singularName": "paper",
+    "pluralName": "papers",
+    "displayName": "Paper"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "openAlexId": {
+      "type": "string",
+      "unique": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "doi": {
+      "type": "string"
+    },
+    "year": {
+      "type": "integer"
+    },
+    "cited_by": {
+      "type": "integer",
+      "default": 0
+    },
+    "abstract": {
+      "type": "text"
+    },
+    "topics": {
+      "type": "json"
+    },
+    "authors": {
+      "type": "json"
+    },
+    "pdf_url": {
+      "type": "string"
+    },
+    "attachment": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"]
+    }
+  }
+}

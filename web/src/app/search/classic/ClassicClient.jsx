@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -99,9 +100,20 @@ function getBasePath() {
 }
 
 export default function ClassicClient() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("q") || "";
+
   const [idx, setIdx] = useState([]);
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState(initialQuery);
   const [ready, setReady] = useState(false);
+
+  // Update query when URL params change
+  useEffect(() => {
+    const urlQuery = searchParams.get("q") || "";
+    if (urlQuery && urlQuery !== q) {
+      setQ(urlQuery);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const base = getBasePath();

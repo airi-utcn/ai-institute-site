@@ -61,7 +61,7 @@
 			},
 			{
 				"title": "Inteligenta artificiala in procesarea vorbirii",
-				"name": "Mircea-Girgiu"
+				"name": "Mircea-Giurgiu"
 			},
 			{
 				"title": "Inteligenta artificiala in sisteme robotice",
@@ -144,7 +144,145 @@
 			"Association of Romanian Digital Innovation Hubs (RoDIH)."
 		],
 		"docUrl": "",
-		"oficialUrl": ""			
+		"oficialUrl": "" 		
+	},
+	{
+		"title": "SENTHICOM - Sense Think Communicate",
+		"lead": "Purcar Ioan Marius",
+		"abstract": "UTCN drives a 140 GHz system-on-chip for next-generation multi-domain digital radar systems, covering design, prototyping, pilot manufacturing, and embedded software. The effort relies on AI/ML surrogate modeling for complex integrated circuits and parasitics across digital, analog, mixed-signal, and power management domains, alongside thermo-mechanical analysis, electromagnetic compatibility, and extensive testing (wafer probe, wire-bonding, wafer test, signal and power integrity).",
+		"themes": [
+			"140 GHz radar SoC for multi-domain sensing",
+			"AI/ML surrogate modeling for integrated circuits",
+			"Thermo-mechanical, EMC, and power integrity qualification"
+		],
+		"teams": [
+			{
+				"title": "",
+				"name": "Marius-Purcar"
+			}
+		],
+		"region": "national",
+		"domain": [
+			"Microelectronics"
+		],
+		"publication": "",
+		"partners": [
+			"NXP Semiconductors Romania",
+			"National University of Science and Technology Politehnica Bucharest",
+			"Politehnica University Timisoara",
+			"Technical University Gheorghe Asachi Iași",
+			"Transilvania University Brașov",
+			"Craiova University",
+			"Wyliodrin SRL"
+		],
+		"docUrl": "",
+		"oficialUrl": ""
+	},
+	{
+		"title": "EURODRIVES",
+		"lead": "Neag Marius",
+		"abstract": "UTCN advances next-generation automotive electronics and intelligent systems with low-power embedded platforms, computer vision for environment understanding (panoptic video segmentation and depth estimation), emerging microelectronics technologies, multi-physics analysis of automotive electronics, integrated circuit design for driver assistance, and hardware-software co-design validated through novel test platforms and procedures.",
+		"themes": [
+			"Low-power embedded automotive systems",
+			"Panoptic segmentation and depth estimation for perception",
+			"Multi-physics modeling of automotive electronics",
+			"Hardware-software co-design and testing for driver assistance"
+		],
+		"teams": [
+			{
+				"title": "",
+				"name": "Marius-Neag"
+			}
+		],
+		"region": "national",
+		"domain": [
+			"Intelligent and Autonomous Systems",
+			"Microelectronics"
+		],
+		"publication": "",
+		"partners": [
+			"BOSCH Engineering Centre Cluj",
+			"National University of Science and Technology Politehnica Bucharest"
+		],
+		"docUrl": "",
+		"oficialUrl": ""
+	},
+	{
+		"title": "ASSET-IxC - Automotive Systems Smart Energy-efficient Transducers - Innovation across value Chain",
+		"lead": "Pop Aurel Ovidiu",
+		"abstract": "The project delivers energy-efficient intelligent transducers for automotive systems, culminating in a head-up display that projects vehicle status and spatial orientation onto the windshield. UTCN ensures thermal integrity, high-speed performance, and the software foundation of smart transducers and advanced display systems to make them robust, accurate, and ready for integration.",
+		"themes": [
+			"Energy-efficient intelligent transducers for automotive",
+			"Head-up display integration for driver awareness",
+			"Thermal integrity and high-speed performance for smart transducers"
+		],
+		"teams": [
+			{
+				"title": "",
+				"name": "PopAurel-Ovidiu"
+			}
+		],
+		"region": "national",
+		"domain": [
+			"Intelligent and Autonomous Systems",
+			"Microelectronics"
+		],
+		"publication": "",
+		"partners": [
+			"AUMOVIO (ex Continental)",
+			"National Institute for Research and Development in Microtechnologies",
+			"National University of Science and Technology Politehnica Bucharest",
+			"Politehnica University Timisoara",
+			"Transilvania University Brașov",
+			"Babeș Bolyai University Reșița",
+			"1 Decembrie 1918 Alba Iulia University",
+			"Technical University Gheorghe Asachi Iași",
+			"Suceava University",
+			"SC MGM Star Construct SRL",
+			"FotoNation SRL"
+		],
+		"docUrl": "",
+		"oficialUrl": ""
+	},
+	{
+		"title": "Ro-HydroHub - Romanian Hub for Hydrogen and New Energy Technologies",
+		"lead": "Daniel Fodorean",
+		"abstract": "Ro-HydroHub brings together research and industrial partners to advance hydrogen and new energy technologies. UTCN focuses on fuel cell systems for electric vehicles and hybrid storage units, combining multi-physics modeling, energy management, and large-scale testing infrastructure to accelerate technology transfer and workforce upskilling.",
+		"themes": [
+			"Modular multi-physics fuel cell platform for EVs",
+			"Energy management for hybrid storage in transportation",
+			"Hydrogen fuel cell testing and characterization facility",
+			"Hybrid storage units across vehicle and building energy exchange",
+			"Scaling fuel-cell know-how and technology transfer"
+		],
+		"teams": [
+			{
+				"title": "",
+				"name": "Daniel-Fodorean"
+			}
+		],
+		"region": "national",
+		"domain": [
+			"Energy Systems",
+			"Intelligent and Autonomous Systems"
+		],
+		"publication": "",
+		"partners": [
+			"ICSI Râmnicu-Vâlcea",
+			"Technical University of Cluj-Napoca",
+			"National University for Science and Technology Politehnica Bucharest",
+			"ENERGY & ECO CONCEPT",
+			"ARROW",
+			"HEADLIGHT SOLUTIONS",
+			"AUDIT IT&C",
+			"ELSA INDUSTRY",
+			"PETAL",
+			"CADRAN TECHNOLOGIES",
+			"BEIA CONSULT INTERNATIONAL",
+			"WING COMPUTER GROUP"
+		],
+		"docUrl": "",
+		"oficialUrl": ""
 	}
 
 ]

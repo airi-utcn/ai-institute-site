@@ -1,37 +1,30 @@
-export const metadata = { title: "AIRi @ UTCN – Engagement" };
-import Link from "next/link";
+export const metadata = { title: "Engagement – AIRi @ UTCN" };
 
-const items = [
-  { href: "/engagement/public", title: "Public engagement", desc: "Programe, resurse si media pentru public." },
-  { href: "/engagement/academic", title: "Academic engagement", desc: "Colaborari academice, cursuri, workshop-uri." },
-  { href: "/engagement/industry", title: "Industry engagement", desc: "Proiecte industriale, consultanta, training." },
-  { href: "/engagement/high-school", title: "High-school engagement", desc: "Competitii, evenimente, resurse pentru elevi." },
-  { href: "/engagement/partners", title: "Partners", desc: "CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, BDVA." },
-  { href: "/engagement/tech-transfer", title: "Technology transfer & development", desc: "TT, prototipare, licentiere." },
-  { href: "/engagement/industrial-phd", title: "Industrial PhD", desc: "Programe doctorale cu parteneri industriali." },
-  { href: "/engagement/hpc-ai", title: "HPC-AI services", desc: "HPC, suport si training pentru AI." },
+import { Suspense } from "react";
+import EngagementClient from "./EngagementClient";
+import CollaboratorsClient from "../collaborators/CollaboratorsClient";
+import { getProjects, transformProjectData } from "@/lib/strapi";
+
+const partners = [
+  { name: "CLAIRE", url: "https://claire-ai.org", blurb: "Confederation of Laboratories for AI Research in Europe." },
+  { name: "ELLIS", url: "https://ellis.eu", blurb: "European Laboratory for Learning and Intelligent Systems." },
+  { name: "AIoD", url: "https://www.ai4europe.eu", blurb: "AI on Demand Platform." },
+  { name: "euRobotics", url: "https://www.eu-robotics.net", blurb: "European robotics association." },
+  { name: "ADRA", url: "https://adr-association.eu", blurb: "AI, Data and Robotics Association." },
+  { name: "BDVA", url: "https://bdva.eu", blurb: "Big Data Value Association." },
 ];
 
-export default function EngagementPage() {
-  return (
-    <main className="max-w-7xl mx-auto px-4 py-12">
-      <h1 className="title-hero text-3xl md:text-4xl font-semibold mb-6">Engagement</h1>
-      <p className="muted text-base mb-10 max-w-3xl">
-        Conectam AIRI @ UTCN cu publicul, mediul academic si industria.
-      </p>
+export default async function EngagementPage() {
+  const strapiProjects = await getProjects();
+  const projects = transformProjectData(strapiProjects);
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((it) => (
-          <Link
-            key={it.href}
-            href={it.href}
-            className="card card-hover block p-6"
-          >
-            <h2 className="title-hero text-xl font-semibold">{it.title}</h2>
-            <p className="muted mt-2 text-sm">{it.desc}</p>
-          </Link>
-        ))}
-      </div>
-    </main>
+  return (
+    <Suspense fallback={null}>
+      <EngagementClient
+        projects={projects}
+        partners={partners}
+        CollaboratorsClient={CollaboratorsClient}
+      />
+    </Suspense>
   );
 }

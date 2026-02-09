@@ -1,12 +1,5 @@
-export const metadata = { title: "Industry engagement – AIRi @ UTCN" };
-
-import { Suspense } from "react";
-import Client from "./Client";
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return (
-    <Suspense fallback={null}>
-      <Client />
-    </Suspense>
-  );
+  redirect('/engagement?tab=industry');
 }

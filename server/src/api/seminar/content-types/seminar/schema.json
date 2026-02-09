@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "seminars",
+  "info": {
+    "singularName": "seminar",
+    "pluralName": "seminars",
+    "displayName": "Seminar"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "provider": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "modules": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.focus-item"
+    },
+    "ctaUrl": {
+      "type": "string"
+    },
+    "ctaLabel": {
+      "type": "string"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "body": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.rich-text",
+        "shared.media"
+      ]
+    },
+    "tags": {
+      "type": "json"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_shared_focus_items",
+  "info": {
+    "displayName": "Focus item",
+    "description": "Small highlight block",
+    "icon": "bullseye"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "richContent": {
+      "type": "richtext"
+    }
+  }
+}

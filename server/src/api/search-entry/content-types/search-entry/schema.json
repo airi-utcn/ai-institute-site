@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "search_entries",
+  "info": {
+    "singularName": "search-entry",
+    "pluralName": "search-entries",
+    "displayName": "Search Entry"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "route": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "snippet": {
+      "type": "text"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "about",
+        "research",
+        "news",
+        "events",
+        "people",
+        "engagement",
+        "other"
+      ],
+      "default": "other"
+    }
+  }
+}

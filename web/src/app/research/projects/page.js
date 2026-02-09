@@ -3,7 +3,11 @@ export const metadata = {
 };
 
 import ProjectsClient from "./projectClient";
+import { getProjects, transformProjectData } from "@/lib/strapi";
 
-export default function ProjectPage() {
-  return <ProjectsClient />;
+export default async function ProjectPage() {
+  const strapiProjects = await getProjects();
+  const projects = transformProjectData(strapiProjects);
+
+  return <ProjectsClient projects={projects} />;
 }

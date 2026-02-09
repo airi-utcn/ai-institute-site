@@ -1,0 +1,130 @@
+{
+  "kind": "collectionType",
+  "collectionName": "projects",
+  "info": {
+    "singularName": "project",
+    "pluralName": "projects",
+    "displayName": "Project"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title"
+    },
+    "abstract": {
+      "type": "text"
+    },
+    "phase": {
+      "type": "enumeration",
+      "enum": [
+        "planned",
+        "ongoing",
+        "completed",
+        "archived"
+      ],
+      "default": "ongoing"
+    },
+    "region": {
+      "type": "enumeration",
+      "enum": [
+        "local",
+        "regional",
+        "national",
+        "international",
+        "other"
+      ],
+      "default": "national"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "isIndustryEngagement": {
+      "type": "boolean",
+      "default": false
+    },
+    "body": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.section",
+        "shared.rich-text",
+        "shared.media",
+        "shared.slider"
+      ]
+    },
+    "themes": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::research-theme.research-theme",
+      "inversedBy": "projects"
+    },
+    "domains": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::department.department",
+      "inversedBy": "projects"
+    },
+    "partners": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::partner.partner",
+      "inversedBy": "projects"
+    },
+    "docUrl": {
+      "type": "text"
+    },
+    "officialUrl": {
+      "type": "text"
+    },
+    "lead": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::person.person",
+      "inversedBy": "leading_projects"
+    },
+    "members": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::person.person",
+      "inversedBy": "projects"
+    },
+    "team": {
+      "type": "component",
+      "repeatable": true,
+      "component": "project.team-member"
+    },
+    "timeline": {
+      "type": "component",
+      "repeatable": true,
+      "component": "project.timeline-entry"
+    },
+    "publications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::publication.publication",
+      "mappedBy": "projects"
+    },
+    "datasets": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::dataset.dataset",
+      "mappedBy": "projects"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

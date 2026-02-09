@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "research_themes",
+  "info": {
+    "singularName": "research-theme",
+    "pluralName": "research-themes",
+    "displayName": "Research Theme",
+    "description": "Taxonomy for grouping projects/publications"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "summary": {
+      "type": "text"
+    },
+    "color": {
+      "type": "string",
+      "regex": "^#([0-9a-fA-F]{3}){1,2}$"
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "themes"
+    },
+    "publications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::publication.publication",
+      "mappedBy": "themes"
+    },
+    "datasets": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::dataset.dataset",
+      "mappedBy": "themes"
+    }
+  }
+}

@@ -1,8 +1,13 @@
-# Use an official Node.js runtime as a parent image
-FROM node:20-alpine AS builder
+# Use AWS ECR Public mirror to avoid Docker Hub rate limits
+FROM public.ecr.aws/docker/library/node:22-alpine AS base
+
+RUN apk update && apk upgrade --no-cache
 
 # Set the working directory in the container
 WORKDIR /app
+
+# STAGE 1 - install deps and build assets
+FROM base AS builder
 
 # Copy the package.json and package-lock.json files to the working directory
 COPY package*.json ./
@@ -16,12 +21,8 @@ COPY . .
 # Build the Next.js application for production
 RUN npm run build
 
-# Use a lightweight Node.js server to serve the production build
-FROM node:20-alpine AS runner
-# STAGE 2
-
-# Set the working directory in the container
-WORKDIR /app
+# STAGE 2 - assemble the runtime image
+FROM base AS runner
 
 # Copy the production build from the builder stage
 COPY --from=builder /app/.next ./.next

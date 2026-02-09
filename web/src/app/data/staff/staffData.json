@@ -165,6 +165,24 @@
       "image": "/people/Basic_avatar_image.png"
     },
     {
+      "slug": "PopAurel-Ovidiu",
+      "name": "Pop Aurel Ovidiu",
+      "title": "Professor",
+      "phone": "",
+      "email": "",
+      "department": "Microelectronics",
+      "image": "/people/Basic_avatar_image.png"
+    },
+    {
+      "slug": "Daniel-Fodorean",
+      "name": "Fodorean Daniel",
+      "title": "Professor",
+      "phone": "",
+      "email": "",
+      "department": "Energy Systems",
+      "image": "/people/Basic_avatar_image.png"
+    },
+    {
       "slug": "Stelian-Brad",
       "name": "Brad Stelian",
       "title": "Professor",

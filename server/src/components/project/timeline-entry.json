@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_project_timeline_entries",
+  "info": {
+    "displayName": "Timeline entry",
+    "description": "Milestone in a project",
+    "icon": "history"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "date": {
+      "type": "date"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

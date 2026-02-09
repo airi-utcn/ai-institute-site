@@ -1,25 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import pubData from "@/app/data/staff/pubData.json";
-import staffData from "@/app/data/staff/staffData.json";
-
-/* Animations */
-const containerVariants = {
-  hidden: { opacity: 0.9 }, visible: { opacity: 1, transition: { delayChildren: 0.1, staggerChildren: 0.08 } },
-};
-const itemVariants = { hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } };
-
-/* Helpers */
-const slugify = (s) =>
-  String(s || "")
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
+import { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { slugify, toPublicationSlug } from "@/lib/slug";
+import { FaSearch, FaTimes, FaFilter, FaChevronDown, FaExternalLinkAlt } from "react-icons/fa";
+import { containerVariants, itemVariants } from "@/lib/animations";
 
 const buildStaffLookup = (staffJson) => {
   const arr = Array.isArray(staffJson) ? staffJson : Object.values(staffJson || {}).flat();
@@ -48,83 +35,30 @@ const authorsToNames = (authors, bySlugMap) => {
 };
 
 const normalizePublication = (p, bySlugMap) => {
+  const slug = toPublicationSlug({ slug: p.slug, title: p.title, year: p.year });
   return {
+    slug,
     title: p.title || "",
     year: typeof p.year === "number" || typeof p.year === "string" ? String(p.year) : "",
     domain: p.domain || "",
     kind: p.kind || "",
     description: p.description || "",
     authors: authorsToNames(p.authors, bySlugMap),
-    docUrl: p.docUrl || p.url || p.link || p.doi || "",   
+    pdfFile: p.pdfFile || null,
+    projects: Array.isArray(p.projects) ? p.projects : [],
   };
 };
 
-/* Bib generator */
-const bibEscape = (s = "") =>
-  String(s)
-    .replace(/[{}]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+export default function PublicationsClient({ publications: pubData, staff: staffData }) {
+  const searchParams = useSearchParams();
 
-const asBibType = (kind) => {
-  const k = String(kind || "").toLowerCase();
-  if (k.includes("review") || k.includes("article")) return "article";
-  if (k.includes("paper") || k.includes("conference") || k.includes("proceeding")) return "inproceedings";
-  if (k.includes("thesis")) return "phdthesis";
-  return "misc";
-};
-
-const makeCiteKey = (pub, idx = 0) => {
-  const firstAuthor = pub.authors?.[0] || "item";
-  const a = slugify(firstAuthor).replace(/-/g, "");
-  const y = pub.year || "nd";
-  const t = slugify(pub.title).slice(0, 24).replace(/-/g, "");
-  return `${a}${y}-${t || "pub"}-${idx + 1}`;
-};
-
-const toBibEntry = (pub, idx = 0) => {
-  const type = asBibType(pub.kind);
-  const key = makeCiteKey(pub, idx);
-  const author = pub.authors?.length ? pub.authors.join(" and ") : undefined;
-
-  const fields = {
-    title: bibEscape(pub.title),
-    year: bibEscape(pub.year),
-    ...(author ? { author: bibEscape(author) } : {}),
-    ...(pub.description ? { abstract: bibEscape(pub.description) } : {}),
-    ...(pub.domain || pub.kind ? { keywords: bibEscape([pub.domain, pub.kind].filter(Boolean).join(", ")) } : {}),
-    ...(pub.docUrl ? { url: bibEscape(pub.docUrl), howpublished: bibEscape(pub.docUrl) } : {}),
-    ...(pub.kind ? { note: bibEscape(pub.kind) } : {}),
-    ...(pub.domain ? { institution: bibEscape(pub.domain) } : {}),
-  };
-
-  const fieldsString = Object.entries(fields)
-    .map(([k, v]) => `  ${k} = {${v}}`)
-    .join(",\n");
-
-  return `@${type}{${key},\n${fieldsString}\n}\n`;
-};
-
-const downloadBibSingle = (pub, idx = 0) => {
-  const entry = toBibEntry(pub, idx);
-  const blob = new Blob([entry], { type: "application/x-bibtex;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${makeCiteKey(pub, idx)}.bib`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-};
-
-export default function PublicationsClient() {
-  const staffBySlug = useMemo(() => buildStaffLookup(staffData), []);
+  // TODO: This can be replaced with Strapi function
+  const staffBySlug = useMemo(() => buildStaffLookup(staffData), [staffData]);
 
   const pubs = useMemo(() => {
     const src = Array.isArray(pubData) ? pubData : [];
     return src.map((p) => normalizePublication(p, staffBySlug)).filter((p) => p.title);
-  }, [staffBySlug]);
+  }, [pubData, staffBySlug]);
 
   /* State filters */
   const [q, setQ] = useState("");
@@ -132,6 +66,17 @@ export default function PublicationsClient() {
   const [authorFilter, setAuthorFilter] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("");
+  const [themeFilter, setThemeFilter] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Read theme from URL params (from themes page)
+  useEffect(() => {
+    const themeParam = searchParams.get("theme");
+    if (themeParam) {
+      setThemeFilter(themeParam);
+      setShowFilters(true);
+    }
+  }, [searchParams]);
 
   const { yearOptions, authorOptions, domainOptions, kindOptions } = useMemo(() => {
     const years = new Set();
@@ -166,10 +111,16 @@ export default function PublicationsClient() {
       const inAuthor = !authorFilter || (p.authors || []).includes(authorFilter);
       const inDomain = !domainFilter || p.domain === domainFilter;
       const inKind = !kindFilter || p.kind === kindFilter;
+      // Theme filter - simple text match on title/domain for now
+      const inTheme = !themeFilter || 
+        p.title.toLowerCase().includes(themeFilter.toLowerCase()) ||
+        p.domain.toLowerCase().includes(themeFilter.toLowerCase());
 
-      return inSearch && inYear && inAuthor && inDomain && inKind;
+      return inSearch && inYear && inAuthor && inDomain && inKind && inTheme;
     });
-  }, [pubs, q, yearFilter, authorFilter, domainFilter, kindFilter]);
+  }, [pubs, q, yearFilter, authorFilter, domainFilter, kindFilter, themeFilter]);
+
+  const hasActiveFilters = q || yearFilter || authorFilter || domainFilter || kindFilter || themeFilter;
 
   const clearFilters = () => {
     setQ("");
@@ -177,163 +128,254 @@ export default function PublicationsClient() {
     setAuthorFilter("");
     setDomainFilter("");
     setKindFilter("");
+    setThemeFilter("");
   };
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
-      <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
+    <main className="page-container">
+      <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.h1
-            variants={itemVariants}
-            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400 text-center"
-          >
-            Publications
-          </motion.h1>
+          <motion.div variants={itemVariants} className="page-header">
+            <h1 className="page-header-title">Publications</h1>
+            <p className="page-header-subtitle">
+              Research papers, articles, and academic publications from our team
+            </p>
+          </motion.div>
 
-          {/* GRID: sidebar (filters) + list */}
-          <div className="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start">
-            {/* Sidebar filters */}
-            <aside className="md:-ml-6">
-              <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 space-y-3">
+          {/* Search bar - prominently placed at top */}
+          <motion.div variants={itemVariants} className="mb-6">
+            <div className="max-w-2xl mx-auto">
+              <div className="relative">
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search title, author, type…"
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
+                  placeholder="Search publications by title, author, type..."
+                  className="input pl-11 pr-10 text-base"
                 />
-
-                <select
-                  value={yearFilter}
-                  onChange={(e) => setYearFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-                >
-                  <option value="">All years</option>
-                  {yearOptions.map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={authorFilter}
-                  onChange={(e) => setAuthorFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-                >
-                  <option value="">All authors</option>
-                  {authorOptions.map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={domainFilter}
-                  onChange={(e) => setDomainFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-                >
-                  <option value="">All departments</option>
-                  {domainOptions.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-
-                <select
-                  value={kindFilter}
-                  onChange={(e) => setKindFilter(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-                >
-                  <option value="">All types</option>
-                  {kindOptions.map((k) => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="w-full text-sm underline mt-1 opacity-80 hover:opacity-100"
-                >
-                  Reset filters
-                </button>
+                {q && (
+                  <button
+                    onClick={() => setQ("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <FaTimes />
+                  </button>
+                )}
               </div>
-            </aside>
+            </div>
+          </motion.div>
 
-            {/* Publications list */}
-            <div>
-              {filtered.length ? (
-                <ul className="space-y-4">
-                  {filtered.map((p, i) => (
-                    <motion.li
-                      key={`${p.title}-${i}`}
-                      variants={itemVariants}
-                      className="rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:bg-gray-50 dark:hover:bg-gray-900 transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
-                            {p.title}
-                          </div>
+          {/* Filter toggle button */}
+          <motion.div variants={itemVariants} className="flex justify-center mb-6">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`
+                inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all
+                ${showFilters || hasActiveFilters
+                  ? "bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }
+              `}
+            >
+              <FaFilter className="text-xs" />
+              Filters
+              {hasActiveFilters && (
+                <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary-600 text-white">
+                  {[yearFilter, authorFilter, domainFilter, kindFilter, themeFilter].filter(Boolean).length}
+                </span>
+              )}
+              <FaChevronDown className={`text-xs transition-transform ${showFilters ? "rotate-180" : ""}`} />
+            </button>
+          </motion.div>
 
-                          <div className="mt-1 text-sm text-gray-800 dark:text-gray-200 space-y-0.5">
-                            <div>
-                              <span className="font-medium">Authors:</span>{" "}
-                              {p.authors?.length ? p.authors.join(", ") : "—"}
-                            </div>
-                            <div>
-                              <span className="font-medium">Year:</span> {p.year || "—"}
-                            </div>
-                            <div>
-                              <span className="font-medium">Department:</span> {p.domain || "—"}
-                            </div>
-                            <div>
-                              <span className="font-medium">Type:</span> {p.kind || "—"}
-                            </div>
-                            {p.description ? (
-                              <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                                {p.description}
-                              </p>
-                            ) : null}
-                          </div>
+          {/* Collapsible filters */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden mb-8"
+              >
+                <div className="card p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div>
+                      <label className="label">Year</label>
+                      <select
+                        value={yearFilter}
+                        onChange={(e) => setYearFilter(e.target.value)}
+                        className="select"
+                      >
+                        <option value="">All years</option>
+                        {yearOptions.map((y) => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                          {p.docUrl && (
-                            <a
-                              href={p.docUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-3 inline-flex items-center gap-2 px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition text-sm"
-                              aria-label="Open publication documentation in a new tab"
+                    <div>
+                      <label className="label">Author</label>
+                      <select
+                        value={authorFilter}
+                        onChange={(e) => setAuthorFilter(e.target.value)}
+                        className="select"
+                      >
+                        <option value="">All authors</option>
+                        {authorOptions.map((a) => (
+                          <option key={a} value={a}>{a}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">Department</label>
+                      <select
+                        value={domainFilter}
+                        onChange={(e) => setDomainFilter(e.target.value)}
+                        className="select"
+                      >
+                        <option value="">All departments</option>
+                        {domainOptions.map((d) => (
+                          <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">Type</label>
+                      <select
+                        value={kindFilter}
+                        onChange={(e) => setKindFilter(e.target.value)}
+                        className="select"
+                      >
+                        <option value="">All types</option>
+                        {kindOptions.map((k) => (
+                          <option key={k} value={k}>{k}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">Theme</label>
+                      <input
+                        value={themeFilter}
+                        onChange={(e) => setThemeFilter(e.target.value)}
+                        placeholder="Filter by theme..."
+                        className="input"
+                      />
+                    </div>
+                  </div>
+
+                  {hasActiveFilters && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                      <span className="text-sm text-muted">
+                        {filtered.length} publication{filtered.length !== 1 ? "s" : ""} found
+                      </span>
+                      <button
+                        onClick={clearFilters}
+                        className="text-sm text-primary-600 dark:text-accent-400 hover:underline"
+                      >
+                        Clear all filters
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Publications list */}
+          <div>
+            {filtered.length ? (
+              <div className="space-y-4">
+                {filtered.map((p, i) => (
+                  <motion.div
+                    key={`${p.title}-${i}`}
+                    variants={itemVariants}
+                    className="card card-hover p-5"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        {/* Title */}
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          {p.slug ? (
+                            <Link
+                              href={`/research/publications/${encodeURIComponent(p.slug)}`}
+                              className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
                             >
-                              View documentation
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                              >
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 18h6" />
-                              </svg>
-                            </a>
+                              {p.title}
+                            </Link>
+                          ) : (
+                            p.title
+                          )}
+                        </h3>
+
+                        {/* Metadata badges */}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {p.year && (
+                            <span className="badge-primary">{p.year}</span>
+                          )}
+                          {p.kind && (
+                            <span className="badge-gray">{p.kind}</span>
+                          )}
+                          {p.domain && (
+                            <span className="badge-gray">{p.domain}</span>
                           )}
                         </div>
 
-                        <div className="shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => downloadBibSingle(p, i)}
-                            className="text-xs rounded-md border border-gray-300 dark:border-gray-700 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                            title="Download .bib for this publication"
-                          >
-                            ⬇️ .bib
-                          </button>
+                        {/* Authors */}
+                        {p.authors?.length > 0 && (
+                          <p className="text-sm text-muted mt-3">
+                            <span className="font-medium">Authors:</span>{" "}
+                            {p.authors.join(", ")}
+                          </p>
+                        )}
+
+                        {/* Description preview */}
+                        {p.description && (
+                          <p className="text-sm text-muted mt-2 line-clamp-2">
+                            {p.description}
+                          </p>
+                        )}
+
+                        {/* Action buttons */}
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {p.slug && (
+                            <Link
+                              href={`/research/publications/${encodeURIComponent(p.slug)}`}
+                              className="btn btn-primary btn-sm"
+                            >
+                              View details
+                            </Link>
+                          )}
+                          {p.pdfFile?.url && (
+                            <a
+                              href={p.pdfFile.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn btn-outline btn-sm inline-flex items-center gap-2"
+                            >
+                              Open PDF
+                              <FaExternalLinkAlt className="text-xs" />
+                            </a>
+                          )}
                         </div>
                       </div>
-                    </motion.li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-500">No publications found.</p>
-              )}
-            </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state">
+                <p>No publications found matching your criteria.</p>
+                {hasActiveFilters && (
+                  <button onClick={clearFilters} className="btn btn-secondary mt-4">
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

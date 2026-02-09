@@ -34,18 +34,16 @@ const SECTIONS = [
       { label: "Industry engagement", href: "/engagement/industry" },
       { label: "High-school engagement", href: "/engagement/high-school" },
       { label: "Partners", href: "/engagement/partners" },
-      { label: "Technology transfer & development", href: "/engagement/tech-transfer" },
-      { label: "HPC-AI services", href: "/engagement/hpc-ai" },
       { label: "Industrial PhD", href: "/engagement/industrial-phd" },
     ],
   },
   {
     title: "People",
     links: [
-      { label: "Researchers", href: "/people/researchers" },
-      { label: "Staff", href: "/people/staff" },
-      { label: "Alumni", href: "/people/alumni" },
-      { label: "Visiting researchers", href: "/people/visiting_researchers" },
+      { label: "Researchers", href: "/people" },
+      { label: "Staff", href: "/people" },
+      { label: "Alumni", href: "/people" },
+      { label: "Visiting researchers", href: "/people" },
     ],
   },
   {

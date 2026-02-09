@@ -1,0 +1,84 @@
+{
+  "kind": "collectionType",
+  "collectionName": "news_articles",
+  "info": {
+    "singularName": "news-article",
+    "pluralName": "news-articles",
+    "displayName": "News Item"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "summary": {
+      "type": "text"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": [
+        "announcement",
+        "construction",
+        "collaboration",
+        "award",
+        "press",
+        "other"
+      ],
+      "default": "announcement"
+    },
+    "publishedDate": {
+      "type": "date"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    },
+    "body": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.section",
+        "shared.rich-text",
+        "shared.media",
+        "shared.slider",
+        "shared.quote"
+      ]
+    },
+    "linkUrl": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "json"
+    },
+    "relatedDepartments": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::department.department"
+    },
+    "relatedProjects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project"
+    },
+    "featuredPeople": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::person.person"
+    }
+  }
+}

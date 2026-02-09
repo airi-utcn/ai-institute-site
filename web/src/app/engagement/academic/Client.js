@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-// import Courses_ML from "./Courses_ML.js";  
 
 const TABS = [
   {

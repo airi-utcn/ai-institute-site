@@ -1,0 +1,51 @@
+{
+	"kind": "collectionType",
+	"collectionName": "research_units",
+	"info": {
+		"singularName": "research-unit",
+		"pluralName": "research-units",
+		"displayName": "Research Unit"
+	},
+	"options": {
+		"draftAndPublish": true
+	},
+	"pluginOptions": {},
+	"attributes": {
+		"name": {
+			"type": "string",
+			"required": true,
+			"unique": true
+		},
+		"slug": {
+			"type": "uid",
+			"targetField": "name"
+		},
+		"icon": {
+			"type": "string"
+		},
+		"summary": {
+			"type": "string"
+		},
+		"description": {
+			"type": "richtext"
+		},
+		"details": {
+			"type": "json"
+		},
+		"coordinator": {
+			"type": "string"
+		},
+		"deputy_coordinator": {
+			"type": "string"
+		},
+		"elements": {
+			"type": "json"
+		},
+			"departments": {
+				"type": "relation",
+				"relation": "manyToMany",
+				"target": "api::department.department",
+				"inversedBy": "research_units"
+			}
+	}
+}

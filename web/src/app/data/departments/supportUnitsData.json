@@ -14,21 +14,14 @@
             "Custom tool development, tailored to specific data formats, project goals, or industrial requirements."
 
         ],
-        "elements": [
-            {
-                "text": "",
-                "content": [
-                    ""
-                ]
-            }
-        ]
+        "type": "support" 
     },
     {
-        "name": "Validation Center",
+        "name": "Conformity Center",
         "description": [
-            "AI Validation Center",
+            "AI Conformity Center",
             "Building trust in AI through validation, compliance, and transparency.",
-            "The AI Validation Center supports researchers and companies - especially small and medium-sized enterprises (SMEs) - in ensuring that their AI systems meet the safety, transparency, and accountability standards required by the EU AI Act and the National AI Strategy 2024–2027.",
+            "The AI Conformity Center supports researchers and companies - especially small and medium-sized enterprises (SMEs) - in ensuring that their AI systems meet the safety, transparency, and accountability standards required by the EU AI Act and the National AI Strategy 2024–2027.",
             "Our mission is to help organizations develop responsible and compliant AI systems that inspire trust and create competitive advantage.",
             "We provide:",
             "Conformity assessment for high-risk AI systems;",
@@ -38,13 +31,16 @@
             "Through these services, the center helps transform compliance into an engine for innovation, ensuring AI technologies are developed and deployed safely, ethically, and successfully."
 
         ],
-        "elements": [
-            {
-                "text": "",
-                "content": [
-                    ""
-                ]
-            }
-        ]
+        "type": "support" 
+    },
+    {
+        "name": "Technology Transfer & Development Unit",
+        "description": [],
+        "type": "support" 
+    },
+    {
+        "name": "HPC-AI Services",
+        "description": [],
+        "type": "support" 
     }
 ]

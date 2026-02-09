@@ -38,7 +38,7 @@ export default function TimelineClient() {
             description: (
                 <>
                     Stay updated with the current building progress of the AI Institute.<br></br> Watch live through our webcam:{" "} <br></br>
-                    <a href="http://webcam.obs.utcluj.ro/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                    <a href="http://webcam.obs.utcluj.ro/" target="_blank" rel="noopener noreferrer" className="link-accent">
                         http://webcam.obs.utcluj.ro/
                     </a>
                 </>
@@ -60,45 +60,49 @@ export default function TimelineClient() {
     }, []);
 
     return (
-        <main className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 text-black dark:text-white rounded-lg shadow-lg transition-colors duration-300">
-            <motion.h1
-                className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1 }}
-            >
-                📅 ICIA Timeline
-            </motion.h1>
-            <VerticalTimeline>
-                {events.map((event, index) => (
-                    <VerticalTimelineElement
-                        key={index}
-                        className="vertical-timeline-element--work"
-                        contentStyle={{ background: isDark ? "#1a202c" : "#f3f4f6", color: isDark ? "#fff" : "#000" }}
-                        contentArrowStyle={{ borderRight: isDark ? "7px solid #1a202c" : "7px solid #f3f4f6" }}
-                        date={event.date}
-                        dateClassName="text-blue-600 dark:text-yellow-400 font-semibold"
-                        iconStyle={{ background: "#e63946", color: "#fff" }}
-                        icon={event.icon}
+        <main className="page-container">
+            <div className="content-wrapper content-padding">
+                <div className="card p-6 md:p-10">
+                    <motion.h1
+                        className="heading-1 heading-accent text-center mb-8"
+                        initial={{ opacity: 0, y: -50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1 }}
                     >
-                        <motion.h3
-                            className="text-xl font-bold"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: index * 0.2 }}
-                        >
-                            {event.title}
-                        </motion.h3>
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: index * 0.2 }}
-                        >
-                            {event.description}
-                        </motion.p>
-                    </VerticalTimelineElement>
-                ))}
-            </VerticalTimeline>
+                        📅 AIRI Timeline
+                    </motion.h1>
+                    <VerticalTimeline>
+                        {events.map((event, index) => (
+                            <VerticalTimelineElement
+                                key={index}
+                                className="vertical-timeline-element--work"
+                                contentStyle={{ background: isDark ? "#111827" : "#f9fafb", color: isDark ? "#f3f4f6" : "#111827" }}
+                                contentArrowStyle={{ borderRight: isDark ? "7px solid #111827" : "7px solid #f9fafb" }}
+                                date={event.date}
+                                dateClassName="text-primary-600 dark:text-accent-400 font-semibold"
+                                iconStyle={{ background: "#dc2626", color: "#fff" }}
+                                icon={event.icon}
+                            >
+                                <motion.h3
+                                    className="text-xl font-bold"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                                >
+                                    {event.title}
+                                </motion.h3>
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5, delay: index * 0.2 }}
+                                >
+                                    {event.description}
+                                </motion.p>
+                            </VerticalTimelineElement>
+                        ))}
+                    </VerticalTimeline>
+                </div>
+            </div>
         </main>
     );
 }

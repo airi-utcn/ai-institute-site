@@ -1,18 +1,28 @@
 services:
   postgres:
-    image: postgres:16
+    image: mirror.gcr.io/library/postgres:16
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
+    volumes:  
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   strapi:
-    build: ./server
+    build:
+      context: ./server
+      args:
+        PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+        STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
     restart: always
     environment:
       DATABASE_CLIENT: ${DATABASE_CLIENT}
@@ -22,20 +32,50 @@ services:
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       NODE_ENV: ${NODE_ENV}
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
     ports:
       - "1337:1337"
+    volumes:
+      - ./server/public/uploads:/app/public/uploads
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # The fucking health check kept failing. This is an ugly workaround.
+      test: ["CMD-SHELL", "netstat -tln | grep 1337 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   nextjs:
     build: ./web
     restart: always
     environment:
       NODE_ENV: production
+      PORT: "3000"
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      # Browser/public base URL (used to prefix media URLs): should be reachable by end users.
+      # Example prod: https://airi.utcluj.ro/strapi
+      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-${PUBLIC_STRAPI_URL}}
+
+      # Server-to-server base URL inside the Docker network.
+      # Example: http://strapi:1337
+      STRAPI_INTERNAL_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
     ports:
       - "3000:3000"
     depends_on:
-      - strapi
+      strapi:
+        condition: service_healthy
 
 volumes:
   pgdata:

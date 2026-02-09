@@ -83,38 +83,31 @@ export default function MediaClient() {
       <Head>
         <title>ICIA - Media</title>
       </Head>
-      <main className="flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 py-12 transition-colors duration-300">
+      <main className="page-container">
         <motion.div
-          className="max-w-5xl mx-auto bg-white dark:bg-gray-950 rounded-3xl shadow-xl overflow-hidden"
+          className="content-wrapper content-padding"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <div className="px-8 py-12">
-            <motion.h1
-              className="text-5xl font-extrabold text-center text-blue-700 dark:text-yellow-400 mb-6"
-              variants={itemVariants}
-            >
-              ICIA Media Gallery
-            </motion.h1>
-            <motion.p
-              className="text-lg text-center text-gray-700 dark:text-gray-200 mb-10"
-              variants={itemVariants}
-            >
-              Explore images and videos showcasing the progress of the ICIA
+          <motion.div className="page-header" variants={itemVariants}>
+            <h1 className="page-header-title">Media Gallery</h1>
+            <p className="page-header-subtitle">
+              Explore images and videos showcasing the progress of the AIRI
               Institute.
-            </motion.p>
+            </p>
+          </motion.div>
 
-            {/* Part responsible to the animation of the images on page load (upwards & fade-in) */}
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              variants={containerVariants}
-            >
+          {/* Media grid */}
+          <motion.div
+            className="grid-cards"
+            variants={containerVariants}
+          >
               {/* Mapping over the items from the start of the page, easier to edit */}
               {mediaItems.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+                  className="card card-hover overflow-hidden cursor-pointer"
                   variants={itemVariants}
                   onClick={() => setSelectedMedia(item)}
                 >
@@ -124,6 +117,7 @@ export default function MediaClient() {
                       alt={item.alt}
                       width={600}
                       height={400}
+                      unoptimized
                       className="w-full h-full object-cover object-center"
                     />
                   ) : item.thumbnail ? (
@@ -132,11 +126,12 @@ export default function MediaClient() {
                       alt={item.alt}
                       width={600}
                       height={400}
+                      unoptimized
                       className="w-full h-full object-cover object-center"
                     />
                   ) : (
-                    <div className="relative w-full aspect-video bg-gray-200 flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold">
+                    <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <span className="heading-accent font-semibold">
                         {item.title}
                       </span>
                     </div>
@@ -144,7 +139,6 @@ export default function MediaClient() {
                 </motion.div>
               ))}
             </motion.div>
-          </div>
         </motion.div>
 
         {/* Animating the images when they're selected */}
@@ -195,6 +189,7 @@ export default function MediaClient() {
                       alt={selectedMedia.alt}
                       width={1920}
                       height={1080}
+                      unoptimized
                       className="w-full h-full object-cover object-center rounded-2xl"
                     />
                     {/* <div className="absolute bottom-4 right-4 flex space-x-2"> */}
@@ -244,7 +239,7 @@ export default function MediaClient() {
                     className="rounded-2xl"
                   ></iframe>
                 )}
-                <p className="mt-4 text-center font-semibold text-blue-800 dark:text-yellow-300 text-lg break-words">
+                <p className="mt-4 text-center font-semibold heading-accent text-lg break-words">
                   {selectedMedia.title}
                 </p>
               </motion.div>

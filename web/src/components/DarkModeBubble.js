@@ -1,40 +1,17 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function DarkModeBubble() {
-  const [dark, setDark] = useState(false);
-
-  // On mount, read from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem('darkMode');
-    if (stored === 'true') {
-      setDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setDark(false);
-      document.documentElement.classList.remove('dark');
-    }
-  }, []);
-
-  // When dark changes, update localStorage and html class
-  useEffect(() => {
-    localStorage.setItem('darkMode', dark ? 'true' : 'false');
-    if (dark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [dark]);
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <button
-      onClick={() => setDark(d => !d)}
-      className="fixed bottom-6 right-6 z-50 bg-gray-800 dark:bg-yellow-400 text-white dark:text-black rounded-full shadow-lg p-4 transition-colors duration-300 hover:scale-110"
-      aria-label="Toggle dark mode"
-      style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}
+      onClick={toggleTheme}
+      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-gray-900 dark:bg-accent-400 text-white dark:text-gray-900 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {dark ? '🌞' : '🌙'}
+      <span className="text-lg">{isDark ? "🌞" : "🌙"}</span>
     </button>
   );
 }

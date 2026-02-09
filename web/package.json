@@ -12,7 +12,8 @@
   "dependencies": {
     "framer-motion": "^12.23.12",
     "leaflet": "^1.9.4",
-    "next": "^15.3.4",
+    "markdown-to-jsx": "^9.6.1",
+    "next": "^16.0.7",
     "next-share": "^0.27.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tailwindcss/typography": "^0.5.19",
     "autoprefixer": "^10.4.20",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",

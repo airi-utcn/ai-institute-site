@@ -1,0 +1,102 @@
+{
+  "kind": "collectionType",
+  "collectionName": "departments",
+  "info": {
+    "singularName": "department",
+    "pluralName": "departments",
+    "displayName": "Department"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": ["research", "academic", "support", "other"],
+      "default": "research"
+    },
+    "summary": {
+      "type": "text"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "body": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.section",
+        "shared.quote",
+        "shared.rich-text",
+        "shared.media",
+        "shared.slider"
+      ]
+    },
+    "focusItems": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.focus-item"
+    },
+    "contactLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.contact-link"
+    },
+    "coordinator": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::person.person"
+    },
+    "coCoordinator": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::person.person"
+    },
+    "people": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::person.person",
+      "mappedBy": "department"
+    },
+    "projects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "domains"
+    },
+    "publications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::publication.publication",
+      "mappedBy": "domain"
+    },
+    "datasets": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dataset.dataset",
+      "mappedBy": "department"
+    },
+    "research_units": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::research-unit.research-unit",
+      "mappedBy": "departments"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_shared_contact_links",
+  "info": {
+    "displayName": "Contact link",
+    "description": "Label + URL + icon",
+    "icon": "id-card"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "mail",
+        "phone",
+        "location",
+        "link",
+        "calendar",
+        "external"
+      ],
+      "default": "link"
+    }
+  }
+}

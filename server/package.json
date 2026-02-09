@@ -9,22 +9,24 @@
     "deploy": "strapi deploy",
     "dev": "strapi develop",
     "develop": "strapi develop",
-    "seed:example": "node ./scripts/seed.js",
+    "seed:content": "node ./scripts/migrate-json.js",
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.23.0",
-    "@strapi/plugin-users-permissions": "5.23.0",
-    "@strapi/strapi": "5.23.0",
+    "@strapi/plugin-cloud": "^5.31.3",
+    "@strapi/plugin-users-permissions": "^5.31.3",
+    "@strapi/strapi": "^5.31.3",
+    "better-sqlite3": "^12.5.0",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",
     "pg": "8.8.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",
+    "strapi-health-plugin": "^1.2.2",
     "styled-components": "^6.0.0"
   },
   "devDependencies": {

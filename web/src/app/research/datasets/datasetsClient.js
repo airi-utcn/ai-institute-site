@@ -3,55 +3,14 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
-import staffData from "@/app/data/staff/staffData.json";
-import dataverseMap from "@/app/data/staff/dataverseData.json";
-
 /* Animations */
 const containerVariants = {
   hidden: { opacity: 0.9 }, visible: { opacity: 1, transition: { delayChildren: 0.1, staggerChildren: 0.08 } },
 };
 const itemVariants = { hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } };
 
-/* Helpers */
-const buildStaffLookup = (staffJson) => {
-  const arr = Array.isArray(staffJson) ? staffJson : Object.values(staffJson || {}).flat();
-  const bySlug = new Map();
-  const byName = new Map();
-  for (const p of arr) {
-    const slug = String(p?.slug || "").trim();
-    const name = String(p?.name || p?.slug || "").trim();
-    if (slug) bySlug.set(slug, name || slug);
-    if (name) byName.set(name.toLowerCase(), name);
-  }
-  return { bySlug, byName };
-};
-
-export default function DatasetsClient() {
-  const { byName: staffByName } = useMemo(() => buildStaffLookup(staffData), []);
-
-  const allDatasets = useMemo(() => {
-    const out = [];
-    const entries = Array.isArray(dataverseMap) ? dataverseMap : [];
-
-    for (const entry of entries) {
-      const authorName = staffByName.get(entry.name.toLowerCase()) || entry.name;
-      const list = Array.isArray(entry.elements) ? entry.elements : [];
-
-      for (const el of list) {
-        if (!el?.title) continue;
-        out.push({
-          title: el.title,
-          description: el.description || "",
-          authorName,
-          authorSlug: entry.name,
-          year: undefined,
-          kind: undefined,
-          domain: undefined,
-        });
-      }
-    }
-    return out;
-  }, [staffByName]);
+export default function DatasetsClient({ datasets = [] }) {
+  const allDatasets = datasets;
 
   /* --- State filtre --- */
   const [q, setQ] = useState("");

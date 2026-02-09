@@ -1,7 +1,5 @@
-export const metadata = { title: "Industrial PhD – AIRi @ UTCN" };
+import { redirect } from 'next/navigation';
 
-import Client from "./Client";
-
-export default function IndustrialPhDPage() {
-  return <Client />;
+export default function Page() {
+  redirect('/engagement?tab=phd');
 }

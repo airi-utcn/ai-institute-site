@@ -126,6 +126,24 @@ export default async function StaffDetailPage({ params }) {
         {person.title && <p className="text-lg">{person.title}</p>}
         {person.email && <p>{person.email}</p>}
         {person.phone && <p>{person.phone}</p>}
+        {Array.isArray(person.socialLinks) && person.socialLinks.length > 0 && (
+          <div className="mt-3 flex flex-wrap justify-center gap-3">
+            {person.socialLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-700 text-sm text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition"
+              >
+                {link.label}
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.5 6H18m0 0v4.5M18 6l-7.5 7.5M6 18h6" />
+                </svg>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
       <StaffDetailClient person={person} publications={publications} projects={projects} slug={slug} />

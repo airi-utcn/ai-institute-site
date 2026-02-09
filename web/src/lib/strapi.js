@@ -436,6 +436,7 @@ export async function getStaffMember(slug) {
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {},
+        socialLinks: {},
         projects: { fields: ['title', 'slug'] },
         leading_projects: { fields: ['title', 'slug'] },
         publications: { fields: ['title', 'slug', 'year'] },
@@ -870,6 +871,14 @@ export function transformStaffData(strapiStaff) {
     // Use 'portrait' field from schema
     const image = resolveMediaUrl(attributes.portrait);
 
+    const socialLinks = Array.isArray(attributes.socialLinks)
+      ? attributes.socialLinks.map((link) => ({
+          label: link?.label || '',
+          url: link?.url || link?.href || '',
+          icon: link?.icon || 'link',
+        })).filter((link) => link.url)
+      : [];
+
     return {
       id: person?.id ?? null,
       slug: attributes.slug || '',
@@ -886,6 +895,7 @@ export function transformStaffData(strapiStaff) {
       departmentInfo: department,
       image,
       bio: stripHtml(attributes.bio) || '',
+      socialLinks,
       leadingProjects,
       memberProjects,
       publications,

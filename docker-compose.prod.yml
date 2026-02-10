@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: mirror.gcr.io/library/postgres:16
+    # Use ECR Public mirror to avoid Docker Hub limits
+    image: public.ecr.aws/docker/library/postgres:16
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -70,7 +71,8 @@ services:
         condition: service_healthy
 
   watchtower:
-    image: containrrr/watchtower
+    # Use GHCR mirror for Watchtower
+    image: ghcr.io/containrrr/watchtower:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json

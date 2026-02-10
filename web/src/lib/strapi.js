@@ -526,6 +526,14 @@ export async function getProjectBySlug(slug) {
         datasets: {
           fields: ['title', 'slug', 'source_url', 'platform'],
         },
+        publications: {
+          fields: ['title', 'slug', 'year', 'kind', 'description'],
+          populate: {
+            authors: PERSON_FLAT_POPULATE,
+            pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+            domain: DEPARTMENT_POPULATE,
+          },
+        },
       },
     });
 
@@ -1184,11 +1192,31 @@ export function transformProjectData(strapiProjects) {
 
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
+
+      const pubAuthors = toArray(pubData.authors?.data ?? pubData.authors).map((a) => {
+        const aData = a?.attributes ?? a ?? {};
+        return aData.fullName || aData.name || '';
+      }).filter(Boolean);
+
+      const pubDomainEntry = pubData.domain?.data ?? pubData.domain;
+      const pubDomainAttr = pubDomainEntry?.attributes ?? pubDomainEntry ?? {};
+      const pubDomain = pubDomainAttr.name || '';
+
       return {
         id: pub?.id ?? null,
         slug: pubData.slug || '',
         title: pubData.title || '',
         year: pubData.year ?? null,
+        kind: pubData.kind || '',
+        description: stripHtml(pubData.description || ''),
+        authors: pubAuthors,
+        domain: pubDomain,
+        pdfFile: pubData.pdfFile
+          ? {
+              url: resolveMediaUrl(pubData.pdfFile),
+              name: (pubData.pdfFile?.data?.attributes ?? pubData.pdfFile?.data ?? pubData.pdfFile)?.name || '',
+            }
+          : null,
       };
     });
 

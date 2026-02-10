@@ -93,5 +93,34 @@ services:
       REPO_PASS: ${REPO_PASS}
     restart: always
 
+  # Automated daily PostgreSQL backups with 7-day retention
+  db-backup:
+    image: public.ecr.aws/docker/library/postgres:16
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    # Run a backup every day at 3:00 AM, keep last 7 days
+    entrypoint: >
+      sh -c '
+        while true; do
+          TIMESTAMP=$$(date +%Y-%m-%d_%H-%M-%S)
+          echo "[$$TIMESTAMP] Starting backup..."
+          pg_dump -Fc > /backups/backup_$$TIMESTAMP.dump
+          echo "[$$TIMESTAMP] Backup complete: backup_$$TIMESTAMP.dump"
+          # Delete backups older than 7 days
+          find /backups -name "backup_*.dump" -mtime +7 -delete
+          echo "Cleaned old backups. Sleeping 24h..."
+          sleep 86400
+        done
+      '
+    restart: always
+
 volumes:
   pgdata:

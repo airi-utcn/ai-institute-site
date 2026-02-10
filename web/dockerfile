@@ -18,6 +18,10 @@ RUN npm install
 # Copy the application code to the working directory
 COPY . .
 
+# ARGs must be redeclared in the stage they are used
+ARG NEXT_PUBLIC_STRAPI_URL
+ENV NEXT_PUBLIC_STRAPI_URL=$NEXT_PUBLIC_STRAPI_URL
+
 # Build the Next.js application for production
 RUN npm run build
 

@@ -1,0 +1,55 @@
+name: Build and Publish Docker Images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+      - main
+      - feature/deployment-pipeline
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Downcase REPO
+        run: |
+          echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      # --- Build and Push Server ---
+      - name: Build and push Server (Strapi)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:latest
+          # Strapi needs these at build time to configure the Admin Panel
+          build-args: |
+            PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi
+            STRAPI_ADMIN_URL=https://airi.utcluj.ro/strapi/admin
+
+      # --- Build and Push Web (Next.js) ---
+      - name: Build and push Web
+        uses: docker/build-push-action@v5
+        with:
+          context: ./web
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest
+          build-args: |
+            NEXT_PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi

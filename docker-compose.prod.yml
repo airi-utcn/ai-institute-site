@@ -1,0 +1,81 @@
+services:
+  postgres:
+    image: mirror.gcr.io/library/postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:  
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  strapi:
+    # -----------------------------------------------------------
+    # CHANGE THIS: Replace 'YOUR_GITHUB_USER' with your username
+    # -----------------------------------------------------------
+    image: ghcr.io/airi-utcn/ai-institute-site/server:latest
+    restart: always
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      NODE_ENV: production
+      # These public URLs are baked in at build time, but Strapi sometimes needs them here too
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
+      # Secrets
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+    ports:
+      - "1337:1337"
+    volumes:
+      # We still need to persist uploads!
+      - ./uploads:/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nextjs:
+    # -----------------------------------------------------------
+    # CHANGE THIS: Replace 'YOUR_GITHUB_USER' with your username
+    # -----------------------------------------------------------
+    image: ghcr.io/airi-utcn/ai-institute-site/web:latest
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      # This is ONLY used for server-side fetches inside the container network
+      STRAPI_INTERNAL_URL: http://strapi:1337
+    ports:
+      - "3000:3000"
+    depends_on:
+      strapi:
+        condition: service_healthy
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 300 --cleanup
+    restart: always
+
+volumes:
+  pgdata:

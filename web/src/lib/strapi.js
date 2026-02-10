@@ -436,6 +436,9 @@ export async function getStaffMember(slug) {
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {},
+        socialLinks: {
+          fields: ['label', 'url', 'icon'],
+        },
         projects: { fields: ['title', 'slug'] },
         leading_projects: { fields: ['title', 'slug'] },
         publications: { fields: ['title', 'slug', 'year'] },
@@ -875,6 +878,51 @@ export function transformStaffData(strapiStaff) {
       };
     });
 
+    const socialLinks = toArray(attributes.socialLinks).map((link) => {
+      if (!link) return null;
+      const rawUrl = (link.url || '').toString().trim();
+      const icon = link.icon || 'link';
+
+      const normalizeUrl = (u, iconType) => {
+        if (!u) return '';
+        let url = u.trim();
+
+        // Emails
+        if (iconType === 'mail' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(url)) {
+          if (!/^mailto:/i.test(url)) return `mailto:${url}`;
+          return url;
+        }
+
+        // Phones
+        if (iconType === 'phone' || /^\+?[0-9\s\-()]{3,}$/.test(url)) {
+          if (!/^tel:/i.test(url)) return `tel:${url}`;
+          return url;
+        }
+
+        // Already absolute or protocol-relative
+        if (/^https?:\/\//i.test(url) || /^mailto:|^tel:/i.test(url)) return url;
+        if (/^\/\//.test(url)) return `https:${url}`;
+
+        // Relative paths (keep as-is)
+        if (/^\//.test(url)) return url;
+
+        // If it looks like a hostname (contains a dot) or starts with www, assume https
+        if (/^www\./i.test(url) || /\.[a-z]{2,}(\/|$)/i.test(url)) {
+          return `https://${url}`;
+        }
+
+        // Fallback: return as-is
+        return url;
+      };
+
+      return {
+        label: link.label || '',
+        url: normalizeUrl(rawUrl, icon),
+        icon,
+        raw: rawUrl,
+      };
+    }).filter(Boolean);
+
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
       return {
@@ -904,6 +952,7 @@ export function transformStaffData(strapiStaff) {
       departmentInfo: department,
       image,
       bio: stripHtml(attributes.bio) || '',
+      socialLinks,
       leadingProjects,
       memberProjects,
       publications,

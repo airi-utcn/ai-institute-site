@@ -1,5 +1,13 @@
 import { notFound } from "next/navigation";
 import {
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaLink,
+  FaCalendarAlt,
+  FaExternalLinkAlt
+} from "react-icons/fa";
+import {
   getStaffMember,
   transformStaffData,
   transformPublicationData,
@@ -101,6 +109,32 @@ export default async function PersonDetailPage({ params }) {
     department: personEntry.department || personEntry.departmentInfo?.name || "",
   };
 
+  const iconMap = {
+    mail: FaEnvelope,
+    phone: FaPhone,
+    location: FaMapMarkerAlt,
+    link: FaLink,
+    calendar: FaCalendarAlt,
+    external: FaExternalLinkAlt,
+  };
+
+  const normalizeSocialUrl = (link) => {
+    const url = link?.url || "";
+    if (!url) return "";
+
+    if (link.icon === "mail" && !/^mailto:/i.test(url) && url.includes("@")) {
+      return `mailto:${url}`;
+    }
+
+    if (link.icon === "phone" && !/^tel:/i.test(url)) {
+      return `tel:${url}`;
+    }
+
+    return url;
+  };
+
+  const getSocialLabel = (link) => link?.label || link?.url || "Link";
+
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
@@ -150,6 +184,30 @@ export default async function PersonDetailPage({ params }) {
                   </a>
                 )}
               </div>
+              {person.socialLinks && person.socialLinks.length > 0 && (
+                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                  {person.socialLinks.map((link, index) => {
+                    const Icon = iconMap[link.icon] || FaLink;
+                      const url = link.url || link.raw || '';
+                    if (!url) return null;
+                    const isExternal = /^https?:\/\//i.test(url);
+
+                    return (
+                      <a
+                        key={`${link.label || link.url || index}-${index}`}
+                        href={url}
+                        {...(isExternal
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full border border-white/20 text-sm hover:bg-white/25 transition-colors"
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="truncate max-w-[160px]">{getSocialLabel(link)}</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>

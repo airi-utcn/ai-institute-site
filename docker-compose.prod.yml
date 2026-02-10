@@ -68,8 +68,11 @@ services:
       PORT: "3000"
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
       REVALIDATION_SECRET: ${REVALIDATION_SECRET}
-      # This is ONLY used for server-side fetches inside the container network
-      STRAPI_INTERNAL_URL: http://strapi:1337
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      # Browser/public base URL (used to prefix media URLs): should be reachable by end users.
+      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-${PUBLIC_STRAPI_URL}}
+      # Server-to-server base URL inside the Docker network.
+      STRAPI_INTERNAL_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
     ports:
       - "3000:3000"
     depends_on:

@@ -15,7 +15,9 @@ import {
   FaHandshake,
   FaLightbulb,
   FaDatabase,
-  FaUserTie
+  FaUserTie,
+  FaBookOpen,
+  FaFilePdf
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 
@@ -176,6 +178,100 @@ function DatasetCard({ dataset }) {
   );
 }
 
+// Publication Card Component
+function PublicationCard({ publication }) {
+  const slug = publication.slug ? encodeURIComponent(publication.slug) : '';
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5 group"
+    >
+      <div className="flex items-start gap-4">
+        {/* Icon */}
+        <div className="p-2.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex-shrink-0 mt-0.5">
+          <FaBookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          {/* Title */}
+          <h4 className="font-semibold text-gray-900 dark:text-white leading-snug">
+            {slug ? (
+              <Link
+                href={`/research/publications/${slug}`}
+                className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+              >
+                {publication.title}
+              </Link>
+            ) : (
+              publication.title
+            )}
+          </h4>
+
+          {/* Badges */}
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            {publication.year && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300">
+                {publication.year}
+              </span>
+            )}
+            {publication.kind && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {publication.kind}
+              </span>
+            )}
+            {publication.domain && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                {publication.domain}
+              </span>
+            )}
+          </div>
+
+          {/* Authors */}
+          {publication.authors && publication.authors.length > 0 && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2.5 leading-relaxed">
+              <span className="font-medium text-gray-600 dark:text-gray-300">Authors:</span>{' '}
+              {publication.authors.join(', ')}
+            </p>
+          )}
+
+          {/* Description */}
+          {publication.description && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 line-clamp-2 leading-relaxed">
+              {publication.description}
+            </p>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {slug && (
+              <Link
+                href={`/research/publications/${slug}`}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+              >
+                View details
+                <FaExternalLinkAlt className="w-3 h-3" />
+              </Link>
+            )}
+            {publication.pdfFile?.url && (
+              <a
+                href={publication.pdfFile.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              >
+                <FaFilePdf className="w-3.5 h-3.5" />
+                PDF
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ProjectDetails({ project }) {
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -265,6 +361,11 @@ export default function ProjectDetails({ project }) {
   // Add datasets tab if there are datasets
   if (project.datasets && project.datasets.length > 0) {
     tabs.push({ id: 'datasets', label: 'Datasets', icon: FaDatabase, count: project.datasets.length });
+  }
+
+  // Add publications tab if there are publications
+  if (project.publications && project.publications.length > 0) {
+    tabs.push({ id: 'publications', label: 'Publications', icon: FaBookOpen, count: project.publications.length });
   }
 
   return (
@@ -549,6 +650,56 @@ export default function ProjectDetails({ project }) {
                   <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
                     No datasets available for this project.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'publications' && (
+            <div className="space-y-6">
+              {project.publications && project.publications.length > 0 ? (
+                <>
+                  {/* Group publications by year */}
+                  {(() => {
+                    const sorted = [...project.publications].sort((a, b) => (b.year || 0) - (a.year || 0));
+                    const grouped = sorted.reduce((acc, pub) => {
+                      const key = pub.year || 'Other';
+                      if (!acc[key]) acc[key] = [];
+                      acc[key].push(pub);
+                      return acc;
+                    }, {});
+
+                    return Object.entries(grouped).map(([year, pubs]) => (
+                      <div key={year}>
+                        <div className="flex items-center gap-3 mb-4">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {year}
+                          </h3>
+                          <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                            {pubs.length} publication{pubs.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={containerVariants}
+                          className="grid gap-4"
+                        >
+                          {pubs.map((pub, index) => (
+                            <PublicationCard key={pub.slug || pub.id || index} publication={pub} />
+                          ))}
+                        </motion.div>
+                      </div>
+                    ));
+                  })()}
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No publications available for this project.
                   </p>
                 </div>
               )}

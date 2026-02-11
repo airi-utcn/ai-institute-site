@@ -45,10 +45,11 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:${{ github.sha }}
-          # Strapi needs these at build time to configure the Admin Panel
+          # These MUST match the values in your production .env file.
+          # Set them in: GitHub -> Repo -> Settings -> Secrets and variables -> Actions -> Variables
           build-args: |
-            PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi
-            STRAPI_ADMIN_URL=https://airi.utcluj.ro/strapi/admin
+            PUBLIC_STRAPI_URL=${{ vars.PUBLIC_STRAPI_URL }}
+            STRAPI_ADMIN_URL=${{ vars.STRAPI_ADMIN_URL }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/server:buildcache,mode=max
 
@@ -62,7 +63,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:${{ github.sha }}
           build-args: |
-            NEXT_PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi
+            NEXT_PUBLIC_STRAPI_URL=${{ vars.PUBLIC_STRAPI_URL }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/web:buildcache,mode=max
 

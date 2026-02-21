@@ -1,0 +1,117 @@
+Start Time: 2026-02-19T00:01:42.938Z
+Total Strapi Users to Process: 110
+--------------------------------------------------
+
+--- SUCCESSFUL USERS (20) ---
+[OK] Negru Vlad Andrei
+[OK] Peter Ioan Radu
+[OK] Petrovai Andra
+[OK] Pisla Doina Liana
+[OK] Pop Aurel Ovidiu
+[OK] Portase Raluca Laura
+[OK] Potolea Rodica
+[OK] Purcar Marius
+[OK] Puschita Emanuel Dumitru
+[OK] Radu Peter
+[OK] Sabou Adrian
+[OK] Slăvescu Radu-Răzvan
+[OK] Ștefănuț Teodor Traian
+[OK] Suciu Vasile
+[OK] Tamás Levente
+[OK] Terebes Romulus
+[OK] Tucan Paul
+[OK] Vaida Călin
+[OK] Vancea Cristian
+[OK] Zinca Daniel
+
+--- FAILED / SKIPPED USERS (90) ---
+[FAIL] Anghel Ionuț (Reason: Not found in CSV)
+[FAIL] Antonesi Mircea Gabriel (Reason: Not found in CSV)
+[FAIL] Ardelean Eugen Richard (Reason: Not found in CSV)
+[FAIL] Aurelia Ciupe (Reason: Not found in CSV)
+[FAIL] Bacila Radu (Reason: Not found in CSV)
+[FAIL]  Bâcu Victor Ioan (Reason: Not found in CSV)
+[FAIL] Badea Cornel Alexandru (Reason: Not found in CSV)
+[FAIL] Balog Bogdan (Reason: Not found in CSV)
+[FAIL] Bărăian Andrei Cristian (Reason: Not found in CSV)
+[FAIL] Barbura Claudia Georgiana (Reason: Not found in CSV)
+[FAIL] Bartoș Dragoș (Reason: Not found in CSV)
+[FAIL] Beche Radu (Reason: Not found in CSV)
+[FAIL] Benoit Challand (Reason: Not found in CSV)
+[FAIL] Blaga Bianca Cerasela (Reason: Not found in CSV)
+[FAIL] Bodi Radu (Reason: Not found in CSV)
+[FAIL] Bogdan Orza (Reason: Not found in CSV)
+[FAIL] Bogeanu-Popa Alexandru (Reason: Not found in CSV)
+[FAIL] Botez Robert (Reason: Not found in CSV)
+[FAIL] Brad Stelian (Reason: Not found in CSV)
+[FAIL] Brehar Raluca Didona (Reason: Not found in CSV)
+[FAIL] Bușoniu Lucian (Reason: Not found in CSV)
+[FAIL] Chiciudean Vivian (Reason: Not found in CSV)
+[FAIL] Cioara Tudor (Reason: Not found in CSV)
+[FAIL] Codrean Alexandru (Reason: Not found in CSV)
+[FAIL] Coleșa Adrian (Reason: Not found in CSV)
+[FAIL] Comes Radu (Reason: Not found in CSV)
+[FAIL] Császár István-Attila (Reason: Not found in CSV)
+[FAIL] Dănescu Radu Gabriel (Reason: Not found in CSV)
+[FAIL] Dînșoreanu Mihaela (Reason: Not found in CSV)
+[FAIL] Dobra Petru (Reason: Not found in CSV)
+[FAIL] Dobrota Virgil (Reason: Not found in CSV)
+[FAIL] Dumitraş Andrei  (Reason: Not found in CSV)
+[FAIL] Farago Paul (Reason: Not found in CSV)
+[FAIL] Fazakas Albert Csaba (Reason: Not found in CSV)
+[FAIL] Feier Cristina (Reason: Not found in CSV)
+[FAIL] Feier Maria Cristina (Reason: Not found in CSV)
+[FAIL] Florea Horaţiu Răzvan (Reason: Not found in CSV)
+[FAIL] Fodorean Daniel (Reason: Not found in CSV)
+[FAIL] Fuzes Attila Erno (Reason: Not found in CSV)
+[FAIL] Galbaza Alexandru (Reason: Not found in CSV)
+[FAIL] Gal Oscar (Reason: Not found in CSV)
+[FAIL] Georgiana Copil (Reason: Not found in CSV)
+[FAIL] Gherman Bogdan-George (Reason: Not found in CSV)
+[FAIL] Giosan Ion Augustin (Reason: Not found in CSV)
+[FAIL] Giurgiu Mircea (Reason: Not found in CSV)
+[FAIL] Goia Alexandru (Reason: Not found in CSV)
+[FAIL] Gorgan Dorian (Reason: Not found in CSV)
+[FAIL] Groza Adrian Petru (Reason: Not found in CSV)
+[FAIL] Hintea Sorin Adrian (Reason: Not found in CSV)
+[FAIL] Iakkel Claudiu (Reason: Not found in CSV)
+[FAIL] Itu Răzvan (Reason: Not found in CSV)
+[FAIL] Kirei Botond Sandor (Reason: Not found in CSV)
+[FAIL] Konievic Robert-Anton (Reason: Not found in CSV)
+[FAIL] Kovacs Istvan (Reason: Not found in CSV)
+[FAIL] Lăpuşan Alex Mihai (Reason: Not found in CSV)
+[FAIL] Lemnaru Camelia (Reason: Not found in CSV)
+[FAIL] Lendek Zsofia (Reason: Not found in CSV)
+[FAIL] Marcu Cosmin (Reason: Not found in CSV)
+[FAIL] Mărginean Anca Nicoleta (Reason: Not found in CSV)
+[FAIL] Marița Tiberiu (Reason: Not found in CSV)
+[FAIL] Medesan Lucian (Reason: Not found in CSV)
+[FAIL] Miclea Vlad Cristian (Reason: Not found in CSV)
+[FAIL] Mihăilă Laura Ioana (Reason: Not found in CSV)
+[FAIL] Mitrea Dan (Reason: Not found in CSV)
+[FAIL] Mitrea Delia Alexandrina (Reason: Not found in CSV)
+[FAIL] Molnar Szilard (Reason: Not found in CSV)
+[FAIL] Munteanu Călin (Reason: Not found in CSV)
+[FAIL] Mureșan Mircea Paul (Reason: Not found in CSV)
+[FAIL] Nandra Constantin Ioan (Reason: Not found in CSV)
+[FAIL] Natsakis Anastasios (Reason: Not found in CSV)
+[FAIL] Neag Marius (Reason: Not found in CSV)
+[FAIL] Neamțu Călin (Reason: Not found in CSV)
+[FAIL] Nedevschi Sergiu (Reason: Not found in CSV)
+[FAIL] Omăt Cristian (Reason: Not found in CSV)
+[FAIL] Onet Raul (Reason: Not found in CSV)
+[FAIL] Oniga Florin Ioan (Reason: Not found in CSV)
+[FAIL] Oprișa Ciprian (Reason: Not found in CSV)
+[FAIL] Pacurar Aralda Dora (Reason: Not found in CSV)
+[FAIL] Pîrje Ștefan (Reason: Not found in CSV)
+[FAIL] Pop Adrian (Reason: Multiple identical name matches in CSV, couldn't resolve without exact Faculty data)
+[FAIL] Pop Vasile (Reason: Multiple identical name matches in CSV, couldn't resolve without exact Faculty data)
+[FAIL] Rusu-Both Roxana (Reason: No social links in CSV)
+[FAIL] Sita Valentin (Reason: Strapi API Error on Update -> socialLinks[3].icon must be one of the following values: mail, phone, location, link, calendar, external, )
+[FAIL] Szomiu Roxana Ramona (Reason: Multiple identical name matches in CSV, couldn't resolve without exact Faculty data)
+[FAIL] Taraș Zinveliu Lara (Reason: Not found in CSV)
+[FAIL] Todorean Liana Maria (Reason: Not found in CSV)
+[FAIL] Topa Marina (Reason: Strapi API Error on Update -> socialLinks[3].icon must be one of the following values: mail, phone, location, link, calendar, external, )
+[FAIL] Totoian Marius Horaţiu (Reason: Not found in CSV)
+[FAIL] Turcu Vlad Spiridon (Reason: Not found in CSV)
+[FAIL] Vladu Gheorghe Eduard (Reason: Not found in CSV)

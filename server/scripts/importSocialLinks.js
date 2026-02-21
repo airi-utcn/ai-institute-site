@@ -1,10 +1,16 @@
+import 'dotenv/config';
 import fs from "fs-extra";
 import path from "path";
 import { parse } from "csv-parse/sync";
 import fetch from "node-fetch";
+import { env } from "process";
 
 // Config
-
+const STRAPI_URL = process.env.STRAPI_URL;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const CSV_PATH = path.join(process.cwd(), "public", "doc1.csv");
+const LOG_FILE = "./log-doc1.txt";
 
 // Platform link builders
 const PLATFORM_LINK_BUILDERS = {
@@ -30,19 +36,39 @@ function readCsv() {
   return parse(file, { 
     columns: true, 
     skip_empty_lines: true, 
-    delimiter: "\t", // Ensure this matches your CSV format
+    delimiter: "\t", 
     relax_column_count: true,
   });
 }
 
-function normalizeName(name) {
-  if (!name) return "";
-  return name
+function normalizeName(str) {
+  if (!str) return "";
+  return str
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/[\u0300-\u036f]/g, "") 
+    .replace(/[-_.,]/g, " ")      
+    .replace(/[^a-zA-Z0-9\s]/g, "") 
+    .replace(/\s+/g, " ")            
     .trim()
     .toLowerCase();
+}
+
+function getTokens(normalizedName) {
+    return normalizedName.split(" ").filter(t => t.length > 0);
+}
+
+function areNamesMatching(nameA, nameB) {
+    const tokensA = getTokens(nameA);
+    const tokensB = getTokens(nameB);
+
+    // Count matches
+    const matchesAtoB = tokensA.filter(token => tokensB.includes(token)).length;
+    const matchesBtoA = tokensB.filter(token => tokensA.includes(token)).length;
+
+    const isSubsetA = matchesAtoB === tokensA.length;
+    const isSubsetB = matchesBtoA === tokensB.length;
+
+    return isSubsetA || isSubsetB;
 }
 
 function buildLinks(row) {
@@ -82,7 +108,6 @@ async function validateUrl(url) {
 
     clearTimeout(timeoutId);
 
-    // 403 usually means "Forbidden" (bot protection), but implies the link exists
     if (res.ok || res.status === 403) {
       return true;
     }
@@ -100,30 +125,30 @@ async function validateLinks(links) {
   for (const link of links) {
     const ok = await validateUrl(link.url);
     if (ok) {
-      console.log(`   ✅ valid: ${link.url}`);
+      //console.log(`valid: ${link.url}`);
       validLinks.push(link);
     } else {
-      console.log(`   ❌ invalid: ${link.url}`);
+     // console.log(`invalid: ${link.url}`);
     }
   }
   return validLinks;
 }
 
-// --- STRAPI ACTIONS ---
 
 async function fetchAllUsers(token) {
   const users = [];
   let page = 1;
-  const pageSize = 100;
+  const pageSize = 1000;
+
+  console.log("Fetching users from Strapi...");
 
   while (true) {
     const res = await fetch(
-      `${STRAPI_URL}/content-manager/collection-types/api::person.person?page=${page}&pageSize=${pageSize}&sort=fullName:ASC`,
+      `${STRAPI_URL}/content-manager/collection-types/api::person.person?page=${page}&pageSize=${pageSize}&sort=fullName:ASC&populate=department`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const json = await res.json();
     
-    // Check 'results' vs 'data' depending on your specific Strapi version response
     const items = json?.results || json?.data || [];
 
     if (items.length === 0) break;
@@ -131,8 +156,9 @@ async function fetchAllUsers(token) {
     const simplified = items.map((u) => ({
       id: u.id,
       documentId: u.documentId,
-      fullName: u.fullName, // Keep original for display
-      normalizedName: normalizeName(u.fullName), // Use normalized for matching
+      fullName: u.fullName, 
+      normalizedName: normalizeName(u.fullName), 
+      departmentNormalized: u.department ? normalizeName(u.department.name) : "",
       slug: u.slug, 
     }));
 
@@ -181,7 +207,6 @@ function cleanDataForPublish(apiResponse) {
   ];
   readOnlyFields.forEach(field => delete payload[field]);
 
-  // Remove relation counts
   for (const key in payload) {
     if (payload[key] && typeof payload[key] === 'object' && 'count' in payload[key]) {
       delete payload[key];
@@ -202,8 +227,6 @@ async function publishPerson(token, documentId, cleanedPayload) {
   return res.json();
 }
 
-
-
 async function main() {
   const token = await login();
   if (!token) {
@@ -217,68 +240,126 @@ async function main() {
 
   const users = await fetchAllUsers(token);
 
-  const userMap = {};
-  for (const u of users) {
-    userMap[u.normalizedName] = u;
-  }
+  const successfulUsers = [];
+  const failedUsers = [];
+  const logMessages = [];
+  const log = (msg) => logMessages.push(msg);
 
-  let processed = 0;
+  log(`Start Time: ${new Date().toISOString()}`);
+  log(`Total Strapi Users to Process: ${users.length}`);
+  log("--------------------------------------------------");
 
-  for (const row of rows) {
-    const name = row["Name"]?.trim();
-    if (!name) continue;
+  console.log("\nStarting processing...\n");
 
-    console.log(`\n--------------------------------------------------`);
-    console.log(`${processed + 1}. Processing: ${name}`);
+  let processedCount = 0;
 
-    const normalized = normalizeName(name);
-    const person = userMap[normalized];
+  for (const person of users) {
+    const strapiName = person.fullName;
+    const strapiTokens = getTokens(person.normalizedName);
 
-    if (!person) {
-      console.log(`Person not found in Strapi: ${name}`);
-      continue;
+    let bestMatchRow = null;
+    let bestScore = -999;
+    let matchCount = 0; 
+
+    for (const row of rows) {
+      const csvNameRaw = row["Name"]?.trim();
+      if (!csvNameRaw) continue;
+      
+      const csvTokens = getTokens(normalizeName(csvNameRaw));
+      
+      const intersection = strapiTokens.filter(t => csvTokens.includes(t)).length;
+      const minTokens = Math.min(strapiTokens.length, csvTokens.length);
+
+      if (intersection >= minTokens && intersection > 0) {
+          
+          const lengthPenalty = Math.abs(strapiTokens.length - csvTokens.length);
+          let facultyBonus = 0;
+
+          const csvFac = normalizeName(row["Faculty"]?.trim());
+          const strapiFac = person.departmentNormalized;
+
+          if (csvFac && strapiFac) {
+              if (strapiFac.includes(csvFac) || csvFac.includes(strapiFac)) {
+                  facultyBonus = 50;  
+              } else {
+                  facultyBonus = -50; 
+              }
+          }
+
+          const score = (intersection * 10) - lengthPenalty + facultyBonus;
+
+          if (score > bestScore) {
+              bestScore = score;
+              bestMatchRow = row;
+              matchCount = 1;
+          } else if (score === bestScore) {
+              matchCount++; 
+          }
+      }
     }
 
-    const links = buildLinks(row);
-    if (links.length === 0) {
-      console.log(`No links found in CSV.`);
-      continue;
-    }
-
-    // 1. Validate
-    const validLinks = await validateLinks(links);
-    if (validLinks.length === 0) {
-      console.log(`No valid links to add.`);
-      continue;
-    }
-
-    // 2. Update
-    const updateResult = await updatePersonLinks(token, person.documentId, validLinks);
-    if (updateResult.error) {
-        console.error(`Error updating:`, updateResult.error);
+    if (!bestMatchRow) {
+        failedUsers.push(`${strapiName} (Reason: Not found in CSV)`);
         continue;
     }
-    console.log(`Updated links in Draft.`);
-
-    // 3. Get Fresh Data 
-    const freshJson = await getPersonData(token, person.documentId);
     
-    // 4. Clean Data
-    const payload = cleanDataForPublish(freshJson);
+    if (matchCount > 1 && bestScore < 50) {
+        failedUsers.push(`${strapiName} (Reason: Multiple identical name matches in CSV, couldn't resolve without exact Faculty data)`);
+        continue;
+    }
 
-    // 5. Publish 
-    const publishResult = await publishPerson(token, person.documentId, payload);
-    
-    if (publishResult.error) {
-        console.error(`Error Publishing:`, publishResult.error);
-    } else {
-        console.log(`PUBLISHED successfully!`);
-        processed++;
+    const rawLinks = buildLinks(bestMatchRow);
+    if (rawLinks.length === 0) {
+      failedUsers.push(`${strapiName} (Reason: No social links in CSV)`);
+      continue;
+    }
+
+    const validLinks = await validateLinks(rawLinks);
+    if (validLinks.length === 0) {
+      failedUsers.push(`${strapiName} (Reason: Links found in CSV but all were invalid/broken)`);
+      continue;
+    }
+
+    const updateResult = await updatePersonLinks(token, person.documentId, validLinks);
+    if (updateResult.error) {
+       const errorDetails = updateResult.error.message || JSON.stringify(updateResult.error.details) || "Unknown Error";
+       failedUsers.push(`${strapiName} (Reason: Strapi API Error on Update -> ${errorDetails})`);
+       continue;
+    }
+
+    try {
+      const freshJson = await getPersonData(token, person.documentId);
+      const freshData = freshJson.data || freshJson; 
+      const payload = cleanDataForPublish(freshData);
+      const publishResult = await publishPerson(token, person.documentId, payload);
+
+      if (publishResult.error) {
+         const pubError = publishResult.error.message || JSON.stringify(publishResult.error.details);
+         failedUsers.push(`${strapiName} (Reason: Strapi API Error on Publish -> ${pubError})`);
+      } else {
+         processedCount++;
+         successfulUsers.push(strapiName);
+         console.log(`${processedCount}. Successfully processed: ${strapiName}`);
+      }
+    } catch (err) {
+      failedUsers.push(`${strapiName} (Reason: Script Error during Publish - ${err.message})`);
     }
   }
 
+  // --- FINAL REPORT ---
   console.log(`\n==================================================`);
-  console.log(`Finished. Successfully processed and published ${processed} users.`);
+  console.log(`Finished!`);
+  console.log(`Successfully Processed: ${successfulUsers.length}`);
+  console.log(`Failed / Skipped: ${failedUsers.length}`);
+  console.log(`Log saved to: ${LOG_FILE}`);
+
+  log(`\n--- SUCCESSFUL USERS (${successfulUsers.length}) ---`);
+  successfulUsers.forEach(u => log(`[OK] ${u}`));
+
+  log(`\n--- FAILED / SKIPPED USERS (${failedUsers.length}) ---`);
+  failedUsers.forEach(u => log(`[FAIL] ${u}`));
+
+  fs.writeFileSync(LOG_FILE, logMessages.join('\n'), 'utf-8');
 }
 
 main().catch(console.error);

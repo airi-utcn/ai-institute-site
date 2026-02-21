@@ -549,6 +549,32 @@ export async function getProjectBySlug(slug) {
 }
 
 /**
+ * Get all partners from Strapi
+ * @returns {Promise<Array>} Array of partners
+ */
+export async function getPartners() {
+  const PARTNER_POPULATE = {
+    fields: ['name', 'slug', 'website', 'country', 'description'], 
+    populate: {
+      logo: {
+        fields: ['url', 'formats', 'alternativeText'],
+      },
+    },
+  };
+
+  try {
+    return await fetchAllEntries('/partners', {
+      fields: PARTNER_POPULATE.fields,
+      populate: PARTNER_POPULATE.populate,
+      sort: 'name:asc', 
+    });
+  } catch (error) {
+    console.error("Failed to fetch partners from Strapi: ", error);
+    return [];
+  }
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
@@ -1633,6 +1659,33 @@ export function transformResourceData(strapiResources) {
       maintainers,
       department,
       _strapi: res,
+    };
+  });
+}
+
+/**
+ * Helper function to transform partner data for the frontend
+ */
+export function transformPartnerData(strapiPartners) {
+  const list = Array.isArray(strapiPartners) ? strapiPartners : strapiPartners ? [strapiPartners] : [];
+
+  return list.map((partner) => {
+    const attributes = partner?.attributes ?? partner ?? {};
+    
+    let normalizedWebsite = attributes.website || '';
+    if (normalizedWebsite && !/^https?:\/\//i.test(normalizedWebsite)) {
+      normalizedWebsite = `https://${normalizedWebsite}`;
+    }
+    
+    return {
+      id: partner?.id ?? null,
+      name: attributes.name || '',
+      slug: attributes.slug || '',
+      country: attributes.country || '',
+      description: attributes.description ? stripHtml(attributes.description) : '',
+      url: normalizedWebsite, 
+      logo: resolveMediaUrl(attributes.logo), 
+      _strapi: partner,
     };
   });
 }

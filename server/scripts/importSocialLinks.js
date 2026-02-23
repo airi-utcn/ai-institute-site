@@ -1,16 +1,18 @@
 import 'dotenv/config';
+import { env } from "process";
 import fs from "fs-extra";
 import path from "path";
 import { parse } from "csv-parse/sync";
 import fetch from "node-fetch";
-import { env } from "process";
+
 
 // Config
-const STRAPI_URL = process.env.STRAPI_URL;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const CSV_PATH = path.join(process.cwd(), "public", "doc1.csv");
-const LOG_FILE = "./log-doc1.txt";
+const STRAPI_URL = env.STRAPI_URL;
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = env.ADMIN_PASSWORD;
+// const CSV_PATH = path.join(process.cwd(), "public", "doc1.csv");
+const CSV_PATH = path.join(process.cwd(), "doc1.csv");
+const LOG_FILE = "output-log-file";
 
 // Platform link builders
 const PLATFORM_LINK_BUILDERS = {
@@ -144,7 +146,7 @@ async function fetchAllUsers(token) {
 
   while (true) {
     const res = await fetch(
-      `${STRAPI_URL}/content-manager/collection-types/api::person.person?page=${page}&pageSize=${pageSize}&sort=fullName:ASC&populate=department`,
+      `${STRAPI_URL}/content-manager/collection-types/api::person.person?page=${page}&pageSize=${pageSize}&sort=fullName:ASC&populate=*`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const json = await res.json();
@@ -160,6 +162,7 @@ async function fetchAllUsers(token) {
       normalizedName: normalizeName(u.fullName), 
       departmentNormalized: u.department ? normalizeName(u.department.name) : "",
       slug: u.slug, 
+      existingLinks: u.socialLinks || [],  // save the previous records
     }));
 
     users.push(...simplified);
@@ -320,7 +323,18 @@ async function main() {
       continue;
     }
 
-    const updateResult = await updatePersonLinks(token, person.documentId, validLinks);
+    const existingUrls = new Set(person.existingLinks.map(link => link.url));
+
+    const newLinksToAdd = validLinks.filter(link => !existingUrls.has(link.url));
+
+    if (newLinksToAdd.length === 0) {
+       failedUsers.push(`${strapiName} (Reason: Skipped - All CSV links already exist on this profile)`);
+       continue;
+    }
+
+    const mergedLinks = [...person.existingLinks, ...newLinksToAdd];
+
+    const updateResult = await updatePersonLinks(token, person.documentId, mergedLinks);
     if (updateResult.error) {
        const errorDetails = updateResult.error.message || JSON.stringify(updateResult.error.details) || "Unknown Error";
        failedUsers.push(`${strapiName} (Reason: Strapi API Error on Update -> ${errorDetails})`);

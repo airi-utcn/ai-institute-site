@@ -27,34 +27,7 @@ export default function DepartmentsClient({
   }, [departmentList]);
 
   const supportUnitsList = useMemo(() => {
-    const passed = Array.isArray(supportUnits) ? supportUnits : [];
-    
-    // Check if static units are already present to avoid duplicates
-    const hasTech = passed.some(u => u.name === "Technology Transfer & Development Unit");
-    const hasHPC = passed.some(u => u.name === "HPC-AI Services");
-
-    const extra = [];
-    if (!hasTech) {
-      extra.push({
-        name: "Technology Transfer & Development Unit",
-        slug: "technology-transfer-development-unit",
-        type: "support",
-        description: "",
-        coordinator: "",
-      });
-    }
-
-    if (!hasHPC) {
-      extra.push({
-        name: "HPC-AI Services",
-        slug: "hpc-ai-services",
-        type: "support",
-        description: "",
-        coordinator: "",
-      });
-    }
-    
-    return [...passed, ...extra];
+    return Array.isArray(supportUnits) ? supportUnits : [];
   }, [supportUnits]);
 
   const typeLabel = (type) => {

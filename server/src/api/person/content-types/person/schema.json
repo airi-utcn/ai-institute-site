@@ -70,12 +70,6 @@
       "target": "api::department.department",
       "inversedBy": "people"
     },
-    "support_units": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::support-unit.support-unit",
-      "mappedBy": "members"
-    },
     "projects": {
       "type": "relation",
       "relation": "manyToMany",
@@ -92,12 +86,6 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::publication.publication",
-      "mappedBy": "authors"
-    },
-    "datasets": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::dataset.dataset",
       "mappedBy": "authors"
     }
   }

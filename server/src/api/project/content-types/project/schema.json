@@ -25,24 +25,24 @@
     },
     "phase": {
       "type": "enumeration",
+      "default": "ongoing",
       "enum": [
         "planned",
         "ongoing",
         "completed",
         "archived"
-      ],
-      "default": "ongoing"
+      ]
     },
     "region": {
       "type": "enumeration",
+      "default": "national",
       "enum": [
         "local",
         "regional",
         "national",
         "international",
         "other"
-      ],
-      "default": "national"
+      ]
     },
     "heroImage": {
       "type": "media",
@@ -102,24 +102,18 @@
     },
     "team": {
       "type": "component",
-      "repeatable": true,
-      "component": "project.team-member"
+      "component": "project.team-member",
+      "repeatable": true
     },
     "timeline": {
       "type": "component",
-      "repeatable": true,
-      "component": "project.timeline-entry"
+      "component": "project.timeline-entry",
+      "repeatable": true
     },
     "publications": {
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::publication.publication",
-      "mappedBy": "projects"
-    },
-    "datasets": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::dataset.dataset",
       "mappedBy": "projects"
     },
     "featured": {

@@ -1,0 +1,126 @@
+services:
+  postgres:
+    # Use ECR Public mirror to avoid Docker Hub limits
+    image: public.ecr.aws/docker/library/postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:  
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  strapi:
+    # -----------------------------------------------------------
+    # CHANGE THIS: Replace 'YOUR_GITHUB_USER' with your username
+    # -----------------------------------------------------------
+    image: ghcr.io/airi-utcn/ai-institute-site/server:latest
+    restart: always
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      NODE_ENV: production
+      # These public URLs are baked in at build time, but Strapi sometimes needs them here too
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
+      # Secrets
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+    ports:
+      - "1337:1337"
+    volumes:
+      # We still need to persist uploads!
+      - ./uploads:/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:1337/admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nextjs:
+    # -----------------------------------------------------------
+    # CHANGE THIS: Replace 'YOUR_GITHUB_USER' with your username
+    # -----------------------------------------------------------
+    image: ghcr.io/airi-utcn/ai-institute-site/web:latest
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      # Browser/public base URL (used to prefix media URLs): should be reachable by end users.
+      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-${PUBLIC_STRAPI_URL}}
+      # Server-to-server base URL inside the Docker network.
+      STRAPI_INTERNAL_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
+    ports:
+      - "3000:3000"
+    depends_on:
+      strapi:
+        condition: service_healthy
+
+  watchtower:
+    # Use GHCR mirror for Watchtower
+    image: ghcr.io/containrrr/watchtower:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Mount the Docker config directory (contains auth credentials)
+      - ~/.docker/config.json:/config.json:ro
+    command: --interval 300 --cleanup
+    environment:
+      # Alternative: use env vars if config.json mount fails
+      REPO_USER: ${REPO_USER}
+      REPO_PASS: ${REPO_PASS}
+    restart: always
+
+  # Automated daily PostgreSQL backups with 7-day retention
+  db-backup:
+    image: public.ecr.aws/docker/library/postgres:16
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./backups:/backups
+    # Run a backup every day at 3:00 AM, keep last 7 days
+    entrypoint: >
+      sh -c '
+        while true; do
+          TIMESTAMP=$$(date +%Y-%m-%d_%H-%M-%S)
+          echo "[$$TIMESTAMP] Starting backup..."
+          pg_dump -Fc > /backups/backup_$$TIMESTAMP.dump
+          echo "[$$TIMESTAMP] Backup complete: backup_$$TIMESTAMP.dump"
+          # Delete backups older than 7 days
+          find /backups -name "backup_*.dump" -mtime +7 -delete
+          echo "Cleaned old backups. Sleeping 24h..."
+          sleep 86400
+        done
+      '
+    restart: always
+
+volumes:
+  pgdata:

@@ -949,7 +949,14 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     >;
     titles: Schema.Attribute.JSON;
     type: Schema.Attribute.Enumeration<
-      ['staff', 'researcher', 'alumni', 'visitor', 'external']
+      [
+        'staff',
+        'researcher',
+        'alumni',
+        'visitor',
+        'visiting_researcher',
+        'external',
+      ]
     > &
       Schema.Attribute.DefaultTo<'researcher'>;
     updatedAt: Schema.Attribute.DateTime;
@@ -984,6 +991,8 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     >;
     featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     heroImage: Schema.Attribute.Media<'images'>;
+    isIndustryEngagement: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     lead: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1034,18 +1043,21 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    attachments: Schema.Attribute.Media<
+      'files' | 'images' | 'videos' | 'audios',
+      true
+    >;
     authors: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
+    bibFile: Schema.Attribute.Media<'files'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     datasets: Schema.Attribute.Relation<'manyToMany', 'api::dataset.dataset'>;
     description: Schema.Attribute.RichText;
-    doc_url: Schema.Attribute.Text;
     domain: Schema.Attribute.Relation<
       'manyToOne',
       'api::department.department'
     >;
-    external_url: Schema.Attribute.Text;
     kind: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1054,6 +1066,7 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     metadata: Schema.Attribute.JSON;
+    pdfFile: Schema.Attribute.Media<'files'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'title'>;
@@ -1150,6 +1163,75 @@ export interface ApiResearchUnitResearchUnit
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiResourceResource extends Struct.CollectionTypeSchema {
+  collectionName: 'resources';
+  info: {
+    description: 'External tools, datasets, software, and links curated by the institute';
+    displayName: 'Resource';
+    pluralName: 'resources';
+    singularName: 'resource';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Schema.Attribute.Enumeration<
+      [
+        'dataset',
+        'tool',
+        'software',
+        'documentation',
+        'api',
+        'library',
+        'framework',
+        'learning',
+        'other',
+      ]
+    > &
+      Schema.Attribute.DefaultTo<'other'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    department: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::department.department'
+    >;
+    description: Schema.Attribute.Text & Schema.Attribute.Required;
+    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    icon: Schema.Attribute.Enumeration<
+      [
+        'database',
+        'github',
+        'tool',
+        'code',
+        'document',
+        'book',
+        'api',
+        'cloud',
+        'ai',
+        'link',
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'link'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::resource.resource'
+    > &
+      Schema.Attribute.Private;
+    maintainers: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    tags: Schema.Attribute.JSON;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    url: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -1525,8 +1607,8 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     };
   };
   attributes: {
-    alternativeText: Schema.Attribute.String;
-    caption: Schema.Attribute.String;
+    alternativeText: Schema.Attribute.Text;
+    caption: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1550,7 +1632,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     mime: Schema.Attribute.String & Schema.Attribute.Required;
     name: Schema.Attribute.String & Schema.Attribute.Required;
-    previewUrl: Schema.Attribute.String;
+    previewUrl: Schema.Attribute.Text;
     provider: Schema.Attribute.String & Schema.Attribute.Required;
     provider_metadata: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
@@ -1559,7 +1641,7 @@ export interface PluginUploadFile extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    url: Schema.Attribute.String & Schema.Attribute.Required;
+    url: Schema.Attribute.Text & Schema.Attribute.Required;
     width: Schema.Attribute.Integer;
   };
 }
@@ -1794,6 +1876,7 @@ declare module '@strapi/strapi' {
       'api::publication.publication': ApiPublicationPublication;
       'api::research-theme.research-theme': ApiResearchThemeResearchTheme;
       'api::research-unit.research-unit': ApiResearchUnitResearchUnit;
+      'api::resource.resource': ApiResourceResource;
       'api::search-entry.search-entry': ApiSearchEntrySearchEntry;
       'api::seminar.seminar': ApiSeminarSeminar;
       'api::support-unit.support-unit': ApiSupportUnitSupportUnit;

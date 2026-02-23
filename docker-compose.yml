@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: mirror.gcr.io/library/postgres:16
+    # Use ECR Public mirror for Postgres to avoid Docker Hub limits
+    image: public.ecr.aws/docker/library/postgres:16
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

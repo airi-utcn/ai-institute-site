@@ -436,6 +436,9 @@ export async function getStaffMember(slug) {
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {},
+        socialLinks: {
+          fields: ['label', 'url', 'icon'],
+        },
         projects: { fields: ['title', 'slug'] },
         leading_projects: { fields: ['title', 'slug'] },
         publications: { fields: ['title', 'slug', 'year'] },
@@ -525,6 +528,14 @@ export async function getProjectBySlug(slug) {
         timeline: {},
         datasets: {
           fields: ['title', 'slug', 'source_url', 'platform'],
+        },
+        publications: {
+          fields: ['title', 'slug', 'year', 'kind', 'description'],
+          populate: {
+            authors: PERSON_FLAT_POPULATE,
+            pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+            domain: DEPARTMENT_POPULATE,
+          },
         },
       },
     });
@@ -867,6 +878,51 @@ export function transformStaffData(strapiStaff) {
       };
     });
 
+    const socialLinks = toArray(attributes.socialLinks).map((link) => {
+      if (!link) return null;
+      const rawUrl = (link.url || '').toString().trim();
+      const icon = link.icon || 'link';
+
+      const normalizeUrl = (u, iconType) => {
+        if (!u) return '';
+        let url = u.trim();
+
+        // Emails
+        if (iconType === 'mail' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(url)) {
+          if (!/^mailto:/i.test(url)) return `mailto:${url}`;
+          return url;
+        }
+
+        // Phones
+        if (iconType === 'phone' || /^\+?[0-9\s\-()]{3,}$/.test(url)) {
+          if (!/^tel:/i.test(url)) return `tel:${url}`;
+          return url;
+        }
+
+        // Already absolute or protocol-relative
+        if (/^https?:\/\//i.test(url) || /^mailto:|^tel:/i.test(url)) return url;
+        if (/^\/\//.test(url)) return `https:${url}`;
+
+        // Relative paths (keep as-is)
+        if (/^\//.test(url)) return url;
+
+        // If it looks like a hostname (contains a dot) or starts with www, assume https
+        if (/^www\./i.test(url) || /\.[a-z]{2,}(\/|$)/i.test(url)) {
+          return `https://${url}`;
+        }
+
+        // Fallback: return as-is
+        return url;
+      };
+
+      return {
+        label: link.label || '',
+        url: normalizeUrl(rawUrl, icon),
+        icon,
+        raw: rawUrl,
+      };
+    }).filter(Boolean);
+
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
       return {
@@ -896,6 +952,7 @@ export function transformStaffData(strapiStaff) {
       departmentInfo: department,
       image,
       bio: stripHtml(attributes.bio) || '',
+      socialLinks,
       leadingProjects,
       memberProjects,
       publications,
@@ -1184,11 +1241,31 @@ export function transformProjectData(strapiProjects) {
 
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
+
+      const pubAuthors = toArray(pubData.authors?.data ?? pubData.authors).map((a) => {
+        const aData = a?.attributes ?? a ?? {};
+        return aData.fullName || aData.name || '';
+      }).filter(Boolean);
+
+      const pubDomainEntry = pubData.domain?.data ?? pubData.domain;
+      const pubDomainAttr = pubDomainEntry?.attributes ?? pubDomainEntry ?? {};
+      const pubDomain = pubDomainAttr.name || '';
+
       return {
         id: pub?.id ?? null,
         slug: pubData.slug || '',
         title: pubData.title || '',
         year: pubData.year ?? null,
+        kind: pubData.kind || '',
+        description: stripHtml(pubData.description || ''),
+        authors: pubAuthors,
+        domain: pubDomain,
+        pdfFile: pubData.pdfFile
+          ? {
+              url: resolveMediaUrl(pubData.pdfFile),
+              name: (pubData.pdfFile?.data?.attributes ?? pubData.pdfFile?.data ?? pubData.pdfFile)?.name || '',
+            }
+          : null,
       };
     });
 

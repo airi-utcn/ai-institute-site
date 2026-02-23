@@ -1637,3 +1637,89 @@ export function transformResourceData(strapiResources) {
   });
 }
 
+/**
+ * Fetch all Research Papers for the Graph
+ */
+export async function getPapers() {
+  try {
+    return await fetchAllEntries('/papers', {
+      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by'],
+    });
+  } catch (error) {
+    console.error('Failed to fetch papers:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch all Graph Links for the Graph
+ */
+export async function getGraphLinks() {
+  try {
+    // Populate source and target with just their OpenAlex ID
+    const populate = {
+      source: { fields: ['openAlexId'] },
+      target: { fields: ['openAlexId'] },
+    };
+    return await fetchAllEntries('/graph-links', {
+      fields: ['score'],
+      populate,
+    });
+  } catch (error) {
+    console.error('Failed to fetch graph links:', error);
+    return [];
+  }
+}
+
+/**
+ * Transform papers for the graph visualization
+ */
+export function transformPaperData(strapiPapers) {
+  const list = Array.isArray(strapiPapers) ? strapiPapers : strapiPapers ? [strapiPapers] : [];
+  return list.map((p) => {
+    const attr = p.attributes ?? p ?? {};
+    return {
+      id: String(p.documentId ?? p.id),
+      title: attr.title ?? "(No title)",
+      openAlexId: attr.openAlexId ?? null,
+      year: attr.year ?? null,
+      topics: Array.isArray(attr.topics) ? attr.topics : [],
+      cited_by: attr.cited_by ?? null,
+      abstract: attr.abstract ?? null,
+    };
+  });
+}
+
+/**
+ * Transform links for the graph visualization
+ * Requires a map of openAlexId -> numerical ID (or whatever ID the frontend uses)
+ * to resolve the source/target references.
+ */
+export function transformGraphLinkData(strapiLinks, oaToIdMap) {
+  const list = Array.isArray(strapiLinks) ? strapiLinks : strapiLinks ? [strapiLinks] : [];
+  
+  return list
+    .map((l) => {
+      const attr = l.attributes ?? l ?? {};
+      const srcAttr = attr.source?.data?.attributes ?? attr.source ?? {};
+      const tgtAttr = attr.target?.data?.attributes ?? attr.target ?? {};
+      
+      const sourceOa = srcAttr.openAlexId ?? null;
+      const targetOa = tgtAttr.openAlexId ?? null;
+      
+      const sourceId = sourceOa ? oaToIdMap[sourceOa] : null;
+      const targetId = targetOa ? oaToIdMap[targetOa] : null;
+
+      if (!sourceId || !targetId || sourceId === targetId) return null;
+      
+      return {
+        id: String(l.documentId ?? l.id),
+        sourceId,
+        targetId,
+        score: parseFloat(attr.score) || 0.5,
+      };
+    })
+    .filter(Boolean);
+}
+
+

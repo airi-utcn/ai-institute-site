@@ -28,6 +28,7 @@ const researchMenu = [
   { href: '/research/publications', label: 'Publications' },
   { href: '/research/thesis', label: 'Thesis' },
   { href: '/resources', label: 'Resources' },
+  { href: '/research/paper-graph', label: 'Paper Graph' },
 ];
 
 const newsMenu = [

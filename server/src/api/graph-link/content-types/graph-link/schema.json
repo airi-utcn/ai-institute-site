@@ -1,0 +1,28 @@
+{
+  "kind": "collectionType",
+  "collectionName": "graph_links",
+  "info": {
+    "singularName": "graph-link",
+    "pluralName": "graph-links",
+    "displayName": "GraphLink"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "source": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::paper.paper"
+    },
+    "target": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::paper.paper"
+    },
+    "score": {
+      "type": "decimal"
+    }
+  }
+}

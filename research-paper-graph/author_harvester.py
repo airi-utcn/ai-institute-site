@@ -210,6 +210,11 @@ if __name__ == "__main__":
     works = get_author_works(author_id)
     save_results(name, works)
 
+    strapi_upload_decision = input("Do you want to upload papers to Strapi? (y/n): ").strip().lower()
+    if strapi_upload_decision != 'y':
+        print("Skipping Strapi upload.")
+        exit()
+
     print("\n--- Pushing to Strapi ---")
     stats = {
         "pdf_candidates": 0,

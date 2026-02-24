@@ -706,16 +706,10 @@ export async function getResearchThemes() {
 /* --- Added Fetchers for Migration --- */
 
 export async function getEvents() {
-  const EVENT_POPULATE = {
-    fields: ['title', 'slug', 'startDate', 'endDate', 'ctaLabel', 'ctaUrl', 'description'],
-    populate: {
-       heroImage: { fields: ['url'] }
-    }
-  };
   try {
     return await fetchAllEntries('/events', {
-      fields: EVENT_POPULATE.fields,
-      populate: EVENT_POPULATE.populate,
+      fields: EVENT_FIELDS,
+      populate: EVENT_POPULATE,
       sort: 'startDate:desc',
     });
   } catch (error) {
@@ -725,18 +719,10 @@ export async function getEvents() {
 }
 
 export async function getSeminars() {
-  const SEMINAR_POPULATE = {
-    fields: ['title', 'slug', 'provider', 'summary', 'ctaLabel', 'ctaUrl'],
-    populate: {
-      modules: {
-        populate: '*',
-      },
-    },
-  };
   try {
     return await fetchAllEntries('/seminars', {
-      fields: SEMINAR_POPULATE.fields,
-      populate: SEMINAR_POPULATE.populate,
+      fields: SEMINAR_FIELDS,
+      populate: SEMINAR_POPULATE,
       sort: 'title:asc',
     });
   } catch (error) {
@@ -1345,8 +1331,16 @@ export function transformEventData(strapiEvents) {
       id: evt?.id ?? null,
       title: attributes.title || '',
       slug: attributes.slug || '',
+      description: attributes.description || '',
+      category: attributes.category || 'event',
+      location: attributes.location || '',
+      startDate: attributes.startDate || null,
+      endDate: attributes.endDate || null,
+      // keep 'date' as the primary sort key for backward-compat with the client
+      date: attributes.startDate || null,
+      ctaLabel: attributes.ctaLabel || '',
       url: attributes.ctaUrl || '',
-      date: attributes.startDate || attributes.publishedAt,
+      image: resolveMediaUrl(attributes.heroImage),
       _strapi: evt,
     };
   });
@@ -1381,6 +1375,18 @@ const RESOURCE_POPULATE = {
   maintainers: {
     fields: ['fullName', 'slug'],
   },
+};
+
+const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description'];
+
+const EVENT_POPULATE = {
+  heroImage: { fields: ['url', 'alternativeText'] },
+};
+
+const SEMINAR_FIELDS = ['title', 'slug', 'provider', 'summary', 'ctaLabel', 'ctaUrl'];
+
+const SEMINAR_POPULATE = {
+  modules: { fields: ['title', 'description', 'richContent'] },
 };
 
 export async function getResources(options = {}) {

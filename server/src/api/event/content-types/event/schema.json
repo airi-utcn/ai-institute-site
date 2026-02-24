@@ -34,7 +34,7 @@
     },
     "category": {
       "type": "enumeration",
-      "enum": ["event", "seminar", "workshop", "talk", "other"],
+      "enum": ["event", "workshop", "talk", "other"],
       "default": "event"
     },
     "ctaLabel": {

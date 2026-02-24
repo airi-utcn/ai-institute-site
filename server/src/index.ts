@@ -37,6 +37,8 @@ export default {
       'api::partner.partner',
       'api::news-article.news-article',
       'api::resource.resource',
+      'api::event.event',
+      'api::seminar.seminar',
     ];
 
     let addedCount = 0;

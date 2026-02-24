@@ -10,6 +10,8 @@ const MODEL_PATH_MAP = {
   "api::department.department": ["/research/departments"],
   "api::research-theme.research-theme": ["/research/themes"],
   "api::news-article.news-article": ["/news&events/news"],
+  "api::event.event": ["/news&events/events"],
+  "api::seminar.seminar": ["/news&events/seminars"],
   "api::publication.publication": ["/research/publications", "/research/departments"],
 };
 

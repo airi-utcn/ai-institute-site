@@ -160,7 +160,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'position', 'email', 'phone', 'type', 'location'];
+const PERSON_FIELDS = ['fullName', 'slug', 'position', 'email', 'phone', 'type'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -180,26 +180,6 @@ const DEPARTMENT_POPULATE = {
 };
 
 
-
-const PUBLICATION_POPULATE = {
-  fields: ['title', 'slug', 'year', 'kind', 'description'],
-  populate: {
-    domain: DEPARTMENT_POPULATE,
-    projects: {
-      fields: ['title', 'slug'],
-    },
-    authors: PERSON_FLAT_POPULATE,
-    pdfFile: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-    bibFile: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-    attachments: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-  },
-};
 
 const PROJECT_POPULATE = {
   fields: ['title', 'slug', 'abstract', 'region', 'phase', 'docUrl', 'officialUrl', 'featured', 'isIndustryEngagement'],
@@ -221,16 +201,6 @@ const PROJECT_POPULATE = {
         },
       },
     },
-  },
-};
-
-const NEWS_ARTICLE_POPULATE = {
-  fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl'],
-  populate: {
-    heroImage: {},
-    relatedDepartments: DEPARTMENT_POPULATE,
-    relatedProjects: PROJECT_POPULATE,
-    featuredPeople: PERSON_FLAT_POPULATE,
   },
 };
 
@@ -431,7 +401,7 @@ export async function getStaffMember(slug) {
       filters: { slug: { $eq: slug } },
       populate: {
         department: DEPARTMENT_POPULATE,
-        portrait: {},
+        portrait: { fields: ['url', 'formats', 'alternativeText'] },
         socialLinks: {
           fields: ['label', 'url', 'icon'],
         },
@@ -467,7 +437,12 @@ export async function getProjects(options = {}) {
       publicationState,
       filters: Object.keys(filters).length ? filters : null,
       fields: PROJECT_POPULATE.fields,
-      populate: PROJECT_POPULATE.populate,
+      // List view: lead/members only need name+slug; portraits are only needed on the detail page.
+      populate: {
+        ...PROJECT_POPULATE.populate,
+        lead: PERSON_FLAT_POPULATE,
+        members: PERSON_FLAT_POPULATE,
+      },
     });
 
     const data = await fetchAPI(`/projects?${params.toString()}`);
@@ -486,58 +461,63 @@ export async function getProjects(options = {}) {
 export async function getProjectBySlug(slug) {
   try {
     if (!slug) return null;
-    const params = createParams({
+
+    // Split into two parallel requests so neither URL becomes excessively long.
+    // 1. Core project data (no publications nested populate).
+    const projectParams = createParams({
       filters: { slug: { $eq: slug } },
       publicationState: 'preview',
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
-        heroImage: {},
+        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
         body: {
           on: {
-            'shared.rich-text': {
-              fields: ['body'],
-            },
+            'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: {
-                media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.media': {
-              populate: {
-                file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.slider': {
-              populate: {
-                files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
           },
         },
-        team: {
-          populate: {
-            person: PERSON_WITH_IMAGE_POPULATE,
-          },
-        },
+        team: { populate: { person: PERSON_WITH_IMAGE_POPULATE } },
         timeline: {},
-        resources: {
-          fields: ['title', 'slug', 'source_url', 'platform'],
-        },
-        publications: {
-          fields: ['title', 'slug', 'year', 'kind', 'description'],
-          populate: {
-            authors: PERSON_FLAT_POPULATE,
-            pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
-            domain: DEPARTMENT_POPULATE,
-          },
-        },
+        resources: { fields: ['title', 'slug', 'url', 'icon', 'category'] },
       },
     });
 
-    const data = await fetchAPI(`/projects?${params.toString()}`);
-    return data.data?.[0] || null;
+    // 2. Publications for this project — fetched from the publications endpoint to keep URLs short.
+    const pubParams = createParams({
+      filters: { projects: { slug: { $eq: slug } } },
+      sort: 'year:desc',
+      fields: ['title', 'slug', 'year', 'kind', 'description'],
+      populate: {
+        authors: PERSON_FLAT_POPULATE,
+        pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        domain: DEPARTMENT_POPULATE,
+      },
+    });
+
+    const [projectData, pubData] = await Promise.all([
+      fetchAPI(`/projects?${projectParams.toString()}`),
+      fetchAPI(`/publications?${pubParams.toString()}`),
+    ]);
+
+    const project = projectData.data?.[0];
+    if (!project) return null;
+
+    // Inject publications into the project so transformProjectData can pick them up.
+    // Works for both Strapi v4 (attributes wrapper) and v5 (flat object).
+    const attrs = project?.attributes ?? project;
+    attrs.publications = pubData.data ?? [];
+
+    return project;
   } catch (error) {
     console.error('Failed to fetch project:', error);
     return null;
@@ -553,13 +533,7 @@ export async function getPublications() {
     const params = new URLSearchParams();
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
-    setPopulate(params, 'populate[projects]', {
-      fields: ['title', 'slug'],
-      populate: {
-        lead: PERSON_FLAT_POPULATE,
-        domains: DEPARTMENT_POPULATE,
-      },
-    });
+    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -593,7 +567,7 @@ export async function getPublicationBySlug(slug) {
     });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
-    setPopulate(params, 'populate[resources]', { fields: ['title', 'slug', 'source_url', 'platform'] });
+    setPopulate(params, 'populate[resources]', { fields: ['title', 'slug', 'url', 'icon', 'category'] });
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -615,26 +589,14 @@ export async function getNewsArticles(options = {}) {
   const { pageSize } = options;
   
   try {
-    const params = new URLSearchParams();
-    params.set('sort', 'publishedDate:desc');
-    
-    // Apply page size if specified
-    if (pageSize) {
-      params.set('pagination[pageSize]', String(pageSize));
-    }
-    
-    // Minimal populate to avoid invalid media keys on Strapi and keep payload light
-    params.append('fields[0]', 'title');
-    params.append('fields[1]', 'slug');
-    params.append('fields[2]', 'summary');
-    params.append('fields[3]', 'category');
-    params.append('fields[4]', 'publishedDate');
-    params.append('fields[5]', 'linkUrl');
-    params.append('fields[6]', 'tags');
-    // Only fetch hero image URL and basic metadata
-    params.append('populate[heroImage][fields][0]', 'url');
-    params.append('populate[heroImage][fields][1]', 'formats');
-    params.append('populate[heroImage][fields][2]', 'alternativeText');
+    const params = createParams({
+      sort: 'publishedDate:desc',
+      fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
+      pagination: pageSize ? { pageSize } : null,
+      populate: {
+        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+      },
+    });
     const data = await fetchAPI(`/news-articles?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -655,13 +617,7 @@ export async function getPublicationsByAuthor(authorSlug) {
     params.set('filters[authors][slug][$eq]', authorSlug);
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
-    setPopulate(params, 'populate[projects]', {
-      fields: ['title', 'slug'],
-      populate: {
-        lead: PERSON_FLAT_POPULATE,
-        domains: DEPARTMENT_POPULATE,
-      },
-    });
+    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
@@ -686,7 +642,7 @@ export async function getProjectsByMember(memberSlug) {
     setPopulate(params, 'populate[lead]', PERSON_WITH_IMAGE_POPULATE);
     setPopulate(params, 'populate[members]', PERSON_WITH_IMAGE_POPULATE);
     setPopulate(params, 'populate[domains]', DEPARTMENT_POPULATE);
-    setPopulate(params, 'populate[publications]', PUBLICATION_POPULATE);
+    setPopulate(params, 'populate[publications]', { fields: ['title', 'slug', 'year', 'kind'] });
     const data = await fetchAPI(`/projects?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -697,10 +653,16 @@ export async function getProjectsByMember(memberSlug) {
 
 export async function getDepartments(options = {}) {
   try {
-    const { type, page, pageSize = 100 } = options;
+    const { type, page, pageSize = 100, slim = false } = options;
     const filters = type ? { type: { $eq: type } } : null;
 
-    const baseOptions = {
+    // slim=true: only fetch the fields needed for list/card views (name, slug, summary, type).
+    // slim=false (default): full populate for detail pages.
+    const baseOptions = slim ? {
+      sort: 'name:asc',
+      fields: ['name', 'slug', 'summary', 'type'],
+      filters,
+    } : {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
@@ -973,8 +935,9 @@ export function transformPublicationData(strapiPubs) {
         id: resource?.id ?? null,
         slug: resourceData.slug || '',
         title: resourceData.title || '',
-        url: resourceData.source_url || resourceData.url || '',
-        platform: resourceData.platform || '',
+        url: resourceData.url || '',
+        icon: resourceData.icon || 'link',
+        category: resourceData.category || '',
       };
     });
 
@@ -1068,11 +1031,6 @@ export function transformNewsData(strapiNews) {
         tags,
         _strapi: item,
       };
-    })
-    .sort((a, b) => {
-      const aTime = a.date ? new Date(a.date).getTime() : 0;
-      const bTime = b.date ? new Date(b.date).getTime() : 0;
-      return bTime - aTime;
     });
 }
 
@@ -1229,8 +1187,9 @@ export function transformProjectData(strapiProjects) {
         id: resource?.id ?? null,
         title: resourceAttrs.title || '',
         slug: resourceAttrs.slug || '',
-        url: resourceAttrs.source_url || resourceAttrs.url || '',
-        platform: resourceAttrs.platform || '',
+        url: resourceAttrs.url || '',
+        icon: resourceAttrs.icon || 'link',
+        category: resourceAttrs.category || '',
       };
     });
 

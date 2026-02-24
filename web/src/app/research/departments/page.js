@@ -17,7 +17,7 @@ import {
 export default async function ResearchPage() {
   const [staffData, departmentData, projectsData, publicationsData] = await Promise.all([
     getStaff(),
-    getDepartments(),
+    getDepartments({ slim: true }),
     getProjects(),
     getPublications(),
   ]);

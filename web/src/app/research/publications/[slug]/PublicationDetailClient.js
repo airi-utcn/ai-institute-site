@@ -15,7 +15,7 @@ export default function PublicationDetailClient({ publication }) {
     authors = [],
     projects = [],
     themes = [],
-    datasets = [],
+    resources = [],
     attachments = [],
     pdfFile,
     bibFile,
@@ -198,32 +198,32 @@ export default function PublicationDetailClient({ publication }) {
             </div>
 
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">Datasets</h3>
-              {datasets.length ? (
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">Resources</h3>
+              {resources.length ? (
                 <div className="mt-3 space-y-3">
-                  {datasets.map((ds, idx) => (
-                    <div key={`${ds.slug || ds.title}-${idx}`} className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
+                  {resources.map((resource, idx) => (
+                    <div key={`${resource.slug || resource.title}-${idx}`} className="rounded-lg border border-gray-200 dark:border-gray-800 p-3">
                       <div className="font-medium text-gray-900 dark:text-white text-sm">
-                        {ds.title || "Dataset"}
+                        {resource.title || "Resource"}
                       </div>
-                      {ds.platform ? (
-                        <div className="text-xs text-gray-500 mt-1">{ds.platform}</div>
+                      {resource.platform ? (
+                        <div className="text-xs text-gray-500 mt-1">{resource.platform}</div>
                       ) : null}
-                      {ds.url ? (
+                      {resource.url ? (
                         <a
-                          href={ds.url}
+                          href={resource.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="mt-2 inline-flex text-xs text-blue-600 dark:text-blue-400 hover:underline"
                         >
-                          View dataset
+                          View resource
                         </a>
                       ) : null}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-gray-500">No datasets linked.</p>
+                <p className="mt-2 text-sm text-gray-500">No resources linked.</p>
               )}
             </div>
           </aside>

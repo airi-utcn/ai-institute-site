@@ -179,10 +179,6 @@ const DEPARTMENT_POPULATE = {
   fields: ['name', 'slug', 'summary', 'description'],
 };
 
-const SUPPORT_UNIT_POPULATE = {
-  fields: ['name', 'slug', 'summary', 'mission'],
-};
-
 
 
 const PUBLICATION_POPULATE = {
@@ -526,7 +522,7 @@ export async function getProjectBySlug(slug) {
           },
         },
         timeline: {},
-        datasets: {
+        resources: {
           fields: ['title', 'slug', 'source_url', 'platform'],
         },
         publications: {
@@ -597,7 +593,7 @@ export async function getPublicationBySlug(slug) {
     });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
-    setPopulate(params, 'populate[datasets]', { fields: ['title', 'slug', 'source_url', 'platform'] });
+    setPopulate(params, 'populate[resources]', { fields: ['title', 'slug', 'source_url', 'platform'] });
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -731,28 +727,6 @@ export async function getDepartments(options = {}) {
   }
 }
 
-export async function getSupportUnits() {
-  try {
-    const baseOptions = {
-      sort: 'name:asc',
-      fields: ['name', 'slug', 'summary', 'mission'],
-      populate: {
-        services: {},
-        contactLinks: {},
-        body: {},
-        heroImage: {},
-        lead: PERSON_FLAT_POPULATE,
-        members: PERSON_FLAT_POPULATE,
-      },
-    };
-
-    return await fetchAllEntries('/support-units', baseOptions, 100);
-  } catch (error) {
-    console.error('Failed to fetch support units:', error);
-    return [];
-  }
-}
-
 export async function getResearchThemes() {
   try {
     const params = createParams({
@@ -768,26 +742,6 @@ export async function getResearchThemes() {
 }
 
 /* --- Added Fetchers for Migration --- */
-
-export async function getDatasets() {
-  const DATASET_POPULATE = {
-    fields: ['title', 'slug', 'description', 'summary', 'source_url', 'platform', 'tags'],
-    populate: {
-      authors: PERSON_FLAT_POPULATE,
-    },
-  };
-  
-  try {
-    return await fetchAllEntries('/datasets', {
-      fields: DATASET_POPULATE.fields,
-      populate: DATASET_POPULATE.populate,
-      sort: 'title:asc',
-    });
-  } catch (error) {
-    console.error('Failed to fetch datasets:', error);
-    return [];
-  }
-}
 
 export async function getEvents() {
   const EVENT_POPULATE = {
@@ -1013,14 +967,14 @@ export function transformPublicationData(strapiPubs) {
       };
     });
 
-    const datasets = toArray(attributes.datasets?.data ?? attributes.datasets).map((ds) => {
-      const dsData = ds?.attributes ?? ds ?? {};
+    const resources = toArray(attributes.resources?.data ?? attributes.resources).map((resource) => {
+      const resourceData = resource?.attributes ?? resource ?? {};
       return {
-        id: ds?.id ?? null,
-        slug: dsData.slug || '',
-        title: dsData.title || '',
-        url: dsData.source_url || dsData.url || '',
-        platform: dsData.platform || '',
+        id: resource?.id ?? null,
+        slug: resourceData.slug || '',
+        title: resourceData.title || '',
+        url: resourceData.source_url || resourceData.url || '',
+        platform: resourceData.platform || '',
       };
     });
 
@@ -1080,7 +1034,7 @@ export function transformPublicationData(strapiPubs) {
       pdfFile,
       bibFile,
       themes,
-      datasets,
+      resources,
       attachments,
       projects,
       _strapi: pub,
@@ -1269,14 +1223,14 @@ export function transformProjectData(strapiProjects) {
       };
     });
 
-    const datasets = toArray(attributes.datasets?.data ?? attributes.datasets).map((ds) => {
-      const dsAttrs = ds?.attributes ?? ds ?? {};
+    const resources = toArray(attributes.resources?.data ?? attributes.resources).map((resource) => {
+      const resourceAttrs = resource?.attributes ?? resource ?? {};
       return {
-        id: ds?.id ?? null,
-        title: dsAttrs.title || '',
-        slug: dsAttrs.slug || '',
-        url: dsAttrs.source_url || '',
-        platform: dsAttrs.platform || '',
+        id: resource?.id ?? null,
+        title: resourceAttrs.title || '',
+        slug: resourceAttrs.slug || '',
+        url: resourceAttrs.source_url || resourceAttrs.url || '',
+        platform: resourceAttrs.platform || '',
       };
     });
 
@@ -1332,7 +1286,7 @@ export function transformProjectData(strapiProjects) {
       team: normalizeTeamEntries(attributes.team),
       timeline: normalizeTimelineEntries(attributes.timeline),
       publications,
-      datasets,
+      resources,
       lead: leadName,
       leadName,
       leadSlug,
@@ -1420,108 +1374,6 @@ export function transformDepartmentData(strapiDepartments) {
       coCoordinatorSlug: coCoordinatorData.slug || '',
       coordinatorSlug: coordinatorData.slug || '',
       _strapi: department,
-    };
-  });
-}
-
-export function transformSupportUnitData(strapiSupportUnits) {
-  const list = Array.isArray(strapiSupportUnits)
-    ? strapiSupportUnits
-    : strapiSupportUnits
-    ? [strapiSupportUnits]
-    : [];
-
-  const normalizeServices = (items) =>
-    Array.isArray(items)
-      ? items
-          .map((item) => {
-            if (!item) return null;
-            const title = item?.title || item?.heading || item?.text || item?.label || 'Details';
-            const description = stripHtml(item?.description || item?.content || item?.body || '');
-            const content = description ? [description] : [];
-            return {
-              text: title,
-              content,
-              raw: item,
-            };
-          })
-          .filter(Boolean)
-      : [];
-
-  return list.map((unit) => {
-    const attributes = unit?.attributes ?? unit ?? {};
-    const leadEntry = attributes.lead?.data ?? attributes.lead;
-    const leadData = leadEntry?.attributes ?? leadEntry ?? {};
-    const members = toArray(attributes.members?.data ?? attributes.members).map((member) => {
-      const memberData = member?.attributes ?? member ?? {};
-      return {
-        id: member?.id ?? null,
-        slug: memberData.slug || '',
-        name: memberData.fullName || memberData.name || '',
-        title: memberData.position || memberData.title || '',
-        email: memberData.email || '',
-        phone: memberData.phone || '',
-      };
-    });
-
-    const services = normalizeServices(attributes.services);
-    const contactLinks = Array.isArray(attributes.contactLinks)
-      ? attributes.contactLinks.map((link) => ({
-          label: link?.label || link?.title || link?.text || 'Contact',
-          url: link?.url || link?.href || '',
-          icon: link?.icon || '',
-        }))
-      : [];
-
-    return {
-      id: unit?.id ?? null,
-      name: attributes.name || '',
-      slug: attributes.slug || '',
-      summary: attributes.summary || '',
-      description: stripHtml(attributes.mission) || stripHtml(attributes.summary) || '',
-      rawDescription: attributes.mission || attributes.summary || '',
-      body: attributes.body || [],
-      elements: services,
-      contactLinks,
-      icon: '🏷️',
-      coordinator: leadData.fullName || leadData.name || '',
-      coCoordinator: '',
-      focusItems: services,
-      coCoordinatorSlug: '',
-      coordinatorSlug: leadData.slug || '',
-      members,
-      _strapi: unit,
-    };
-  });
-}
-
-export function transformDatasetData(strapiDatasets) {
-  const list = Array.isArray(strapiDatasets) ? strapiDatasets : strapiDatasets ? [strapiDatasets] : [];
-
-  return list.map((ds) => {
-    const attributes = ds?.attributes ?? ds ?? {};
-    const authors = toArray(attributes.authors?.data ?? attributes.authors).map((a) => {
-       const aAttr = a?.attributes ?? a ?? {};
-       return {
-         name: aAttr.fullName || aAttr.name || '',
-         slug: aAttr.slug || '',
-       };
-    });
-    
-    return {
-      id: ds?.id ?? null,
-      title: attributes.title || '',
-      slug: attributes.slug || '',
-      summary: attributes.summary || '',
-      description: attributes.description || '',
-      url: attributes.source_url || '',
-      platform: attributes.platform || '',
-      tags: attributes.tags || [],
-      authors,
-      authorName: authors[0]?.name || '',
-      authorSlug: authors[0]?.slug || '',
-      year: attributes.publishedAt ? new Date(attributes.publishedAt).getFullYear() : null,
-      _strapi: ds,
     };
   });
 }

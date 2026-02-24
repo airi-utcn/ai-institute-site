@@ -920,7 +920,7 @@ export interface ApiResearchThemeResearchTheme
 export interface ApiResourceResource extends Struct.CollectionTypeSchema {
   collectionName: 'resources';
   info: {
-    description: 'External tools, datasets, software, and links curated by the institute';
+    description: 'External tools, resources, software, and links curated by the institute';
     displayName: 'Resource';
     pluralName: 'resources';
     singularName: 'resource';
@@ -931,7 +931,7 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
   attributes: {
     category: Schema.Attribute.Enumeration<
       [
-        'dataset',
+        'resource',
         'tool',
         'software',
         'documentation',

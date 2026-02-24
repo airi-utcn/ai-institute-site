@@ -11,7 +11,6 @@ const MODEL_PATH_MAP = {
   "api::research-theme.research-theme": ["/research/themes"],
   "api::news-article.news-article": ["/news&events/news"],
   "api::publication.publication": ["/research/publications", "/research/departments"],
-  "api::support-unit.support-unit": ["/research/departments"],
 };
 
 const DEFAULT_PATHS = ["/"];

@@ -27,7 +27,7 @@ const resolveDataRoot = () => {
   }
 
   throw new Error(
-    `Unable to locate JSON dataset folder. Checked locations:\n${candidates
+    `Unable to locate JSON data folder. Checked locations:\n${candidates
       .map((entry) => `  - ${entry}`)
       .join('\n')}\nSet MIGRATION_DATA_ROOT to override.`
   );
@@ -637,16 +637,6 @@ async function importProjects(state) {
   }
 }
 
-async function importDatasets(state) {
-  const owners = await readJson('staff', 'dataverseData.json');
-
-  let total = 0;
-  for (const owner of owners) {
-    if (Array.isArray(owner?.elements)) {
-      total += owner.elements.length;
-    }
-  }
-
 async function importEvents(state) {
   try {
     const events = await readJson('news&events', 'eventsData.json');
@@ -757,7 +747,7 @@ async function runMigration() {
     peopleByKey: {},
     publications: {},
     projects: {},
-    datasets: {},
+    resources: {},
     themes: {},
     partners: {},
   };

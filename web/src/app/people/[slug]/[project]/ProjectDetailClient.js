@@ -33,9 +33,9 @@ export default function ProjectDetailClient({
     [publications]
   );
   
-  const datasetsList = useMemo(
-    () => (Array.isArray(project?.datasets) ? project.datasets : []),
-    [project?.datasets]
+  const resourcesList = useMemo(
+    () => (Array.isArray(project?.resources) ? project.resources : []),
+    [project?.resources]
   );
 
   const teamMembersSorted = useMemo(() => {
@@ -276,27 +276,27 @@ export default function ProjectDetailClient({
               </section>
             )}
 
-            {/* Datasets */}
-            {datasetsList.length > 0 && (
+            {/* Resources */}
+            {resourcesList.length > 0 && (
               <section className="border-t border-gray-200 dark:border-gray-800 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                   <span className="text-purple-500">💾</span> Datasets
+                   <span className="text-purple-500">💾</span> Resources
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {datasetsList.map((ds) => (
+                  {resourcesList.map((resource) => (
                     <a 
-                      key={ds.id} 
-                      href={ds.url || "#"} 
-                      target={ds.url ? "_blank" : undefined}
+                      key={resource.id} 
+                      href={resource.url || "#"} 
+                      target={resource.url ? "_blank" : undefined}
                       rel="noopener noreferrer"
                       className="block p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md transition-all group"
                     >
                       <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {ds.title}
+                        {resource.title}
                       </h4>
-                      {ds.platform && (
+                      {resource.platform && (
                         <span className="mt-2 inline-block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          {ds.platform}
+                          {resource.platform}
                         </span>
                       )}
                     </a>

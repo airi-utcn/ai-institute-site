@@ -8,7 +8,6 @@ import { containerVariants, itemVariants } from "@/lib/animations";
 export default function DepartmentsClient({
   staffData = [],
   departments = [],
-  supportUnits = [],
   projects = [],
   publications = [],
 }) {
@@ -25,10 +24,6 @@ export default function DepartmentsClient({
     Object.values(groups).forEach((list) => list.sort((a, b) => (a?.name || "").localeCompare(b?.name || "", "ro", { sensitivity: "base", numeric: true })));
     return groups;
   }, [departmentList]);
-
-  const supportUnitsList = useMemo(() => {
-    return Array.isArray(supportUnits) ? supportUnits : [];
-  }, [supportUnits]);
 
   const typeLabel = (type) => {
     const map = {
@@ -115,40 +110,6 @@ export default function DepartmentsClient({
             </div>
           ))}
 
-          {/* Support Units */}
-          {supportUnitsList.length > 0 && (
-            <div className="mb-12">
-              <motion.h2
-                variants={itemVariants}
-                className="heading-2 heading-accent text-center mb-6"
-              >
-                Support Departments
-              </motion.h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {supportUnitsList.map((unit, index) => (
-                  <motion.div
-                    key={`support-${unit.slug || index}`}
-                    variants={itemVariants}
-                  >
-                    <Link
-                      href={`/research/departments/${unit.slug}`}
-                      className="card card-hover p-5 block group h-full"
-                    >
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
-                        {unit.name}
-                      </h3>
-                      {unit.summary && (
-                        <p className="text-sm text-muted mt-2 line-clamp-2">
-                          {unit.summary}
-                        </p>
-                      )}
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          )}
         </motion.div>
       </div>
     </main>

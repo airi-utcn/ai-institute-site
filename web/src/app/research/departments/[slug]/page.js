@@ -1,20 +1,13 @@
-import { getDepartments, getSupportUnits, getProjects, getPublications, getStaff, transformDepartmentData, transformSupportUnitData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { getDepartments, getProjects, getPublications, getStaff, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
 
 // Generate static paths for all departments
 export async function generateStaticParams() {
-  const [departmentData, supportUnitsData] = await Promise.all([
-    getDepartments(),
-    getSupportUnits(),
-  ]);
-
+  const departmentData = await getDepartments();
   const departments = transformDepartmentData(departmentData);
-  const supportUnits = transformSupportUnitData(supportUnitsData);
-  
-  const allUnits = [...departments, ...supportUnits];
-  
-  return allUnits
+
+  return departments
     .filter((unit) => unit.slug)
     .map((unit) => ({
       slug: unit.slug,
@@ -23,16 +16,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const [departmentData, supportUnitsData] = await Promise.all([
-    getDepartments(),
-    getSupportUnits(),
-  ]);
-
+  const departmentData = await getDepartments();
   const departments = transformDepartmentData(departmentData);
-  const supportUnits = transformSupportUnitData(supportUnitsData);
-  const allUnits = [...departments, ...supportUnits];
-  
-  const unit = allUnits.find((u) => u.slug === slug);
+
+  const unit = departments.find((u) => u.slug === slug);
 
   if (!unit) {
     return { title: "Department Not Found | AIRi @ UTCN" };
@@ -47,22 +34,19 @@ export async function generateMetadata({ params }) {
 export default async function DepartmentPage({ params }) {
   const { slug } = await params;
   
-  const [departmentData, supportUnitsData, projectsData, publicationsData, staffData] = await Promise.all([
+  const [departmentData, projectsData, publicationsData, staffData] = await Promise.all([
     getDepartments(),
-    getSupportUnits(),
     getProjects(),
     getPublications(),
     getStaff(),
   ]);
 
   const departments = transformDepartmentData(departmentData);
-  const supportUnits = transformSupportUnitData(supportUnitsData);
   const projects = transformProjectData(projectsData);
   const publications = transformPublicationData(publicationsData);
   const staff = transformStaffData(staffData);
-  
-  const allUnits = [...departments, ...supportUnits];
-  const department = allUnits.find((u) => u.slug === slug);
+
+  const department = departments.find((u) => u.slug === slug);
 
   if (!department) {
     notFound();

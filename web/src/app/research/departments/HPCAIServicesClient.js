@@ -86,7 +86,7 @@ export default function Client() {
             />
             <FeatureCard
               title="Scalable Data Storage Platform"
-              body="A high-performance, distributed file system enables seamless access to large datasets and can expand transparently with new storage nodes—critical for data-intensive AI projects."
+              body="A high-performance, distributed file system enables seamless access to large resources and can expand transparently with new storage nodes—critical for data-intensive AI projects."
             />
             <FeatureCard
               title="High-Speed Networking"

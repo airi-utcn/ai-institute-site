@@ -23,7 +23,7 @@ const SECTIONS = [
       { label: "Publications", href: "/research/publications" },
       { label: "Thesis", href: "/research/thesis" },
       { label: "Tools", href: "/research/tools" },
-      { label: "Datasets", href: "/research/datasets" },
+      { label: "Resources", href: "/resources" },
     ],
   },
   {

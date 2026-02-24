@@ -148,11 +148,11 @@ function InfoCard({ icon: Icon, label, value, href }) {
   return content;
 }
 
-// Dataset Card Component
-function DatasetCard({ dataset }) {
+// Resource Card Component
+function ResourceCard({ resource }) {
   return (
     <motion.a
-      href={dataset.source_url}
+      href={resource.source_url || resource.url}
       target="_blank"
       rel="noopener noreferrer"
       variants={itemVariants}
@@ -164,11 +164,11 @@ function DatasetCard({ dataset }) {
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-            {dataset.title}
+            {resource.title}
           </h4>
-          {dataset.platform && (
+          {resource.platform && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Platform: {dataset.platform}
+              Platform: {resource.platform}
             </p>
           )}
         </div>
@@ -358,9 +358,9 @@ export default function ProjectDetails({ project }) {
     { id: 'team', label: 'Team', icon: FaUsers, count: allTeam.length },
   ];
 
-  // Add datasets tab if there are datasets
-  if (project.datasets && project.datasets.length > 0) {
-    tabs.push({ id: 'datasets', label: 'Datasets', icon: FaDatabase, count: project.datasets.length });
+  // Add resources tab if there are resources
+  if (project.resources && project.resources.length > 0) {
+    tabs.push({ id: 'resources', label: 'Resources', icon: FaDatabase, count: project.resources.length });
   }
 
   // Add publications tab if there are publications
@@ -632,24 +632,24 @@ export default function ProjectDetails({ project }) {
             </div>
           )}
 
-          {activeTab === 'datasets' && (
+          {activeTab === 'resources' && (
             <div className="space-y-6">
-              {project.datasets && project.datasets.length > 0 ? (
+              {project.resources && project.resources.length > 0 ? (
                 <motion.div
                   initial="hidden"
                   animate="visible"
                   variants={containerVariants}
                   className="grid gap-4 md:grid-cols-2"
                 >
-                  {project.datasets.map((dataset, index) => (
-                    <DatasetCard key={dataset.slug || index} dataset={dataset} />
+                  {project.resources.map((resource, index) => (
+                    <ResourceCard key={resource.slug || index} resource={resource} />
                   ))}
                 </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No datasets available for this project.
+                    No resources available for this project.
                   </p>
                 </div>
               )}

@@ -119,6 +119,11 @@
     "featured": {
       "type": "boolean",
       "default": false
+    },
+    "resources": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource.resource"
     }
   }
 }

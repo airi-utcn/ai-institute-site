@@ -82,6 +82,11 @@
       "relation": "manyToMany",
       "target": "api::project.project",
       "inversedBy": "publications"
+    },
+    "resources": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource.resource"
     }
   }
 }

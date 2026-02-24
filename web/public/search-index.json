@@ -18,7 +18,7 @@
   { "title": "Research – Publications", "route": "/research/publications", "tags": ["research","publications","papers"], "snippet": "Publicații." },
   { "title": "Research – Thesis", "route": "/research/thesis", "tags": ["research","thesis"], "snippet": "Teze." },
   { "title": "Research – Tools", "route": "/research/tools", "tags": ["research","tools","software"], "snippet": "Unelte și infrastructură." },
-  { "title": "Research – Datasets", "route": "/research/datasets", "tags": ["research","datasets","data"], "snippet": "Seturi de date." },
+  { "title": "Research – Resources", "route": "/resources", "tags": ["research","resources","data"], "snippet": "Resurse pentru cercetare." },
 
   { "title": "Engagement – Public engagement", "route": "/engagement/public", "tags": ["engagement","public"], "snippet": "Inițiative pentru public." },
   { "title": "Engagement – Academic engagement", "route": "/engagement/academic", "tags": ["engagement","academic","students"], "snippet": "Inițiative academice." },

@@ -22,8 +22,13 @@
     },
     "type": {
       "type": "enumeration",
-      "enum": ["research", "academic", "support", "other"],
-      "default": "research"
+      "default": "research",
+      "enum": [
+        "research",
+        "academic",
+        "support",
+        "other"
+      ]
     },
     "summary": {
       "type": "text"
@@ -50,13 +55,13 @@
     },
     "focusItems": {
       "type": "component",
-      "repeatable": true,
-      "component": "shared.focus-item"
+      "component": "shared.focus-item",
+      "repeatable": true
     },
     "contactLinks": {
       "type": "component",
-      "repeatable": true,
-      "component": "shared.contact-link"
+      "component": "shared.contact-link",
+      "repeatable": true
     },
     "coordinator": {
       "type": "relation",
@@ -85,18 +90,6 @@
       "relation": "oneToMany",
       "target": "api::publication.publication",
       "mappedBy": "domain"
-    },
-    "datasets": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::dataset.dataset",
-      "mappedBy": "department"
-    },
-    "research_units": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::research-unit.research-unit",
-      "mappedBy": "departments"
     }
   }
 }

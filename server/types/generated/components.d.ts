@@ -136,6 +136,20 @@ export interface SharedSlider extends Struct.ComponentSchema {
   };
 }
 
+export interface TeamMembership extends Struct.ComponentSchema {
+  collectionName: 'components_team_memberships';
+  info: {
+    description: 'Links a person to a team with a specific role';
+    displayName: 'Team membership';
+    icon: 'user-check';
+  };
+  attributes: {
+    isLead: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
+    role: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
@@ -149,6 +163,7 @@ declare module '@strapi/strapi' {
       'shared.section': SharedSection;
       'shared.seo': SharedSeo;
       'shared.slider': SharedSlider;
+      'team.membership': TeamMembership;
     }
   }
 }

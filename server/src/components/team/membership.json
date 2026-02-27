@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_team_memberships",
+  "info": {
+    "displayName": "Team membership",
+    "description": "Links a person to a team with a specific role",
+    "icon": "user-check"
+  },
+  "options": {},
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "role": {
+      "type": "string",
+      "required": true
+    },
+    "isLead": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

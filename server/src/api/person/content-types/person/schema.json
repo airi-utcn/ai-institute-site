@@ -34,11 +34,16 @@
         "external"
       ]
     },
-    "titles": {
-      "type": "json"
-    },
-    "position": {
-      "type": "string"
+    "title": {
+      "type": "enumeration",
+      "enum": [
+        "Professor",
+        "Associate Professor",
+        "Senior Lecturers",
+        "Assistant Professors",
+        "PhD Student",
+        "Student"
+      ]
     },
     "email": {
       "type": "string"
@@ -70,23 +75,17 @@
       "target": "api::department.department",
       "inversedBy": "people"
     },
-    "projects": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::project.project",
-      "mappedBy": "members"
-    },
-    "leading_projects": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::project.project",
-      "mappedBy": "lead"
-    },
     "publications": {
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::publication.publication",
       "mappedBy": "authors"
+    },
+    "contributingProjects": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::project.project",
+      "mappedBy": "contributors"
     }
   }
 }

@@ -90,6 +90,12 @@
       "relation": "oneToMany",
       "target": "api::publication.publication",
       "mappedBy": "domain"
+    },
+    "teams": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::team.team",
+      "mappedBy": "department"
     }
   }
 }

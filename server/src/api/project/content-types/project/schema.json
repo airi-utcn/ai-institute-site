@@ -88,22 +88,11 @@
     "officialUrl": {
       "type": "text"
     },
-    "lead": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::person.person",
-      "inversedBy": "leading_projects"
-    },
-    "members": {
+    "teams": {
       "type": "relation",
       "relation": "manyToMany",
-      "target": "api::person.person",
-      "inversedBy": "projects"
-    },
-    "team": {
-      "type": "component",
-      "component": "project.team-member",
-      "repeatable": true
+      "target": "api::team.team",
+      "mappedBy": "projects"
     },
     "timeline": {
       "type": "component",

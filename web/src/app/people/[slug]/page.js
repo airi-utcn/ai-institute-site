@@ -9,9 +9,9 @@ import {
 } from "react-icons/fa";
 import {
   getStaffMember,
+  getPersonTeams,
   transformStaffData,
   transformPublicationData,
-  transformProjectData,
 } from "@/lib/strapi";
 import StaffDetailClient from "./StaffDetailClient";
 
@@ -23,7 +23,10 @@ export default async function PersonDetailPage({ params }) {
     notFound();
   }
 
-  const strapiPerson = await getStaffMember(slug);
+  const [strapiPerson, personTeamsRaw] = await Promise.all([
+    getStaffMember(slug),
+    getPersonTeams(slug),
+  ]);
 
   if (!strapiPerson) {
     notFound();
@@ -41,13 +44,35 @@ export default async function PersonDetailPage({ params }) {
     personData.publications?.data ?? personData.publications ?? []
   );
 
-  const leadingProjectsRaw = transformProjectData(
-    personData.leading_projects?.data ?? personData.leading_projects ?? []
-  );
-
-  const memberProjectsRaw = transformProjectData(
-    personData.projects?.data ?? personData.projects ?? []
-  );
+  // Normalize teams from API response
+  const teams = personTeamsRaw.map((team) => {
+    const t = team?.attributes ?? team ?? {};
+    const deptEntry = t.department?.data ?? t.department;
+    const deptAttr = deptEntry?.attributes ?? deptEntry ?? {};
+    // Find this person's membership within the team
+    const memberships = Array.isArray(t.members) ? t.members : [];
+    const myMembership = memberships.find((m) => {
+      const p = m?.person?.data ?? m?.person;
+      const pAttr = p?.attributes ?? p ?? {};
+      return pAttr.slug === slug || (p?.id && pAttr.slug === slug);
+    });
+    const projects = Array.isArray(t.projects?.data ?? t.projects)
+      ? (t.projects?.data ?? t.projects).map((proj) => {
+          const pAttr = proj?.attributes ?? proj ?? {};
+          return { slug: pAttr.slug || '', title: pAttr.title || '', phase: pAttr.phase || '' };
+        })
+      : [];
+    return {
+      id: team?.id ?? null,
+      slug: t.slug || '',
+      name: t.name || '',
+      description: t.description || '',
+      department: deptEntry ? { name: deptAttr.name || '', slug: deptAttr.slug || '' } : null,
+      role: myMembership?.role || '',
+      isLead: !!myMembership?.isLead,
+      projects,
+    };
+  });
 
   const normalizePublication = (pub) => ({
     id: pub.id ?? null,
@@ -64,45 +89,6 @@ export default async function PersonDetailPage({ params }) {
   });
 
   const publications = publicationsRaw.map(normalizePublication);
-
-  const projectMap = new Map();
-
-  const mergeProject = (project) => {
-    if (!project?.slug && !project?.title) return;
-    const key = project.slug || project.title;
-    if (projectMap.has(key)) return;
-
-    const leadName =
-      typeof project.lead === "string"
-        ? project.lead
-        : project.lead?.name || project.leadName || "";
-    const leadSlug =
-      typeof project.lead === "object" && project.lead
-        ? project.lead.slug || ""
-        : project.leadSlug || "";
-
-    projectMap.set(key, {
-      id: project.id ?? null,
-      slug: project.slug || key,
-      title: project.title || "",
-      lead: leadName,
-      leadName,
-      leadSlug,
-      abstract: project.abstract || "",
-      themes: Array.isArray(project.themes) ? project.themes : [],
-      teams: Array.isArray(project.teams) ? project.teams : [],
-      region: project.region || "",
-      domain: Array.isArray(project.domain) ? project.domain : [],
-      partners: Array.isArray(project.partners) ? project.partners : [],
-      docUrl: project.docUrl || "",
-      oficialUrl: project.oficialUrl || project.officialUrl || "",
-    });
-  };
-
-  leadingProjectsRaw.forEach(mergeProject);
-  memberProjectsRaw.forEach(mergeProject);
-
-  const projects = Array.from(projectMap.values());
 
   const person = {
     ...personEntry,
@@ -214,7 +200,7 @@ export default async function PersonDetailPage({ params }) {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <StaffDetailClient person={person} publications={publications} projects={projects} slug={slug} />
+        <StaffDetailClient person={person} publications={publications} teams={teams} slug={slug} />
       </div>
     </main>
   );

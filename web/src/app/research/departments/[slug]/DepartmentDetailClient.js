@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe } from "react-icons/fa";
+import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog } from "react-icons/fa";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: FaInfoCircle },
@@ -11,6 +11,100 @@ const TABS = [
   { id: "projects", label: "Projects", icon: FaFlask },
   { id: "publications", label: "Publications", icon: FaBook },
 ];
+
+const PHASE_STYLES = {
+  ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
+  planned:   'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
+  completed: 'bg-gray-100   dark:bg-gray-700      text-gray-600   dark:text-gray-300',
+  archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+};
+
+function DepartmentTeamCard({ team }) {
+  const leads = team.members.filter((m) => m.isLead);
+  const others = team.members.filter((m) => !m.isLead);
+  const ordered = [...leads, ...others];
+
+  return (
+    <motion.div
+      variants={itemVariants}
+      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+    >
+      {/* Left accent bar */}
+      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b from-blue-500 to-indigo-500" />
+
+      <div className="pl-5 pr-5 pt-5 pb-4 flex flex-col gap-3 flex-1">
+        {/* Team name */}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="p-2 rounded-lg shrink-0 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+            <FaUsers className="w-4 h-4" />
+          </div>
+          <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug truncate">
+            {team.name}
+          </h3>
+        </div>
+
+        {/* Description */}
+        {team.description && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+            {team.description}
+          </p>
+        )}
+
+        {/* Members */}
+        {ordered.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            {ordered.map((m, i) => (
+              <div key={i} className="flex items-center gap-2 text-sm">
+                {m.isLead && (
+                  <FaStar className="w-3 h-3 text-yellow-500 shrink-0" />
+                )}
+                <span className="font-medium text-gray-800 dark:text-gray-100 truncate">
+                  {m.person.name}
+                </span>
+                {m.role && (
+                  <>
+                    <FaUserCog className="w-3 h-3 text-gray-400 shrink-0" />
+                    <span className="text-gray-500 dark:text-gray-400 truncate">{m.role}</span>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Projects */}
+        {team.projects && team.projects.length > 0 && (
+          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center gap-1.5 mb-2">
+              <FaProjectDiagram className="w-3 h-3 text-gray-400" />
+              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                Projects
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {team.projects.map((p, i) => {
+                const phaseClass = PHASE_STYLES[p.phase] || PHASE_STYLES.planned;
+                return (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full font-medium"
+                  >
+                    {p.title}
+                    {p.phase && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${phaseClass}`}>
+                        {p.phase}
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -29,7 +123,8 @@ export default function DepartmentDetailClient({
   department, 
   projects = [], 
   publications = [], 
-  staff = [] 
+  staff = [],
+  teams = [],
 }) {
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -184,7 +279,7 @@ export default function DepartmentDetailClient({
                       ? department.coordinator 
                       : department.coordinator.name || department.coordinator.fullName || 'Unknown';
                     const coordSlug = department.coordinatorSlug || department.coordinator?.slug;
-                    const coordTitle = department.coordinator?.title || department.coordinator?.position;
+                    const coordTitle = department.coordinator?.title;
                     const personPath = coordSlug ? `/people/${coordSlug}` : null;
                     
                     const content = (
@@ -365,6 +460,38 @@ export default function DepartmentDetailClient({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Teams section */}
+        {teams.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12"
+          >
+            <div className="flex items-center gap-2.5 mb-6">
+              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                <FaUsers className="w-4 h-4" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Teams
+              </h2>
+              <span className="text-sm px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
+                {teams.length}
+              </span>
+            </div>
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {teams.map((team, i) => (
+                <DepartmentTeamCard key={team.id || i} team={team} />
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </main>
   );

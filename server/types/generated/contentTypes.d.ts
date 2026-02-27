@@ -506,6 +506,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'name'>;
     summary: Schema.Attribute.Text;
+    teams: Schema.Attribute.Relation<'oneToMany', 'api::team.team'>;
     type: Schema.Attribute.Enumeration<
       ['research', 'academic', 'support', 'other']
     > &
@@ -531,7 +532,7 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
       ['shared.section', 'shared.rich-text', 'shared.media']
     >;
     category: Schema.Attribute.Enumeration<
-      ['event', 'seminar', 'workshop', 'talk', 'other']
+      ['event', 'workshop', 'talk', 'other']
     > &
       Schema.Attribute.DefaultTo<'event'>;
     createdAt: Schema.Attribute.DateTime;
@@ -711,6 +712,10 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
   };
   attributes: {
     bio: Schema.Attribute.RichText;
+    contributingProjects: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::project.project'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -722,10 +727,6 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     fullName: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
-    leading_projects: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::project.project'
-    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -733,10 +734,12 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
+    memberships: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::team-membership.team-membership'
+    >;
     phone: Schema.Attribute.String;
     portrait: Schema.Attribute.Media<'images'>;
-    position: Schema.Attribute.String;
-    projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
     publications: Schema.Attribute.Relation<
       'manyToMany',
       'api::publication.publication'
@@ -744,7 +747,16 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'fullName'> & Schema.Attribute.Required;
     socialLinks: Schema.Attribute.Component<'shared.contact-link', true>;
-    titles: Schema.Attribute.JSON;
+    title: Schema.Attribute.Enumeration<
+      [
+        'Professor',
+        'Associate Professor',
+        'Senior Lecturers',
+        'Assistant Professors',
+        'PhD Student',
+        'Student',
+      ]
+    >;
     type: Schema.Attribute.Enumeration<
       [
         'staff',
@@ -777,6 +789,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     body: Schema.Attribute.DynamicZone<
       ['shared.section', 'shared.rich-text', 'shared.media', 'shared.slider']
     >;
+    contributors: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -789,14 +802,12 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     heroImage: Schema.Attribute.Media<'images'>;
     isIndustryEngagement: Schema.Attribute.Boolean &
       Schema.Attribute.DefaultTo<false>;
-    lead: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::project.project'
     > &
       Schema.Attribute.Private;
-    members: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
     officialUrl: Schema.Attribute.Text;
     partners: Schema.Attribute.Relation<'manyToMany', 'api::partner.partner'>;
     phase: Schema.Attribute.Enumeration<
@@ -812,8 +823,12 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
       ['local', 'regional', 'national', 'international', 'other']
     > &
       Schema.Attribute.DefaultTo<'national'>;
+    resources: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::resource.resource'
+    >;
     slug: Schema.Attribute.UID<'title'>;
-    team: Schema.Attribute.Component<'project.team-member', true>;
+    teams: Schema.Attribute.Relation<'manyToMany', 'api::team.team'>;
     themes: Schema.Attribute.Relation<
       'manyToMany',
       'api::research-theme.research-theme'
@@ -864,6 +879,10 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
     pdfFile: Schema.Attribute.Media<'files'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
+    resources: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::resource.resource'
+    >;
     slug: Schema.Attribute.UID<'title'>;
     themes: Schema.Attribute.Relation<
       'manyToMany',
@@ -1017,6 +1036,79 @@ export interface ApiSeminarSeminar extends Struct.CollectionTypeSchema {
     summary: Schema.Attribute.Text;
     tags: Schema.Attribute.JSON;
     title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTeamMembershipTeamMembership
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'team_memberships';
+  info: {
+    description: 'Links a person to a team with a specific role';
+    displayName: 'Team Membership';
+    pluralName: 'team-memberships';
+    singularName: 'team-membership';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    isLead: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::team-membership.team-membership'
+    > &
+      Schema.Attribute.Private;
+    person: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
+    publishedAt: Schema.Attribute.DateTime;
+    role: Schema.Attribute.String & Schema.Attribute.Required;
+    team: Schema.Attribute.Relation<'manyToOne', 'api::team.team'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
+  collectionName: 'teams';
+  info: {
+    description: 'Working groups of people collaborating on projects';
+    displayName: 'Team';
+    pluralName: 'teams';
+    singularName: 'team';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    department: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::department.department'
+    >;
+    description: Schema.Attribute.Text;
+    image: Schema.Attribute.Media<'images'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::team.team'> &
+      Schema.Attribute.Private;
+    memberships: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::team-membership.team-membership'
+    >;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1546,6 +1638,8 @@ declare module '@strapi/strapi' {
       'api::research-theme.research-theme': ApiResearchThemeResearchTheme;
       'api::resource.resource': ApiResourceResource;
       'api::seminar.seminar': ApiSeminarSeminar;
+      'api::team-membership.team-membership': ApiTeamMembershipTeamMembership;
+      'api::team.team': ApiTeamTeam;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

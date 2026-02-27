@@ -1,4 +1,4 @@
-import { getDepartments, getProjects, getPublications, getStaff, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { getDepartments, getDepartmentTeams, getProjects, getPublications, getStaff, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
 
@@ -52,6 +52,34 @@ export default async function DepartmentPage({ params }) {
     notFound();
   }
 
+  // Fetch teams that belong to this department
+  const rawTeams = await getDepartmentTeams(slug);
+  const toArr = (v) => (Array.isArray(v) ? v : v?.data ? v.data : []);
+  const teams = toArr(rawTeams).map((raw) => {
+    const t = raw.attributes ?? raw;
+    return {
+      id: raw.id,
+      name: t.name || '',
+      description: t.description || '',
+      members: toArr(t.members).map((m) => {
+        const p = m.person?.attributes ?? m.person ?? {};
+        return {
+          role: m.role || '',
+          isLead: !!m.isLead,
+          person: {
+            name: p.fullName || p.name || '',
+            slug: p.slug || '',
+            title: p.title || '',
+          },
+        };
+      }),
+      projects: toArr(t.projects?.data ?? t.projects).map((proj) => {
+        const pr = proj.attributes ?? proj;
+        return { title: pr.title || '', phase: pr.phase || '' };
+      }),
+    };
+  });
+
   // Filter projects for this department
   const departmentProjects = projects.filter((p) => {
     const domains = Array.isArray(p.domain) ? p.domain : [];
@@ -79,6 +107,7 @@ export default async function DepartmentPage({ params }) {
       projects={departmentProjects}
       publications={departmentPublications}
       staff={departmentStaff}
+      teams={teams}
     />
   );
 }

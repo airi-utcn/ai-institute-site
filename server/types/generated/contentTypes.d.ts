@@ -734,10 +734,6 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
-    memberships: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::team-membership.team-membership'
-    >;
     phone: Schema.Attribute.String;
     portrait: Schema.Attribute.Media<'images'>;
     publications: Schema.Attribute.Relation<
@@ -1042,39 +1038,6 @@ export interface ApiSeminarSeminar extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiTeamMembershipTeamMembership
-  extends Struct.CollectionTypeSchema {
-  collectionName: 'team_memberships';
-  info: {
-    description: 'Links a person to a team with a specific role';
-    displayName: 'Team Membership';
-    pluralName: 'team-memberships';
-    singularName: 'team-membership';
-  };
-  options: {
-    draftAndPublish: false;
-  };
-  attributes: {
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    isLead: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::team-membership.team-membership'
-    > &
-      Schema.Attribute.Private;
-    person: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
-    publishedAt: Schema.Attribute.DateTime;
-    role: Schema.Attribute.String & Schema.Attribute.Required;
-    team: Schema.Attribute.Relation<'manyToOne', 'api::team.team'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
   collectionName: 'teams';
   info: {
@@ -1099,10 +1062,7 @@ export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::team.team'> &
       Schema.Attribute.Private;
-    memberships: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::team-membership.team-membership'
-    >;
+    members: Schema.Attribute.Component<'team.membership', true>;
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;
@@ -1638,7 +1598,6 @@ declare module '@strapi/strapi' {
       'api::research-theme.research-theme': ApiResearchThemeResearchTheme;
       'api::resource.resource': ApiResourceResource;
       'api::seminar.seminar': ApiSeminarSeminar;
-      'api::team-membership.team-membership': ApiTeamMembershipTeamMembership;
       'api::team.team': ApiTeamTeam;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

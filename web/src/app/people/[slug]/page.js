@@ -174,7 +174,7 @@ export default async function PersonDetailPage({ params }) {
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
                   {person.socialLinks.map((link, index) => {
                     const Icon = iconMap[link.icon] || FaLink;
-                      const url = link.url || link.raw || '';
+                      const url = normalizeSocialUrl(link);
                     if (!url) return null;
                     const isExternal = /^https?:\/\//i.test(url);
 

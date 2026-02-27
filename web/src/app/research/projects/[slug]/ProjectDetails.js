@@ -374,7 +374,7 @@ export default function ProjectDetails({ project }) {
                   theme.slug ? (
                     <Link
                       key={theme.slug}
-                      href={`/research/themes/${theme.slug}`}
+                      href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
                       className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white hover:bg-white/30 transition-colors"
                     >
                       {theme.name}
@@ -533,7 +533,7 @@ export default function ProjectDetails({ project }) {
                     {project.domains.map(domain => (
                       <Link
                         key={domain.slug}
-                        href={`/research/themes/${domain.slug}`}
+                        href={`/research/departments/${domain.slug}`}
                         className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                       >
                         {domain.name}

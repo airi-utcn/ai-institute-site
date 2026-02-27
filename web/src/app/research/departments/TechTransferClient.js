@@ -11,8 +11,6 @@ const itemVariants = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
-export const techTransferPage = Client();
-
 export default function Client() {
   return (
     <div>

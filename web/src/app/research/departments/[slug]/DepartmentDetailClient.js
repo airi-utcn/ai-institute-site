@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog } from "react-icons/fa";
+import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog, FaUserTie } from "react-icons/fa";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: FaInfoCircle },
-  { id: "members", label: "Members", icon: FaUsers },
+  { id: "members", label: "People & Teams", icon: FaUsers },
   { id: "projects", label: "Projects", icon: FaFlask },
   { id: "publications", label: "Publications", icon: FaBook },
 ];
@@ -19,62 +19,101 @@ const PHASE_STYLES = {
   archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
 };
 
-function DepartmentTeamCard({ team }) {
-  const leads = team.members.filter((m) => m.isLead);
-  const others = team.members.filter((m) => !m.isLead);
+/* ── Person avatar + name (reusable) ─────────────────────── */
+function PersonChip({ person, role, isLead, image }) {
+  const slug = person?.slug;
+  const name = person?.name || person?.fullName || '';
+  const title = person?.title || '';
+
+  const inner = (
+    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
+      slug ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer group' : ''
+    }`}>
+      <div className="relative shrink-0">
+        <img
+          src={image || "/people/Basic_avatar_image.png"}
+          alt={name}
+          className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm"
+        />
+        {isLead && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-sm">
+            <FaStar className="w-2 h-2 text-yellow-800" />
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className={`text-sm font-semibold text-gray-900 dark:text-white truncate ${
+          slug ? 'group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors' : ''
+        }`}>
+          {name}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+          {role || title || ''}
+        </p>
+      </div>
+    </div>
+  );
+
+  return slug ? <Link href={`/people/${slug}`}>{inner}</Link> : inner;
+}
+
+/* ── Team card (inline in Members tab) ───────────────────── */
+function TeamCard({ team, staffLookup }) {
+  const leads = (team.members || []).filter((m) => m.isLead);
+  const others = (team.members || []).filter((m) => !m.isLead);
   const ordered = [...leads, ...others];
 
   return (
     <motion.div
       variants={itemVariants}
-      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden"
     >
-      {/* Left accent bar */}
+      {/* Accent bar */}
       <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b from-blue-500 to-indigo-500" />
 
-      <div className="pl-5 pr-5 pt-5 pb-4 flex flex-col gap-3 flex-1">
-        {/* Team name */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="p-2 rounded-lg shrink-0 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+      <div className="pl-5 pr-5 pt-5 pb-4 flex flex-col gap-3">
+        {/* Header */}
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-lg shrink-0 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
             <FaUsers className="w-4 h-4" />
           </div>
-          <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug truncate">
-            {team.name}
-          </h3>
+          <div className="min-w-0">
+            <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug truncate">
+              {team.name}
+            </h3>
+            {team.description && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">
+                {team.description}
+              </p>
+            )}
+          </div>
+          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 shrink-0">
+            {ordered.length} {ordered.length === 1 ? 'member' : 'members'}
+          </span>
         </div>
-
-        {/* Description */}
-        {team.description && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
-            {team.description}
-          </p>
-        )}
 
         {/* Members */}
         {ordered.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            {ordered.map((m, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
-                {m.isLead && (
-                  <FaStar className="w-3 h-3 text-yellow-500 shrink-0" />
-                )}
-                <span className="font-medium text-gray-800 dark:text-gray-100 truncate">
-                  {m.person.name}
-                </span>
-                {m.role && (
-                  <>
-                    <FaUserCog className="w-3 h-3 text-gray-400 shrink-0" />
-                    <span className="text-gray-500 dark:text-gray-400 truncate">{m.role}</span>
-                  </>
-                )}
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5 -mx-1">
+            {ordered.map((m, i) => {
+              const personSlug = m.person?.slug || '';
+              const staffInfo = staffLookup?.[personSlug];
+              return (
+                <PersonChip
+                  key={personSlug || i}
+                  person={m.person}
+                  role={m.role}
+                  isLead={m.isLead}
+                  image={staffInfo?.image}
+                />
+              );
+            })}
           </div>
         )}
 
         {/* Projects */}
-        {team.projects && team.projects.length > 0 && (
-          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+        {team.projects?.length > 0 && (
+          <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
             <div className="flex items-center gap-1.5 mb-2">
               <FaProjectDiagram className="w-3 h-3 text-gray-400" />
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -127,6 +166,28 @@ export default function DepartmentDetailClient({
   teams = [],
 }) {
   const [activeTab, setActiveTab] = useState("overview");
+
+  /* Build a lookup map: slug → staff member (for images etc.) */
+  const staffLookup = useMemo(() => {
+    const map = {};
+    for (const s of staff) {
+      if (s.slug) map[s.slug] = s;
+    }
+    return map;
+  }, [staff]);
+
+  /* Figure out which people are on a team vs independent */
+  const { teamMemberSlugs, independentStaff } = useMemo(() => {
+    const slugs = new Set();
+    for (const team of teams) {
+      for (const m of team.members || []) {
+        const s = m.person?.slug;
+        if (s) slugs.add(s);
+      }
+    }
+    const independent = staff.filter((p) => p.slug && !slugs.has(p.slug));
+    return { teamMemberSlugs: slugs, independentStaff: independent };
+  }, [teams, staff]);
 
   if (!department) {
     return (
@@ -337,34 +398,72 @@ export default function DepartmentDetailClient({
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
+              className="space-y-8"
             >
-              {staff.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {staff.map((person) => (
-                    <motion.div
-                      key={person.slug}
-                      variants={itemVariants}
-                      className="card card-hover p-4"
-                    >
-                      <Link href={`/people/${person.slug}`} className="block text-center">
-                        <div className="w-20 h-20 mx-auto mb-3">
-                          <img
-                            src={person.image || "/people/Basic_avatar_image.png"}
-                            alt={person.name}
-                            className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
-                          />
-                        </div>
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">
-                          {person.name}
-                        </h3>
-                        {person.title && (
-                          <p className="text-xs text-muted mt-1 line-clamp-1">{person.title}</p>
-                        )}
-                      </Link>
-                    </motion.div>
-                  ))}
+              {/* ── Teams ────────────────────────────────── */}
+              {teams.length > 0 && (
+                <div>
+                  <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
+                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                      <FaUsers className="w-4 h-4" />
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teams</h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      {teams.length}
+                    </span>
+                  </motion.div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {teams.map((team, i) => (
+                      <TeamCard key={team.id || i} team={team} staffLookup={staffLookup} />
+                    ))}
+                  </div>
                 </div>
-              ) : (
+              )}
+
+              {/* ── Independent researchers ───────────────── */}
+              {independentStaff.length > 0 && (
+                <div>
+                  <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
+                    <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
+                      <FaUserTie className="w-4 h-4" />
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {teams.length > 0 ? 'Independent Researchers' : 'Members'}
+                    </h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      {independentStaff.length}
+                    </span>
+                  </motion.div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {independentStaff.map((person) => (
+                      <motion.div
+                        key={person.slug}
+                        variants={itemVariants}
+                        className="card card-hover p-4"
+                      >
+                        <Link href={`/people/${person.slug}`} className="block text-center group">
+                          <div className="w-20 h-20 mx-auto mb-3">
+                            <img
+                              src={person.image || "/people/Basic_avatar_image.png"}
+                              alt={person.name}
+                              className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
+                            />
+                          </div>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
+                            {person.name}
+                          </h3>
+                          {person.title && (
+                            <p className="text-xs text-muted mt-1 line-clamp-1">{person.title}</p>
+                          )}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty state */}
+              {staff.length === 0 && teams.length === 0 && (
                 <div className="empty-state">
                   <p>No members found for this department.</p>
                 </div>
@@ -460,38 +559,6 @@ export default function DepartmentDetailClient({
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Teams section */}
-        {teams.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mt-12"
-          >
-            <div className="flex items-center gap-2.5 mb-6">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                <FaUsers className="w-4 h-4" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Teams
-              </h2>
-              <span className="text-sm px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400">
-                {teams.length}
-              </span>
-            </div>
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              {teams.map((team, i) => (
-                <DepartmentTeamCard key={team.id || i} team={team} />
-              ))}
-            </motion.div>
-          </motion.div>
-        )}
       </div>
     </main>
   );

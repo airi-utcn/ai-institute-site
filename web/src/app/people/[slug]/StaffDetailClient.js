@@ -12,7 +12,6 @@ import {
   FaTag,
   FaExternalLinkAlt,
   FaFileAlt,
-  FaBriefcase,
   FaGlobe,
   FaStar,
   FaProjectDiagram,

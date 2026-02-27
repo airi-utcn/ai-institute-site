@@ -582,10 +582,14 @@ export async function getProjectBySlug(slug) {
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
-export async function getPublications() {
+export async function getPublications(options = {}) {
   try {
+    const { domainSlug } = options;
     const params = new URLSearchParams();
     params.set('sort', 'year:desc');
+    if (domainSlug) {
+      params.set('filters[domain][slug][$eq]', domainSlug);
+    }
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);

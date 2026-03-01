@@ -132,7 +132,7 @@ export default async function Home() {
             </div>
             <h3 className="heading-3 heading-accent mb-2">Resources</h3>
             <p className="text-muted">
-              Tools, datasets, and learning materials.
+              Tools, resources, and learning materials.
             </p>
           </Link>
         </div>

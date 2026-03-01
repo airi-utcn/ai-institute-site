@@ -39,12 +39,6 @@
       "relation": "manyToMany",
       "target": "api::publication.publication",
       "mappedBy": "themes"
-    },
-    "datasets": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::dataset.dataset",
-      "mappedBy": "themes"
     }
   }
 }

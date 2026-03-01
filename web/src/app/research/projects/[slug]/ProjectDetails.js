@@ -15,7 +15,6 @@ import {
   FaHandshake,
   FaLightbulb,
   FaDatabase,
-  FaUserTie,
   FaBookOpen,
   FaFilePdf
 } from 'react-icons/fa';
@@ -148,11 +147,11 @@ function InfoCard({ icon: Icon, label, value, href }) {
   return content;
 }
 
-// Dataset Card Component
-function DatasetCard({ dataset }) {
+// Resource Card Component
+function ResourceCard({ resource }) {
   return (
     <motion.a
-      href={dataset.source_url}
+      href={resource.source_url || resource.url}
       target="_blank"
       rel="noopener noreferrer"
       variants={itemVariants}
@@ -164,11 +163,11 @@ function DatasetCard({ dataset }) {
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-            {dataset.title}
+            {resource.title}
           </h4>
-          {dataset.platform && (
+          {resource.platform && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Platform: {dataset.platform}
+              Platform: {resource.platform}
             </p>
           )}
         </div>
@@ -284,9 +283,7 @@ export default function ProjectDetails({ project }) {
   }
 
   const heroImageUrl = project.heroImage || null;
-  const leadPerson = project.leadDetails || null;
-  const leadSlug = leadPerson?.slug || project.leadSlug || '';
-  const leadName = leadPerson?.name || project.leadName || project.lead || '';
+  const teams = project.teams || [];
   const themes = (project.themesData && project.themesData.length > 0)
     ? project.themesData
     : (project.themes || []).map((name) => ({ name, slug: '' }));
@@ -324,43 +321,14 @@ export default function ProjectDetails({ project }) {
     );
   };
 
-  const isSameMember = (a, b) => {
-    if (!a || !b) return false;
-    if (a.slug && b.slug) return a.slug === b.slug;
-    if (a.id && b.id) return a.id === b.id;
-    if (a.name && b.name) return a.name === b.name;
-    return false;
-  };
-
-  // Combine lead and team members
-  const allTeam = [];
-  if (leadPerson) {
-    allTeam.push({ ...leadPerson, role: 'Project Lead' });
-  }
-  if (project.team && project.team.length > 0) {
-    project.team.forEach(member => {
-      if (!member.person) return;
-      if (leadSlug && member.person.slug === leadSlug) return;
-      allTeam.push({ ...member.person, role: member.role || 'Team Member' });
-    });
-  }
-  if (project.members && project.members.length > 0) {
-    project.members.forEach(member => {
-      if (leadSlug && member.slug === leadSlug) return;
-      if (!allTeam.find(t => isSameMember(t, member))) {
-        allTeam.push({ ...member, role: 'Team Member' });
-      }
-    });
-  }
-
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FaInfoCircle },
-    { id: 'team', label: 'Team', icon: FaUsers, count: allTeam.length },
+    { id: 'team', label: 'Teams', icon: FaUsers, count: teams.length },
   ];
 
-  // Add datasets tab if there are datasets
-  if (project.datasets && project.datasets.length > 0) {
-    tabs.push({ id: 'datasets', label: 'Datasets', icon: FaDatabase, count: project.datasets.length });
+  // Add resources tab if there are resources
+  if (project.resources && project.resources.length > 0) {
+    tabs.push({ id: 'resources', label: 'Resources', icon: FaDatabase, count: project.resources.length });
   }
 
   // Add publications tab if there are publications
@@ -406,7 +374,7 @@ export default function ProjectDetails({ project }) {
                   theme.slug ? (
                     <Link
                       key={theme.slug}
-                      href={`/research/themes/${theme.slug}`}
+                      href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
                       className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white hover:bg-white/30 transition-colors"
                     >
                       {theme.name}
@@ -433,14 +401,6 @@ export default function ProjectDetails({ project }) {
           variants={containerVariants}
           className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 mb-8 relative z-10"
         >
-          {leadName && (
-            <InfoCard
-              icon={FaUserTie}
-              label="Lead"
-              value={leadName}
-              href={leadPerson?.slug ? getPersonPath(leadPerson) : undefined}
-            />
-          )}
           {project.region && (
             <InfoCard icon={FaMapMarkerAlt} label="Region" value={project.region} />
           )}
@@ -573,7 +533,7 @@ export default function ProjectDetails({ project }) {
                     {project.domains.map(domain => (
                       <Link
                         key={domain.slug}
-                        href={`/research/themes/${domain.slug}`}
+                        href={`/research/departments/${domain.slug}`}
                         className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
                       >
                         {domain.name}
@@ -609,47 +569,70 @@ export default function ProjectDetails({ project }) {
           )}
 
           {activeTab === 'team' && (
-            <div className="space-y-6">
-              {allTeam.length > 0 ? (
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  variants={containerVariants}
-                  className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                >
-                  {allTeam.map((person, index) => (
-                    <PersonCard key={person.slug || index} person={person} role={person.role} />
-                  ))}
-                </motion.div>
+            <div className="space-y-8">
+              {teams.length > 0 ? (
+                teams.map((team) => (
+                  <div key={team.slug || team.id} className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{team.name}</h3>
+                      {team.department && (
+                        <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                          {team.department.name}
+                        </span>
+                      )}
+                    </div>
+                    {team.members.length > 0 ? (
+                      <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={containerVariants}
+                        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                      >
+                        {team.members.map((m, i) => (
+                          <div key={m.person?.slug || i} className="relative">
+                            {m.isLead && (
+                              <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
+                                Lead
+                              </span>
+                            )}
+                            <PersonCard person={m.person} role={m.role} />
+                          </div>
+                        ))}
+                      </motion.div>
+                    ) : (
+                      <p className="text-sm text-gray-500 dark:text-gray-400">No members listed for this team.</p>
+                    )}
+                  </div>
+                ))
               ) : (
                 <div className="text-center py-12">
                   <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No team members listed for this project.
+                    No teams assigned to this project.
                   </p>
                 </div>
               )}
             </div>
           )}
 
-          {activeTab === 'datasets' && (
+          {activeTab === 'resources' && (
             <div className="space-y-6">
-              {project.datasets && project.datasets.length > 0 ? (
+              {project.resources && project.resources.length > 0 ? (
                 <motion.div
                   initial="hidden"
                   animate="visible"
                   variants={containerVariants}
                   className="grid gap-4 md:grid-cols-2"
                 >
-                  {project.datasets.map((dataset, index) => (
-                    <DatasetCard key={dataset.slug || index} dataset={dataset} />
+                  {project.resources.map((resource, index) => (
+                    <ResourceCard key={resource.slug || index} resource={resource} />
                   ))}
                 </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No datasets available for this project.
+                    No resources available for this project.
                   </p>
                 </div>
               )}

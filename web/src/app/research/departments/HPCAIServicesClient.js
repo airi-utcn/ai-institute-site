@@ -11,8 +11,6 @@ const itemVariants = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
-export const hpcAIPage = Client();
-
 export default function Client() {
   return (
     <div className="flex flex-col items-center justify-center">
@@ -86,7 +84,7 @@ export default function Client() {
             />
             <FeatureCard
               title="Scalable Data Storage Platform"
-              body="A high-performance, distributed file system enables seamless access to large datasets and can expand transparently with new storage nodes—critical for data-intensive AI projects."
+              body="A high-performance, distributed file system enables seamless access to large resources and can expand transparently with new storage nodes—critical for data-intensive AI projects."
             />
             <FeatureCard
               title="High-Speed Networking"

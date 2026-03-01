@@ -157,7 +157,7 @@ MIGRATION_DATA_ROOT=../web/src/app/data node scripts/migrate-json.js
 ```
 
 This script:
-- Imports people, projects, publications, datasets, etc.
+- Imports people, projects, publications, resources, etc.
 - Automatically publishes content
 - Is idempotent (safe to run multiple times)
 

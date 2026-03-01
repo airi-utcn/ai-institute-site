@@ -5,7 +5,7 @@
     "singularName": "resource",
     "pluralName": "resources",
     "displayName": "Resource",
-    "description": "External tools, datasets, software, and links curated by the institute"
+    "description": "External tools, resources, software, and links curated by the institute"
   },
   "options": {
     "draftAndPublish": true
@@ -49,7 +49,7 @@
     "category": {
       "type": "enumeration",
       "enum": [
-        "dataset",
+        "resource",
         "tool",
         "software",
         "documentation",

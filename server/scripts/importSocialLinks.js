@@ -11,7 +11,7 @@ const STRAPI_URL = env.STRAPI_URL;
 const ADMIN_EMAIL = env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = env.ADMIN_PASSWORD;
 // const CSV_PATH = path.join(process.cwd(), "public", "doc1.csv");
-const CSV_PATH = path.join(process.cwd(), "doc1.csv");
+const CSV_PATH = path.join(process.cwd(), "csv-file");
 const LOG_FILE = "output-log-file";
 
 // Platform link builders

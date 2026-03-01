@@ -1,0 +1,129 @@
+=== PEOPLE STATUS ===
+Generated: 2026-02-19T10:38:28.138Z
+Total Researchers Evaluated: 110
+================================
+
+[OK] (55)
+--------------------------------------------------
+- Antonesi Mircea Gabriel
+- Ardelean Eugen Richard
+- Aurelia Ciupe
+-  Bâcu Victor Ioan
+- Benoit Challand
+- Bogdan Orza
+- Botez Robert
+- Brehar Raluca Didona
+- Bușoniu Lucian
+- Cioara Tudor
+- Codrean Alexandru
+- Dănescu Radu Gabriel
+- Dînșoreanu Mihaela
+- Dobrota Virgil
+- Farago Paul
+- Feier Cristina
+- Florea Horaţiu Răzvan
+- Giosan Ion Augustin
+- Giurgiu Mircea
+- Gorgan Dorian
+- Groza Adrian Petru
+- Hintea Sorin Adrian
+- Itu Răzvan
+- Kirei Botond Sandor
+- Lemnaru Camelia
+- Lendek Zsofia
+- Mărginean Anca Nicoleta
+- Marița Tiberiu
+- Miclea Vlad Cristian
+- Mitrea Dan
+- Mitrea Delia Alexandrina
+- Mureșan Mircea Paul
+- Nandra Constantin Ioan
+- Natsakis Anastasios
+- Neag Marius
+- Nedevschi Sergiu
+- Negru Vlad Andrei
+- Oniga Florin Ioan
+- Peter Ioan Radu
+- Petrovai Andra
+- Pisla Doina Liana
+- Pop Adrian
+- Portase Raluca Laura
+- Potolea Rodica
+- Purcar Marius
+- Sabou Adrian
+- Slăvescu Radu-Răzvan
+- Ștefănuț Teodor Traian
+- Suciu Vasile
+- Tamás Levente
+- Todorean Liana Maria
+- Topa Marina
+- Vaida Călin
+- Vancea Cristian
+- Zinca Daniel
+
+
+[OK*] (24) - no profile photo
+--------------------------------------------------
+- Anghel Ionuț
+- Bartoș Dragoș
+- Brad Stelian
+- Coleșa Adrian
+- Comes Radu
+- Császár István-Attila
+- Dobra Petru
+- Fazakas Albert Csaba
+- Feier Maria Cristina
+- Fodorean Daniel
+- Gherman Bogdan-George
+- Marcu Cosmin
+- Mihăilă Laura Ioana
+- Neamțu Călin
+- Onet Raul
+- Oprișa Ciprian
+- Pop Aurel Ovidiu
+- Pop Vasile
+- Puschita Emanuel Dumitru
+- Radu Peter
+- Rusu-Both Roxana
+- Szomiu Roxana Ramona
+- Terebes Romulus
+- Tucan Paul
+
+
+[FAIL] (18) - no social links
+--------------------------------------------------
+- Badea Cornel Alexandru
+- Bărăian Andrei Cristian
+- Beche Radu
+- Blaga Bianca Cerasela
+- Chiciudean Vivian
+- Dumitraş Andrei 
+- Fuzes Attila Erno
+- Galbaza Alexandru
+- Georgiana Copil
+- Goia Alexandru
+- Iakkel Claudiu
+- Kovacs Istvan
+- Lăpuşan Alex Mihai
+- Medesan Lucian
+- Molnar Szilard
+- Omăt Cristian
+- Pîrje Ștefan
+- Taraș Zinveliu Lara
+
+
+[FAIL] (13) - no profile photo and no social links
+--------------------------------------------------
+- Bacila Radu
+- Balog Bogdan
+- Barbura Claudia Georgiana
+- Bodi Radu
+- Bogeanu-Popa Alexandru
+- Gal Oscar
+- Konievic Robert-Anton
+- Munteanu Călin
+- Pacurar Aralda Dora
+- Sita Valentin
+- Totoian Marius Horaţiu
+- Turcu Vlad Spiridon
+- Vladu Gheorghe Eduard

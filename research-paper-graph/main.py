@@ -4,10 +4,18 @@ import glob
 import strapi_client
 import openalex_fetcher
 import graph_generator
+from dotenv import load_dotenv
 
 # Configuration
+# Load environment variables from parent directory
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_file = os.path.join(parent_dir, ".env")
+if os.path.exists(env_file):
+    load_dotenv(env_file)
+
 STRAPI_API_URL = os.getenv("STRAPI_URL", "http://localhost:1337")
-STRAPI_TOKEN = os.getenv("STRAPI_TOKEN", "c9e8fedefd150bcf284ed3d571e83a440f639afe64532de63e31db9965b7839e6bf1e519dfea5da79b09844cfc3fa350328ec92562e308830a7d6ae98868dba775ef79ec5d0543280277c36ba3f6d89ab046e292b223e4c4ab4f16a9a27e3ff3edc4bfa51a1ee48b84b3ac8cf6174e64b883290e49d9819f625b99e705e43a03")
+STRAPI_TOKEN = os.getenv("STRAPI_API_TOKEN", "your_strapi_token_here")
+
 
 def main():
     print("=== Research Paper Graph Manager ===")

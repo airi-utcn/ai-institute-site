@@ -30,5 +30,5 @@ ___
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install sentence-transformers requests numpy scikit-learn
+pip install sentence-transformers requests numpy scikit-learn dotenv
 ```

@@ -47,32 +47,58 @@ Ensure you have the following installed:
 
 ## Running with Docker
 
-### First Time Setup
+This project has **two Docker Compose configurations** with different purposes:
+
+| File | Purpose |
+|---|---|
+| `docker-compose.yml` | Simulates the **production environment** — full image builds, `npm start` / `next start`. Use this to verify production-like behavior. |
+| `docker-compose.dev.yml` | **Active development** — lightweight dev images with `strapi develop` and `next dev --turbopack`. File changes are synced instantly via Docker Compose Watch; no rebuilds needed. |
+
+### Active Development (Recommended)
+
+Use Docker Compose Watch for day-to-day development. It syncs your local source files directly into the running containers, so Strapi's built-in watcher and Next.js's Turbopack HMR pick up changes instantly — **no image rebuilds required**.
 
 ```bash
-# Build and start containers (command can be ran anywhere in project, not necessarily on root)
+# First time: build dev images and start the watch loop
+docker compose -f docker-compose.dev.yml watch
+
+# Ctrl+C stops the watch loop. Bring the stack down with:
+docker compose -f docker-compose.dev.yml down
+
+# View logs while watching (separate terminal)
+docker compose -f docker-compose.dev.yml logs -f strapi
+docker compose -f docker-compose.dev.yml logs -f nextjs
+```
+
+What gets synced automatically:
+- `server/src/` and `server/config/` → Strapi (reloads on save)
+- `web/src/` and `web/public/` → Next.js (HMR on save)
+- Either `package.json` → triggers a container rebuild (rare)
+
+### Production Simulation
+
+Use the default `docker-compose.yml` to test the full production build locally (full image builds, admin bundle compiled ahead of time, `npm start`).
+
+```bash
+# Build and start containers (can be run from anywhere in the project)
 docker compose up --build
 
 # Wait for Strapi to initialize (check logs for "Server started")
 # Then open http://localhost:1337 and create admin user. If it redirects wrong, try again
 # The frontend will be at http://localhost:3000
-```
 
-### Daily Development
-
-```bash
-# Start containers as they were, changes will not be applied (need rebuild for that)
+# Start previously built containers (no rebuild)
 docker compose up
 
 # Stop containers (Ctrl+C, then)
 docker compose down
 
-# Rebuild
+# Rebuild after changes
 docker compose up --build
 
 # View logs
 docker compose logs -f strapi
-docker compose logs -f web
+docker compose logs -f nextjs
 ```
 
 ### Accessing Containers
@@ -168,11 +194,13 @@ This script:
 docker compose down -v  # Removes volumes, data WILL be lost.
 docker compose up --build
 
-# Backup database
-docker exec ai-institute-site-postgres-1 pg_dump -U strapi strapi > backup.sql
+# Backup database (custom format — required for pg_restore)
+docker exec ai-institute-site-postgres-1 pg_dump -U strapi -Fc strapi > backup.dump
 
 # Restore database
-docker exec -i ai-institute-site-postgres-1 psql -U strapi strapi < backup.sql
+# IMPORTANT: use pg_restore (not psql) and always pass -U, otherwise PostgreSQL
+# tries to connect as your OS user (e.g. root) and throws "role root does not exist".
+docker exec -i ai-institute-site-postgres-1 pg_restore -U strapi -d strapi < backup.dump
 ```
 
 ## Strapi Development

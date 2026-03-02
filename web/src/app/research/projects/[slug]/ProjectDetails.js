@@ -16,7 +16,8 @@ import {
   FaLightbulb,
   FaDatabase,
   FaBookOpen,
-  FaFilePdf
+  FaFilePdf,
+  FaUserTie,
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 
@@ -284,6 +285,7 @@ export default function ProjectDetails({ project }) {
 
   const heroImageUrl = project.heroImage || null;
   const teams = project.teams || [];
+  const contributors = project.contributors || [];
   const themes = (project.themesData && project.themesData.length > 0)
     ? project.themesData
     : (project.themes || []).map((name) => ({ name, slug: '' }));
@@ -321,9 +323,10 @@ export default function ProjectDetails({ project }) {
     );
   };
 
+  const peopleCount = teams.length + contributors.length;
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FaInfoCircle },
-    { id: 'team', label: 'Teams', icon: FaUsers, count: teams.length },
+    { id: 'team', label: 'People', icon: FaUsers, count: peopleCount > 0 ? peopleCount : undefined },
   ];
 
   // Add resources tab if there are resources
@@ -569,46 +572,108 @@ export default function ProjectDetails({ project }) {
           )}
 
           {activeTab === 'team' && (
-            <div className="space-y-8">
-              {teams.length > 0 ? (
-                teams.map((team) => (
-                  <div key={team.slug || team.id} className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{team.name}</h3>
-                      {team.department && (
-                        <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
-                          {team.department.name}
-                        </span>
+            <div className="space-y-10">
+              {/* ── Teams ── */}
+              {teams.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
+                      <FaUsers className="w-4 h-4" />
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teams</h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      {teams.length}
+                    </span>
+                  </div>
+                  {teams.map((team) => (
+                    <div key={team.slug || team.id} className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{team.name}</h3>
+                        {team.department && (
+                          <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                            {team.department.name}
+                          </span>
+                        )}
+                      </div>
+                      {team.members.length > 0 ? (
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={containerVariants}
+                          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                        >
+                          {team.members.map((m, i) => (
+                            <div key={m.person?.slug || i} className="relative">
+                              {m.isLead && (
+                                <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
+                                  Lead
+                                </span>
+                              )}
+                              <PersonCard person={m.person} role={m.role} />
+                            </div>
+                          ))}
+                        </motion.div>
+                      ) : (
+                        <p className="text-sm text-gray-500 dark:text-gray-400">No members listed for this team.</p>
                       )}
                     </div>
-                    {team.members.length > 0 ? (
-                      <motion.div
-                        initial="hidden"
-                        animate="visible"
-                        variants={containerVariants}
-                        className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                      >
-                        {team.members.map((m, i) => (
-                          <div key={m.person?.slug || i} className="relative">
-                            {m.isLead && (
-                              <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                                Lead
-                              </span>
-                            )}
-                            <PersonCard person={m.person} role={m.role} />
-                          </div>
-                        ))}
-                      </motion.div>
-                    ) : (
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No members listed for this team.</p>
-                    )}
+                  ))}
+                </div>
+              )}
+
+              {/* ── Individual Contributors ── */}
+              {contributors.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
+                      <FaUserTie className="w-4 h-4" />
+                    </div>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                      {teams.length > 0 ? 'Individual Contributors' : 'Contributors'}
+                    </h2>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                      {contributors.length}
+                    </span>
                   </div>
-                ))
-              ) : (
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                  >
+                    {contributors.map((person) => (
+                      <motion.div
+                        key={person.slug || person.name}
+                        variants={itemVariants}
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4"
+                      >
+                        <Link href={person.slug ? `/people/${encodeURIComponent(person.slug)}` : '/people'} className="block text-center group">
+                          <div className="w-20 h-20 mx-auto mb-3">
+                            <img
+                              src={person.image || '/people/Basic_avatar_image.png'}
+                              alt={person.name}
+                              className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
+                            />
+                          </div>
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {person.name}
+                          </h3>
+                          {person.title && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{person.title}</p>
+                          )}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+              )}
+
+              {/* ── Empty state ── */}
+              {teams.length === 0 && contributors.length === 0 && (
                 <div className="text-center py-12">
                   <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No teams assigned to this project.
+                    No people assigned to this project.
                   </p>
                 </div>
               )}

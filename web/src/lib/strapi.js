@@ -491,6 +491,7 @@ export async function getProjects(options = {}) {
       populate: {
         ...PROJECT_POPULATE.populate,
         teams: { fields: ['name', 'slug'] },
+        contributors: PERSON_WITH_IMAGE_POPULATE,
       },
     });
 
@@ -541,6 +542,7 @@ export async function getProjectBySlug(slug) {
             department: DEPARTMENT_POPULATE,
           },
         },
+        contributors: PERSON_WITH_IMAGE_POPULATE,
         timeline: {},
         resources: { fields: ['title', 'slug', 'url', 'icon', 'category'] },
       },
@@ -1185,6 +1187,19 @@ export function transformProjectData(strapiProjects) {
       };
     });
 
+    const contributors = toArray(attributes.contributors?.data ?? attributes.contributors).map((c) => {
+      const personData = c?.attributes ?? c ?? {};
+      return {
+        id: c?.id ?? null,
+        slug: personData.slug || '',
+        name: personData.fullName || personData.name || '',
+        title: personData.title || '',
+        type: personData.type || '',
+        email: personData.email || '',
+        image: resolveMediaUrl(personData.portrait),
+      };
+    }).filter((c) => c.slug || c.name);
+
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
 
@@ -1246,6 +1261,7 @@ export function transformProjectData(strapiProjects) {
       domains,
       domain: domains.map((d) => d.name).filter(Boolean),
       teams,
+      contributors,
       timeline: normalizeTimelineEntries(attributes.timeline),
       publications,
       resources,

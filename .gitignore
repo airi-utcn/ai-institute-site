@@ -49,3 +49,5 @@ web/src/app/people/staff/\[slug]/page.js.backup
 /data-feed/
 /.vscode/
 
+# Sync log files
+log-*.txt

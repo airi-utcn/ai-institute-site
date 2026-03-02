@@ -34,12 +34,12 @@ export default {
       'api::project.project',
       'api::publication.publication',
       'api::paper.paper',
-      'api::dataset.dataset',
       'api::research-theme.research-theme',
       'api::partner.partner',
-      'api::support-unit.support-unit',
       'api::news-article.news-article',
       'api::resource.resource',
+      'api::event.event',
+      'api::seminar.seminar',
     ];
 
     let addedCount = 0;

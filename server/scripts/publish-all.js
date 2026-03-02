@@ -9,7 +9,7 @@ async function publishAll() {
     'api::person.person',
     'api::publication.publication',
     'api::project.project',
-    'api::dataset.dataset',
+    'api::resource.resource',
   ];
 
   for (const uid of contentTypes) {

@@ -25,24 +25,24 @@
     },
     "phase": {
       "type": "enumeration",
+      "default": "ongoing",
       "enum": [
         "planned",
         "ongoing",
         "completed",
         "archived"
-      ],
-      "default": "ongoing"
+      ]
     },
     "region": {
       "type": "enumeration",
+      "default": "national",
       "enum": [
         "local",
         "regional",
         "national",
         "international",
         "other"
-      ],
-      "default": "national"
+      ]
     },
     "heroImage": {
       "type": "media",
@@ -88,27 +88,16 @@
     "officialUrl": {
       "type": "text"
     },
-    "lead": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::person.person",
-      "inversedBy": "leading_projects"
-    },
-    "members": {
+    "teams": {
       "type": "relation",
       "relation": "manyToMany",
-      "target": "api::person.person",
-      "inversedBy": "projects"
-    },
-    "team": {
-      "type": "component",
-      "repeatable": true,
-      "component": "project.team-member"
+      "target": "api::team.team",
+      "mappedBy": "projects"
     },
     "timeline": {
       "type": "component",
-      "repeatable": true,
-      "component": "project.timeline-entry"
+      "component": "project.timeline-entry",
+      "repeatable": true
     },
     "publications": {
       "type": "relation",
@@ -116,15 +105,20 @@
       "target": "api::publication.publication",
       "mappedBy": "projects"
     },
-    "datasets": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::dataset.dataset",
-      "mappedBy": "projects"
-    },
     "featured": {
       "type": "boolean",
       "default": false
+    },
+    "resources": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::resource.resource"
+    },
+    "contributors": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::person.person",
+      "inversedBy": "contributingProjects"
     }
   }
 }

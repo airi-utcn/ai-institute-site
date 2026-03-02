@@ -33,19 +33,28 @@
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": ["files"]
+      "allowedTypes": [
+        "files"
+      ]
     },
     "bibFile": {
       "type": "media",
       "multiple": false,
       "required": false,
-      "allowedTypes": ["files"]
+      "allowedTypes": [
+        "files"
+      ]
     },
     "attachments": {
       "type": "media",
       "multiple": true,
       "required": false,
-      "allowedTypes": ["files", "images", "videos", "audios"]
+      "allowedTypes": [
+        "files",
+        "images",
+        "videos",
+        "audios"
+      ]
     },
     "metadata": {
       "type": "json"
@@ -74,11 +83,10 @@
       "target": "api::project.project",
       "inversedBy": "publications"
     },
-    "datasets": {
+    "resources": {
       "type": "relation",
       "relation": "manyToMany",
-      "target": "api::dataset.dataset",
-      "mappedBy": "publications"
+      "target": "api::resource.resource"
     }
   }
 }

@@ -34,7 +34,7 @@ const iconMap = {
 
 /* Category labels for display */
 const categoryLabels = {
-  dataset: "Dataset",
+  resource: "Resource",
   tool: "Tool",
   software: "Software",
   documentation: "Documentation",
@@ -47,7 +47,7 @@ const categoryLabels = {
 
 /* Category colors */
 const categoryColors = {
-  dataset: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  resource: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   tool: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   software: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   documentation: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -221,7 +221,7 @@ export default function ResourcesClient({ resources = [] }) {
             Resources
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Explore our curated collection of tools, datasets, APIs, and learning materials 
+            Explore our curated collection of tools, resources, APIs, and learning materials 
             to support your AI research and development.
           </p>
         </motion.div>

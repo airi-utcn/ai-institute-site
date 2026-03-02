@@ -16,7 +16,7 @@ export default function ToolsClient() {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.h1
             variants={itemVariants}
-            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400 text-center"
+            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
           >
             Tools
           </motion.h1>
@@ -27,10 +27,10 @@ export default function ToolsClient() {
             className="rounded-xl border border-gray-200 dark:border-gray-800 p-6 md:p-8"
           >
             <p className="text-base md:text-lg text-gray-900 dark:text-gray-100 font-medium">
-              Here is the tools implemented at AIRI institute
+              Here are the tools implemented at the AIRI institute.
             </p>
             <p className="mt-2 text-sm md:text-base text-gray-700 dark:text-gray-300">
-              More update comming soon
+              More updates coming soon.
             </p>
           </motion.div>
         </motion.div>

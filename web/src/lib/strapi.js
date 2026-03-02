@@ -160,7 +160,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'position', 'email', 'phone', 'type', 'location'];
+const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -179,31 +179,7 @@ const DEPARTMENT_POPULATE = {
   fields: ['name', 'slug', 'summary', 'description'],
 };
 
-const SUPPORT_UNIT_POPULATE = {
-  fields: ['name', 'slug', 'summary', 'mission'],
-};
 
-
-
-const PUBLICATION_POPULATE = {
-  fields: ['title', 'slug', 'year', 'kind', 'description'],
-  populate: {
-    domain: DEPARTMENT_POPULATE,
-    projects: {
-      fields: ['title', 'slug'],
-    },
-    authors: PERSON_FLAT_POPULATE,
-    pdfFile: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-    bibFile: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-    attachments: {
-      fields: ['name', 'url', 'mime', 'ext', 'size'],
-    },
-  },
-};
 
 const PROJECT_POPULATE = {
   fields: ['title', 'slug', 'abstract', 'region', 'phase', 'docUrl', 'officialUrl', 'featured', 'isIndustryEngagement'],
@@ -212,8 +188,6 @@ const PROJECT_POPULATE = {
       fields: ['url', 'formats', 'alternativeText'],
     },
     domains: DEPARTMENT_POPULATE,
-    lead: PERSON_WITH_IMAGE_POPULATE,
-    members: PERSON_WITH_IMAGE_POPULATE,
     themes: {
       fields: ['name', 'slug'],
     },
@@ -225,16 +199,6 @@ const PROJECT_POPULATE = {
         },
       },
     },
-  },
-};
-
-const NEWS_ARTICLE_POPULATE = {
-  fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl'],
-  populate: {
-    heroImage: {},
-    relatedDepartments: DEPARTMENT_POPULATE,
-    relatedProjects: PROJECT_POPULATE,
-    featuredPeople: PERSON_FLAT_POPULATE,
   },
 };
 
@@ -435,12 +399,10 @@ export async function getStaffMember(slug) {
       filters: { slug: { $eq: slug } },
       populate: {
         department: DEPARTMENT_POPULATE,
-        portrait: {},
+        portrait: { fields: ['url', 'formats', 'alternativeText'] },
         socialLinks: {
           fields: ['label', 'url', 'icon'],
         },
-        projects: { fields: ['title', 'slug'] },
-        leading_projects: { fields: ['title', 'slug'] },
         publications: { fields: ['title', 'slug', 'year'] },
       },
     });
@@ -450,6 +412,61 @@ export async function getStaffMember(slug) {
   } catch (error) {
     console.error('Failed to fetch staff member:', error);
     return null;
+  }
+}
+
+/**
+ * Get all teams a person is a member of, identified by their slug.
+ * Filters server-side on the members[].person.slug component relation.
+ * @param {string} slug - The person's slug
+ * @returns {Promise<Array>} Array of team entries
+ */
+export async function getPersonTeams(slug) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { members: { person: { slug: { $eq: slug } } } },
+      populate: {
+        department: DEPARTMENT_POPULATE,
+        members: {
+          populate: { person: PERSON_FLAT_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'phase'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch person teams:', error);
+    return [];
+  }
+}
+
+/**
+ * Get all teams belonging to a department
+ * @param {string} departmentSlug - The department's slug
+ * @returns {Promise<Array>} Array of team entries
+ */
+export async function getDepartmentTeams(departmentSlug) {
+  try {
+    if (!departmentSlug) return [];
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { department: { slug: { $eq: departmentSlug } } },
+      sort: 'name:asc',
+      populate: {
+        members: {
+          populate: { person: PERSON_FLAT_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'phase'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch department teams:', error);
+    return [];
   }
 }
 
@@ -471,7 +488,11 @@ export async function getProjects(options = {}) {
       publicationState,
       filters: Object.keys(filters).length ? filters : null,
       fields: PROJECT_POPULATE.fields,
-      populate: PROJECT_POPULATE.populate,
+      populate: {
+        ...PROJECT_POPULATE.populate,
+        teams: { fields: ['name', 'slug'] },
+        contributors: PERSON_WITH_IMAGE_POPULATE,
+      },
     });
 
     const data = await fetchAPI(`/projects?${params.toString()}`);
@@ -490,58 +511,69 @@ export async function getProjects(options = {}) {
 export async function getProjectBySlug(slug) {
   try {
     if (!slug) return null;
-    const params = createParams({
+
+    // Split into two parallel requests so neither URL becomes excessively long.
+    // 1. Core project data (no publications nested populate).
+    const projectParams = createParams({
       filters: { slug: { $eq: slug } },
       publicationState: 'preview',
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
-        heroImage: {},
+        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
         body: {
           on: {
-            'shared.rich-text': {
-              fields: ['body'],
-            },
+            'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: {
-                media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.media': {
-              populate: {
-                file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.slider': {
-              populate: {
-                files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] },
-              },
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
             },
           },
         },
-        team: {
+        teams: {
           populate: {
-            person: PERSON_WITH_IMAGE_POPULATE,
+            members: { populate: { person: PERSON_WITH_IMAGE_POPULATE } },
+            department: DEPARTMENT_POPULATE,
           },
         },
+        contributors: PERSON_WITH_IMAGE_POPULATE,
         timeline: {},
-        datasets: {
-          fields: ['title', 'slug', 'source_url', 'platform'],
-        },
-        publications: {
-          fields: ['title', 'slug', 'year', 'kind', 'description'],
-          populate: {
-            authors: PERSON_FLAT_POPULATE,
-            pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
-            domain: DEPARTMENT_POPULATE,
-          },
-        },
+        resources: { fields: ['title', 'slug', 'url', 'icon', 'category'] },
       },
     });
 
-    const data = await fetchAPI(`/projects?${params.toString()}`);
-    return data.data?.[0] || null;
+    // 2. Publications for this project — fetched from the publications endpoint to keep URLs short.
+    const pubParams = createParams({
+      filters: { projects: { slug: { $eq: slug } } },
+      sort: 'year:desc',
+      fields: ['title', 'slug', 'year', 'kind', 'description'],
+      populate: {
+        authors: PERSON_FLAT_POPULATE,
+        pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        domain: DEPARTMENT_POPULATE,
+      },
+    });
+
+    const [projectData, pubData] = await Promise.all([
+      fetchAPI(`/projects?${projectParams.toString()}`),
+      fetchAPI(`/publications?${pubParams.toString()}`),
+    ]);
+
+    const project = projectData.data?.[0];
+    if (!project) return null;
+
+    // Inject publications into the project so transformProjectData can pick them up.
+    // Works for both Strapi v4 (attributes wrapper) and v5 (flat object).
+    const attrs = project?.attributes ?? project;
+    attrs.publications = pubData.data ?? [];
+
+    return project;
   } catch (error) {
     console.error('Failed to fetch project:', error);
     return null;
@@ -549,21 +581,45 @@ export async function getProjectBySlug(slug) {
 }
 
 /**
+ * Get all partners from Strapi
+ * @returns {Promise<Array>} Array of partners
+ */
+export async function getPartners() {
+  const PARTNER_POPULATE = {
+    fields: ['name', 'slug', 'website', 'country', 'description'], 
+    populate: {
+      logo: {
+        fields: ['url', 'formats', 'alternativeText'],
+      },
+    },
+  };
+
+  try {
+    return await fetchAllEntries('/partners', {
+      fields: PARTNER_POPULATE.fields,
+      populate: PARTNER_POPULATE.populate,
+      sort: 'name:asc', 
+    });
+  } catch (error) {
+    console.error("Failed to fetch partners from Strapi: ", error);
+    return [];
+  }
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
-export async function getPublications() {
+export async function getPublications(options = {}) {
   try {
+    const { domainSlug } = options;
     const params = new URLSearchParams();
     params.set('sort', 'year:desc');
+    if (domainSlug) {
+      params.set('filters[domain][slug][$eq]', domainSlug);
+    }
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
-    setPopulate(params, 'populate[projects]', {
-      fields: ['title', 'slug'],
-      populate: {
-        lead: PERSON_FLAT_POPULATE,
-        domains: DEPARTMENT_POPULATE,
-      },
-    });
+    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -591,13 +647,12 @@ export async function getPublicationBySlug(slug) {
     setPopulate(params, 'populate[projects]', {
       fields: ['title', 'slug'],
       populate: {
-        lead: PERSON_FLAT_POPULATE,
         domains: DEPARTMENT_POPULATE,
       },
     });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
-    setPopulate(params, 'populate[datasets]', { fields: ['title', 'slug', 'source_url', 'platform'] });
+    setPopulate(params, 'populate[resources]', { fields: ['title', 'slug', 'url', 'icon', 'category'] });
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -619,26 +674,14 @@ export async function getNewsArticles(options = {}) {
   const { pageSize } = options;
   
   try {
-    const params = new URLSearchParams();
-    params.set('sort', 'publishedDate:desc');
-    
-    // Apply page size if specified
-    if (pageSize) {
-      params.set('pagination[pageSize]', String(pageSize));
-    }
-    
-    // Minimal populate to avoid invalid media keys on Strapi and keep payload light
-    params.append('fields[0]', 'title');
-    params.append('fields[1]', 'slug');
-    params.append('fields[2]', 'summary');
-    params.append('fields[3]', 'category');
-    params.append('fields[4]', 'publishedDate');
-    params.append('fields[5]', 'linkUrl');
-    params.append('fields[6]', 'tags');
-    // Only fetch hero image URL and basic metadata
-    params.append('populate[heroImage][fields][0]', 'url');
-    params.append('populate[heroImage][fields][1]', 'formats');
-    params.append('populate[heroImage][fields][2]', 'alternativeText');
+    const params = createParams({
+      sort: 'publishedDate:desc',
+      fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
+      pagination: pageSize ? { pageSize } : null,
+      populate: {
+        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+      },
+    });
     const data = await fetchAPI(`/news-articles?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -659,13 +702,7 @@ export async function getPublicationsByAuthor(authorSlug) {
     params.set('filters[authors][slug][$eq]', authorSlug);
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
-    setPopulate(params, 'populate[projects]', {
-      fields: ['title', 'slug'],
-      populate: {
-        lead: PERSON_FLAT_POPULATE,
-        domains: DEPARTMENT_POPULATE,
-      },
-    });
+    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
@@ -676,21 +713,20 @@ export async function getPublicationsByAuthor(authorSlug) {
 }
 
 /**
- * Get projects by staff member slug
+ * Get projects associated with a staff member via their teams
  * @param {string} memberSlug - The staff member's slug
  * @returns {Promise<Array>} Array of projects associated with the staff member
  */
 export async function getProjectsByMember(memberSlug) {
   try {
     if (!memberSlug) return [];
+    // Projects are now linked through teams; filter teams whose membership includes this person
     const params = new URLSearchParams();
     params.set('sort', 'title:asc');
-    params.set('filters[$or][0][lead][slug][$eq]', memberSlug);
-    params.set('filters[$or][1][members][slug][$eq]', memberSlug);
-    setPopulate(params, 'populate[lead]', PERSON_WITH_IMAGE_POPULATE);
-    setPopulate(params, 'populate[members]', PERSON_WITH_IMAGE_POPULATE);
+    params.set('filters[teams][members][person][slug][$eq]', memberSlug);
     setPopulate(params, 'populate[domains]', DEPARTMENT_POPULATE);
-    setPopulate(params, 'populate[publications]', PUBLICATION_POPULATE);
+    setPopulate(params, 'populate[teams]', { fields: ['name', 'slug'] });
+    setPopulate(params, 'populate[publications]', { fields: ['title', 'slug', 'year', 'kind'] });
     const data = await fetchAPI(`/projects?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -701,10 +737,16 @@ export async function getProjectsByMember(memberSlug) {
 
 export async function getDepartments(options = {}) {
   try {
-    const { type, page, pageSize = 100 } = options;
+    const { type, page, pageSize = 100, slim = false } = options;
     const filters = type ? { type: { $eq: type } } : null;
 
-    const baseOptions = {
+    // slim=true: only fetch the fields needed for list/card views (name, slug, summary, type).
+    // slim=false (default): full populate for detail pages.
+    const baseOptions = slim ? {
+      sort: 'name:asc',
+      fields: ['name', 'slug', 'summary', 'type'],
+      filters,
+    } : {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
@@ -731,28 +773,6 @@ export async function getDepartments(options = {}) {
   }
 }
 
-export async function getSupportUnits() {
-  try {
-    const baseOptions = {
-      sort: 'name:asc',
-      fields: ['name', 'slug', 'summary', 'mission'],
-      populate: {
-        services: {},
-        contactLinks: {},
-        body: {},
-        heroImage: {},
-        lead: PERSON_FLAT_POPULATE,
-        members: PERSON_FLAT_POPULATE,
-      },
-    };
-
-    return await fetchAllEntries('/support-units', baseOptions, 100);
-  } catch (error) {
-    console.error('Failed to fetch support units:', error);
-    return [];
-  }
-}
-
 export async function getResearchThemes() {
   try {
     const params = createParams({
@@ -769,37 +789,11 @@ export async function getResearchThemes() {
 
 /* --- Added Fetchers for Migration --- */
 
-export async function getDatasets() {
-  const DATASET_POPULATE = {
-    fields: ['title', 'slug', 'description', 'summary', 'source_url', 'platform', 'tags'],
-    populate: {
-      authors: PERSON_FLAT_POPULATE,
-    },
-  };
-  
-  try {
-    return await fetchAllEntries('/datasets', {
-      fields: DATASET_POPULATE.fields,
-      populate: DATASET_POPULATE.populate,
-      sort: 'title:asc',
-    });
-  } catch (error) {
-    console.error('Failed to fetch datasets:', error);
-    return [];
-  }
-}
-
 export async function getEvents() {
-  const EVENT_POPULATE = {
-    fields: ['title', 'slug', 'startDate', 'endDate', 'ctaLabel', 'ctaUrl', 'description'],
-    populate: {
-       heroImage: { fields: ['url'] }
-    }
-  };
   try {
     return await fetchAllEntries('/events', {
-      fields: EVENT_POPULATE.fields,
-      populate: EVENT_POPULATE.populate,
+      fields: EVENT_FIELDS,
+      populate: EVENT_POPULATE,
       sort: 'startDate:desc',
     });
   } catch (error) {
@@ -809,18 +803,10 @@ export async function getEvents() {
 }
 
 export async function getSeminars() {
-  const SEMINAR_POPULATE = {
-    fields: ['title', 'slug', 'provider', 'summary', 'ctaLabel', 'ctaUrl'],
-    populate: {
-      modules: {
-        populate: '*',
-      },
-    },
-  };
   try {
     return await fetchAllEntries('/seminars', {
-      fields: SEMINAR_POPULATE.fields,
-      populate: SEMINAR_POPULATE.populate,
+      fields: SEMINAR_FIELDS,
+      populate: SEMINAR_POPULATE,
       sort: 'title:asc',
     });
   } catch (error) {
@@ -859,24 +845,6 @@ export function transformStaffData(strapiStaff) {
           ),
         }
       : null;
-
-    const leadingProjects = toArray(attributes.leading_projects?.data ?? attributes.leading_projects).map((project) => {
-      const proj = project?.attributes ?? project ?? {};
-      return {
-        id: project?.id ?? null,
-        slug: proj.slug || '',
-        title: proj.title || '',
-      };
-    });
-
-    const memberProjects = toArray(attributes.projects?.data ?? attributes.projects).map((project) => {
-      const proj = project?.attributes ?? project ?? {};
-      return {
-        id: project?.id ?? null,
-        slug: proj.slug || '',
-        title: proj.title || '',
-      };
-    });
 
     const socialLinks = toArray(attributes.socialLinks).map((link) => {
       if (!link) return null;
@@ -941,8 +909,7 @@ export function transformStaffData(strapiStaff) {
       slug: attributes.slug || '',
       // Map fullName (schema) to name (frontend)
       name: attributes.fullName || attributes.name || '',
-      // Map position (schema) to title (frontend)
-      title: attributes.position || attributes.title || '',
+      title: attributes.title || '',
       phone: attributes.phone || '',
       email: attributes.email || '',
       type: typeKey,
@@ -953,8 +920,6 @@ export function transformStaffData(strapiStaff) {
       image,
       bio: stripHtml(attributes.bio) || '',
       socialLinks,
-      leadingProjects,
-      memberProjects,
       publications,
       _strapi: person,
     };
@@ -1013,14 +978,15 @@ export function transformPublicationData(strapiPubs) {
       };
     });
 
-    const datasets = toArray(attributes.datasets?.data ?? attributes.datasets).map((ds) => {
-      const dsData = ds?.attributes ?? ds ?? {};
+    const resources = toArray(attributes.resources?.data ?? attributes.resources).map((resource) => {
+      const resourceData = resource?.attributes ?? resource ?? {};
       return {
-        id: ds?.id ?? null,
-        slug: dsData.slug || '',
-        title: dsData.title || '',
-        url: dsData.source_url || dsData.url || '',
-        platform: dsData.platform || '',
+        id: resource?.id ?? null,
+        slug: resourceData.slug || '',
+        title: resourceData.title || '',
+        url: resourceData.url || '',
+        icon: resourceData.icon || 'link',
+        category: resourceData.category || '',
       };
     });
 
@@ -1080,7 +1046,7 @@ export function transformPublicationData(strapiPubs) {
       pdfFile,
       bibFile,
       themes,
-      datasets,
+      resources,
       attachments,
       projects,
       _strapi: pub,
@@ -1114,11 +1080,6 @@ export function transformNewsData(strapiNews) {
         tags,
         _strapi: item,
       };
-    })
-    .sort((a, b) => {
-      const aTime = a.date ? new Date(a.date).getTime() : 0;
-      const bTime = b.date ? new Date(b.date).getTime() : 0;
-      return bTime - aTime;
     });
 }
 
@@ -1168,7 +1129,7 @@ export function transformProjectData(strapiProjects) {
                 id: personEntry?.id ?? null,
                 slug: personAttr.slug || '',
                 name: personAttr.fullName || personAttr.name || '',
-                title: personAttr.position || personAttr.title || '',
+                title: personAttr.title || '',
                 type: personAttr.type || '',
                 email: personAttr.email || '',
                 phone: personAttr.phone || '',
@@ -1222,22 +1183,48 @@ export function transformProjectData(strapiProjects) {
       };
     });
 
-    const members = toArray(attributes.members?.data ?? attributes.members).map((member) => {
-      const memberAttr = member?.attributes ?? member ?? {};
-      const image = resolveMediaUrl(memberAttr.portrait);
+    const teams = toArray(attributes.teams?.data ?? attributes.teams).map((team) => {
+      const teamAttr = team?.attributes ?? team ?? {};
+      const deptEntry = teamAttr.department?.data ?? teamAttr.department;
+      const deptAttr = deptEntry?.attributes ?? deptEntry ?? {};
       return {
-        id: member?.id ?? null,
-        slug: memberAttr.slug || '',
-        // Map fullName (schema) to name (frontend)
-        name: memberAttr.fullName || memberAttr.name || '',
-        // Map position (schema) to title (frontend)
-        title: memberAttr.position || memberAttr.title || '',
-        type: memberAttr.type || '',
-        email: memberAttr.email || '',
-        phone: memberAttr.phone || '',
-        image,
+        id: team?.id ?? null,
+        slug: teamAttr.slug || '',
+        name: teamAttr.name || '',
+        description: teamAttr.description || '',
+        department: deptEntry ? { id: deptEntry?.id ?? null, name: deptAttr.name || '', slug: deptAttr.slug || '' } : null,
+        members: toArray(teamAttr.members).map((m) => {
+          const personEntry = m?.person?.data ?? m?.person;
+          const personAttr = personEntry?.attributes ?? personEntry ?? {};
+          return {
+            role: m?.role || '',
+            isLead: !!m?.isLead,
+            person: personEntry ? {
+              id: personEntry?.id ?? null,
+              slug: personAttr.slug || '',
+              name: personAttr.fullName || personAttr.name || '',
+              title: personAttr.title || '',
+              type: personAttr.type || '',
+              email: personAttr.email || '',
+              image: resolveMediaUrl(personAttr.portrait),
+            } : null,
+          };
+        }).filter((m) => m.person),
       };
     });
+
+    const contributors = toArray(attributes.contributors?.data ?? attributes.contributors).map((c) => {
+      const personData = c?.attributes ?? c ?? {};
+      return {
+        id: c?.id ?? null,
+        slug: personData.slug || '',
+        name: personData.fullName || personData.name || '',
+        title: personData.title || '',
+        type: personData.type || '',
+        email: personData.email || '',
+        image: resolveMediaUrl(personData.portrait),
+      };
+    }).filter((c) => c.slug || c.name);
 
     const publications = toArray(attributes.publications?.data ?? attributes.publications).map((pub) => {
       const pubData = pub?.attributes ?? pub ?? {};
@@ -1269,46 +1256,17 @@ export function transformProjectData(strapiProjects) {
       };
     });
 
-    const datasets = toArray(attributes.datasets?.data ?? attributes.datasets).map((ds) => {
-      const dsAttrs = ds?.attributes ?? ds ?? {};
+    const resources = toArray(attributes.resources?.data ?? attributes.resources).map((resource) => {
+      const resourceAttrs = resource?.attributes ?? resource ?? {};
       return {
-        id: ds?.id ?? null,
-        title: dsAttrs.title || '',
-        slug: dsAttrs.slug || '',
-        url: dsAttrs.source_url || '',
-        platform: dsAttrs.platform || '',
+        id: resource?.id ?? null,
+        title: resourceAttrs.title || '',
+        slug: resourceAttrs.slug || '',
+        url: resourceAttrs.url || '',
+        icon: resourceAttrs.icon || 'link',
+        category: resourceAttrs.category || '',
       };
     });
-
-    const leadEntry = attributes.lead?.data ?? attributes.lead;
-    const leadAttr = leadEntry?.attributes ?? leadEntry ?? {};
-    const leadDetails = leadEntry
-      ? {
-          id: leadEntry.id ?? null,
-          slug: leadAttr.slug || '',
-          // Map fullName (schema) to name (frontend)
-          name: leadAttr.fullName || leadAttr.name || '',
-          // Map position (schema) to title (frontend)
-          title: leadAttr.position || leadAttr.title || '',
-          type: leadAttr.type || '',
-          email: leadAttr.email || '',
-          phone: leadAttr.phone || '',
-          image: resolveMediaUrl(leadAttr.portrait),
-        }
-      : typeof attributes.lead === 'string' && attributes.lead.trim().length
-      ? {
-          id: null,
-          slug: '',
-          name: attributes.lead.trim(),
-          title: '',
-          email: '',
-          phone: '',
-          image: '',
-        }
-      : null;
-
-    const leadName = leadDetails?.name || '';
-    const leadSlug = leadDetails?.slug || '';
 
     return {
       id: project?.id ?? null,
@@ -1328,20 +1286,15 @@ export function transformProjectData(strapiProjects) {
       region: attributes.region || '',
       domains,
       domain: domains.map((d) => d.name).filter(Boolean),
-      members,
-      team: normalizeTeamEntries(attributes.team),
+      teams,
+      contributors,
       timeline: normalizeTimelineEntries(attributes.timeline),
       publications,
-      datasets,
-      lead: leadName,
-      leadName,
-      leadSlug,
-      leadDetails,
+      resources,
       // Map docUrl (schema) to docUrl (frontend)
       docUrl: attributes.docUrl || attributes.doc_url || '',
       // Map officialUrl (schema) to oficialUrl (legacy frontend typo)
       oficialUrl: attributes.officialUrl || attributes.oficial_url || attributes.official_url || '',
-      teams: members.map((member) => ({ name: member.slug, title: member.title, fullName: member.name })),
       _strapi: project,
     };
   });
@@ -1424,108 +1377,6 @@ export function transformDepartmentData(strapiDepartments) {
   });
 }
 
-export function transformSupportUnitData(strapiSupportUnits) {
-  const list = Array.isArray(strapiSupportUnits)
-    ? strapiSupportUnits
-    : strapiSupportUnits
-    ? [strapiSupportUnits]
-    : [];
-
-  const normalizeServices = (items) =>
-    Array.isArray(items)
-      ? items
-          .map((item) => {
-            if (!item) return null;
-            const title = item?.title || item?.heading || item?.text || item?.label || 'Details';
-            const description = stripHtml(item?.description || item?.content || item?.body || '');
-            const content = description ? [description] : [];
-            return {
-              text: title,
-              content,
-              raw: item,
-            };
-          })
-          .filter(Boolean)
-      : [];
-
-  return list.map((unit) => {
-    const attributes = unit?.attributes ?? unit ?? {};
-    const leadEntry = attributes.lead?.data ?? attributes.lead;
-    const leadData = leadEntry?.attributes ?? leadEntry ?? {};
-    const members = toArray(attributes.members?.data ?? attributes.members).map((member) => {
-      const memberData = member?.attributes ?? member ?? {};
-      return {
-        id: member?.id ?? null,
-        slug: memberData.slug || '',
-        name: memberData.fullName || memberData.name || '',
-        title: memberData.position || memberData.title || '',
-        email: memberData.email || '',
-        phone: memberData.phone || '',
-      };
-    });
-
-    const services = normalizeServices(attributes.services);
-    const contactLinks = Array.isArray(attributes.contactLinks)
-      ? attributes.contactLinks.map((link) => ({
-          label: link?.label || link?.title || link?.text || 'Contact',
-          url: link?.url || link?.href || '',
-          icon: link?.icon || '',
-        }))
-      : [];
-
-    return {
-      id: unit?.id ?? null,
-      name: attributes.name || '',
-      slug: attributes.slug || '',
-      summary: attributes.summary || '',
-      description: stripHtml(attributes.mission) || stripHtml(attributes.summary) || '',
-      rawDescription: attributes.mission || attributes.summary || '',
-      body: attributes.body || [],
-      elements: services,
-      contactLinks,
-      icon: '🏷️',
-      coordinator: leadData.fullName || leadData.name || '',
-      coCoordinator: '',
-      focusItems: services,
-      coCoordinatorSlug: '',
-      coordinatorSlug: leadData.slug || '',
-      members,
-      _strapi: unit,
-    };
-  });
-}
-
-export function transformDatasetData(strapiDatasets) {
-  const list = Array.isArray(strapiDatasets) ? strapiDatasets : strapiDatasets ? [strapiDatasets] : [];
-
-  return list.map((ds) => {
-    const attributes = ds?.attributes ?? ds ?? {};
-    const authors = toArray(attributes.authors?.data ?? attributes.authors).map((a) => {
-       const aAttr = a?.attributes ?? a ?? {};
-       return {
-         name: aAttr.fullName || aAttr.name || '',
-         slug: aAttr.slug || '',
-       };
-    });
-    
-    return {
-      id: ds?.id ?? null,
-      title: attributes.title || '',
-      slug: attributes.slug || '',
-      summary: attributes.summary || '',
-      description: attributes.description || '',
-      url: attributes.source_url || '',
-      platform: attributes.platform || '',
-      tags: attributes.tags || [],
-      authors,
-      authorName: authors[0]?.name || '',
-      authorSlug: authors[0]?.slug || '',
-      year: attributes.publishedAt ? new Date(attributes.publishedAt).getFullYear() : null,
-      _strapi: ds,
-    };
-  });
-}
-
 export function transformEventData(strapiEvents) {
   const list = Array.isArray(strapiEvents) ? strapiEvents : strapiEvents ? [strapiEvents] : [];
   return list.map((evt) => {
@@ -1534,8 +1385,16 @@ export function transformEventData(strapiEvents) {
       id: evt?.id ?? null,
       title: attributes.title || '',
       slug: attributes.slug || '',
+      description: attributes.description || '',
+      category: attributes.category || 'event',
+      location: attributes.location || '',
+      startDate: attributes.startDate || null,
+      endDate: attributes.endDate || null,
+      // keep 'date' as the primary sort key for backward-compat with the client
+      date: attributes.startDate || null,
+      ctaLabel: attributes.ctaLabel || '',
       url: attributes.ctaUrl || '',
-      date: attributes.startDate || attributes.publishedAt,
+      image: resolveMediaUrl(attributes.heroImage),
       _strapi: evt,
     };
   });
@@ -1570,6 +1429,18 @@ const RESOURCE_POPULATE = {
   maintainers: {
     fields: ['fullName', 'slug'],
   },
+};
+
+const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description'];
+
+const EVENT_POPULATE = {
+  heroImage: { fields: ['url', 'alternativeText'] },
+};
+
+const SEMINAR_FIELDS = ['title', 'slug', 'provider', 'summary', 'ctaLabel', 'ctaUrl'];
+
+const SEMINAR_POPULATE = {
+  modules: { fields: ['title', 'description', 'richContent'] },
 };
 
 export async function getResources(options = {}) {
@@ -1722,4 +1593,31 @@ export function transformGraphLinkData(strapiLinks, oaToIdMap) {
     .filter(Boolean);
 }
 
+
+/**
+ * Helper function to transform partner data for the frontend
+ */
+export function transformPartnerData(strapiPartners) {
+  const list = Array.isArray(strapiPartners) ? strapiPartners : strapiPartners ? [strapiPartners] : [];
+
+  return list.map((partner) => {
+    const attributes = partner?.attributes ?? partner ?? {};
+    
+    let normalizedWebsite = attributes.website || '';
+    if (normalizedWebsite && !/^https?:\/\//i.test(normalizedWebsite)) {
+      normalizedWebsite = `https://${normalizedWebsite}`;
+    }
+    
+    return {
+      id: partner?.id ?? null,
+      name: attributes.name || '',
+      slug: attributes.slug || '',
+      country: attributes.country || '',
+      description: attributes.description ? stripHtml(attributes.description) : '',
+      url: normalizedWebsite, 
+      logo: resolveMediaUrl(attributes.logo), 
+      _strapi: partner,
+    };
+  });
+}
 

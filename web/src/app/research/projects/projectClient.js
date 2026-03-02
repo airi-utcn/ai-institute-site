@@ -51,6 +51,15 @@ const normalizeProject = (p) => {
   const memberNames = memberObjs.map((m) => m?.name || m?.fullName || m).filter(Boolean);
   const memberSlugs = memberObjs.map((m) => m?.slug).filter(Boolean);
 
+  const contributorObjs = Array.isArray(p?.contributors) ? p.contributors : [];
+  const contributorNames = contributorObjs.map((c) => c?.name || c?.fullName || c).filter(Boolean);
+  const contributorSlugs = contributorObjs.map((c) => c?.slug).filter(Boolean);
+
+  // Merge team members + contributors for filter purposes (de-duplicated by name)
+  const teamMemberNames = memberNames.length ? memberNames : normalizeTeams(p);
+  const allMemberNames = [...new Set([...teamMemberNames, ...contributorNames])];
+  const allMemberSlugs = [...new Set([...memberSlugs, ...contributorSlugs])];
+
   const leadName = p?.leadName || p?.lead || "";
   const leadSlug = p?.leadSlug || p?.leadDetails?.slug || "";
 
@@ -62,8 +71,9 @@ const normalizeProject = (p) => {
     regions: p?.region ? [String(p.region)] : [],
     domains: domainEntries,
     domainNames,
-    members: memberNames.length ? memberNames : normalizeTeams(p),
-    memberSlugs,
+    members: allMemberNames,
+    memberSlugs: allMemberSlugs,
+    contributors: contributorObjs,
     isIndustryEngagement: Boolean(p?.isIndustryEngagement),
   };
 };

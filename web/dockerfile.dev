@@ -1,0 +1,19 @@
+# Development image for Next.js
+# Skips the production build step — next dev (with Turbopack) handles HMR at runtime.
+FROM public.ecr.aws/docker/library/node:22-alpine
+
+RUN apk update && apk upgrade --no-cache
+
+WORKDIR /app
+
+# Install dependencies first (cached layer — only re-runs if package.json changes)
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the source (will be overwritten by `docker compose watch` syncs)
+COPY . .
+
+EXPOSE 3000
+
+# Run Next.js dev server with Turbopack for fast HMR
+CMD ["npm", "run", "dev"]

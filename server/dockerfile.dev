@@ -1,0 +1,19 @@
+# Development image for Strapi
+# Does NOT build the admin bundle — strapi develop handles that at runtime.
+FROM public.ecr.aws/docker/library/node:22-alpine
+
+RUN apk update && apk upgrade --no-cache
+
+WORKDIR /app
+
+# Install dependencies first (cached layer — only re-runs if package.json changes)
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the source (will be overwritten by `docker compose watch` syncs)
+COPY . .
+
+EXPOSE 1337
+
+# Run in develop mode: watches for source changes and reloads automatically
+CMD ["npm", "run", "develop"]

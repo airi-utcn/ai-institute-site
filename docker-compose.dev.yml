@@ -1,0 +1,128 @@
+# Development Docker Compose configuration
+#
+# Use `docker compose -f docker-compose.dev.yml watch` to start all services
+# with hot-reload and automatic file sync — no full image rebuilds needed.
+#
+# How `watch` works:
+#   - action: sync  → copies changed files straight into the running container
+#                     (HMR in strapi develop / next dev picks them up instantly)
+#   - action: rebuild → triggers a full container rebuild only for dependency changes
+
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  strapi:
+    build:
+      context: ./server
+      dockerfile: dockerfile.dev
+    # No static build-time args needed — strapi develop builds the admin live.
+    restart: no
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      NODE_ENV: development
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      API_TOKEN_SALT: ${API_TOKEN_SALT}
+      APP_KEYS: ${APP_KEYS}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./server/public/uploads:/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    develop:
+      watch:
+        # Sync application source into the container — strapi develop detects the
+        # change and hot-reloads without a container restart.
+        - action: sync
+          path: ./server/src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./server/config
+          target: /app/config
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./server/database
+          target: /app/database
+        # Rebuild the image when dependencies change (slow path, rarely needed).
+        - action: rebuild
+          path: ./server/package.json
+
+  nextjs:
+    build:
+      context: ./web
+      dockerfile: dockerfile.dev
+    restart: no
+    environment:
+      NODE_ENV: development
+      PORT: "3000"
+      # Bind to all interfaces so Docker can expose the port
+      HOSTNAME: "0.0.0.0"
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      # Public URL used by the browser (same host, different port in dev)
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
+      NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-${PUBLIC_STRAPI_URL}}
+      # Server-to-server URL inside the Docker network
+      STRAPI_INTERNAL_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - strapi
+    develop:
+      watch:
+        # Sync source and public assets — next dev / Turbopack picks up changes
+        # immediately via HMR without restarting the container.
+        - action: sync
+          path: ./web/src
+          target: /app/src
+          ignore:
+            - node_modules/
+        - action: sync
+          path: ./web/public
+          target: /app/public
+        # Sync config files that affect the dev server
+        - action: sync
+          path: ./web/next.config.mjs
+          target: /app/next.config.mjs
+        - action: sync
+          path: ./web/tailwind.config.mjs
+          target: /app/tailwind.config.mjs
+        - action: sync
+          path: ./web/postcss.config.mjs
+          target: /app/postcss.config.mjs
+        # Rebuild only when dependencies change
+        - action: rebuild
+          path: ./web/package.json
+
+volumes:
+  pgdata:

@@ -15,6 +15,12 @@ viewBox="0 0 1051.96 525.48"
     .fil0 {fill:#373435}
     .fil1 {fill:#373435;fill-rule:nonzero}
    ]]>
+    @media (prefers-color-scheme: dark) {
+      .str1 {stroke:#e0e0e0;}
+      .str0 {stroke:#ffffff;}
+      .fil0 {fill:#ffffff;}
+      .fil1 {fill:#ffffff;}
+    }
   </style>
  </defs>
  <g id="Layer_x0020_1">

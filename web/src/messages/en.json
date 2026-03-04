@@ -1,0 +1,46 @@
+{
+  "HomePage": {
+    "metadata": {
+      "title": "AIRI - Home",
+      "description": "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Artificial Intelligence Research Institute",
+      "subtitle": "Advancing research, innovation, and exploration in the field of artificial intelligence at the Technical University of Cluj-Napoca.",
+      "learnMore": "Learn More",
+      "altHero": "AI Research Hero",
+      "altQr": "Sign up QR code"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN is currently under construction. Follow our channels for updates."
+    },
+    "About": {
+      "title": "About Us",
+      "description": "The Artificial Intelligence Research Institute (AIRi) is a nexus for collaborative research at the Technical University of Cluj-Napoca. AIRi@UTCN promotes excellence in AI theory and practice, bringing together researchers across UTCN around a vision of open collaboration. Our work spans interdisciplinary research, AI literacy across disciplines, and impact through business and public co-creation partnerships."
+    },
+    "Cards": {
+      "research": {
+        "title": "Research",
+        "description": "Explore our research units and projects."
+      },
+      "people": {
+        "title": "People",
+        "description": "Meet our researchers and staff."
+      },
+      "resources": {
+        "title": "Resources",
+        "description": "Tools, resources, and learning materials."
+      }
+    },
+    "LatestNews": {
+      "title": "Latest News",
+      "viewAll": "View All News →",
+      "emptyState": "News articles will appear here once published.",
+      "visitNews": "Visit News & Events →"
+    },
+    "Social": {
+      "title": "Follow Us on LinkedIn",
+      "visit": "Visit LinkedIn →"
+    }
+  }
+}

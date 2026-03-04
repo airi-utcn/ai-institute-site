@@ -31,7 +31,7 @@ export default function ContactClient() {
   ];
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
           title="Contact Us"
@@ -106,6 +106,6 @@ export default function ContactClient() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

@@ -4,9 +4,9 @@ import LinkedInWidget from "@/components/LinkedInWidget";
 import { getNewsArticles, transformNewsData } from "@/lib/strapi";
 
 export const metadata = {
-  title: "AIRI - Home",
+  title: "Home",
   description:
-    "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca - AIRi@UTCN",
+    "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.",
 };
 
 export default async function Home() {
@@ -20,7 +20,7 @@ export default async function Home() {
   }
 
   return (
-    <main>
+    <div>
       {/* Hero Section */}
       <section className="relative isolate h-[55vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-gray-900">
         <Image
@@ -221,7 +221,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

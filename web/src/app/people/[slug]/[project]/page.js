@@ -8,6 +8,38 @@ import {
 } from "@/lib/strapi";
 import ProjectDetailClient from "./ProjectDetailClient";
 
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const slugParam = Array.isArray(resolvedParams?.slug) ? resolvedParams.slug[0] : resolvedParams?.slug;
+  const projectParam = Array.isArray(resolvedParams?.project) ? resolvedParams.project[0] : resolvedParams?.project;
+  if (!slugParam || !projectParam) return { title: "Project Not Found" };
+
+  try {
+    const [strapiPerson, fetchedProject] = await Promise.all([
+      getStaffMember(slugParam),
+      getProjectBySlug(projectParam),
+    ]);
+    const [person] = strapiPerson ? transformStaffData([strapiPerson]) : [null];
+    const [project] = fetchedProject ? transformProjectData([fetchedProject]) : [null];
+
+    const title = project?.title || "Project";
+    const personName = person?.name || "";
+    const description = project?.abstract?.slice(0, 160)
+      || `${title}${personName ? ` – ${personName}` : ""} at AIRi @ UTCN`;
+
+    return {
+      title: `${title}${personName ? ` – ${personName}` : ""}`,
+      description,
+      openGraph: {
+        title: `${title} | AIRi @ UTCN`,
+        description,
+      },
+    };
+  } catch {
+    return { title: "Project" };
+  }
+}
+
 export default async function ProjectDetailPage({ params }) {
   // In Next.js 15+, params is a Promise
   const resolvedParams = await params;

@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Timeline",
+  title: "Timeline",
+  description: "Explore the history and milestones of the Artificial Intelligence Research Institute at UTCN.",
 };
 
 import TimelineClient from "./TimelineClient"

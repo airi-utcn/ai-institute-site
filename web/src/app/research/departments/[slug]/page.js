@@ -22,11 +22,11 @@ export async function generateMetadata({ params }) {
   const unit = departments.find((u) => u.slug === slug);
 
   if (!unit) {
-    return { title: "Department Not Found | AIRi @ UTCN" };
+    return { title: "Department Not Found" };
   }
 
   return {
-    title: `${unit.name} | AIRi @ UTCN`,
+    title: unit.name,
     description: unit.summary || unit.description || `Learn about ${unit.name} at AIRi @ UTCN`,
   };
 }

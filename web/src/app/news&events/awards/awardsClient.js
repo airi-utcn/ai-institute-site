@@ -14,7 +14,7 @@ const itemVariants = {
 
 export default function AwardsClient() {
   return (
-    <main className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
+    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
       <motion.h1
         className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
         initial={{ opacity: 0, y: -50 }}
@@ -46,6 +46,6 @@ export default function AwardsClient() {
           More updates on this section coming soon.
         </motion.p>
       </motion.div>
-    </main>
+    </div>
   );
 }

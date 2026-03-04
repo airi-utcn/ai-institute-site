@@ -191,7 +191,7 @@ export default function DepartmentDetailClient({
 
   if (!department) {
     return (
-      <main className="page-container">
+      <div className="page-container">
         <div className="content-wrapper content-padding">
           <div className="empty-state">
             <p>Department not found.</p>
@@ -200,7 +200,7 @@ export default function DepartmentDetailClient({
             </Link>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -211,7 +211,7 @@ export default function DepartmentDetailClient({
   };
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         {/* Back link */}
         <motion.div
@@ -560,6 +560,6 @@ export default function DepartmentDetailClient({
           )}
         </AnimatePresence>
       </div>
-    </main>
+    </div>
   );
 }

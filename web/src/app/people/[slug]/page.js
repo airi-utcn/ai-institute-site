@@ -14,6 +14,36 @@ import {
   transformPublicationData,
 } from "@/lib/strapi";
 import StaffDetailClient from "./StaffDetailClient";
+import { JsonLd, personJsonLd } from "@/lib/jsonld";
+
+export async function generateMetadata({ params }) {
+  const resolvedParams = await params;
+  const slug = Array.isArray(resolvedParams?.slug) ? resolvedParams.slug[0] : resolvedParams?.slug;
+  if (!slug) return { title: "Person Not Found" };
+
+  try {
+    const strapiPerson = await getStaffMember(slug);
+    if (!strapiPerson) return { title: "Person Not Found" };
+    const [person] = transformStaffData([strapiPerson]);
+    if (!person) return { title: "Person Not Found" };
+
+    const description = person.title
+      ? `${person.name} – ${person.title} at AIRi @ UTCN`
+      : `${person.name} – Researcher at AIRi @ UTCN`;
+
+    return {
+      title: person.name,
+      description,
+      openGraph: {
+        title: `${person.name} | AIRi @ UTCN`,
+        description,
+        ...(person.image ? { images: [{ url: person.image, alt: person.name }] } : {}),
+      },
+    };
+  } catch {
+    return { title: "Person" };
+  }
+}
 
 export default async function PersonDetailPage({ params }) {
   const resolvedParams = await params;
@@ -122,7 +152,8 @@ export default async function PersonDetailPage({ params }) {
   const getSocialLabel = (link) => link?.label || link?.url || "Link";
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <JsonLd data={personJsonLd(person)} />
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-5xl mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row items-center gap-8">
@@ -202,6 +233,6 @@ export default async function PersonDetailPage({ params }) {
       <div className="max-w-5xl mx-auto px-6 py-8">
         <StaffDetailClient person={person} publications={publications} teams={teams} slug={slug} />
       </div>
-    </main>
+    </div>
   );
 }

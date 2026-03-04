@@ -1,6 +1,6 @@
 export const metadata = {
-  title: "AIRI - Resources",
-  description: "Explore tools, resources, APIs, and learning materials curated by the Artificial Intelligence Research Institute",
+  title: "Resources",
+  description: "Explore tools, resources, APIs, and learning materials curated by the Artificial Intelligence Research Institute.",
 };
 
 import ResourcesClient from "./resourcesClient";

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
-import Logo5 from '../../public/media/Logos/Logo5.svg';
-import Logo5White from '../../public/media/Logos/Logo3.png';
+import LogoLight from '../../public/media/Logos/LogoLight.svg';
+import LogoDark from '../../public/media/Logos/LogoDark.svg';
 import { useTheme } from "@/components/ThemeProvider";
 
 const navLinks = [
@@ -204,12 +204,12 @@ export default function Navbar() {
         <div className="flex items-center">
           <Link href="/" aria-label="Home">
             <Image
-              src={isDark && Logo5White ? Logo5White : Logo5}
+              src={isDark ? LogoDark : LogoLight}
               alt="AI Institute Logo"
               width={160}
               height={160}
               priority
-              style={{ cursor: 'pointer', filter: !Logo5White && isDark ? 'invert(1) brightness(2)' : undefined }}
+              style={{ cursor: 'pointer' }}
             />
           </Link>
         </div>

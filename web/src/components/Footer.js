@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Logo5 from "../../public/media/Logos/Logo5.svg";
-import Logo5White from "../../public/media/Logos/Logo3.png";
+import LogoLight from "../../public/media/Logos/LogoLight.svg";
+import LogoDark from "../../public/media/Logos/LogoDark.svg";
 import { useTheme } from "@/components/ThemeProvider";
 
 const socialLinks = [
@@ -47,11 +47,10 @@ export default function Footer() {
           <div className="flex flex-col items-center md:items-start gap-6">
             <a href="/" aria-label="Home">
               <Image
-                src={isDark && Logo5White ? Logo5White : Logo5}
+                src={isDark ? LogoDark : LogoLight}
                 alt="AI Institute Logo"
                 width={140}
                 height={140}
-                style={{ filter: !Logo5White && isDark ? "invert(1) brightness(2)" : undefined }}
                 priority
               />
             </a>

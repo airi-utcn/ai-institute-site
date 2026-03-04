@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaTimes } from "react-icons/fa";
+import { getTranslations } from "next-intl/server";
 
 const TABS = [
   { id: "researchers", label: "Researchers", icon: "🔬" },

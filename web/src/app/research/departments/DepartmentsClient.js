@@ -28,7 +28,7 @@ export default function DepartmentsClient({
   const typeLabel = (type) => {
     const map = {
       research: "Research Departments",
-      academic: "Academic Departments",
+      research_networks: "Research Networks",
       support: "Support Departments",
       other: "Departments",
     };

@@ -8,6 +8,7 @@ import {
   FaExternalLinkAlt
 } from "react-icons/fa";
 import {
+  getStaff,
   getStaffMember,
   getPersonTeams,
   transformStaffData,
@@ -15,6 +16,18 @@ import {
 } from "@/lib/strapi";
 import StaffDetailClient from "./StaffDetailClient";
 import { JsonLd, personJsonLd } from "@/lib/jsonld";
+
+export async function generateStaticParams() {
+  try {
+    const staffRaw = await getStaff();
+    const staff = transformStaffData(staffRaw);
+    return staff
+      .filter((p) => p.slug)
+      .map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

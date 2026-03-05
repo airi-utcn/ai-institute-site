@@ -1,7 +1,19 @@
 import { notFound } from "next/navigation";
-import { getPublicationBySlug, transformPublicationData } from "@/lib/strapi";
+import { getPublications, getPublicationBySlug, transformPublicationData } from "@/lib/strapi";
 import PublicationDetailClient from "./PublicationDetailClient";
 import { JsonLd, publicationJsonLd } from "@/lib/jsonld";
+
+export async function generateStaticParams() {
+  try {
+    const pubsRaw = await getPublications();
+    const pubs = transformPublicationData(pubsRaw);
+    return pubs
+      .filter((p) => p.slug)
+      .map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;

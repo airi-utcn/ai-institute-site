@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl"; // 1. Import the hook
+import { useTranslations } from "next-intl"; 
 
 const TABS = [
   {

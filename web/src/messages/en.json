@@ -140,6 +140,25 @@
         "paper4Authors": "Darius STAN, Raluca BREHAR — Technical University, Cluj-Napoca",
         "linkText": "View full event details →"
       }
+    },
+    "high-school": {
+      "title": "High-school engagement",
+      "description": "Competitions, events, and AI literacy resources for students and teachers.",
+      "features": {
+        "competitions": {
+          "title": "Competitions",
+          "desc": "AI and programming competitions for high-school students."
+        },
+        "events": {
+          "title": "Events",
+          "desc": "Workshops, lab visits, and sessions with experts."
+        },
+        "resources": {
+          "title": "Educational resources",
+          "desc": "Guides and materials for AI literacy."
+        }
+      },
+      "linkText": "AILIT Framework – Resources"
     }
   }
 }

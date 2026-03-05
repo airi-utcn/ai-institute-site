@@ -8,6 +8,7 @@ import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
 import LogoLight from '../../public/media/Logos/LogoLight.svg';
 import LogoDark from '../../public/media/Logos/LogoDark.svg';
 import { useTheme } from "@/components/ThemeProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const navLinks = [
   { href: '/research', label: 'Research' },
@@ -16,10 +17,6 @@ const navLinks = [
   { href: '/news', label: 'News & Events' },
   { href: '/about', label: 'About' },
 ];
-
-// Engagement is now a single unified page with tabs, no dropdown needed
-
-// People is now a single unified page, no dropdown needed
 
 const researchMenu = [
   { href: '/research/departments', label: 'Departments' },
@@ -105,7 +102,6 @@ export default function Navbar() {
   const [newsMobileOpen, setNewsMobileOpen] = useState(false);
   const [aboutMobileOpen, setAboutMobileOpen] = useState(false);
 
-  // Search state
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef(null);
@@ -116,7 +112,6 @@ export default function Navbar() {
     'About':         { open: aboutOpen,    setOpen: setAboutOpen,    items: aboutMenu },
   };
 
-  // Focus input when search expands
   useEffect(() => {
     if (searchExpanded && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -284,6 +279,11 @@ export default function Navbar() {
               )}
             </div>
           </li>
+
+          {/* Desktop Language Switcher */}
+          <li className="ml-2">
+            <LanguageSwitcher />
+          </li>
         </ul>
       </div>
 
@@ -325,6 +325,13 @@ export default function Navbar() {
               >
                 Knowledge graphs
               </Link>
+            </div>
+          </li>
+
+          {/* Mobile Language Switcher */}
+          <li className="px-4 py-2 mb-2">
+            <div className="w-full">
+              <LanguageSwitcher />
             </div>
           </li>
 

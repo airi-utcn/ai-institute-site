@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -12,6 +13,8 @@ const itemVariants = {
 };
 
 export default function Client() {
+  const t = useTranslations("engagement.industrial-phd");
+
   return (
     <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
@@ -25,23 +28,19 @@ export default function Client() {
             className="text-2xl md:text-3xl font-extrabold mb-4 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
             variants={itemVariants}
           >
-            Industrial PhD
+            {t("title")}
           </motion.h1>
 
           <motion.p className="text-gray-700 dark:text-gray-300" variants={itemVariants}>
-            An Industrial PhD is known as a university training program that qualifies for the award of a doctorate
-            through an industrial research or experimental development project, that was created collaboratively between
-            a company and an academic environment, which will become the subject of a doctoral thesis by a doctoral
-            student.
+            {t("p1")}
           </motion.p>
 
           <motion.p className="text-gray-700 dark:text-gray-300" variants={itemVariants}>
-            If you are a company and are interested in carrying out an industrial PhD, contact us via email.
+            {t("p2")}
           </motion.p>
 
           <motion.p className="text-gray-700 dark:text-gray-300" variants={itemVariants}>
-            If you want to come and do an Industrial Doctorate in Artificial Intelligence with us in any of the proposed
-            topics, get in touch via email.
+            {t("p3")}
           </motion.p>
         </section>
       </motion.div>

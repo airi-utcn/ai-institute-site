@@ -159,6 +159,12 @@
         }
       },
       "linkText": "AILIT Framework – Resources"
+    },
+    "industrial-phd": {
+      "title": "Industrial PhD",
+      "p1": "An Industrial PhD is known as a university training program that qualifies for the award of a doctorate through an industrial research or experimental development project, that was created collaboratively between a company and an academic environment, which will become the subject of a doctoral thesis by a doctoral student.",
+      "p2": "If you are a company and are interested in carrying out an industrial PhD, contact us via email.",
+      "p3": "If you want to come and do an Industrial Doctorate in Artificial Intelligence with us in any of the proposed topics, get in touch via email."
     }
   }
 }

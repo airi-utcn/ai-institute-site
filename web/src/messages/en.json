@@ -204,6 +204,10 @@
         "contact": "Contact the industry team",
         "explore": "Explore all projects"
       }
+    },
+    "partners": {
+      "title": "Partners",
+      "mapTitle": "Partners map"
     }
   }
 }

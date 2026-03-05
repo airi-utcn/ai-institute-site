@@ -1,5 +1,5 @@
 {
-  "HomePage": {
+  "home": {
     "metadata": {
       "title": "AIRI - Home",
       "description": "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca - AIRi@UTCN"
@@ -43,8 +43,103 @@
       "visit": "Visit LinkedIn →"
     }
   },
-
-  "PeopleClient": {
-    
+  "contact": {
+    "PageHeader": {
+      "title": "Contact Us",
+      "subtitle": "We would love to hear from you! Whether you have a question about our research, events, or anything else, our team is ready to answer all your questions."
+    },
+    "Social": {
+      "title": "Connect With Us"
+    },
+    "Form": {
+      "title": "Contact Form",
+      "iframeTitle": "Contact Us Form"
+    },
+    "Location": {
+      "title": "Our Location",
+      "address": "📍 Strada Observatorului 2, Cluj-Napoca 400347, Romania",
+      "iframeTitle": "Location Map"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Academic engagement",
+      "description": "Collaborations with universities and institutes: co-tutoring, joint courses, workshops, research visits, mobility.",
+      "contactButton": "Contact the academic team",
+      "selectTopic": "Select a topic from the left menu.",
+      "Tabs": {
+        "Overview": {
+          "label": "Overview",
+          "subtabs": {
+            "partnerships": "Academic partnerships",
+            "teaching": "Teaching & training",
+            "mobility": "Mobility"
+          }
+        },
+        "Initiatives": {
+          "label": "Initiatives",
+          "subtabs": {
+            "schools": "Summer schools & workshops",
+            "seminars": "Joint seminars",
+            "visits": "Research visits"
+          }
+        },
+        "Courses": {
+          "label": "Courses & Workshops",
+          "subtabs": {
+            "ml": "Machine Learning",
+            "robotics": "Robotics & Vision",
+            "hpc": "HPC for AI",
+            "ethics": "AI Ethics & Safety"
+          }
+        },
+        "Mobility": {
+          "label": "Co-tutoring & Mobility",
+          "subtabs": {
+            "phd": "Co-supervision",
+            "grants": "Mobility grants",
+            "placements": "Placements & exchanges"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": { "title": "Academic partnerships", "desc": "A network of collaborations and joint activities." },
+          "teaching": { "title": "Teaching & training", "desc": "Courses, summer schools, and workshops." },
+          "mobility": { "title": "Mobility", "desc": "Co-tutoring, visits, internships, exchanges." }
+        },
+        "Initiatives": {
+          "schools": { "title": "Summer schools & workshops", "desc": "International and local events for students and researchers." },
+          "seminars": { "title": "Joint seminars", "desc": "Collaborative talks & invited speakers." },
+          "visits": { "title": "Research visits", "desc": "Short-term & long-term research stays." }
+        },
+        "Courses": {
+          "ml": { "title": "Machine Learning", "desc": "Joint courses, applied modules, projects." },
+          "robotics": { "title": "Robotics & Vision", "desc": "Hands-on labs, automation, and vision systems." },
+          "hpc": { "title": "HPC for AI", "desc": "GPU programming & large-scale AI training." },
+          "ethics": { "title": "AI Ethics & Safety", "desc": "Fairness, explainability & governance in AI." }
+        },
+        "Mobility": {
+          "phd": { "title": "Co-supervision", "desc": "Joint PhD supervision with international partners." },
+          "grants": { "title": "Mobility grants", "desc": "Funding for exchanges & research stays." },
+          "placements": { "title": "Placements & exchanges", "desc": "Internships, visits, and staff exchanges." }
+        }
+      },
+      "Event": {
+        "title": "“Progress and Innovation in Ophthalmology” Forum 2025",
+        "desc1": "The 3rd edition of “Eye and AI” workshop is jointly organized by the Department of Ophthalmology, “Iuliu Hațieganu” University of Medicine and Pharmacy, the Cluj County Emergency Clinical Hospital, and the Artificial Intelligence Research Institute (AIRi@UTCN), Technical University of Cluj-Napoca, Romania. Bringing together clinicians, researchers, and industry practitioners, the event explores how artificial intelligence is transforming ophthalmic care—from imaging and screening to decision support and workflow optimization.",
+        "moderators": "Moderators:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Reconstructing Compact 3D OCT Volumes from B-scans: a Comparative Study of U-Net Architectures",
+        "paper1Authors": "Adrian POP — Technical University, Cluj-Napoca",
+        "paper2Title": "3D Reconstruction Based on the AROI Set",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Technical University, Cluj-Napoca",
+        "paper3Title": "Adapting Vision Foundation Models for OCT and Eye Fundus",
+        "paper3Authors": "Anca MĂRGINEAN — Technical University, Cluj-Napoca",
+        "paper4Title": "Segmentation of the Retinal Vascular Network and Biomarker Quantification in OCTA Imaging",
+        "paper4Authors": "Darius STAN, Raluca BREHAR — Technical University, Cluj-Napoca",
+        "linkText": "View full event details →"
+      }
+    }
   }
 }

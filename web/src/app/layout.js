@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DarkModeBubble from "@/components/DarkModeBubble";
 import ThemeProvider from "@/components/ThemeProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -52,6 +53,7 @@ export default function RootLayout({ children }) {
           <main className="flex-grow">
             {children}
           </main>
+          <LanguageSwitcher />
           <DarkModeBubble />
           <Footer />
         </ThemeProvider>

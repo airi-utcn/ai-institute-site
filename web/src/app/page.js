@@ -5,7 +5,7 @@ import { getNewsArticles, transformNewsData } from "@/lib/strapi";
 import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata() {
-  const t = await getTranslations("HomePage.metadata");
+  const t = await getTranslations("home.metadata");
   return {
     title: t("title"),
     description: t("description"),
@@ -13,7 +13,7 @@ export async function generateMetadata() {
 }
 
 export default async function Home() {
-  const t = await getTranslations("HomePage");
+  const t = await getTranslations("home");
 
   let latestNews = [];
   try {

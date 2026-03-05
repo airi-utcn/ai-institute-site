@@ -7,6 +7,10 @@ import ThemeProvider from "@/components/ThemeProvider";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Script from "next/script";
 
+// 1. Import next-intl requirements
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -28,10 +32,15 @@ export const dynamic = "force-dynamic";
 // Allow individual fetches to opt into caching (we set force-cache in fetchAPI by default).
 export const fetchCache = "force-cache";
 
-export default function RootLayout({ children }) {
+// 2. Make the layout async
+export default async function RootLayout({ children }) {
+  // 3. Fetch the locale and messages on the server side
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
+      lang={locale} // 4. Use the dynamic locale here
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
@@ -48,15 +57,17 @@ export default function RootLayout({ children }) {
           `}
         </Script>
 
-        <ThemeProvider>
-          <Navbar />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <LanguageSwitcher />
-          <DarkModeBubble />
-          <Footer />
-        </ThemeProvider>
+        {/* 5. Wrap the app with NextIntlClientProvider */}
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <Navbar />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <DarkModeBubble />
+            <Footer />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import {
   FaUsers,
   FaGraduationCap,
@@ -139,11 +140,12 @@ const INDUSTRY_SUBTABS = [
 // ============================================================================
 
 function PublicContent() {
+  const t = useTranslations('engagement.basic.PublicContent');
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <SectionCard title="Public Engagement">
+      <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
-          Connecting the AI research community with the broader public through accessible resources, media appearances, and outreach programs.
+          {t('desc')}
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
@@ -151,13 +153,13 @@ function PublicContent() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <FaExternalLinkAlt className="w-4 h-4" />
-            View Media & Press
+            {t('btnMedia')}
           </Link>
           <Link
             href="/news&events"
             className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
-            News & Events
+            {t('btnNews')}
           </Link>
         </div>
       </SectionCard>
@@ -165,18 +167,18 @@ function PublicContent() {
       <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaUsers}
-          title="Outreach Programs"
-          desc="Public talks, demonstrations, and community engagement initiatives."
+          title={t('outreachTitle')}
+          desc={t('outreachDesc')}
         />
         <FeatureCard
           icon={FaBook}
-          title="Educational Resources"
-          desc="Open access materials explaining AI concepts to general audiences."
+          title={t('eduTitle')}
+          desc={t('eduDesc')}
         />
         <FeatureCard
           icon={FaGlobe}
-          title="Media Appearances"
-          desc="Interviews, articles, and media coverage of our research."
+          title={t('mediaTitle')}
+          desc={t('mediaDesc')}
           href="/media"
         />
       </motion.div>
@@ -185,6 +187,8 @@ function PublicContent() {
 }
 
 function AcademicContent({ subTab, setSubTab }) {
+  const t = useTranslations('engagement.basic.AcademicContent');
+
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       {/* Subtabs */}
@@ -201,21 +205,21 @@ function AcademicContent({ subTab, setSubTab }) {
 
       {subTab === 'partnerships' && (
         <div className="space-y-6">
-          <SectionCard title="Academic Partnerships">
+          <SectionCard title={t('partnerTitle')}>
             <p className="text-gray-700 dark:text-gray-300">
-              A network of international academic collaborations, joint research programs, and institutional partnerships advancing AI research and education.
+              {t('partnerDesc')}
             </p>
           </SectionCard>
           <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaGraduationCap}
-              title="University Collaborations"
-              desc="Joint research programs with leading universities worldwide."
+              title={t('uniTitle')}
+              desc={t('uniDesc')}
             />
             <FeatureCard
               icon={FaHandshake}
-              title="Research Networks"
-              desc="Participation in CLAIRE, ELLIS, and other European AI networks."
+              title={t('netTitle')}
+              desc={t('netDesc')}
             />
           </motion.div>
         </div>
@@ -223,21 +227,21 @@ function AcademicContent({ subTab, setSubTab }) {
 
       {subTab === 'teaching' && (
         <div className="space-y-6">
-          <SectionCard title="Teaching & Training">
+          <SectionCard title={t('teachTitle')}>
             <p className="text-gray-700 dark:text-gray-300">
-              Courses, summer schools, and workshops for students and researchers at all levels.
+              {t('teachDesc')}
             </p>
           </SectionCard>
           <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaChalkboardTeacher}
-              title="Summer Schools"
-              desc="International summer programs in AI and machine learning."
+              title={t('summerTitle')}
+              desc={t('summerDesc')}
             />
             <FeatureCard
               icon={FaBook}
-              title="Workshops"
-              desc="Hands-on workshops and training sessions."
+              title={t('workTitle')}
+              desc={t('workDesc')}
             />
           </motion.div>
         </div>
@@ -245,31 +249,31 @@ function AcademicContent({ subTab, setSubTab }) {
 
       {subTab === 'courses' && (
         <div className="space-y-6">
-          <SectionCard title="Courses & Workshops">
+          <SectionCard title={t('courseTitle')}>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
-              Specialized courses covering machine learning, robotics, HPC for AI, and AI ethics.
+              {t('courseDesc')}
             </p>
           </SectionCard>
           <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaFlask}
-              title="Machine Learning"
-              desc="Applied ML modules, projects, and research-oriented courses."
+              title={t('mlTitle')}
+              desc={t('mlDesc')}
             />
             <FeatureCard
               icon={FaProjectDiagram}
-              title="Robotics & Vision"
-              desc="Hands-on labs in automation and vision systems."
+              title={t('robotTitle')}
+              desc={t('robotDesc')}
             />
             <FeatureCard
               icon={FaIndustry}
-              title="HPC for AI"
-              desc="GPU programming and large-scale AI training."
+              title={t('hpcTitle')}
+              desc={t('hpcDesc')}
             />
             <FeatureCard
               icon={FaInfoCircle}
-              title="AI Ethics & Safety"
-              desc="Fairness, explainability, and governance in AI systems."
+              title={t('ethicsTitle')}
+              desc={t('ethicsDesc')}
             />
           </motion.div>
         </div>
@@ -277,26 +281,26 @@ function AcademicContent({ subTab, setSubTab }) {
 
       {subTab === 'mobility' && (
         <div className="space-y-6">
-          <SectionCard title="Co-tutoring & Mobility">
+          <SectionCard title={t('mobTitle')}>
             <p className="text-gray-700 dark:text-gray-300">
-              International exchange programs, joint PhD supervision, and research visit opportunities.
+              {t('mobDesc')}
             </p>
           </SectionCard>
           <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
             <FeatureCard
               icon={FaUserGraduate}
-              title="Co-supervision"
-              desc="Joint PhD supervision with international partners."
+              title={t('supTitle')}
+              desc={t('supDesc')}
             />
             <FeatureCard
               icon={FaPlane}
-              title="Mobility Grants"
-              desc="Funding for research stays and exchanges."
+              title={t('grantTitle')}
+              desc={t('grantDesc')}
             />
             <FeatureCard
               icon={FaUsers}
-              title="Exchanges"
-              desc="Student and researcher exchange programs."
+              title={t('exTitle')}
+              desc={t('exDesc')}
             />
           </motion.div>
         </div>
@@ -306,6 +310,8 @@ function AcademicContent({ subTab, setSubTab }) {
 }
 
 function IndustryContent({ projects, subTab, setSubTab }) {
+  const t = useTranslations('engagement.basic.IndustryContent');
+
   const [query, setQuery] = useState('');
   const [domainFilter, setDomainFilter] = useState('');
 
@@ -365,21 +371,21 @@ function IndustryContent({ projects, subTab, setSubTab }) {
           <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid grid-cols-3 gap-4">
             <motion.div variants={itemVariants} className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.projectCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Projects</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statProjects')}</div>
             </motion.div>
             <motion.div variants={itemVariants} className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
               <div className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.domainCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Domains</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statDomains')}</div>
             </motion.div>
             <motion.div variants={itemVariants} className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center">
               <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.partnerCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Partners</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statPartners')}</div>
             </motion.div>
           </motion.div>
 
-          <SectionCard title="Industry Collaboration">
+          <SectionCard title={t('collabTitle')}>
             <p className="text-gray-700 dark:text-gray-300">
-              We partner with industry leaders to advance AI research and bring innovations to market. Our collaborations span consulting, joint R&D projects, and technology transfer.
+              {t('collabDesc')}
             </p>
           </SectionCard>
         </div>
@@ -395,7 +401,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects..."
+                placeholder={t('searchPlaceholder')}
                 className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
               />
             </div>
@@ -404,7 +410,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
               onChange={(e) => setDomainFilter(e.target.value)}
               className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
             >
-              <option value="">All Domains</option>
+              <option value="">{t('allDomains')}</option>
               {domainOptions.map(d => (
                 <option key={d} value={d}>{d}</option>
               ))}
@@ -415,7 +421,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               >
                 <FaTimes className="w-4 h-4" />
-                Clear
+                {t('clear')}
               </button>
             )}
           </div>
@@ -435,7 +441,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
                     </h3>
                     {project.lead && (
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        Lead: {project.lead}
+                        {t('leadLabel')} {project.lead}
                       </p>
                     )}
                     {project.abstract && (
@@ -457,7 +463,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
           ) : (
             <div className="text-center py-12">
               <FaProjectDiagram className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">No projects match your filters.</p>
+              <p className="text-gray-500 dark:text-gray-400">{t('noProjects')}</p>
             </div>
           )}
         </div>
@@ -465,31 +471,31 @@ function IndustryContent({ projects, subTab, setSubTab }) {
 
       {subTab === 'engagement' && (
         <div className="space-y-6">
-          <SectionCard title="How We Work With Industry">
+          <SectionCard title={t('workTitle')}>
             <p className="text-gray-700 dark:text-gray-300 mb-4">
-              We offer various engagement models to suit different industry needs and collaboration depths.
+              {t('workDesc')}
             </p>
           </SectionCard>
           <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
             <FeatureCard
               icon={FaFlask}
-              title="Joint R&D Projects"
-              desc="Collaborative research projects with shared IP and outcomes."
+              title={t('rdTitle')}
+              desc={t('rdDesc')}
             />
             <FeatureCard
               icon={FaChalkboardTeacher}
-              title="Consulting Services"
-              desc="Expert advice on AI strategy, implementation, and best practices."
+              title={t('consTitle')}
+              desc={t('consDesc')}
             />
             <FeatureCard
               icon={FaUserGraduate}
-              title="Training Programs"
-              desc="Customized training for industry teams on AI technologies."
+              title={t('trainTitle')}
+              desc={t('trainDesc')}
             />
             <FeatureCard
               icon={FaHandshake}
-              title="Technology Transfer"
-              desc="Licensing and commercialization of research outputs."
+              title={t('techTitle')}
+              desc={t('techDesc')}
             />
           </motion.div>
         </div>
@@ -499,29 +505,30 @@ function IndustryContent({ projects, subTab, setSubTab }) {
 }
 
 function HighSchoolContent() {
+  const t = useTranslations('engagement.basic.HighSchoolContent');
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <SectionCard title="High-School Engagement">
+      <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300">
-          Competitions, events, and AI literacy resources for students and teachers, fostering the next generation of AI researchers.
+          {t('desc')}
         </p>
       </SectionCard>
 
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaGraduationCap}
-          title="Competitions"
-          desc="AI and programming competitions for high-school students."
+          title={t('compTitle')}
+          desc={t('compDesc')}
         />
         <FeatureCard
           icon={FaUsers}
-          title="Events"
-          desc="Workshops, lab visits, and sessions with experts."
+          title={t('eventTitle')}
+          desc={t('eventDesc')}
         />
         <FeatureCard
           icon={FaBook}
-          title="Educational Resources"
-          desc="Guides and materials for AI literacy."
+          title={t('eduTitle')}
+          desc={t('eduDesc')}
         />
       </motion.div>
 
@@ -533,7 +540,7 @@ function HighSchoolContent() {
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <FaExternalLinkAlt className="w-4 h-4" />
-          AILIT Framework – Resources
+          {t('btnLabel')}
         </a>
       </motion.div>
     </motion.div>
@@ -541,11 +548,12 @@ function HighSchoolContent() {
 }
 
 function PartnersContent({ partners, CollaboratorsClient }) {
+  const t = useTranslations('engagement.basic.PartnersContent');
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <SectionCard title="Our Partners">
+      <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300">
-          We collaborate with leading organizations in AI research and development, including CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, and BDVA.
+          {t('desc')}
         </p>
       </SectionCard>
 
@@ -571,7 +579,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
 
       {CollaboratorsClient && (
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Partners Map</h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('mapTitle')}</h2>
           <CollaboratorsClient partners={partners} />
         </div>
       )}
@@ -580,34 +588,31 @@ function PartnersContent({ partners, CollaboratorsClient }) {
 }
 
 function IndustrialPhDContent() {
+  const t = useTranslations('engagement.basic.PhDContent');
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <SectionCard title="Industrial PhD Program">
+      <SectionCard title={t('title')}>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
-          <p>
-            An Industrial PhD is a university training program that qualifies for the award of a doctorate through an industrial research or experimental development project, created collaboratively between a company and an academic environment.
-          </p>
-          <p>
-            If you are a company interested in carrying out an industrial PhD, or if you want to pursue an Industrial Doctorate in Artificial Intelligence with us, please get in touch via email.
-          </p>
+          <p>{t('p1')}</p>
+          <p>{t('p2')}</p>
         </div>
       </SectionCard>
 
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaIndustry}
-          title="For Companies"
-          desc="Partner with us for applied AI research that solves real business challenges."
+          title={t('compTitle')}
+          desc={t('compDesc')}
         />
         <FeatureCard
           icon={FaUserGraduate}
-          title="For Candidates"
-          desc="Combine academic research with practical industry experience."
+          title={t('candTitle')}
+          desc={t('candDesc')}
         />
         <FeatureCard
           icon={FaHandshake}
-          title="Collaboration Model"
-          desc="Joint supervision between industry mentors and academic advisors."
+          title={t('collabTitle')}
+          desc={t('collabDesc')}
         />
       </motion.div>
 
@@ -616,7 +621,7 @@ function IndustrialPhDContent() {
           href="/contact"
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Contact Us
+          {t('btnContact')}
         </Link>
       </motion.div>
     </motion.div>
@@ -628,6 +633,7 @@ function IndustrialPhDContent() {
 // ============================================================================
 
 export default function EngagementClient({ projects = [], partners = [], CollaboratorsClient }) {
+  const t = useTranslations('engagement.basic.Hero');
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -666,10 +672,10 @@ export default function EngagementClient({ projects = [], partners = [], Collabo
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <motion.h1 variants={itemVariants} className="text-3xl md:text-4xl font-bold mb-2">
-            Engagement
+            {t('title')}
           </motion.h1>
           <motion.p variants={itemVariants} className="text-xl text-blue-100">
-            Connecting AIRi @ UTCN with the public, academia, and industry.
+            {t('subtitle')}
           </motion.p>
         </div>
       </div>

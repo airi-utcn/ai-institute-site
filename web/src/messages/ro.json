@@ -1,0 +1,493 @@
+{
+  "navbar": {
+    "navLinks": {
+      "research": "Cercetare",
+      "engagement": "Colaborări",
+      "people": "Echipă",
+      "news": "Știri și Evenimente",
+      "about": "Despre noi"
+    },
+    "researchMenu": {
+      "departments": "Departamente",
+      "themes": "Teme de cercetare",
+      "projects": "Proiecte",
+      "publications": "Publicații",
+      "thesis": "Teze",
+      "resources": "Resurse"
+    },
+    "newsMenu": {
+      "news": "Știri",
+      "events": "Evenimente",
+      "seminars": "Seminarii",
+      "calls": "Apeluri de proiecte",
+      "awards": "Premii",
+      "careers": "Oportunități de carieră"
+    },
+    "aboutMenu": {
+      "mission": "Misiune",
+      "organigram": "Organigramă",
+      "sitemap": "Hartă site",
+      "reports": "Rapoarte",
+      "regulations": "Regulamente",
+      "guidelines": "Ghiduri",
+      "tour": "Tur virtual",
+      "rooms": "Săli și calendar",
+      "contact": "Contact"
+    },
+    "search": {
+      "placeholder": "Căutare...",
+      "mobilePlaceholder": "Caută pe site...",
+      "button": "Caută",
+      "chatbot": "Chatbot AIRi",
+      "knowledgeGraph": "Grafuri de cunoștințe"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Acasă",
+      "description": "Promovarea cercetării, inovației și explorării în inteligența artificială la Universitatea Tehnică din Cluj-Napoca - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Institutul de Cercetare în Inteligența Artificială",
+      "subtitle": "Promovarea cercetării, inovației și explorării în domeniul inteligenței artificiale la Universitatea Tehnică din Cluj-Napoca.",
+      "learnMore": "Află mai multe",
+      "altHero": "Erou Cercetare IA",
+      "altQr": "Cod QR pentru înscriere"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN este în prezent în construcție. Urmăriți canalele noastre pentru actualizări."
+    },
+    "About": {
+      "title": "Despre noi",
+      "description": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă din cadrul Universității Tehnice din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și impactul prin parteneriate de co-creare în mediul public și de afaceri."
+    },
+    "Cards": {
+      "research": {
+        "title": "Cercetare",
+        "description": "Explorați unitățile și proiectele noastre de cercetare."
+      },
+      "people": {
+        "title": "Echipă",
+        "description": "Cunoașteți cercetătorii și personalul nostru."
+      },
+      "resources": {
+        "title": "Resurse",
+        "description": "Instrumente, resurse și materiale de învățare."
+      }
+    },
+    "LatestNews": {
+      "title": "Ultimele știri",
+      "viewAll": "Vezi toate știrile →",
+      "emptyState": "Articolele de știri vor apărea aici odată ce vor fi publicate.",
+      "visitNews": "Vizitează Știri și Evenimente →"
+    },
+    "Social": {
+      "title": "Urmărește-ne pe LinkedIn",
+      "visit": "Vizitează LinkedIn →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Contactează-ne",
+      "subtitle": "Ne-am bucura să primim un mesaj de la tine! Indiferent dacă ai o întrebare despre cercetările noastre, evenimente sau orice altceva, echipa noastră este pregătită să îți răspundă la toate întrebările."
+    },
+    "Social": {
+      "title": "Conectează-te cu noi"
+    },
+    "Form": {
+      "title": "Formular de contact",
+      "iframeTitle": "Formular de contact"
+    },
+    "Location": {
+      "title": "Locația noastră",
+      "address": "📍 Strada Observatorului 2, Cluj-Napoca 400347, România",
+      "iframeTitle": "Harta locației"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Colaborare academică",
+      "description": "Colaborări cu universități și institute: co-tutelă, cursuri comune, workshop-uri, vizite de cercetare, mobilitate.",
+      "contactButton": "Contactează echipa academică",
+      "selectTopic": "Selectează un subiect din meniul din stânga.",
+      "Tabs": {
+        "Overview": {
+          "label": "Prezentare generală",
+          "subtabs": {
+            "partnerships": "Parteneriate academice",
+            "teaching": "Predare și formare",
+            "mobility": "Mobilitate"
+          }
+        },
+        "Initiatives": {
+          "label": "Inițiative",
+          "subtabs": {
+            "schools": "Școli de vară și workshop-uri",
+            "seminars": "Seminarii comune",
+            "visits": "Vizite de cercetare"
+          }
+        },
+        "Courses": {
+          "label": "Cursuri și Workshop-uri",
+          "subtabs": {
+            "ml": "Machine Learning",
+            "robotics": "Robotică și Viziune",
+            "hpc": "HPC pentru IA",
+            "ethics": "Etică și Siguranță în IA"
+          }
+        },
+        "Mobility": {
+          "label": "Co-tutelă și Mobilitate",
+          "subtabs": {
+            "phd": "Co-tutelă",
+            "grants": "Granturi de mobilitate",
+            "placements": "Stagii și schimburi de experiență"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": { "title": "Parteneriate academice", "desc": "O rețea de colaborări și activități comune." },
+          "teaching": { "title": "Predare și formare", "desc": "Cursuri, școli de vară și workshop-uri." },
+          "mobility": { "title": "Mobilitate", "desc": "Co-tutelă, vizite, internship-uri, schimburi de experiență." }
+        },
+        "Initiatives": {
+          "schools": { "title": "Școli de vară și workshop-uri", "desc": "Evenimente internaționale și locale pentru studenți și cercetători." },
+          "seminars": { "title": "Seminarii comune", "desc": "Prezentări colaborative și speakeri invitați." },
+          "visits": { "title": "Vizite de cercetare", "desc": "Stagii de cercetare pe termen scurt și lung." }
+        },
+        "Courses": {
+          "ml": { "title": "Machine Learning", "desc": "Cursuri comune, module aplicate, proiecte." },
+          "robotics": { "title": "Robotică și Viziune", "desc": "Laboratoare practice, automatizări și sisteme de viziune." },
+          "hpc": { "title": "HPC pentru IA", "desc": "Programare GPU și antrenarea modelelor IA la scară largă." },
+          "ethics": { "title": "Etică și Siguranță în IA", "desc": "Echitate, explicabilitate și guvernanță în IA." }
+        },
+        "Mobility": {
+          "phd": { "title": "Co-tutelă", "desc": "Coordonarea comună a doctoratelor cu parteneri internaționali." },
+          "grants": { "title": "Granturi de mobilitate", "desc": "Finanțare pentru schimburi și stagii de cercetare." },
+          "placements": { "title": "Stagii și schimburi de experiență", "desc": "Internship-uri, vizite și schimburi de personal." }
+        }
+      },
+      "Event": {
+        "title": "Forumul „Progrese și Inovații în Oftalmologie” 2025",
+        "desc1": "A treia ediție a workshop-ului „Eye and AI” este organizată în comun de Departamentul de Oftalmologie, Universitatea de Medicină și Farmacie „Iuliu Hațieganu”, Spitalul Clinic Județean de Urgență Cluj și Institutul de Cercetare în Inteligența Artificială (AIRi@UTCN), Universitatea Tehnică din Cluj-Napoca, România. Reunind clinicieni, cercetători și practicieni din industrie, evenimentul explorează modul în care inteligența artificială transformă îngrijirea oftalmologică – de la imagistică și screening la suport decizional și optimizarea fluxului de lucru.",
+        "moderators": "Moderatori:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Reconstrucția volumelor compacte 3D OCT din B-scanări: un studiu comparativ al arhitecturilor U-Net",
+        "paper1Authors": "Adrian POP — Universitatea Tehnică, Cluj-Napoca",
+        "paper2Title": "Reconstrucție 3D bazată pe setul AROI",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Universitatea Tehnică, Cluj-Napoca",
+        "paper3Title": "Adaptarea modelelor fundamentale de viziune pentru OCT și fund de ochi",
+        "paper3Authors": "Anca MĂRGINEAN — Universitatea Tehnică, Cluj-Napoca",
+        "paper4Title": "Segmentarea rețelei vasculare retiniene și cuantificarea biomarkerilor în imagistica OCTA",
+        "paper4Authors": "Darius STAN, Raluca BREHAR — Universitatea Tehnică, Cluj-Napoca",
+        "linkText": "Vezi detaliile complete ale evenimentului →"
+      }
+    },
+    "high-school": {
+      "title": "Colaborare cu liceele",
+      "description": "Competiții, evenimente și resurse de alfabetizare în IA pentru elevi și profesori.",
+      "features": {
+        "competitions": {
+          "title": "Competiții",
+          "desc": "Competiții de IA și programare pentru liceeni."
+        },
+        "events": {
+          "title": "Evenimente",
+          "desc": "Workshop-uri, vizite de laborator și sesiuni cu experți."
+        },
+        "resources": {
+          "title": "Resurse educaționale",
+          "desc": "Ghiduri și materiale pentru alfabetizarea în domeniul IA."
+        }
+      },
+      "linkText": "Framework-ul AILIT – Resurse"
+    },
+    "industrial-phd": {
+      "title": "Doctorat Industrial",
+      "p1": "Un doctorat industrial este recunoscut ca un program de pregătire universitară care permite obținerea titlului de doctor printr-un proiect de cercetare industrială sau de dezvoltare experimentală, creat în colaborare între o companie și mediul academic, care va deveni subiectul tezei de doctorat a unui student doctorand.",
+      "p2": "Dacă reprezentați o companie și sunteți interesați să desfășurați un doctorat industrial, contactați-ne prin e-mail.",
+      "p3": "Dacă doriți să urmați un Doctorat Industrial în Inteligența Artificială la noi, în oricare dintre temele propuse, contactați-ne prin e-mail."
+    },
+    "industry": {
+      "title": "Colaborare cu industria",
+      "description": "Dezvoltați parteneriate cu AIRi pentru cercetare aplicată și transfer tehnologic, de la descoperire la implementare.",
+      "Tabs": {
+        "Overview": "Prezentare generală",
+        "Projects": "Proiecte",
+        "Engagement": "Cum lucrăm"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Caută după proiect, responsabil, partener...",
+        "allDomains": "Toate domeniile",
+        "noProjects": "Niciun proiect nu se potrivește filtrelor dvs. momentan.",
+        "cardLead": "Responsabil",
+        "cardDetails": "Detalii",
+        "cardSite": "Site",
+        "cardDocs": "Documentație"
+      },
+      "EngagementTab": {
+        "title": "Model de colaborare",
+        "listItem1": "Cercetare aplicată comună cu rezultate măsurabile",
+        "listItem2": "Prototipare și validare împreună cu echipele dumneavoastră",
+        "listItem3": "Transfer de cunoștințe și colaborare pe termen lung"
+      },
+      "OverviewTab": {
+        "feature1Title": "Cercetare aplicată",
+        "feature1Desc": "Colaborări industriale vizând implementarea în lumea reală.",
+        "feature2Title": "Co-dezvoltare",
+        "feature2Desc": "Planuri comune, prototipare rapidă și cicluri de validare.",
+        "feature3Title": "Transfer de cunoștințe",
+        "feature3Desc": "Conectarea rezultatelor cercetării cu echipele de producție.",
+        "statsProjects": "Proiecte active",
+        "statsDomains": "Domenii implicate",
+        "statsPartners": "Parteneri"
+      },
+      "Buttons": {
+        "contact": "Contactează echipa pentru industrie",
+        "explore": "Explorează toate proiectele"
+      }
+    },
+    "partners": {
+      "title": "Parteneri",
+      "mapTitle": "Harta partenerilor"
+    },
+    "main": {
+      "Hero": {
+        "title": "Colaborări",
+        "subtitle": "Conectăm AIRi @ UTCN cu publicul, mediul academic și industria."
+      },
+      "Tabs": {
+        "public": "Public",
+        "academic": "Academic",
+        "industry": "Industrie",
+        "high-school": "Licee",
+        "partners": "Parteneri",
+        "phd": "Doctorat Industrial"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Parteneriate",
+          "teaching": "Predare",
+          "courses": "Cursuri",
+          "mobility": "Mobilitate"
+        },
+        "industry": {
+          "overview": "Prezentare generală",
+          "projects": "Proiecte",
+          "engagement": "Cum lucrăm"
+        }
+      },
+      "Public": {
+        "title": "Implicare Publică",
+        "desc": "Conectăm comunitatea de cercetare în IA cu publicul larg prin resurse accesibile, apariții în presă și programe de informare.",
+        "btnMedia": "Vezi Media și Presă",
+        "btnNews": "Știri și Evenimente",
+        "f1Title": "Programe de informare",
+        "f1Desc": "Prezentări publice, demonstrații și inițiative de implicare a comunității.",
+        "f2Title": "Resurse educaționale",
+        "f2Desc": "Materiale cu acces deschis care explică conceptele de IA publicului larg.",
+        "f3Title": "Apariții în presă",
+        "f3Desc": "Interviuri, articole și acoperire mediatică a cercetării noastre."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Parteneriate academice",
+          "desc": "O rețea de colaborări academice internaționale, programe comune de cercetare și parteneriate instituționale care avansează cercetarea și educația în IA.",
+          "f1Title": "Colaborări universitare",
+          "f1Desc": "Programe comune de cercetare cu universități de top din întreaga lume.",
+          "f2Title": "Rețele de cercetare",
+          "f2Desc": "Participare în CLAIRE, ELLIS și alte rețele europene de IA."
+        },
+        "Teaching": {
+          "title": "Predare și Formare",
+          "desc": "Cursuri, școli de vară și workshop-uri pentru studenți și cercetători de la toate nivelurile.",
+          "f1Title": "Școli de vară",
+          "f1Desc": "Programe internaționale de vară în IA și machine learning.",
+          "f2Title": "Workshop-uri",
+          "f2Desc": "Sesiuni practice de lucru și formare."
+        },
+        "Courses": {
+          "title": "Cursuri și Workshop-uri",
+          "desc": "Cursuri specializate care acoperă machine learning, robotică, HPC pentru IA și etica în IA.",
+          "f1Title": "Machine Learning",
+          "f1Desc": "Module practice de ML, proiecte și cursuri orientate spre cercetare.",
+          "f2Title": "Robotică și Viziune",
+          "f2Desc": "Laboratoare practice de automatizare și sisteme de viziune.",
+          "f3Title": "HPC pentru IA",
+          "f3Desc": "Programare GPU și antrenarea modelelor IA la scară largă.",
+          "f4Title": "Etică și Siguranță în IA",
+          "f4Desc": "Echitate, explicabilitate și guvernanță în sistemele IA."
+        },
+        "Mobility": {
+          "title": "Co-tutelă și Mobilitate",
+          "desc": "Programe internaționale de schimb, coordonare comună a doctoratelor și oportunități pentru vizite de cercetare.",
+          "f1Title": "Co-tutelă",
+          "f1Desc": "Coordonarea comună a tezelor de doctorat cu parteneri internaționali.",
+          "f2Title": "Granturi de mobilitate",
+          "f2Desc": "Finanțare pentru stagii de cercetare și schimburi de experiență.",
+          "f3Title": "Schimburi de experiență",
+          "f3Desc": "Programe de schimb pentru studenți și cercetători."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Proiecte",
+          "domains": "Domenii",
+          "partners": "Parteneri"
+        },
+        "Collaboration": {
+          "title": "Colaborare cu industria",
+          "desc": "Dezvoltăm parteneriate cu lideri din industrie pentru a avansa cercetarea în IA și pentru a aduce inovațiile pe piață. Colaborările noastre acoperă consultanță, proiecte comune de C&D și transfer tehnologic."
+        },
+        "Projects": {
+          "searchPlaceholder": "Caută proiecte...",
+          "allDomains": "Toate domeniile",
+          "clear": "Curăță",
+          "lead": "Responsabil:",
+          "noProjects": "Niciun proiect nu se potrivește cu filtrele selectate."
+        },
+        "HowWeWork": {
+          "title": "Cum lucrăm cu industria",
+          "desc": "Oferim diverse modele de implicare pentru a răspunde diferitelor nevoi ale industriei și nivelurilor de colaborare.",
+          "f1Title": "Proiecte comune de C&D",
+          "f1Desc": "Proiecte de cercetare colaborativă cu IP și rezultate partajate.",
+          "f2Title": "Servicii de consultanță",
+          "f2Desc": "Sfaturi de specialitate privind strategia IA, implementarea și bunele practici.",
+          "f3Title": "Programe de formare",
+          "f3Desc": "Training personalizat pentru echipele din industrie în domeniul tehnologiilor IA.",
+          "f4Title": "Transfer tehnologic",
+          "f4Desc": "Licențierea și comercializarea rezultatelor cercetării."
+        }
+      },
+      "HighSchool": {
+        "title": "Colaborare cu liceele",
+        "desc": "Competiții, evenimente și resurse de alfabetizare în IA pentru elevi și profesori, formând următoarea generație de cercetători în IA.",
+        "f1Title": "Competiții",
+        "f1Desc": "Competiții de IA și programare pentru liceeni.",
+        "f2Title": "Evenimente",
+        "f2Desc": "Workshop-uri, vizite de laborator și sesiuni cu experți.",
+        "f3Title": "Resurse educaționale",
+        "f3Desc": "Ghiduri și materiale pentru alfabetizarea în domeniul IA.",
+        "btnFramework": "Framework-ul AILIT – Resurse"
+      },
+      "Partners": {
+        "title": "Partenerii noștri",
+        "desc": "Colaborăm cu organizații de top din cercetarea și dezvoltarea IA, inclusiv CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe și BDVA.",
+        "mapTitle": "Harta partenerilor"
+      },
+      "PhD": {
+        "title": "Programul de Doctorat Industrial",
+        "p1": "Un doctorat industrial este un program de pregătire universitară care permite obținerea titlului de doctor printr-un proiect de cercetare industrială sau de dezvoltare experimentală, creat în colaborare între o companie și mediul academic.",
+        "p2": "Dacă reprezentați o companie interesată de un doctorat industrial sau dacă doriți să urmați un Doctorat Industrial în Inteligența Artificială alături de noi, vă rugăm să ne contactați prin e-mail.",
+        "f1Title": "Pentru companii",
+        "f1Desc": "Colaborați cu noi pentru cercetare aplicată în IA care rezolvă provocări reale de afaceri.",
+        "f2Title": "Pentru candidați",
+        "f2Desc": "Combinați cercetarea academică cu experiența practică în industrie.",
+        "f3Title": "Model de colaborare",
+        "f3Desc": "Supervizare comună din partea mentorilor din industrie și a coordonatorilor academici.",
+        "btnContact": "Contactați-ne"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Colaborări",
+        "subtitle": "Conectăm AIRi @ UTCN cu publicul, mediul academic și industria."
+      },
+      "PublicContent": {
+        "title": "Implicare Publică",
+        "desc": "Conectăm comunitatea de cercetare în IA cu publicul larg prin resurse accesibile, apariții în presă și programe de informare.",
+        "btnMedia": "Vezi Media și Presă",
+        "btnNews": "Știri și Evenimente",
+        "outreachTitle": "Programe de informare",
+        "outreachDesc": "Prezentări publice, demonstrații și inițiative de implicare a comunității.",
+        "eduTitle": "Resurse educaționale",
+        "eduDesc": "Materiale cu acces deschis care explică conceptele de IA publicului larg.",
+        "mediaTitle": "Apariții în presă",
+        "mediaDesc": "Interviuri, articole și acoperire mediatică a cercetării noastre."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Parteneriate academice",
+        "partnerDesc": "O rețea de colaborări academice internaționale, programe comune de cercetare și parteneriate instituționale care avansează cercetarea și educația în IA.",
+        "uniTitle": "Colaborări universitare",
+        "uniDesc": "Programe comune de cercetare cu universități de top din întreaga lume.",
+        "netTitle": "Rețele de cercetare",
+        "netDesc": "Participare la CLAIRE, ELLIS și alte rețele europene de IA.",
+        "teachTitle": "Predare și Formare",
+        "teachDesc": "Cursuri, școli de vară și workshop-uri pentru studenți și cercetători de la toate nivelurile.",
+        "summerTitle": "Școli de vară",
+        "summerDesc": "Programe internaționale de vară în IA și machine learning.",
+        "workTitle": "Workshop-uri",
+        "workDesc": "Workshop-uri practice și sesiuni de formare.",
+        "courseTitle": "Cursuri și Workshop-uri",
+        "courseDesc": "Cursuri specializate care acoperă machine learning, robotică, HPC pentru IA și etica în IA.",
+        "mlTitle": "Machine Learning",
+        "mlDesc": "Module practice de ML, proiecte și cursuri orientate spre cercetare.",
+        "robotTitle": "Robotică și Viziune",
+        "robotDesc": "Laboratoare practice de automatizare și sisteme de viziune.",
+        "hpcTitle": "HPC pentru IA",
+        "hpcDesc": "Programare GPU și antrenarea modelelor IA la scară largă.",
+        "ethicsTitle": "Etică și Siguranță în IA",
+        "ethicsDesc": "Echitate, explicabilitate și guvernanță în sistemele IA.",
+        "mobTitle": "Co-tutelă și Mobilitate",
+        "mobDesc": "Programe internaționale de schimb, coordonare comună a doctoratelor și oportunități pentru vizite de cercetare.",
+        "supTitle": "Co-tutelă",
+        "supDesc": "Coordonarea comună a tezelor de doctorat cu parteneri internaționali.",
+        "grantTitle": "Granturi de mobilitate",
+        "grantDesc": "Finanțare pentru stagii de cercetare și schimburi de experiență.",
+        "exTitle": "Schimburi de experiență",
+        "exDesc": "Programe de schimb pentru studenți și cercetători."
+      },
+      "IndustryContent": {
+        "statProjects": "Proiecte",
+        "statDomains": "Domenii",
+        "statPartners": "Parteneri",
+        "collabTitle": "Colaborare cu industria",
+        "collabDesc": "Dezvoltăm parteneriate cu lideri din industrie pentru a avansa cercetarea în IA și pentru a aduce inovațiile pe piață. Colaborările noastre acoperă consultanță, proiecte comune de C&D și transfer tehnologic.",
+        "searchPlaceholder": "Caută proiecte...",
+        "allDomains": "Toate domeniile",
+        "clear": "Curăță",
+        "leadLabel": "Responsabil:",
+        "noProjects": "Niciun proiect nu se potrivește cu filtrele selectate.",
+        "workTitle": "Cum lucrăm cu industria",
+        "workDesc": "Oferim diverse modele de colaborare pentru a răspunde diferitelor nevoi ale industriei și nivelurilor de implicare.",
+        "rdTitle": "Proiecte comune de C&D",
+        "rdDesc": "Proiecte de cercetare colaborativă cu IP și rezultate partajate.",
+        "consTitle": "Servicii de consultanță",
+        "consDesc": "Sfaturi de specialitate privind strategia IA, implementarea și bunele practici.",
+        "trainTitle": "Programe de formare",
+        "trainDesc": "Training personalizat pentru echipele din industrie în domeniul tehnologiilor IA.",
+        "techTitle": "Transfer tehnologic",
+        "techDesc": "Licențierea și comercializarea rezultatelor cercetării."
+      },
+      "HighSchoolContent": {
+        "title": "Colaborare cu liceele",
+        "desc": "Competiții, evenimente și resurse de alfabetizare în IA pentru elevi și profesori, formând următoarea generație de cercetători în IA.",
+        "compTitle": "Competiții",
+        "compDesc": "Competiții de IA și programare pentru liceeni.",
+        "eventTitle": "Evenimente",
+        "eventDesc": "Workshop-uri, vizite de laborator și sesiuni cu experți.",
+        "eduTitle": "Resurse educaționale",
+        "eduDesc": "Ghiduri și materiale pentru alfabetizarea în domeniul IA.",
+        "btnLabel": "Framework-ul AILIT – Resurse"
+      },
+      "PartnersContent": {
+        "title": "Partenerii noștri",
+        "desc": "Colaborăm cu organizații de top din cercetarea și dezvoltarea IA, inclusiv CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe și BDVA.",
+        "mapTitle": "Harta partenerilor"
+      },
+      "PhDContent": {
+        "title": "Programul de Doctorat Industrial",
+        "p1": "Un doctorat industrial este un program de pregătire universitară care permite obținerea titlului de doctor printr-un proiect de cercetare industrială sau de dezvoltare experimentală, creat în colaborare între o companie și mediul academic.",
+        "p2": "Dacă reprezentați o companie interesată de un doctorat industrial sau doriți să urmați un Doctorat Industrial în Inteligența Artificială alături de noi, vă rugăm să ne contactați prin e-mail.",
+        "compTitle": "Pentru companii",
+        "compDesc": "Colaborați cu noi pentru cercetare aplicată în IA care rezolvă provocări reale de afaceri.",
+        "candTitle": "Pentru candidați",
+        "candDesc": "Combinați cercetarea academică cu experiența practică în industrie.",
+        "collabTitle": "Model de colaborare",
+        "collabDesc": "Supervizare comună din partea mentorilor din industrie și a coordonatorilor academici.",
+        "btnContact": "Contactați-ne"
+      }
+    }
+  }
+}

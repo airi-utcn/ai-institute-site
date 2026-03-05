@@ -1,4 +1,47 @@
 {
+  "navbar": {
+    "navLinks": {
+      "research": "Research",
+      "engagement": "Engagement",
+      "people": "People",
+      "news": "News & Events",
+      "about": "About"
+    },
+    "researchMenu": {
+      "departments": "Departments",
+      "themes": "Themes",
+      "projects": "Projects",
+      "publications": "Publications",
+      "thesis": "Thesis",
+      "resources": "Resources"
+    },
+    "newsMenu": {
+      "news": "News",
+      "events": "Events",
+      "seminars": "Seminars",
+      "calls": "Calls for Projects",
+      "awards": "Awards",
+      "careers": "Career Opportunities"
+    },
+    "aboutMenu": {
+      "mission": "Mission",
+      "organigram": "Organigram",
+      "sitemap": "Sitemap",
+      "reports": "Reports",
+      "regulations": "Regulations",
+      "guidelines": "Guidelines",
+      "tour": "Virtual Tour",
+      "rooms": "Rooms & calendar",
+      "contact": "Contact"
+    },
+    "search": {
+      "placeholder": "Search...",
+      "mobilePlaceholder": "Search the site...",
+      "button": "Search",
+      "chatbot": "AIRi chatbot",
+      "knowledgeGraph": "Knowledge graphs"
+    }
+  },
   "home": {
     "metadata": {
       "title": "AIRI - Home",

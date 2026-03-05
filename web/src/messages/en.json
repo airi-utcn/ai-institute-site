@@ -165,6 +165,45 @@
       "p1": "An Industrial PhD is known as a university training program that qualifies for the award of a doctorate through an industrial research or experimental development project, that was created collaboratively between a company and an academic environment, which will become the subject of a doctoral thesis by a doctoral student.",
       "p2": "If you are a company and are interested in carrying out an industrial PhD, contact us via email.",
       "p3": "If you want to come and do an Industrial Doctorate in Artificial Intelligence with us in any of the proposed topics, get in touch via email."
+    },
+    "industry": {
+      "title": "Industry engagement",
+      "description": "Partner with AIRi on applied research and technology transfer, from discovery to deployment.",
+      "Tabs": {
+        "Overview": "Overview",
+        "Projects": "Projects",
+        "Engagement": "How we work"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Search by project, lead, partner…",
+        "allDomains": "All domains",
+        "noProjects": "No projects match your filters yet.",
+        "cardLead": "Lead",
+        "cardDetails": "Details",
+        "cardSite": "Site",
+        "cardDocs": "Docs"
+      },
+      "EngagementTab": {
+        "title": "Engagement model",
+        "listItem1": "Joint applied research with measurable outcomes",
+        "listItem2": "Prototyping and validation with your teams",
+        "listItem3": "Knowledge transfer and long-term collaboration"
+      },
+      "OverviewTab": {
+        "feature1Title": "Applied research",
+        "feature1Desc": "Industrial collaborations targeting real-world deployment.",
+        "feature2Title": "Co-development",
+        "feature2Desc": "Shared roadmaps, rapid prototyping, and validation cycles.",
+        "feature3Title": "Knowledge transfer",
+        "feature3Desc": "Bridging research outcomes into production teams.",
+        "statsProjects": "Active projects",
+        "statsDomains": "Domains involved",
+        "statsPartners": "Partners"
+      },
+      "Buttons": {
+        "contact": "Contact the industry team",
+        "explore": "Explore all projects"
+      }
     }
   }
 }

@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useMemo, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const TABS = [
-  { key: "Overview", label: "Overview" },
-  { key: "Projects", label: "Projects" },
-  { key: "Engagement", label: "How we work" },
+  { key: "Overview" },
+  { key: "Projects" },
+  { key: "Engagement" },
 ];
 
 const containerVariants = {
@@ -46,7 +47,6 @@ const toProjectSummary = (project) => {
     ? project.partnersData.map((p) => p?.name).filter(Boolean)
     : [];
 
-  // Use partnersData from transformProjectData if available (contains logo info)
   const expandedPartners = Array.isArray(project?.partnersData) ? project.partnersData : [];
 
   return {
@@ -70,6 +70,7 @@ export default function Client({ projects: rawProjects = [] }) {
   const router = useRouter();
   const sp = useSearchParams();
   const tab = sp.get("tab") || "Overview";
+  const t = useTranslations("engagement.industry");
 
   const [query, setQuery] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
@@ -93,7 +94,6 @@ export default function Client({ projects: rawProjects = [] }) {
   const filteredProjects = useMemo(() => {
     const q = query.trim().toLowerCase();
     return projects
-      // Show only industry engagement projects
       .filter((p) => p.isIndustryEngagement)
       .filter((p) => {
         const haystack = [p.title, p.abstract, p.lead, ...p.domains, ...p.partners]
@@ -129,7 +129,7 @@ export default function Client({ projects: rawProjects = [] }) {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by project, lead, partner…"
+                placeholder={t("ProjectsTab.searchPlaceholder")}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
               />
               <select
@@ -137,7 +137,7 @@ export default function Client({ projects: rawProjects = [] }) {
                 onChange={(e) => setDomainFilter(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
               >
-                <option value="">All domains</option>
+                <option value="">{t("ProjectsTab.allDomains")}</option>
                 {domainOptions.map((d) => (
                   <option key={d} value={d}>{d}</option>
                 ))}
@@ -152,7 +152,6 @@ export default function Client({ projects: rawProjects = [] }) {
                     variants={itemVariants}
                     className="flex flex-col h-full rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                   >
-                    {/* Hero Image or Partner Logos area */}
                     <div className="relative h-48 bg-gray-50 dark:bg-gray-800 flex items-center justify-center p-6 border-b border-gray-100 dark:border-gray-800">
                       {p.heroImage ? (
                         <div className="absolute inset-0">
@@ -165,7 +164,6 @@ export default function Client({ projects: rawProjects = [] }) {
                         </div>
                       ) : null}
 
-                      {/* Overly Partner Logos (if any) - display primary logo */}
                       <div className="relative z-10 flex gap-4">
                         {p.expandedPartners.map((partner) =>
                           partner.logo ? (
@@ -200,7 +198,7 @@ export default function Client({ projects: rawProjects = [] }) {
 
                       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
                          <div className="text-xs text-gray-500 dark:text-gray-500">
-                           {p.lead ? `Lead: ${p.lead}` : null}
+                           {p.lead ? `${t("ProjectsTab.cardLead")}: ${p.lead}` : null}
                          </div>
                          <div className="flex gap-3 text-sm font-medium">
                           {p.slug ? (
@@ -208,7 +206,7 @@ export default function Client({ projects: rawProjects = [] }) {
                               href={`/research/projects/${encodeURIComponent(p.slug)}`}
                               className="text-blue-600 dark:text-yellow-400 hover:underline"
                             >
-                              Details
+                              {t("ProjectsTab.cardDetails")}
                             </Link>
                           ) : null}
                           {p.officialUrl ? (
@@ -218,7 +216,7 @@ export default function Client({ projects: rawProjects = [] }) {
                               rel="noopener noreferrer"
                               className="text-blue-600 dark:text-yellow-400 hover:underline"
                             >
-                              Site
+                              {t("ProjectsTab.cardSite")}
                             </a>
                           ) : null}
                           {p.docUrl ? (
@@ -228,7 +226,7 @@ export default function Client({ projects: rawProjects = [] }) {
                               rel="noopener noreferrer"
                               className="text-blue-600 dark:text-yellow-400 hover:underline"
                             >
-                              Docs
+                              {t("ProjectsTab.cardDocs")}
                             </a>
                           ) : null}
                          </div>
@@ -238,7 +236,7 @@ export default function Client({ projects: rawProjects = [] }) {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">No projects match your filters yet.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t("ProjectsTab.noProjects")}</p>
             )}
           </motion.section>
         );
@@ -246,16 +244,16 @@ export default function Client({ projects: rawProjects = [] }) {
         return (
           <motion.section className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
             <motion.h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100" variants={itemVariants}>
-              Engagement model
+              {t("EngagementTab.title")}
             </motion.h2>
             <motion.div
               className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm"
               variants={itemVariants}
             >
               <ul className="list-disc pl-6 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                <li>Joint applied research with measurable outcomes</li>
-                <li>Prototyping and validation with your teams</li>
-                <li>Knowledge transfer and long-term collaboration</li>
+                <li>{t("EngagementTab.listItem1")}</li>
+                <li>{t("EngagementTab.listItem2")}</li>
+                <li>{t("EngagementTab.listItem3")}</li>
               </ul>
             </motion.div>
           </motion.section>
@@ -264,28 +262,28 @@ export default function Client({ projects: rawProjects = [] }) {
         return (
           <motion.section className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
             <div className="grid gap-4 md:grid-cols-3">
-              <Feature title="Applied research" desc="Industrial collaborations targeting real-world deployment." />
-              <Feature title="Co-development" desc="Shared roadmaps, rapid prototyping, and validation cycles." />
-              <Feature title="Knowledge transfer" desc="Bridging research outcomes into production teams." />
+              <Feature title={t("OverviewTab.feature1Title")} desc={t("OverviewTab.feature1Desc")} />
+              <Feature title={t("OverviewTab.feature2Title")} desc={t("OverviewTab.feature2Desc")} />
+              <Feature title={t("OverviewTab.feature3Title")} desc={t("OverviewTab.feature3Desc")} />
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Active projects</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsProjects")}</div>
                 <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.projectCount}</div>
               </motion.div>
               <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Domains involved</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsDomains")}</div>
                 <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.domainCount}</div>
               </motion.div>
               <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">Partners</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsPartners")}</div>
                 <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.partnerCount}</div>
               </motion.div>
             </div>
           </motion.section>
         );
     }
-  }, [tab, query, domainFilter, domainOptions, filteredProjects, stats]);
+  }, [tab, query, domainFilter, domainOptions, filteredProjects, stats, t]);
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
@@ -295,25 +293,25 @@ export default function Client({ projects: rawProjects = [] }) {
             variants={itemVariants}
             className="text-2xl md:text-3xl font-extrabold mb-2 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
           >
-            Industry engagement
+            {t("title")}
           </motion.h1>
           <motion.p
             variants={itemVariants}
             className="text-center text-gray-700 dark:text-gray-300 max-w-3xl mx-auto"
           >
-            Partner with AIRi on applied research and technology transfer, from discovery to deployment.
+            {t("description")}
           </motion.p>
 
           <div className="mt-6 md:mt-8">
             <div className="flex justify-start">
               <div className="inline-flex rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden max-w-full overflow-x-auto whitespace-nowrap">
-                {TABS.map((t) => {
-                  const active = tab === t.key;
+                {TABS.map((tObj) => {
+                  const active = tab === tObj.key;
                   return (
                     <button
-                      key={t.key}
+                      key={tObj.key}
                       type="button"
-                      onClick={() => setTab(t.key)}
+                      onClick={() => setTab(tObj.key)}
                       aria-pressed={active}
                       className={
                         "px-4 py-2 text-sm font-medium focus:outline-none " +
@@ -322,7 +320,7 @@ export default function Client({ projects: rawProjects = [] }) {
                           : "bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900")
                       }
                     >
-                      {t.label}
+                      {t(`Tabs.${tObj.key}`)}
                     </button>
                   );
                 })}
@@ -338,13 +336,13 @@ export default function Client({ projects: rawProjects = [] }) {
               href="/contact"
               className="inline-flex items-center rounded-xl border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition"
             >
-              Contact the industry team
+              {t("Buttons.contact")}
             </Link>
             <Link
               href="/research/projects"
               className="inline-flex items-center rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700 transition"
             >
-              Explore all projects
+              {t("Buttons.explore")}
             </Link>
           </div>
         </motion.div>

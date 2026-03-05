@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { FaBookOpen, FaChalkboardTeacher, FaFlask, FaIdBadge } from "react-icons/fa";
 
 const ITEMS = [
@@ -31,42 +28,22 @@ function Tile({ label, href, icon: Icon }) {
   );
 }
 
-const container = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { delayChildren: 0.2, staggerChildren: 0.08 } },
-};
-const item = {
-  hidden: { y: 16, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
-};
-
 export default function Client() {
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
-      <motion.div
-        className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10"
-        variants={container}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.h1
-          className="text-2xl md:text-3xl font-extrabold mb-10 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
-          variants={item}
-        >
+    <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
+      <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10 animate-fade-in">
+        <h1 className="text-2xl md:text-3xl font-extrabold mb-10 text-blue-600 dark:text-yellow-400 tracking-tight text-center animate-slide-down">
           Just For You
-        </motion.h1>
+        </h1>
 
-        <motion.section
-          className="grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-10"
-          variants={container}
-        >
-          {ITEMS.map((it) => (
-            <motion.div key={it.label} variants={item}>
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-10">
+          {ITEMS.map((it, i) => (
+            <div key={it.label} className={`animate-slide-up animate-delay-${i + 1}`}>
               <Tile {...it} />
-            </motion.div>
+            </div>
           ))}
-        </motion.section>
-      </motion.div>
-    </main>
+        </section>
+      </div>
+    </div>
   );
 }

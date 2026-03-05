@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Projects",
+  title: "Projects",
+  description: "Research projects and funded initiatives at the Artificial Intelligence Research Institute.",
 };
 
 import ProjectsClient from "./projectClient";

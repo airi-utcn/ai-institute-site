@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Careers / Job Opportunities",
+  title: "Careers & Job Opportunities",
+  description: "Open positions and career opportunities at the Artificial Intelligence Research Institute.",
 };
 
 import CareerClient from "./careerClient";

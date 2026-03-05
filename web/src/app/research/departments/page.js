@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Research",
+  title: "Research Departments",
+  description: "Research departments and units within the Artificial Intelligence Research Institute at UTCN.",
 };
 
 import ResearchClient from "./DepartmentsClient";

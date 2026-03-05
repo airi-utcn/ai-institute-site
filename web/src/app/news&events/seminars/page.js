@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Seminars",
+  title: "Seminars",
+  description: "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.",
 };
 
 import SeminarsClient from "./seminarsClient";

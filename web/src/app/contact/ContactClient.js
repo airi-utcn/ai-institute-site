@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import PageHeader from "@/components/PageHeader";
 
 export default function ContactClient() {
@@ -31,7 +28,7 @@ export default function ContactClient() {
   ];
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
           title="Contact Us"
@@ -42,12 +39,7 @@ export default function ContactClient() {
         <section className="mb-10">
           <div className="card p-6">
             <h2 className="heading-3 heading-accent mb-6 text-center">Connect With Us</h2>
-            <motion.div
-              className="flex justify-center gap-6"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
+            <div className="flex justify-center gap-6 animate-slide-up animate-delay-1">
               {socialLinks.map((link) => (
                 <a
                   key={link.href}
@@ -68,7 +60,7 @@ export default function ContactClient() {
                   </svg>
                 </a>
               ))}
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -106,6 +98,6 @@ export default function ContactClient() {
           </div>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

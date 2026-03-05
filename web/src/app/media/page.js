@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Media",
+  title: "Media",
+  description: "Photos, videos, and media resources from AIRi events and activities at UTCN.",
 };
 
 import MediaClient from "./MediaClient"

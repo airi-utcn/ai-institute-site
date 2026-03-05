@@ -22,7 +22,7 @@ export default function EventsClient({ events = [] }) {
   const items = Array.isArray(events) ? events : [];
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
           title="Events"
@@ -94,6 +94,6 @@ export default function EventsClient({ events = [] }) {
           </motion.ul>
         )}
       </div>
-    </main>
+    </div>
   );
 }

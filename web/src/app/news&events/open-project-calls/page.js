@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Open Projects Calls",
+  title: "Open Project Calls",
+  description: "Open calls for research projects and funding opportunities at AIRi.",
 };
 
 import OpenProjectsCallsClient from "./openProjectsCallsClient";

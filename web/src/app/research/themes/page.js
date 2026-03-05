@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Themes",
+  title: "Research Themes",
+  description: "Explore the core research themes and focus areas of the AI Research Institute at UTCN.",
 };
 
 import ThemesClient from "./themesClient";

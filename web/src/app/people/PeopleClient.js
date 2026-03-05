@@ -105,7 +105,7 @@ export default function PeopleClient({
   }), [allPeople]);
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         {/* Header */}
         <motion.div 
@@ -243,6 +243,6 @@ export default function PeopleClient({
           )}
         </AnimatePresence>
       </div>
-    </main>
+    </div>
   );
 }

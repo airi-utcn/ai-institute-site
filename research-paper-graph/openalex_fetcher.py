@@ -1,7 +1,17 @@
 import requests
 import time
+import re
 
 BASE_URL = "https://api.openalex.org"
+
+def normalize_text(text):
+    """Strip newlines, collapse whitespace and trim."""
+    if not text:
+        return None
+    text = re.sub(r'[\n\r\t]+', ' ', text) # Newlines, carriage returns, tabs removed
+    text = re.sub(r' +', ' ', text) # Multiple spaces collapsed to single space
+    text = text.replace('\\n', '')
+    return text.strip()
 
 def find_author_id(author_name, institution=None):
     """Search for an author by name (and optional institution)."""
@@ -67,11 +77,11 @@ def process_work(work):
 
     return {
         "openAlexId": work.get("id"),
-        "title": work.get("title"),
+        "title": normalize_text(work.get("title")),
         "doi": work.get("doi"),
         "year": work.get("publication_year"),
         "cited_by": work.get("cited_by_count"),
-        "abstract": abstract_text,
+        "abstract": normalize_text(abstract_text),
         "topics": topics,     
         "authors": authors,   
         "pdf_url": _extract_pdf_url(work), 

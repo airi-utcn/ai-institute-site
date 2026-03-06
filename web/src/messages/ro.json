@@ -612,5 +612,61 @@
       "whatYouWillLearn": "Ce vei învăța",
       "modules": "Module"
     }
+  },
+  "people": {
+    "title": "Personal",
+    "subtitle": "Cunoaște echipa din spatele AIRi @ UTCN",
+    "searchPlaceholder": "Caută după nume, funcție sau departament...",
+    "clearSearch": "Șterge căutarea",
+    "tabs": {
+      "researchers": "Cercetători",
+      "staff": "Personal administrativ",
+      "visiting": "Cercetători invitați",
+      "alumni": "Alumni"
+    },
+    "results": "A fost găsit {count} rezultat pentru \"{query}\"",
+    "resultsPlural": "Au fost găsite {count} rezultate pentru \"{query}\"",
+    "emptySearch": "Nicio persoană nu se potrivește căutării tale.",
+    "emptyTab": "Nu s-au găsit {tabName} disponibili momentan.",
+    "details": {
+      "publications": "Publicații",
+      "teams": "Echipe",
+      "searchPubs": "Caută publicații...",
+      "allYears": "Toți anii",
+      "allTypes": "Toate tipurile",
+      "allDomains": "Toate domeniile",
+      "clear": "Curăță",
+      "viewDetails": "Vezi detalii",
+      "pdf": "PDF",
+      "lead": "Lider",
+      "projects": "Proiecte",
+      "noPubs": "Nicio publicație disponibilă.",
+      "noPubsMatch": "Nicio publicație nu se potrivește cu filtrele tale.",
+      "noTeams": "Nu este alocat niciunei echipe momentan."
+    },
+    "projectDetails": {
+      "backToProfile": "← Înapoi la Profil",
+      "backToStaffProfile": "← Înapoi la Profilul Personalului",
+      "projectDetails": "Detalii Proiect",
+      "visitWebsite": "Vizitează Site-ul",
+      "documentation": "Documentație",
+      "projectTimeline": "Cronologia Proiectului",
+      "resources": "Resurse",
+      "relatedPublications": "Publicații Aferente",
+      "details": "Detalii",
+      "visitProjectWebsite": "Vizitează Site-ul Proiectului",
+      "viewDocumentation": "Vezi Documentația",
+      "projectTeam": "Echipa Proiectului",
+      "lead": "Lider",
+      "members": "Membri",
+      "partners": "Parteneri",
+      "themes": "Teme",
+      "researchAreas": "Domenii de Cercetare",
+      "phases": {
+        "completed": "Finalizat",
+        "planned": "Planificat",
+        "ongoing": "În desfășurare"
+      }
+    }
   }
 }

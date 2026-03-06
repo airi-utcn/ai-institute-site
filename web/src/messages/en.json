@@ -612,5 +612,61 @@
       "whatYouWillLearn": "What you’ll learn",
       "modules": "Modules"
     }
+  },
+  "people": {
+    "title": "People",
+    "subtitle": "Meet the team behind AIRi @ UTCN",
+    "searchPlaceholder": "Search by name, title, or department...",
+    "clearSearch": "Clear search",
+    "tabs": {
+      "researchers": "Researchers",
+      "staff": "Staff",
+      "visiting": "Visiting Researchers",
+      "alumni": "Alumni"
+    },
+    "results": "Found {count} result for \"{query}\"",
+    "resultsPlural": "Found {count} results for \"{query}\"",
+    "emptySearch": "No people match your search.",
+    "emptyTab": "No {tabName} available yet.",
+    "details": {
+      "publications": "Publications",
+      "teams": "Teams",
+      "searchPubs": "Search publications...",
+      "allYears": "All Years",
+      "allTypes": "All Types",
+      "allDomains": "All Domains",
+      "clear": "Clear",
+      "viewDetails": "View Details",
+      "pdf": "PDF",
+      "lead": "Lead",
+      "projects": "Projects",
+      "noPubs": "No publications available.",
+      "noPubsMatch": "No publications match your filters.",
+      "noTeams": "Not currently assigned to any teams."
+    },
+    "projectDetails": {
+      "backToProfile": "← Back to Profile",
+      "backToStaffProfile": "← Back to Staff Profile",
+      "projectDetails": "Project Details",
+      "visitWebsite": "Visit Website",
+      "documentation": "Documentation",
+      "projectTimeline": "Project Timeline",
+      "resources": "Resources",
+      "relatedPublications": "Related Publications",
+      "details": "Details",
+      "visitProjectWebsite": "Visit Project Website",
+      "viewDocumentation": "View Documentation",
+      "projectTeam": "Project Team",
+      "lead": "Lead",
+      "members": "Members",
+      "partners": "Partners",
+      "themes": "Themes",
+      "researchAreas": "Research Areas",
+      "phases": {
+        "completed": "Completed",
+        "planned": "Planned",
+        "ongoing": "Ongoing"
+      }
+    }
   }
 }

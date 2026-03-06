@@ -547,6 +547,105 @@
       "researchers": "Cercetatori",
       "staff": "Personal",
       "title": "Doar pentru tine"
+    },
+    "organigram": {
+      "title": "Organigramă",
+      "description": "Descrierea <strong>Comitetului Director</strong> și a <strong>Comitetului Științific</strong>",
+      "directorCommittee": "Comitetul Director",
+      "viewDirectorStructure": "Vizualizați structura Comitetului Director:",
+      "scientificCommittee": "Comitetul Științific",
+      "viewScientificStructure": "Vizualizați structura Comitetului Științific:",
+      "downloadPdf": "Descarcă PDF",
+      "viewPng": "Vezi PNG"
+    },
+    "regulations": {
+      "title": "Regulamente",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "reports": {
+      "title": "Rapoarte",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "roomsCalendar": {
+      "title": "Săli și Calendar",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "sitemap": {
+      "title": "Hartă Site",
+      "filterPlaceholder": "Filtrează paginile…",
+      "clear": "Șterge",
+      "noResults": "Niciun rezultat pentru „{query}”.",
+      "sections": {
+        "research": {
+          "title": "Cercetare",
+          "links": {
+            "departments": "Departamente",
+            "themes": "Teme",
+            "projects": "Proiecte",
+            "publications": "Publicații",
+            "thesis": "Teze",
+            "tools": "Instrumente",
+            "resources": "Resurse"
+          }
+        },
+        "engagement": {
+          "title": "Implicare",
+          "links": {
+            "public": "Implicare publică",
+            "academic": "Implicare academică",
+            "industry": "Implicare în industrie",
+            "highSchool": "Implicare pentru licee",
+            "partners": "Parteneri",
+            "industrialPhd": "Doctorat industrial"
+          }
+        },
+        "people": {
+          "title": "Oameni",
+          "links": {
+            "researchers": "Cercetători",
+            "staff": "Personal",
+            "alumni": "Alumni",
+            "visiting": "Cercetători invitați"
+          }
+        },
+        "newsEvents": {
+          "title": "Noutăți și Evenimente",
+          "links": {
+            "news": "Noutăți",
+            "events": "Evenimente",
+            "seminars": "Seminarii",
+            "openCalls": "Apeluri deschise pentru proiecte",
+            "awards": "Premii",
+            "careers": "Oportunități de Carieră/Job"
+          }
+        },
+        "about": {
+          "title": "Despre",
+          "links": {
+            "missionHistory": "Misiune, Istoric (cronologie)",
+            "organigram": "Organigramă",
+            "sitemap": "Hartă Site",
+            "reports": "Rapoarte de autoevaluare",
+            "regulations": "Proceduri și Regulamente",
+            "guidelines": "Linii directoare",
+            "virtualTour": "Tur Virtual",
+            "roomsCalendar": "Săli și calendar",
+            "contact": "Contact"
+          }
+        },
+        "search": {
+          "title": "Căutare",
+          "links": {
+            "classic": "Căutare clasică",
+            "chatbot": "Chatbot AIRi (bazat pe LLM)",
+            "knowledgeGraph": "Navigator grafuri de cunoștințe AIRi"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Tur Virtual",
+      "comingSoon": "Conținutul va fi disponibil în curând."
     }
   },
   "media": {

@@ -547,6 +547,105 @@
       "researchers": "Researchers",
       "staff": "Staff",
       "title": "Just for you"
+    },
+    "organigram": {
+      "title": "Organigram",
+      "description": "Description of the <strong>Director Committee</strong> and <strong>Scientific Committee</strong>",
+      "directorCommittee": "Director Committee",
+      "viewDirectorStructure": "View the structure of the Director Committee:",
+      "scientificCommittee": "Scientific Committee",
+      "viewScientificStructure": "View the structure of the Scientific Committee:",
+      "downloadPdf": "Download PDF",
+      "viewPng": "View PNG"
+    },
+    "regulations": {
+      "title": "Regulations",
+      "comingSoon": "Content coming soon."
+    },
+    "reports": {
+      "title": "Reports",
+      "comingSoon": "Content coming soon."
+    },
+    "roomsCalendar": {
+      "title": "Rooms & Calendar",
+      "comingSoon": "Content coming soon."
+    },
+    "sitemap": {
+      "title": "Sitemap",
+      "filterPlaceholder": "Filter pages…",
+      "clear": "Clear",
+      "noResults": "No results for “{query}”.",
+      "sections": {
+        "research": {
+          "title": "Research",
+          "links": {
+            "departments": "Departments",
+            "themes": "Themes",
+            "projects": "Projects",
+            "publications": "Publications",
+            "thesis": "Thesis",
+            "tools": "Tools",
+            "resources": "Resources"
+          }
+        },
+        "engagement": {
+          "title": "Engagement",
+          "links": {
+            "public": "Public engagement",
+            "academic": "Academic engagement",
+            "industry": "Industry engagement",
+            "highSchool": "High-school engagement",
+            "partners": "Partners",
+            "industrialPhd": "Industrial PhD"
+          }
+        },
+        "people": {
+          "title": "People",
+          "links": {
+            "researchers": "Researchers",
+            "staff": "Staff",
+            "alumni": "Alumni",
+            "visiting": "Visiting researchers"
+          }
+        },
+        "newsEvents": {
+          "title": "News & Events",
+          "links": {
+            "news": "News",
+            "events": "Events",
+            "seminars": "Seminars",
+            "openCalls": "Open Project calls",
+            "awards": "Awards",
+            "careers": "Career/Job Opportunities"
+          }
+        },
+        "about": {
+          "title": "About",
+          "links": {
+            "missionHistory": "Mission, History(timeline)",
+            "organigram": "Organigram",
+            "sitemap": "Sitemap",
+            "reports": "Reports Self-assessment reports",
+            "regulations": "Procedures & Regulations",
+            "guidelines": "Guidelines",
+            "virtualTour": "Virtual Tour",
+            "roomsCalendar": "Rooms & calendar",
+            "contact": "Contact"
+          }
+        },
+        "search": {
+          "title": "Search",
+          "links": {
+            "classic": "Classic search",
+            "chatbot": "AIRi chatbot (LLM-based)",
+            "knowledgeGraph": "AIRi Knowledge graphs navigator"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Virtual Tour",
+      "comingSoon": "Content coming soon."
     }
   },
   "media": {

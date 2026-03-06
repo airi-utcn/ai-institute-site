@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -12,6 +13,8 @@ const item = {
 };
 
 export default function Client() {
+  const t = useTranslations("about.virtualTour");
+
   return (
     <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
@@ -24,11 +27,11 @@ export default function Client() {
           className="text-2xl md:text-3xl font-extrabold mb-4 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
           variants={item}
         >
-          Virtual Tour
+          {t("title")}
         </motion.h1>
 
         <motion.p className="text-gray-700 dark:text-gray-300 text-center" variants={item}>
-          Content coming soon.
+          {t("comingSoon")}
         </motion.p>
       </motion.div>
     </main>

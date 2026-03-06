@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -12,6 +13,8 @@ const item = {
 };
 
 export default function Client() {
+  const t = useTranslations("about.organigram");
+
   return (
     <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
@@ -25,14 +28,16 @@ export default function Client() {
             className="text-2xl md:text-3xl font-extrabold mb-6 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
             variants={item}
           >
-            Organigram
+            {t("title")}
           </motion.h1>
 
           <motion.p
-            className="text-gray-700 dark:text-gray-300 mb-8"
+            className="text-gray-700 dark:text-gray-300 mb-8 text-center"
             variants={item}
           >
-            Description of the <strong>Director Committee</strong> and <strong>Scientific Committee</strong>
+            {t.rich("description", {
+              strong: (chunks) => <strong>{chunks}</strong>
+            })}
           </motion.p>
 
           <motion.div className="grid gap-6 md:grid-cols-2" variants={container}>
@@ -42,10 +47,10 @@ export default function Client() {
             >
               <div className="px-4 md:px-6 py-4 border-b border-gray-200 dark:border-gray-800">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  Director Committee
+                  {t("directorCommittee")}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  View the structure of the Director Committee:
+                  {t("viewDirectorStructure")}
                 </p>
               </div>
               <div className="px-4 md:px-6 py-4">
@@ -57,7 +62,7 @@ export default function Client() {
                       rel="noopener noreferrer"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      Download PDF
+                      {t("downloadPdf")}
                     </a>
                   </li>
                   <li>
@@ -67,7 +72,7 @@ export default function Client() {
                       rel="noopener noreferrer"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      View PNG
+                      {t("viewPng")}
                     </a>
                   </li>
                 </ul>
@@ -80,10 +85,10 @@ export default function Client() {
             >
               <div className="px-4 md:px-6 py-4 border-b border-gray-200 dark:border-gray-800">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  Scientific Committee
+                  {t("scientificCommittee")}
                 </h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  View the structure of the Scientific Committee:
+                  {t("viewScientificStructure")}
                 </p>
               </div>
               <div className="px-4 md:px-6 py-4">
@@ -95,7 +100,7 @@ export default function Client() {
                       rel="noopener noreferrer"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      Download PDF
+                      {t("downloadPdf")}
                     </a>
                   </li>
                   <li>
@@ -105,7 +110,7 @@ export default function Client() {
                       rel="noopener noreferrer"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      View PNG
+                      {t("viewPng")}
                     </a>
                   </li>
                 </ul>

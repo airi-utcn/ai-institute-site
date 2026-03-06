@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/people/', label: 'People' },
   { href: '/news', label: 'News & Events' },
   { href: '/about', label: 'About' },
+  { href: '/research-analytics', label: 'Analytics' },
 ];
 
 // Engagement is now a single unified page with tabs, no dropdown needed
@@ -350,6 +351,15 @@ export default function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               People
+            </Link>
+          </li>
+          <li className="px-4 py-1">
+            <Link
+              href="/research-analytics"
+              className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+              onClick={() => setIsOpen(false)}
+            >
+              Analytics
             </Link>
           </li>
           <MobileAccordion

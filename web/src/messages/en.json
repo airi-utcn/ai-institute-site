@@ -506,5 +506,39 @@
         "btnContact": "Contact Us"
       }
     }
+  },
+  "about": {
+    "mission": {
+      "title": "Mission",
+      "text": "The Artificial Intelligence Research Institute (AIRi) is a nexus for collaborative research at the Technical University of Cluj-Napoca. AIRi@UTCN promotes excellence in AI theory and practice, bringing together researchers across UTCN around a vision of open collaboration. Our work spans interdisciplinary research, AI literacy across disciplines, and impact through business and public co-creation partnerships."
+    },
+    "history": {
+      "event1": {
+        "date": "2023-01-15",
+        "title": "Announcement of AI Institute at UTCN",
+        "description": "The Technical University of Cluj-Napoca announced plans to establish a dedicated Artificial Intelligence Institute to foster research and innovation in AI technologies."
+      },
+      "event2": {
+        "date": "2023-06-10",
+        "title": "Groundbreaking Ceremony",
+        "description": "Official groundbreaking ceremony for the construction of the AI Institute building, attended by university officials and local dignitaries."
+      },
+      "event3": {
+        "date": "2024-09-01",
+        "title": "Completion of Construction",
+        "description": "The construction of the AI Institute's state-of-the-art facility was completed, featuring modern laboratories and collaborative spaces."
+      },
+      "event4": {
+        "date": "2024-10-15",
+        "title": "Inaugural AI Symposium",
+        "description": "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in AI."
+      },
+      "event5": {
+        "date": "2025-08-20",
+        "title": "Current Building Progress",
+        "descriptionPart1": "Stay updated with the current building progress of the AI Institute.",
+        "descriptionPart2": "Watch live through our webcam:"
+      }
+    }
   }
 }

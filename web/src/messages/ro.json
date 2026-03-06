@@ -506,5 +506,40 @@
         "btnContact": "Contactați-ne"
       }
     }
+  },
+  "about": {
+    "mission": {
+      "title": "Misiune",
+      "text": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă la Universitatea Tehnică din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din cadrul UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și obținerea unui impact prin parteneriate de co-creare cu mediul public și de afaceri."
+    },
+    "history": {
+      "event1": {
+        "date": "15 Ianuarie 2023",
+        "title": "Anunțarea Institutului de IA la UTCN",
+        "description": "Universitatea Tehnică din Cluj-Napoca a anunțat planurile de a înființa un institut dedicat Inteligenței Artificiale pentru a promova cercetarea și inovația în tehnologiile IA."
+      },
+      "event2": {
+        "date": "10 Iunie 2023",
+        "title": "Ceremonia de inaugurare",
+        "description": "Ceremonia oficială de inaugurare a lucrărilor de construcție pentru clădirea Institutului de IA, cu participarea oficialilor universității și a demnitarilor locali."
+      },
+      "event3": {
+        "date": "1 Septembrie 2024",
+        "title": "Finalizarea construcției",
+        "description": "Construcția facilității de ultimă generație a Institutului de IA a fost finalizată, dispunând de laboratoare moderne și spații colaborative."
+      },
+      "event4": {
+        "date": "15 Octombrie 2024",
+        "title": "Simpozionul inaugural de IA",
+        "description": "Institutul a găzduit primul său simpozion, reunind cercetători în IA, experți din industrie și studenți pentru a discuta cele mai recente progrese în domeniu."
+      },
+      "event5": {
+        "date": "20 August 2025",
+        "title": "Stadiul actual al clădirii",
+        "descriptionPart1": "Fii la curent cu stadiul actual al lucrărilor la Institutul de IA.",
+        "descriptionPart2": "Urmărește live prin intermediul camerei noastre web:"
+      }
+    }
   }
+  
 }

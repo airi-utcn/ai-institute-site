@@ -3,64 +3,65 @@
 import { VerticalTimeline, VerticalTimelineElement } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { FaBuilding, FaUserFriends, FaMicrochip } from "react-icons/fa";
+import { useTranslations } from "next-intl";
 
-const EVENTS = [
-  {
-    date: "2023-01-15",
-    title: "Announcement of AI Institute at UTCN",
-    description:
-      "The Technical University of Cluj-Napoca announced plans to establish a dedicated Artificial Intelligence Institute to foster research and innovation in AI technologies.",
-    icon: <FaBuilding />,
-  },
-  {
-    date: "2023-06-10",
-    title: "Groundbreaking Ceremony",
-    description:
-      "Official groundbreaking ceremony for the construction of the AI Institute building, attended by university officials and local dignitaries.",
-    icon: <FaUserFriends />,
-  },
-  {
-    date: "2024-09-01",
-    title: "Completion of Construction",
-    description:
-      "The construction of the AI Institute's state-of-the-art facility was completed, featuring modern laboratories and collaborative spaces.",
-    icon: <FaBuilding />,
-  },
-  {
-    date: "2024-10-15",
-    title: "Inaugural AI Symposium",
-    description:
-      "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in AI.",
-    icon: <FaMicrochip />,
-  },
-  {
-    date: "2025-08-20",
-    title: "Current Building Progress",
-    description: (
-      <>
-        Stay updated with the current building progress of the AI Institute.
-        <br />
-        Watch live through our webcam:
-        <br />
-        <a
-          href="http://webcam.obs.utcluj.ro/"
-          target="_blank"
-          rel="noreferrer"
-          style={{ textDecoration: "underline" }}
-        >
-          http://webcam.obs.utcluj.ro/
-        </a>
-      </>
-    ),
-    icon: <FaBuilding />,
-  },
-];
+export default function HistorySection({ items }) {
+  const t = useTranslations("about.history");
 
-export default function HistorySection({ items = EVENTS }) {
+  const defaultEvents = [
+    {
+      date: t("event1.date"),
+      title: t("event1.title"),
+      description: t("event1.description"),
+      icon: <FaBuilding />,
+    },
+    {
+      date: t("event2.date"),
+      title: t("event2.title"),
+      description: t("event2.description"),
+      icon: <FaUserFriends />,
+    },
+    {
+      date: t("event3.date"),
+      title: t("event3.title"),
+      description: t("event3.description"),
+      icon: <FaBuilding />,
+    },
+    {
+      date: t("event4.date"),
+      title: t("event4.title"),
+      description: t("event4.description"),
+      icon: <FaMicrochip />,
+    },
+    {
+      date: t("event5.date"),
+      title: t("event5.title"),
+      description: (
+        <>
+          {t("event5.descriptionPart1")}
+          <br />
+          {t("event5.descriptionPart2")}
+          <br />
+          <a
+            href="http://webcam.obs.utcluj.ro/"
+            target="_blank"
+            rel="noreferrer"
+            style={{ textDecoration: "underline" }}
+          >
+            http://webcam.obs.utcluj.ro/
+          </a>
+        </>
+      ),
+      icon: <FaBuilding />,
+    },
+  ];
+
+  const displayItems = items || defaultEvents;
+
   return (
     <>
       <VerticalTimeline lineColor="var(--icia-line)">
-        {items.map((ev) => (
+        {displayItems.map((ev) => (
           <VerticalTimelineElement
             key={`${ev.title}-${ev.date}`}
             date={ev.date}

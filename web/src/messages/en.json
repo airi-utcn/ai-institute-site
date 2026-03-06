@@ -896,5 +896,35 @@
       "cardTitle": "AIRi Knowledge Graphs",
       "comingSoon": "Coming soon — interactive navigator for AIRi knowledge graphs."
     }
+  },
+  "timeline": {
+    "title": "📅 AIRI Timeline",
+    "events": {
+      "event1": {
+        "date": "Jan 15, 2023",
+        "title": "Announcement of AI Institute at UTCN",
+        "description": "The Technical University of Cluj-Napoca announced plans to establish a dedicated Artificial Intelligence Institute to foster research and innovation in AI technologies."
+      },
+      "event2": {
+        "date": "Jun 10, 2023",
+        "title": "Groundbreaking Ceremony",
+        "description": "Official groundbreaking ceremony for the construction of the AI Institute building, attended by university officials and local dignitaries."
+      },
+      "event3": {
+        "date": "Sep 1, 2024",
+        "title": "Completion of Construction",
+        "description": "The construction of the AI Institute's state-of-the-art facility was completed, featuring modern laboratories and collaborative spaces."
+      },
+      "event4": {
+        "date": "Oct 15, 2024",
+        "title": "Inaugural AI Symposium",
+        "description": "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in artificial intelligence."
+      },
+      "event5": {
+        "title": "Current Building Progress",
+        "descriptionPart1": "Stay updated with the current building progress of the AI Institute.",
+        "descriptionPart2": "Watch live through our webcam:"
+      }
+    }
   }
 }

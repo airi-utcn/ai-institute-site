@@ -896,5 +896,35 @@
       "cardTitle": "Grafuri de Cunoștințe AIRi",
       "comingSoon": "În curând — navigator interactiv pentru grafurile de cunoștințe AIRi."
     }
+  },
+  "timeline": {
+    "title": "📅 Cronologie AIRI",
+    "events": {
+      "event1": {
+        "date": "15 Ian. 2023",
+        "title": "Anunțarea Institutului de IA la UTCN",
+        "description": "Universitatea Tehnică din Cluj-Napoca a anunțat planurile de a înființa un institut dedicat Inteligenței Artificiale pentru a promova cercetarea și inovația în tehnologiile IA."
+      },
+      "event2": {
+        "date": "10 Iun. 2023",
+        "title": "Ceremonia de inaugurare",
+        "description": "Ceremonia oficială de inaugurare a lucrărilor de construcție pentru clădirea Institutului de IA, cu participarea oficialilor universității și a demnitarilor locali."
+      },
+      "event3": {
+        "date": "1 Sep. 2024",
+        "title": "Finalizarea construcției",
+        "description": "Construcția facilității de ultimă generație a Institutului de IA a fost finalizată, dispunând de laboratoare moderne și spații colaborative."
+      },
+      "event4": {
+        "date": "15 Oct. 2024",
+        "title": "Simpozionul inaugural de IA",
+        "description": "Institutul a găzduit primul său simpozion, reunind cercetători în IA, experți din industrie și studenți pentru a discuta cele mai recente progrese în domeniul inteligenței artificiale."
+      },
+      "event5": {
+        "title": "Stadiul actual al clădirii",
+        "descriptionPart1": "Fii la curent cu stadiul actual al lucrărilor la Institutul de IA.",
+        "descriptionPart2": "Urmărește live prin intermediul camerei noastre web:"
+      }
+    }
   }
 }

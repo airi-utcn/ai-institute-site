@@ -785,6 +785,50 @@
         "completed": "Finalizat",
         "archived": "Arhivat"
       }
+    },
+    "publications": {
+      "title": "Publicații",
+      "subtitle": "Lucrări de cercetare, articole și publicații academice ale echipei noastre",
+      "searchPlaceholder": "Caută publicații după titlu, autor, tip...",
+      "filters": "Filtre",
+      "year": "An",
+      "allYears": "Toți anii",
+      "author": "Autor",
+      "allAuthors": "Toți autorii",
+      "department": "Departament",
+      "allDepartments": "Toate departamentele",
+      "type": "Tip",
+      "allTypes": "Toate tipurile",
+      "theme": "Temă",
+      "filterByTheme": "Filtrează după temă...",
+      "publicationsFound": "A fost găsită {count} publicație",
+      "publicationsFoundPlural": "Au fost găsite {count} publicații",
+      "clearAllFilters": "Șterge toate filtrele",
+      "clearFilters": "Șterge filtrele",
+      "authorsLabel": "Autori:",
+      "viewDetails": "Vezi detalii",
+      "openPdf": "Deschide PDF",
+      "noPublications": "Nicio publicație nu se potrivește criteriilor tale."
+    },
+    "publicationDetails": {
+      "notFound": "Publicația nu a fost găsită.",
+      "backToPublications": "← Înapoi la publicații",
+      "openPdf": "Deschide PDF",
+      "downloadBibtex": "Descarcă BibTeX",
+      "authors": "Autori",
+      "noAuthors": "Niciun autor listat.",
+      "relatedProjects": "Proiecte asociate",
+      "noProjects": "Niciun proiect asociat.",
+      "themes": "Teme",
+      "noThemes": "Nicio temă asociată.",
+      "resources": "Resurse",
+      "noResources": "Nicio resursă asociată.",
+      "viewResource": "Vezi resursa",
+      "attachments": "Atașamente",
+      "noAttachments": "Niciun atașament momentan.",
+      "images": "Imagini",
+      "files": "Fișiere",
+      "download": "Descarcă"
     }
   }
 }

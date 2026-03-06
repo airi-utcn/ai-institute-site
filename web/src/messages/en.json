@@ -785,6 +785,50 @@
         "completed": "Completed",
         "archived": "Archived"
       }
+    },
+    "publications": {
+      "title": "Publications",
+      "subtitle": "Research papers, articles, and academic publications from our team",
+      "searchPlaceholder": "Search publications by title, author, type...",
+      "filters": "Filters",
+      "year": "Year",
+      "allYears": "All years",
+      "author": "Author",
+      "allAuthors": "All authors",
+      "department": "Department",
+      "allDepartments": "All departments",
+      "type": "Type",
+      "allTypes": "All types",
+      "theme": "Theme",
+      "filterByTheme": "Filter by theme...",
+      "publicationsFound": "{count} publication found",
+      "publicationsFoundPlural": "{count} publications found",
+      "clearAllFilters": "Clear all filters",
+      "clearFilters": "Clear filters",
+      "authorsLabel": "Authors:",
+      "viewDetails": "View details",
+      "openPdf": "Open PDF",
+      "noPublications": "No publications found matching your criteria."
+    },
+    "publicationDetails": {
+      "notFound": "Publication not found.",
+      "backToPublications": "← Back to publications",
+      "openPdf": "Open PDF",
+      "downloadBibtex": "Download BibTeX",
+      "authors": "Authors",
+      "noAuthors": "No authors listed.",
+      "relatedProjects": "Related projects",
+      "noProjects": "No projects linked.",
+      "themes": "Themes",
+      "noThemes": "No themes linked.",
+      "resources": "Resources",
+      "noResources": "No resources linked.",
+      "viewResource": "View resource",
+      "attachments": "Attachments",
+      "noAttachments": "No attachments yet.",
+      "images": "Images",
+      "files": "Files",
+      "download": "Download"
     }
   }
 }

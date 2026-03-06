@@ -883,6 +883,13 @@
       "title": "AIRi Chatbot",
       "cardTitle": "AIRi Chatbot",
       "comingSoon": "Coming soon — LLM-based chatbot for AIRi knowledge and site content."
+    },
+    "classic": {
+      "title": "🔎 Search",
+      "placeholder": "Type to search pages…",
+      "resultsSingular": "{count} result for",
+      "resultsPlural": "{count} results for",
+      "noMatches": "No matches! Try different keywords or check your spelling!"
     }
   }
 }

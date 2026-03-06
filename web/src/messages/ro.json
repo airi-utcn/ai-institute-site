@@ -883,6 +883,13 @@
       "title": "Chatbot AIRi",
       "cardTitle": "Chatbot AIRi",
       "comingSoon": "În curând — Chatbot bazat pe LLM pentru baza de cunoștințe AIRi și conținutul site-ului."
+    },
+    "classic": {
+      "title": "🔎 Căutare",
+      "placeholder": "Tastați pentru a căuta în pagini…",
+      "resultsSingular": "{count} rezultat pentru",
+      "resultsPlural": "{count} rezultate pentru",
+      "noMatches": "Nicio potrivire! Încercați alte cuvinte cheie sau verificați ortografia!"
     }
   }
 }

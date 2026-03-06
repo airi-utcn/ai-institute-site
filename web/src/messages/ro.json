@@ -548,6 +548,26 @@
       "staff": "Personal",
       "title": "Doar pentru tine"
     }
+  },
+  "media": {
+    "header-title": "Galerie media",
+    "header-subtitle": "Explorează imagini și videoclipuri care reflectă progresul institutului AIRI."
+  },
+  "news&events": {
+    "awards": {},
+    "careers": {
+      "title": "Oportunități de carieră",
+      "subtitle": "Explorează modalități de a lucra cu AIRI la diferite niveluri de studiu și roluri.",
+      "coming-soon": "Mai multe informații vor fi disponibile în curând.",
+      "undergraduate": "Ca student la licență",
+      "postgraduate": "Ca student la studii postuniversitare",
+      "postdoctoral": "Ca cercetător postdoctoral",
+      "visiting-researcher": "Ca cercetător invitat",
+      "software-engineer": "Ca inginer software"
+    },
+    "events": {},
+    "news": {},
+    "open-project-calls": {},
+    "seminars": {}
   }
-  
 }

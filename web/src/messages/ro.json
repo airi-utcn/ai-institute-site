@@ -668,5 +668,58 @@
         "ongoing": "În desfășurare"
       }
     }
+  },
+  "research": {
+    "departments": {
+      "title": "Departamente",
+      "subtitle": "Explorează departamentele noastre de cercetare și suport din cadrul AIRi @ UTCN",
+      "members": "{count} membri",
+      "projects": "{count} proiecte",
+      "types": {
+        "research": "Departamente de Cercetare",
+        "research_networks": "Rețele de Cercetare",
+        "support": "Departamente de Suport",
+        "other": "Departamente"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Înapoi la Departamente",
+        "notFound": "Departamentul nu a fost găsit.",
+        "membersCount": "Membri",
+        "projectsCount": "Proiecte",
+        "publicationsCount": "Publicații",
+        "tabs": {
+          "overview": "Prezentare generală",
+          "members": "Oameni și Echipe",
+          "projects": "Proiecte",
+          "publications": "Publicații"
+        },
+        "overview": {
+          "about": "Despre",
+          "coordinator": "Coordonator",
+          "contact": "Contact"
+        },
+        "members": {
+          "teams": "Echipe",
+          "member": "membru",
+          "membersPlural": "membri",
+          "independentResearchers": "Cercetători Independenți",
+          "noMembers": "Niciun membru găsit pentru acest departament.",
+          "projects": "Proiecte"
+        },
+        "projects": {
+          "lead": "Lider:",
+          "noProjects": "Niciun proiect găsit pentru acest departament."
+        },
+        "publications": {
+          "noPublications": "Nicio publicație găsită pentru acest departament."
+        },
+        "phases": {
+          "completed": "Finalizat",
+          "planned": "Planificat",
+          "ongoing": "În desfășurare",
+          "archived": "Arhivat"
+        }
+      }
+    }
   }
 }

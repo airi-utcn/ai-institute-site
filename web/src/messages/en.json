@@ -668,5 +668,58 @@
         "ongoing": "Ongoing"
       }
     }
+  },
+  "research": {
+    "departments": {
+      "title": "Departments",
+      "subtitle": "Explore our research and support departments at AIRi @ UTCN",
+      "members": "{count} members",
+      "projects": "{count} projects",
+      "types": {
+        "research": "Research Departments",
+        "research_networks": "Research Networks",
+        "support": "Support Departments",
+        "other": "Departments"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Back to Departments",
+        "notFound": "Department not found.",
+        "membersCount": "Members",
+        "projectsCount": "Projects",
+        "publicationsCount": "Publications",
+        "tabs": {
+          "overview": "Overview",
+          "members": "People & Teams",
+          "projects": "Projects",
+          "publications": "Publications"
+        },
+        "overview": {
+          "about": "About",
+          "coordinator": "Coordinator",
+          "contact": "Contact"
+        },
+        "members": {
+          "teams": "Teams",
+          "member": "member",
+          "membersPlural": "members",
+          "independentResearchers": "Independent Researchers",
+          "noMembers": "No members found for this department.",
+          "projects": "Projects"
+        },
+        "projects": {
+          "lead": "Lead:",
+          "noProjects": "No projects found for this department."
+        },
+        "publications": {
+          "noPublications": "No publications found for this department."
+        },
+        "phases": {
+          "completed": "Completed",
+          "planned": "Planned",
+          "ongoing": "Ongoing",
+          "archived": "Archived"
+        }
+      }
+    }
   }
 }

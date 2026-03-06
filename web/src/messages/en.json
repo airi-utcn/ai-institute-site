@@ -720,6 +720,71 @@
           "archived": "Archived"
         }
       }
+    },
+    "projects": {
+      "title": "Projects",
+      "subtitle": "Explore our research projects across various domains",
+      "searchPlaceholder": "Search projects by title, lead, department...",
+      "filters": "Filters",
+      "allRegions": "All regions",
+      "allDepartments": "All departments",
+      "allLeads": "All leads",
+      "allMembers": "All members",
+      "filterByTheme": "Filter by theme...",
+      "region": "Region",
+      "department": "Department",
+      "dept": "Dept:",
+      "lead": "Lead",
+      "leadLabel": "Lead:",
+      "member": "Member",
+      "theme": "Theme",
+      "projectsFound": "{count} project found",
+      "projectsFoundPlural": "{count} projects found",
+      "clearAllFilters": "Clear all filters",
+      "clearFilters": "Clear filters",
+      "noProjects": "No projects found matching your criteria."
+    },
+    "projectDetails": {
+      "notFound": "Project not found",
+      "backToProjects": "Back to Projects",
+      "region": "Region",
+      "phase": "Phase",
+      "partners": "Partners",
+      "partnerCount": "{count} partner",
+      "partnerCountPlural": "{count} partners",
+      "officialWebsite": "Official Website",
+      "documentation": "Documentation",
+      "tabs": {
+        "overview": "Overview",
+        "people": "People",
+        "resources": "Resources",
+        "publications": "Publications"
+      },
+      "abstract": "Abstract",
+      "researchDomains": "Research Domains",
+      "teams": "Teams",
+      "memberCount": "{count} member",
+      "memberCountPlural": "{count} members",
+      "lead": "Lead",
+      "noTeamMembers": "No members listed for this team.",
+      "individualContributors": "Individual Contributors",
+      "contributors": "Contributors",
+      "noPeople": "No people assigned to this project.",
+      "platform": "Platform:",
+      "noResources": "No resources available for this project.",
+      "publicationCount": "{count} publication",
+      "publicationCountPlural": "{count} publications",
+      "noPublications": "No publications available for this project.",
+      "authors": "Authors:",
+      "viewDetails": "View details",
+      "pdf": "PDF",
+      "teamProjects": "Projects",
+      "phases": {
+        "ongoing": "Ongoing",
+        "planned": "Planned",
+        "completed": "Completed",
+        "archived": "Archived"
+      }
     }
   }
 }

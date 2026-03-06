@@ -720,6 +720,71 @@
           "archived": "Arhivat"
         }
       }
+    },
+    "projects": {
+      "title": "Proiecte",
+      "subtitle": "Explorează proiectele noastre de cercetare în diverse domenii",
+      "searchPlaceholder": "Caută proiecte după titlu, lider, departament...",
+      "filters": "Filtre",
+      "allRegions": "Toate regiunile",
+      "allDepartments": "Toate departamentele",
+      "allLeads": "Toți liderii",
+      "allMembers": "Toți membrii",
+      "filterByTheme": "Filtrează după temă...",
+      "region": "Regiune",
+      "department": "Departament",
+      "dept": "Departament:",
+      "lead": "Lider",
+      "leadLabel": "Lider:",
+      "member": "Membru",
+      "theme": "Temă",
+      "projectsFound": "A fost găsit {count} proiect",
+      "projectsFoundPlural": "Au fost găsite {count} proiecte",
+      "clearAllFilters": "Șterge toate filtrele",
+      "clearFilters": "Șterge filtrele",
+      "noProjects": "Nu a fost găsit niciun proiect care să corespundă criteriilor."
+    },
+    "projectDetails": {
+      "notFound": "Proiectul nu a fost găsit",
+      "backToProjects": "Înapoi la Proiecte",
+      "region": "Regiune",
+      "phase": "Fază",
+      "partners": "Parteneri",
+      "partnerCount": "{count} partener",
+      "partnerCountPlural": "{count} parteneri",
+      "officialWebsite": "Site Oficial",
+      "documentation": "Documentație",
+      "tabs": {
+        "overview": "Prezentare generală",
+        "people": "Oameni",
+        "resources": "Resurse",
+        "publications": "Publicații"
+      },
+      "abstract": "Rezumat",
+      "researchDomains": "Domenii de Cercetare",
+      "teams": "Echipe",
+      "memberCount": "{count} membru",
+      "memberCountPlural": "{count} membri",
+      "lead": "Lider",
+      "noTeamMembers": "Niciun membru listat pentru această echipă.",
+      "individualContributors": "Contribuitori Individuali",
+      "contributors": "Contribuitori",
+      "noPeople": "Nicio persoană alocată acestui proiect.",
+      "platform": "Platformă:",
+      "noResources": "Nicio resursă disponibilă pentru acest proiect.",
+      "publicationCount": "{count} publicație",
+      "publicationCountPlural": "{count} publicații",
+      "noPublications": "Nicio publicație disponibilă pentru acest proiect.",
+      "authors": "Autori:",
+      "viewDetails": "Vezi detalii",
+      "pdf": "PDF",
+      "teamProjects": "Proiecte",
+      "phases": {
+        "ongoing": "În desfășurare",
+        "planned": "Planificat",
+        "completed": "Finalizat",
+        "archived": "Arhivat"
+      }
     }
   }
 }

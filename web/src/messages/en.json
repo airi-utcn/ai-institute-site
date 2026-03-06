@@ -600,7 +600,17 @@
         "other": "Other"
       }
     },
-    "open-project-calls": {},
-    "seminars": {}
+    "open-project-calls": {
+      "title": "Calls for Projects",
+      "subtitle": "Calls for proposals and collaboration opportunities.",
+      "coming-soon": "More updates on this section coming soon."
+    },
+    "seminars": {
+      "title": "Seminars",
+      "subtitle": "Academic seminars hosted by AIRI and guests.",
+      "emptyState": "No seminars available at the moment.",
+      "whatYouWillLearn": "What you’ll learn",
+      "modules": "Modules"
+    }
   }
 }

@@ -600,7 +600,17 @@
         "other": "Altele"
       }
     },
-    "open-project-calls": {},
-    "seminars": {}
+    "open-project-calls": {
+      "title": "Apeluri de proiecte",
+      "subtitle": "Apeluri pentru propuneri și oportunități de colaborare.",
+      "coming-soon": "Mai multe actualizări pentru această secțiune vor apărea în curând."
+    },
+    "seminars": {
+      "title": "Seminarii",
+      "subtitle": "Seminarii academice găzduite de AIRI și invitați.",
+      "emptyState": "Nu există seminarii disponibile în acest moment.",
+      "whatYouWillLearn": "Ce vei învăța",
+      "modules": "Module"
+    }
   }
 }

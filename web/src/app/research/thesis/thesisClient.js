@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 /* Animations */
 const containerVariants = {
@@ -10,20 +11,21 @@ const containerVariants = {
 const itemVariants = { hidden: { y: 10, opacity: 0 }, visible: { y: 0, opacity: 1 } };
 
 export default function ThesisClient() {
+  const t = useTranslations("research.thesis");
   const [selected, setSelected] = useState("phd");
 
   const sections = {
     phd: { 
-      title: "PhD", 
-      message: "More updates coming soon for the PhD section." 
+      title: t("tabs.phd"), 
+      message: t("messages.phd") 
     },
     master: { 
-      title: "Master", 
-      message: "More updates coming soon for the Master section." 
+      title: t("tabs.master"), 
+      message: t("messages.master") 
     },
     bachelor: { 
-      title: "Bachelor", 
-      message: "More updates coming soon for the Bachelor section." 
+      title: t("tabs.bachelor"), 
+      message: t("messages.bachelor") 
     },
   };
 
@@ -33,9 +35,9 @@ export default function ThesisClient() {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.h1
             variants={itemVariants}
-            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400 text-center"
+            className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
           >
-            Thesis
+            {t("title")}
           </motion.h1>
 
           <div className="mb-6 flex justify-center md:justify-start">

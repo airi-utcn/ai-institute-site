@@ -836,6 +836,19 @@
       "viewProjects": "View Projects",
       "viewPublications": "View Publications",
       "noThemes": "No themes found."
+    },
+    "thesis": {
+      "title": "Thesis",
+      "tabs": {
+        "phd": "PhD",
+        "master": "Master",
+        "bachelor": "Bachelor"
+      },
+      "messages": {
+        "phd": "More updates coming soon for the PhD section.",
+        "master": "More updates coming soon for the Master section.",
+        "bachelor": "More updates coming soon for the Bachelor section."
+      }
     }
   }
 }

@@ -109,31 +109,6 @@ function SectionCard({ title, children }) {
   );
 }
 
-// ============================================================================
-// MAIN TABS CONFIGURATION
-// ============================================================================
-
-const MAIN_TABS = [
-  { id: 'public', label: 'Public', icon: FaUsers },
-  { id: 'academic', label: 'Academic', icon: FaGraduationCap },
-  { id: 'industry', label: 'Industry', icon: FaIndustry },
-  { id: 'high-school', label: 'High-School', icon: FaSchool },
-  { id: 'partners', label: 'Partners', icon: FaHandshake },
-  { id: 'phd', label: 'Industrial PhD', icon: FaFlask },
-];
-
-const ACADEMIC_SUBTABS = [
-  { id: 'partnerships', label: 'Partnerships', icon: FaHandshake },
-  { id: 'teaching', label: 'Teaching', icon: FaChalkboardTeacher },
-  { id: 'courses', label: 'Courses', icon: FaBook },
-  { id: 'mobility', label: 'Mobility', icon: FaPlane },
-];
-
-const INDUSTRY_SUBTABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'engagement', label: 'How We Work' },
-];
 
 // ============================================================================
 // CONTENT SECTIONS
@@ -187,7 +162,15 @@ function PublicContent() {
 }
 
 function AcademicContent({ subTab, setSubTab }) {
+  const tTab = useTranslations('engagement.basic.SubTabs');
   const t = useTranslations('engagement.basic.AcademicContent');
+
+  const ACADEMIC_SUBTABS = [
+    { id: 'partnerships', label: tTab('partnerships'), icon: FaHandshake },
+    { id: 'teaching', label: tTab('teaching'), icon: FaChalkboardTeacher },
+    { id: 'courses', label: tTab('courses'), icon: FaBook },
+    { id: 'mobility', label: tTab('mobility'), icon: FaPlane },
+  ];
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
@@ -310,7 +293,14 @@ function AcademicContent({ subTab, setSubTab }) {
 }
 
 function IndustryContent({ projects, subTab, setSubTab }) {
+  const tTab = useTranslations('engagement.basic.SubTabs');
   const t = useTranslations('engagement.basic.IndustryContent');
+
+  const INDUSTRY_SUBTABS = [
+    { id: 'overview', label: tTab('overview') },
+    { id: 'projects', label: tTab('projects') },
+    { id: 'engagement', label: tTab('engagement') },
+  ];
 
   const [query, setQuery] = useState('');
   const [domainFilter, setDomainFilter] = useState('');
@@ -634,11 +624,21 @@ function IndustrialPhDContent() {
 
 export default function EngagementClient({ projects = [], partners = [], CollaboratorsClient }) {
   const t = useTranslations('engagement.basic.Hero');
+  const tTabs = useTranslations('engagement.basic.Tabs');
   const router = useRouter();
   const searchParams = useSearchParams();
   
   const activeTab = searchParams.get('tab') || 'public';
   const subTab = searchParams.get('sub') || (activeTab === 'academic' ? 'partnerships' : activeTab === 'industry' ? 'overview' : null);
+
+  const MAIN_TABS = [
+    { id: 'public', label: tTabs('public'), icon: FaUsers },
+    { id: 'academic', label: tTabs('academic'), icon: FaGraduationCap },
+    { id: 'industry', label: tTabs('industry'), icon: FaIndustry },
+    { id: 'high-school', label: tTabs('highSchool'), icon: FaSchool },
+    { id: 'partners', label: tTabs('partners'), icon: FaHandshake },
+    { id: 'phd', label: tTabs('phd'), icon: FaFlask },
+  ];
 
   const setTab = useCallback((tab) => {
     router.push(`?tab=${tab}`, { scroll: false });

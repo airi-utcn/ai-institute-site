@@ -890,6 +890,11 @@
       "resultsSingular": "{count} result for",
       "resultsPlural": "{count} results for",
       "noMatches": "No matches! Try different keywords or check your spelling!"
+    },
+    "knowledgeGraph": {
+      "title": "Knowledge Graphs Navigator",
+      "cardTitle": "AIRi Knowledge Graphs",
+      "comingSoon": "Coming soon — interactive navigator for AIRi knowledge graphs."
     }
   }
 }

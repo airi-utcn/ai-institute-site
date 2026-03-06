@@ -890,6 +890,11 @@
       "resultsSingular": "{count} rezultat pentru",
       "resultsPlural": "{count} rezultate pentru",
       "noMatches": "Nicio potrivire! Încercați alte cuvinte cheie sau verificați ortografia!"
+    },
+    "knowledgeGraph": {
+      "title": "Navigator Grafuri de Cunoștințe",
+      "cardTitle": "Grafuri de Cunoștințe AIRi",
+      "comingSoon": "În curând — navigator interactiv pentru grafurile de cunoștințe AIRi."
     }
   }
 }

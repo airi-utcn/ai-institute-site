@@ -513,6 +513,7 @@
       "text": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă la Universitatea Tehnică din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din cadrul UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și obținerea unui impact prin parteneriate de co-creare cu mediul public și de afaceri."
     },
     "history": {
+      "title":"Evoluția AIRI",
       "event1": {
         "date": "15 Ianuarie 2023",
         "title": "Anunțarea Institutului de IA la UTCN",
@@ -539,6 +540,13 @@
         "descriptionPart1": "Fii la curent cu stadiul actual al lucrărilor la Institutul de IA.",
         "descriptionPart2": "Urmărește live prin intermediul camerei noastre web:"
       }
+    },
+    "guidelines": {
+      "students": "Studenți",
+      "faculty": "Facultate",
+      "researchers": "Cercetatori",
+      "staff": "Personal",
+      "title": "Doar pentru tine"
     }
   }
   

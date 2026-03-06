@@ -1,4 +1,21 @@
 {
+  "footer": {
+    "contact": {
+      "title": "Contact",
+      "addressLine1": "2 Observatorului Street,",
+      "addressLine2": "Cluj-Napoca 400347,",
+      "addressLine3": "Romania"
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "projects": "Projects",
+      "sitemap": "Sitemap",
+      "rooms": "Rooms",
+      "dissemination": "Dissemination",
+      "contactUs": "Contact Us"
+    },
+    "copyright": "© {year} Technical University of Cluj-Napoca. All rights reserved."
+  },
   "navbar": {
     "navLinks": {
       "research": "Research",

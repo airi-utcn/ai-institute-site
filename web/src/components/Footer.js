@@ -4,6 +4,7 @@ import Image from "next/image";
 import LogoLight from "../../public/media/Logos/LogoLight.svg";
 import LogoDark from "../../public/media/Logos/LogoDark.svg";
 import { useTheme } from "@/components/ThemeProvider";
+import { useTranslations } from "next-intl";
 
 const socialLinks = [
   {
@@ -28,16 +29,18 @@ const socialLinks = [
   },
 ];
 
-const quickLinks = [
-  { href: '/research/projects', label: 'Projects' },
-  { href: '/about/sitemap', label: 'Sitemap' },
-  { href: 'https://didatec.sharepoint.com/sites/UTCNRooms/SitePages/UTCN-AIRI-OBSERVATOR-CLUJ.aspx', label: 'Rooms', external: true },
-  { href: 'https://didatec-my.sharepoint.com/:f:/g/personal/airi_campus_utcluj_ro/IgBfIIZeG9p5SJ_Pde6NBWT5AU_tSajIkfRPaloVwavKIJ4', label: 'Dissemination', external: true },
-  { href: '/contact', label: 'Contact Us' },
-];
-
 export default function Footer() {
   const { isDark } = useTheme();
+  const t = useTranslations("footer");
+
+  // Moved inside the component to access the `t` hook
+  const quickLinks = [
+    { href: '/research/projects', label: t('quickLinks.projects') },
+    { href: '/about/sitemap', label: t('quickLinks.sitemap') },
+    { href: 'https://didatec.sharepoint.com/sites/UTCNRooms/SitePages/UTCN-AIRI-OBSERVATOR-CLUJ.aspx', label: t('quickLinks.rooms'), external: true },
+    { href: 'https://didatec-my.sharepoint.com/:f:/g/personal/airi_campus_utcluj_ro/IgBfIIZeG9p5SJ_Pde6NBWT5AU_tSajIkfRPaloVwavKIJ4', label: t('quickLinks.dissemination'), external: true },
+    { href: '/contact', label: t('quickLinks.contactUs') },
+  ];
 
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 mt-auto">
@@ -75,7 +78,7 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Contact</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{t('contact.title')}</h3>
             <a
               href="https://www.google.com/maps/dir//Laboratoarele+UTC-N+Strada+Observatorului+2+Cluj-Napoca+400347"
               target="_blank"
@@ -86,9 +89,9 @@ export default function Footer() {
                 <path d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
               </svg>
               <span>
-                2 Observatorului Street,<br />
-                Cluj-Napoca 400347,<br />
-                Romania
+                {t('contact.addressLine1')}<br />
+                {t('contact.addressLine2')}<br />
+                {t('contact.addressLine3')}
               </span>
             </a>
             <a
@@ -104,7 +107,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="flex flex-col items-center md:items-start gap-4">
-            <h3 className="font-semibold text-gray-900 dark:text-white">Quick Links</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">{t('quickLinks.title')}</h3>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -127,7 +130,7 @@ export default function Footer() {
       <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
           <p className="text-sm text-muted">
-            © {new Date().getFullYear()} Technical University of Cluj-Napoca. All rights reserved.
+            {t('copyright', { year: new Date().getFullYear() })}
           </p>
         </div>
       </div>

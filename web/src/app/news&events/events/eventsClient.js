@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import PageHeader from "@/components/PageHeader";
+import { useTranslations } from "next-intl";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,20 +21,21 @@ const CALENDAR_EMBED_URL = CALENDAR_EMBED_URL_RAW.replace(/calendar\.ics(\?.*)?$
 
 export default function EventsClient({ events = [] }) {
   const items = Array.isArray(events) ? events : [];
+  const t = useTranslations("news&events.events");
 
   return (
     <main className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
-          title="Events"
-          subtitle="Highlights and memorable moments from AIRI."
+          title= {t("title")}
+          subtitle= {t("subtitle")}
         />
 
         {/* Calendar section */}
         <section className="mb-10">
           <div className="card overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-gray-800">
-              <h2 className="heading-3">Institute Calendar</h2>
+              <h2 className="heading-3">{t("calendar-title")}</h2>
             </div>
             <div className="p-5">
               <div className="rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
@@ -64,7 +66,7 @@ export default function EventsClient({ events = [] }) {
         {/* Events List */}
         {items.length === 0 ? (
           <div className="empty-state">
-            <p>No events available at the moment.</p>
+            <p>{t("no-events")}</p>
           </div>
         ) : (
           <motion.ul

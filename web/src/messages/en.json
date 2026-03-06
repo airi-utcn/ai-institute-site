@@ -554,7 +554,11 @@
     "header-subtitle": "Explore images and videos showcasing the progress of the AIRI Institute."
   },
   "news&events": {
-    "awards": {},
+    "awards": {
+      "title": "Awards",
+      "subtitle": "Recognitions and distinctions earned by AIRI and collaborators.",
+      "coming-soon": "More information coming soon."
+    },
     "careers": {
       "title": "Career Opportunities",
       "subtitle": "Explore ways to work with AIRI across study levels and roles.",
@@ -565,8 +569,37 @@
       "visiting-researcher": "As a Visiting Researcher",
       "software-engineer": "As a Software Engineer"
     },
-    "events": {},
-    "news": {},
+    "events": {
+      "title": "Events",
+      "subtitle": "Highlights and memorable moments from AIRI.",
+      "calendar-title": "Institute Calendar",
+      "no-events": "No events available at the moment."
+    },
+    "news": {
+      "title": "News & Events",
+      "latest": "Latest from AIRI",
+      "subtitle": "Fresh stories, research milestones, and press moments curated straight from the Strapi-powered newsroom.",
+      "quickFilters": "Quick filters",
+      "searchLabel": "Search news",
+      "searchPlaceholder": "Search titles, keywords, or summaries",
+      "stories": "stories",
+      "readStory": "Read story",
+      "spotlight": "Spotlight",
+      "noSummary": "No summary provided yet.",
+      "openArticle": "Open article",
+      "emptyState": "No news available at the moment.",
+      "noImage": "No image",
+      "readMore": "Read more",
+      "categories": {
+        "all": "All",
+        "announcement": "Announcements",
+        "construction": "Construction",
+        "collaboration": "Collaborations",
+        "award": "Awards",
+        "press": "Press",
+        "other": "Other"
+      }
+    },
     "open-project-calls": {},
     "seminars": {}
   }

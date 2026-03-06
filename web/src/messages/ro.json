@@ -554,7 +554,11 @@
     "header-subtitle": "Explorează imagini și videoclipuri care reflectă progresul institutului AIRI."
   },
   "news&events": {
-    "awards": {},
+    "awards": {
+      "title": "Premii",
+      "subtitle": "Recunoașteri și distincții obținute de AIRI și colaboratorii săi.",
+      "coming-soon": "Mai multe informații vor fi disponibile în curând."
+    },
     "careers": {
       "title": "Oportunități de carieră",
       "subtitle": "Explorează modalități de a lucra cu AIRI la diferite niveluri de studiu și roluri.",
@@ -565,8 +569,37 @@
       "visiting-researcher": "Ca cercetător invitat",
       "software-engineer": "Ca inginer software"
     },
-    "events": {},
-    "news": {},
+    "events": {
+      "title": "Evenimente",
+      "subtitle": "Repere și momente memorabile de la AIRI.",
+      "calendar-title": "Calendarul Institutului",
+      "no-events": "Nu există evenimente disponibile în acest moment."
+    },
+    "news": {
+      "title": "Știri și Evenimente",
+      "latest": "Noutăți de la AIRI",
+      "subtitle": "Povești recente, etape importante ale cercetării și momente de presă direct din redacție.",
+      "quickFilters": "Filtre rapide",
+      "searchLabel": "Caută știri",
+      "searchPlaceholder": "Caută titluri, cuvinte cheie sau rezumate",
+      "stories": "articole",
+      "readStory": "Citește povestea",
+      "spotlight": "În prim-plan",
+      "noSummary": "Niciun rezumat disponibil momentan.",
+      "openArticle": "Deschide articolul",
+      "emptyState": "Nu există știri disponibile în acest moment.",
+      "noImage": "Fără imagine",
+      "readMore": "Citește mai mult",
+      "categories": {
+        "all": "Toate",
+        "announcement": "Anunțuri",
+        "construction": "Construcție",
+        "collaboration": "Colaborări",
+        "award": "Premii",
+        "press": "Presă",
+        "other": "Altele"
+      }
+    },
     "open-project-calls": {},
     "seminars": {}
   }

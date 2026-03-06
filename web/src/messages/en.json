@@ -850,5 +850,32 @@
         "bachelor": "More updates coming soon for the Bachelor section."
       }
     }
+  },
+  "resources": {
+    "title": "Resources",
+    "subtitle": "Explore our curated collection of tools, resources, APIs, and learning materials to support your AI research and development.",
+    "searchPlaceholder": "Search resources...",
+    "allCategories": "All categories",
+    "clearFilters": "Clear filters",
+    "clearAllFilters": "Clear all filters",
+    "showing": "Showing {filtered} of {total} resources",
+    "filtered": " (filtered)",
+    "featuredResources": "Featured Resources",
+    "allResources": "All Resources",
+    "noResourcesFound": "No resources found",
+    "noResourcesFilterMatch": "We couldn't find any resources matching your current filters. Try adjusting your search criteria.",
+    "noResourcesYet": "Resources will appear here once they're added to the system.",
+    "visitResource": "Visit Resource",
+    "categories": {
+      "resource": "Resource",
+      "tool": "Tool",
+      "software": "Software",
+      "documentation": "Documentation",
+      "api": "API",
+      "library": "Library",
+      "framework": "Framework",
+      "learning": "Learning",
+      "other": "Other"
+    }
   }
 }

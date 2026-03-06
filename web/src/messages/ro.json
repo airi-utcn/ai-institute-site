@@ -850,5 +850,32 @@
         "bachelor": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Licență."
       }
     }
+  },
+  "resources": {
+    "title": "Resurse",
+    "subtitle": "Explorează colecția noastră de instrumente, resurse, API-uri și materiale de învățare pentru a-ți sprijini cercetarea și dezvoltarea în domeniul IA.",
+    "searchPlaceholder": "Caută resurse...",
+    "allCategories": "Toate categoriile",
+    "clearFilters": "Șterge filtrele",
+    "clearAllFilters": "Șterge toate filtrele",
+    "showing": "Afișare {filtered} din {total} resurse",
+    "filtered": " (filtrat)",
+    "featuredResources": "Resurse Recomandate",
+    "allResources": "Toate Resursele",
+    "noResourcesFound": "Nicio resursă găsită",
+    "noResourcesFilterMatch": "Nu am putut găsi nicio resursă care să corespundă filtrelor actuale. Încearcă să ajustezi criteriile de căutare.",
+    "noResourcesYet": "Resursele vor apărea aici odată ce vor fi adăugate în sistem.",
+    "visitResource": "Accesează resursa",
+    "categories": {
+      "resource": "Resursă",
+      "tool": "Instrument",
+      "software": "Software",
+      "documentation": "Documentație",
+      "api": "API",
+      "library": "Bibliotecă",
+      "framework": "Framework",
+      "learning": "Învățare",
+      "other": "Altele"
+    }
   }
 }

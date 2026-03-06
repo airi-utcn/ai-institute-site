@@ -388,6 +388,106 @@
         "f3Desc": "Joint supervision between industry mentors and academic advisors.",
         "btnContact": "Contact Us"
       }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Engagement",
+        "subtitle": "Connecting AIRi @ UTCN with the public, academia, and industry."
+      },
+      "PublicContent": {
+        "title": "Public Engagement",
+        "desc": "Connecting the AI research community with the broader public through accessible resources, media appearances, and outreach programs.",
+        "btnMedia": "View Media & Press",
+        "btnNews": "News & Events",
+        "outreachTitle": "Outreach Programs",
+        "outreachDesc": "Public talks, demonstrations, and community engagement initiatives.",
+        "eduTitle": "Educational Resources",
+        "eduDesc": "Open access materials explaining AI concepts to general audiences.",
+        "mediaTitle": "Media Appearances",
+        "mediaDesc": "Interviews, articles, and media coverage of our research."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Academic Partnerships",
+        "partnerDesc": "A network of international academic collaborations, joint research programs, and institutional partnerships advancing AI research and education.",
+        "uniTitle": "University Collaborations",
+        "uniDesc": "Joint research programs with leading universities worldwide.",
+        "netTitle": "Research Networks",
+        "netDesc": "Participation in CLAIRE, ELLIS, and other European AI networks.",
+        "teachTitle": "Teaching & Training",
+        "teachDesc": "Courses, summer schools, and workshops for students and researchers at all levels.",
+        "summerTitle": "Summer Schools",
+        "summerDesc": "International summer programs in AI and machine learning.",
+        "workTitle": "Workshops",
+        "workDesc": "Hands-on workshops and training sessions.",
+        "courseTitle": "Courses & Workshops",
+        "courseDesc": "Specialized courses covering machine learning, robotics, HPC for AI, and AI ethics.",
+        "mlTitle": "Machine Learning",
+        "mlDesc": "Applied ML modules, projects, and research-oriented courses.",
+        "robotTitle": "Robotics & Vision",
+        "robotDesc": "Hands-on labs in automation and vision systems.",
+        "hpcTitle": "HPC for AI",
+        "hpcDesc": "GPU programming and large-scale AI training.",
+        "ethicsTitle": "AI Ethics & Safety",
+        "ethicsDesc": "Fairness, explainability, and governance in AI systems.",
+        "mobTitle": "Co-tutoring & Mobility",
+        "mobDesc": "International exchange programs, joint PhD supervision, and research visit opportunities.",
+        "supTitle": "Co-supervision",
+        "supDesc": "Joint PhD supervision with international partners.",
+        "grantTitle": "Mobility Grants",
+        "grantDesc": "Funding for research stays and exchanges.",
+        "exTitle": "Exchanges",
+        "exDesc": "Student and researcher exchange programs."
+      },
+      "IndustryContent": {
+        "statProjects": "Projects",
+        "statDomains": "Domains",
+        "statPartners": "Partners",
+        "collabTitle": "Industry Collaboration",
+        "collabDesc": "We partner with industry leaders to advance AI research and bring innovations to market. Our collaborations span consulting, joint R&D projects, and technology transfer.",
+        "searchPlaceholder": "Search projects...",
+        "allDomains": "All Domains",
+        "clear": "Clear",
+        "leadLabel": "Lead:",
+        "noProjects": "No projects match your filters.",
+        "workTitle": "How We Work With Industry",
+        "workDesc": "We offer various engagement models to suit different industry needs and collaboration depths.",
+        "rdTitle": "Joint R&D Projects",
+        "rdDesc": "Collaborative research projects with shared IP and outcomes.",
+        "consTitle": "Consulting Services",
+        "consDesc": "Expert advice on AI strategy, implementation, and best practices.",
+        "trainTitle": "Training Programs",
+        "trainDesc": "Customized training for industry teams on AI technologies.",
+        "techTitle": "Technology Transfer",
+        "techDesc": "Licensing and commercialization of research outputs."
+      },
+      "HighSchoolContent": {
+        "title": "High-School Engagement",
+        "desc": "Competitions, events, and AI literacy resources for students and teachers, fostering the next generation of AI researchers.",
+        "compTitle": "Competitions",
+        "compDesc": "AI and programming competitions for high-school students.",
+        "eventTitle": "Events",
+        "eventDesc": "Workshops, lab visits, and sessions with experts.",
+        "eduTitle": "Educational Resources",
+        "eduDesc": "Guides and materials for AI literacy.",
+        "btnLabel": "AILIT Framework – Resources"
+      },
+      "PartnersContent": {
+        "title": "Our Partners",
+        "desc": "We collaborate with leading organizations in AI research and development, including CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe, and BDVA.",
+        "mapTitle": "Partners Map"
+      },
+      "PhDContent": {
+        "title": "Industrial PhD Program",
+        "p1": "An Industrial PhD is a university training program that qualifies for the award of a doctorate through an industrial research or experimental development project, created collaboratively between a company and an academic environment.",
+        "p2": "If you are a company interested in carrying out an industrial PhD, or if you want to pursue an Industrial Doctorate in Artificial Intelligence with us, please get in touch via email.",
+        "compTitle": "For Companies",
+        "compDesc": "Partner with us for applied AI research that solves real business challenges.",
+        "candTitle": "For Candidates",
+        "candDesc": "Combine academic research with practical industry experience.",
+        "collabTitle": "Collaboration Model",
+        "collabDesc": "Joint supervision between industry mentors and academic advisors.",
+        "btnContact": "Contact Us"
+      }
     }
   }
 }

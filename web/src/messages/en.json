@@ -829,6 +829,13 @@
       "images": "Images",
       "files": "Files",
       "download": "Download"
+    },
+    "themes": {
+      "title": "Research Themes",
+      "subtitle": "Explore our key research areas and discover related projects and publications.",
+      "viewProjects": "View Projects",
+      "viewPublications": "View Publications",
+      "noThemes": "No themes found."
     }
   }
 }

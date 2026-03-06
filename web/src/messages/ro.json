@@ -829,6 +829,13 @@
       "images": "Imagini",
       "files": "Fișiere",
       "download": "Descarcă"
+    },
+    "themes": {
+      "title": "Teme de Cercetare",
+      "subtitle": "Explorează domeniile noastre cheie de cercetare și descoperă proiectele și publicațiile asociate.",
+      "viewProjects": "Vezi Proiecte",
+      "viewPublications": "Vezi Publicații",
+      "noThemes": "Nicio temă găsită."
     }
   }
 }

@@ -877,5 +877,12 @@
       "learning": "Învățare",
       "other": "Altele"
     }
+  },
+  "search": {
+    "chatbot": {
+      "title": "Chatbot AIRi",
+      "cardTitle": "Chatbot AIRi",
+      "comingSoon": "În curând — Chatbot bazat pe LLM pentru baza de cunoștințe AIRi și conținutul site-ului."
+    }
   }
 }

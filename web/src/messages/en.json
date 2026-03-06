@@ -877,5 +877,12 @@
       "learning": "Learning",
       "other": "Other"
     }
+  },
+  "search": {
+    "chatbot": {
+      "title": "AIRi Chatbot",
+      "cardTitle": "AIRi Chatbot",
+      "comingSoon": "Coming soon — LLM-based chatbot for AIRi knowledge and site content."
+    }
   }
 }

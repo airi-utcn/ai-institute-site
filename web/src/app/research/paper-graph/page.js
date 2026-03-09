@@ -21,9 +21,24 @@ export default async function PaperGraphPage() {
 
   const links = transformGraphLinkData(linksRaw, oaToId);
 
+  // Build community data from papers
+  const communityMap = {};  // communityId → { label, papers: [...], id }
+  papers.forEach(p => {
+    if (p.community == null) return;
+    if (!communityMap[p.community]) {
+      communityMap[p.community] = {
+        id: p.community,
+        label: p.communityLabel || `Cluster ${p.community}`,
+        paperIds: [],
+      };
+    }
+    communityMap[p.community].paperIds.push(p.id);
+  });
+  const communities = Object.values(communityMap);
+
   return (
     <main className="overflow-hidden">
-      <PaperGraphClient papers={papers} links={links} />
+      <PaperGraphClient papers={papers} links={links} communities={communities} />
     </main>
   );
 }

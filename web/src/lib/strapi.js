@@ -1042,6 +1042,11 @@ export function transformPublicationData(strapiPubs) {
       domain,
       kind: attributes.kind || '',
       description: stripHtml(attributes.description) || '',
+      openAlexId: attributes.openAlexId || null,
+      doi: attributes.doi || null,
+      cited_by: attributes.cited_by ?? null,
+      abstract: attributes.abstract || null,
+      topics: Array.isArray(attributes.topics) ? attributes.topics : [],
       authors,
       pdfFile,
       bibFile,
@@ -1510,11 +1515,13 @@ export function transformResourceData(strapiResources) {
 
 /**
  * Fetch all Research Papers for the Graph
+ * (Now reads from the unified Publication content type)
  */
 export async function getPapers() {
   try {
-    return await fetchAllEntries('/papers', {
-      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by'],
+    return await fetchAllEntries('/publications', {
+      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
+      filters: { openAlexId: { $notNull: true } },
     });
   } catch (error) {
     console.error('Failed to fetch papers:', error);
@@ -1524,16 +1531,16 @@ export async function getPapers() {
 
 /**
  * Fetch all Graph Links for the Graph
+ * (source/target now point at publications)
  */
 export async function getGraphLinks() {
   try {
-    // Populate source and target with just their OpenAlex ID
     const populate = {
       source: { fields: ['openAlexId'] },
       target: { fields: ['openAlexId'] },
     };
     return await fetchAllEntries('/graph-links', {
-      fields: ['score'],
+      fields: ['score', 'isCrossCluster'],
       populate,
     });
   } catch (error) {
@@ -1557,6 +1564,8 @@ export function transformPaperData(strapiPapers) {
       topics: Array.isArray(attr.topics) ? attr.topics : [],
       cited_by: attr.cited_by ?? null,
       abstract: attr.abstract ?? null,
+      community: attr.community ?? null,
+      communityLabel: attr.communityLabel ?? null,
     };
   });
 }
@@ -1588,6 +1597,7 @@ export function transformGraphLinkData(strapiLinks, oaToIdMap) {
         sourceId,
         targetId,
         score: parseFloat(attr.score) || 0.5,
+        isCrossCluster: !!attr.isCrossCluster,
       };
     })
     .filter(Boolean);

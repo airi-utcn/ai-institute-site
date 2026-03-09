@@ -14,12 +14,16 @@
     "source": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::paper.paper"
+      "target": "api::publication.publication"
     },
     "target": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::paper.paper"
+      "target": "api::publication.publication"
+    },
+    "isCrossCluster": {
+      "type": "boolean",
+      "default": false
     },
     "score": {
       "type": "decimal"

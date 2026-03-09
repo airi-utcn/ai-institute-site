@@ -20,10 +20,33 @@
       "type": "uid",
       "targetField": "title"
     },
+    "openAlexId": {
+      "type": "string",
+      "unique": true
+    },
+    "doi": {
+      "type": "string"
+    },
     "year": {
       "type": "integer"
     },
     "kind": {
+      "type": "string"
+    },
+    "cited_by": {
+      "type": "integer",
+      "default": 0
+    },
+    "abstract": {
+      "type": "text"
+    },
+    "topics": {
+      "type": "json"
+    },
+    "community": {
+      "type": "integer"
+    },
+    "communityLabel": {
       "type": "string"
     },
     "description": {

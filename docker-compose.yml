@@ -78,5 +78,23 @@ services:
       strapi:
         condition: service_healthy
 
+  # Paper sync service — run manually or on a cron schedule.
+  # Usage: docker compose run --rm paper-sync --mode institution --institution "..."
+  paper-sync:
+    build: ./research-paper-graph
+    profiles: ["tools"]
+    environment:
+      STRAPI_URL: http://strapi:1337
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      GRAPH_SIMILARITY_THRESHOLD: ${GRAPH_SIMILARITY_THRESHOLD:-0.5}
+      GRAPH_DUPLICATE_THRESHOLD: ${GRAPH_DUPLICATE_THRESHOLD:-0.92}
+      GRAPH_AI_MODEL: ${GRAPH_AI_MODEL:-all-MiniLM-L6-v2}
+      GRAPH_TOP_K: ${GRAPH_TOP_K:-20}
+    volumes:
+      - ./research-paper-graph/outputs:/app/outputs
+    depends_on:
+      strapi:
+        condition: service_healthy
+
 volumes:
   pgdata:

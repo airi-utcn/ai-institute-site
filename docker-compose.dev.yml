@@ -124,5 +124,22 @@ services:
         - action: rebuild
           path: ./web/package.json
 
+  # Paper sync service — run manually:
+  # docker compose -f docker-compose.dev.yml run --rm paper-sync --mode author --author "..." -v
+  paper-sync:
+    build: ./research-paper-graph
+    profiles: ["tools"]
+    environment:
+      STRAPI_URL: http://strapi:1337
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      GRAPH_SIMILARITY_THRESHOLD: ${GRAPH_SIMILARITY_THRESHOLD:-0.5}
+      GRAPH_DUPLICATE_THRESHOLD: ${GRAPH_DUPLICATE_THRESHOLD:-0.92}
+      GRAPH_AI_MODEL: ${GRAPH_AI_MODEL:-all-MiniLM-L6-v2}
+      GRAPH_TOP_K: ${GRAPH_TOP_K:-20}
+    volumes:
+      - ./research-paper-graph:/app
+    depends_on:
+      - strapi
+
 volumes:
   pgdata:

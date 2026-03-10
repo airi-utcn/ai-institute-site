@@ -287,21 +287,20 @@ Completed:
 - Python CLI moved into the package and `main.py` is now only a thin wrapper
 - Package-local OpenAlex and graph modules now back the refactored package layers
 - Package-local Strapi client now backs the sync layer, removing the last runtime dependency on legacy top-level modules
+- Publication sync now enforces machine-owned import fields and additive author merges without overwriting curated editorial relations
+- Duplicate resolution now uses deterministic canonical selection over duplicate groups
+- Graph rebuild now reloads all graph-eligible publications from Strapi and replaces derived graph links globally
+- Global rebuild now persists embeddings and graph metadata back into Strapi-managed publication fields
+- OpenAlex fetches now write resumable local cache files and can resume from the last saved cursor on demand
+- Default import runs are now unlimited unless an explicit `--limit` is provided
 
 In progress:
 
-- Python refactor of the main pipeline into clearer modules while preserving current CLI behavior
-- Field-ownership refactor started in the Strapi sync layer: imports now build machine-owned payloads centrally and assign imported-record defaults only on create
-- Duplicate handling refactor started in the graph layer: duplicate groups now resolve to a deterministic canonical record instead of depending on pair iteration order
-- Global rebuild refactor started: after publication sync, the pipeline now reloads all graph-eligible publications from Strapi and replaces graph links from that global set
-- Embedding persistence refactor started: global rebuild now derives Strapi-managed embedding and graph-index metadata payloads for rebuilt publications
+- Operational usage notes and edge-case hardening
 
 Not started:
 
-- Deterministic duplicate resolution redesign
-- Full global graph rebuild semantics over all graph-eligible publications
-- Import field ownership enforcement in Strapi upsert logic
-- Embedding persistence back into Strapi-managed publication fields
+- Optional cleanup of stale local artifact files if they are no longer needed operationally
 
 ### Step 1
 
@@ -332,39 +331,63 @@ Update frontend queries so:
 
 ### Step 5
 
-Status: in progress
+Status: completed
 
 Refactor the Python pipeline into importable modules without changing behavior yet.
 
 ### Step 6
 
-Status: not started
+Status: completed
 
 Add field ownership rules to publication upsert logic.
 
 ### Step 7
 
-Status: not started
+Status: completed
 
 Replace the current duplicate logic with deterministic canonical selection.
 
 ### Step 8
 
-Status: not started
+Status: completed
 
 Implement full global graph rebuild behavior over all graph-eligible publications.
 
 ### Step 9
 
-Status: not started
+Status: completed
 
 Store embeddings and graph metadata in Strapi-managed fields.
 
 ### Step 10
 
-Status: not started
+Status: completed
 
 Update documentation and operational usage notes.
+
+## Operational Notes
+
+Current pipeline behavior:
+
+- fetch a source batch from OpenAlex or a local file
+- upsert imported publications with machine-owned field updates only
+- merge matched authors additively with any existing curated author relations
+- reload all `graphEligible` publications from Strapi after sync
+- rebuild duplicates, links, communities, and embeddings from that global set
+- replace all existing graph links with the rebuilt link set
+- persist embedding and graph metadata back to `Publication`
+
+Operational caveats:
+
+- publications without abstracts remain `graphEligible` records but will not receive embeddings until sufficient text exists
+- local files in `outputs/` are now debug artifacts rather than the primary source of truth
+- local files in `outputs/fetch-cache/` are resumable OpenAlex source caches and can be reused or refreshed explicitly
+- graph-derived fields are treated as replaceable machine-owned data and may be cleared on rebuild when no current derived value exists
+
+Interactive workflow changes:
+
+- interactive mode no longer asks whether to generate links or upload to Strapi; the default interactive path now assumes a real sync and rebuild run
+- interactive mode now asks whether to reuse or resume cached OpenAlex fetches and whether to force-refresh that cache
 
 ## Out of Scope for This Phase
 

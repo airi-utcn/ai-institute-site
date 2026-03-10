@@ -1,4 +1,6 @@
+import json
 import logging
+import os
 import re
 import time
 
@@ -41,32 +43,17 @@ def find_author_id(author_name, institution=None):
     return None
 
 
-def get_author_works(author_id):
-    """Retrieve all works for a given author."""
-    works = []
-    cursor = "*"
-
-    log.info(f"Fetching works for author {author_id}...")
-    while True:
-        params = {
-            "filter": f"author.id:{author_id},is_oa:true",
-            "per-page": 50,
-            "cursor": cursor,
-        }
-        response = requests.get(f"{BASE_URL}/works", params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        works.extend(data["results"])
-        cursor = data.get("meta", {}).get("next_cursor")
-
-        if not cursor:
-            break
-
-        time.sleep(0.2)
-
-    log.info(f"Collected {len(works)} works.")
-    return works
+def get_author_papers(author_id, *, cache_path=None, use_cache=False, refresh_cache=False):
+    """Retrieve processed papers for a given author, optionally resuming from cache."""
+    return _get_processed_works(
+        f"author.id:{author_id},is_oa:true",
+        description=f"author {author_id}",
+        per_page=50,
+        pause_seconds=0.2,
+        cache_path=cache_path,
+        use_cache=use_cache,
+        refresh_cache=refresh_cache,
+    )
 
 
 def find_institution_id(institution_name):
@@ -122,35 +109,17 @@ def get_institution_authors(institution_id, min_works=3):
     return authors
 
 
-def get_institution_works(institution_id):
-    """Retrieve all open-access works from an institution directly."""
-    works = []
-    cursor = "*"
-
-    log.info(f"Fetching all works for institution {institution_id}...")
-    while True:
-        params = {
-            "filter": f"institutions.id:{institution_id},is_oa:true",
-            "per-page": 200,
-            "cursor": cursor,
-        }
-        response = requests.get(f"{BASE_URL}/works", params=params)
-        response.raise_for_status()
-        data = response.json()
-
-        works.extend(data["results"])
-        cursor = data.get("meta", {}).get("next_cursor")
-        count = data.get("meta", {}).get("count", "?")
-
-        if not cursor:
-            break
-
-        if len(works) % 1000 < 200:
-            log.info(f"  ... {len(works)} / {count} works fetched")
-        time.sleep(0.1)
-
-    log.info(f"Collected {len(works)} works total.")
-    return works
+def get_institution_papers(institution_id, *, cache_path=None, use_cache=False, refresh_cache=False):
+    """Retrieve processed papers for an institution, optionally resuming from cache."""
+    return _get_processed_works(
+        f"institutions.id:{institution_id},is_oa:true",
+        description=f"institution {institution_id}",
+        per_page=200,
+        pause_seconds=0.1,
+        cache_path=cache_path,
+        use_cache=use_cache,
+        refresh_cache=refresh_cache,
+    )
 
 
 def process_work(work):
@@ -196,3 +165,93 @@ def _extract_pdf_url(work):
     if work.get("open_access", {}).get("oa_url"):
         return work["open_access"]["oa_url"]
     return None
+
+
+def _get_processed_works(
+    filter_expression,
+    *,
+    description,
+    per_page,
+    pause_seconds,
+    cache_path=None,
+    use_cache=False,
+    refresh_cache=False,
+):
+    papers = []
+    cursor = "*"
+    total_count = "?"
+
+    if cache_path and refresh_cache and os.path.exists(cache_path):
+        os.remove(cache_path)
+
+    cached_state = _load_fetch_cache(cache_path) if cache_path and os.path.exists(cache_path) else None
+    if cached_state and not refresh_cache:
+        cached_papers = cached_state.get("papers", [])
+        if cached_state.get("completed"):
+            if use_cache:
+                log.info(f"Using completed fetch cache for {description}: {cache_path}")
+                return cached_papers
+            log.info(f"Fetch cache exists for {description} but cache reuse is disabled; refetching.")
+        elif use_cache:
+            papers = cached_papers
+            cursor = cached_state.get("next_cursor") or "*"
+            total_count = cached_state.get("total_count", "?")
+            log.info(f"Resuming fetch cache for {description}: {len(papers)} papers already cached")
+        else:
+            log.info(f"Incomplete fetch cache exists for {description} but cache reuse is disabled; refetching.")
+
+    log.info(f"Fetching works for {description}...")
+    while True:
+        params = {
+            "filter": filter_expression,
+            "per-page": per_page,
+            "cursor": cursor,
+        }
+        response = requests.get(f"{BASE_URL}/works", params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        page_papers = [process_work(work) for work in data["results"]]
+        papers.extend(page_papers)
+        next_cursor = data.get("meta", {}).get("next_cursor")
+        total_count = data.get("meta", {}).get("count", total_count)
+
+        _write_fetch_cache(
+            cache_path,
+            {
+                "version": 1,
+                "description": description,
+                "papers": papers,
+                "next_cursor": next_cursor,
+                "completed": not bool(next_cursor),
+                "total_count": total_count,
+            },
+        )
+
+        if not next_cursor:
+            break
+
+        cursor = next_cursor
+        if len(papers) % 1000 < per_page:
+            log.info(f"  ... {len(papers)} / {total_count} works fetched")
+        time.sleep(pause_seconds)
+
+    log.info(f"Collected {len(papers)} works total.")
+    return papers
+
+
+def _load_fetch_cache(cache_path):
+    with open(cache_path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _write_fetch_cache(cache_path, payload):
+    if not cache_path:
+        return
+    cache_dir = os.path.dirname(cache_path)
+    if cache_dir:
+        os.makedirs(cache_dir, exist_ok=True)
+    tmp_path = f"{cache_path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+    os.replace(tmp_path, cache_path)

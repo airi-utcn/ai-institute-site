@@ -25,9 +25,15 @@ def fetch_papers(args, prompt=input, logger=None):
             log.error(f"Institution '{name}' not found in OpenAlex.")
             sys.exit(1)
 
-        works = oaf.get_institution_works(inst_id)
-        papers = [oaf.process_work(work) for work in works]
-        return papers, name.replace(" ", "_")
+        label = name.replace(" ", "_")
+        cache_path = _resolve_fetch_cache_path(args, f"institution_{label}")
+        papers = oaf.get_institution_papers(
+            inst_id,
+            cache_path=cache_path,
+            use_cache=args.use_fetch_cache,
+            refresh_cache=args.refresh_fetch_cache,
+        )
+        return papers, label
 
     if args.mode == "author":
         name = args.author
@@ -45,9 +51,17 @@ def fetch_papers(args, prompt=input, logger=None):
             log.error(f"Author '{name}' not found.")
             sys.exit(1)
 
-        works = oaf.get_author_works(author_id)
-        papers = [oaf.process_work(work) for work in works]
-        return papers, name.replace(" ", "_")
+        label = name.replace(" ", "_")
+        if institution:
+            label = f"{label}_{institution.replace(' ', '_')}"
+        cache_path = _resolve_fetch_cache_path(args, f"author_{label}")
+        papers = oaf.get_author_papers(
+            author_id,
+            cache_path=cache_path,
+            use_cache=args.use_fetch_cache,
+            refresh_cache=args.refresh_fetch_cache,
+        )
+        return papers, label
 
     if args.mode == "file":
         path = args.file
@@ -77,3 +91,9 @@ def fetch_papers(args, prompt=input, logger=None):
 
     log.error(f"Unsupported mode: {args.mode}")
     sys.exit(1)
+
+
+def _resolve_fetch_cache_path(args, cache_key):
+    if getattr(args, "fetch_cache_file", None):
+        return args.fetch_cache_file
+    return os.path.join("outputs", "fetch-cache", f"{cache_key}.json")

@@ -48,12 +48,15 @@ class StrapiClient:
 
         return payload
 
-    def build_import_update_payload(self, paper_data):
+    def build_import_update_payload(self, paper_data, author_ids=None):
         """Build the update payload for an existing publication.
 
         Updates are restricted to machine-managed import fields so editorial data is preserved.
         """
-        return self._build_machine_owned_payload(paper_data)
+        payload = self._build_machine_owned_payload(paper_data)
+        if author_ids is not None:
+            payload["authors"] = author_ids
+        return payload
 
     def _build_machine_owned_payload(self, paper_data):
         imported_at = self._utc_now()
@@ -98,6 +101,20 @@ class StrapiClient:
                 break
             page += 1
         return results
+
+    def _extract_relation_items(self, relation_value):
+        """Normalize Strapi relation payloads across flattened and nested response shapes."""
+        if not relation_value:
+            return []
+        if isinstance(relation_value, list):
+            return relation_value
+        if isinstance(relation_value, dict):
+            data = relation_value.get("data")
+            if isinstance(data, list):
+                return data
+            if data:
+                return [data]
+        return []
 
     def load_existing_publications(self):
         """Pre-fetch all publications for dedup lookups."""
@@ -150,7 +167,7 @@ class StrapiClient:
             graph_id = attributes.get("openAlexId") or f"publication:{document_id}"
 
             authors = []
-            author_data = attributes.get("authors", {}).get("data", [])
+            author_data = self._extract_relation_items(attributes.get("authors"))
             for author in author_data:
                 author_attributes = author.get("attributes", author)
                 full_name = author_attributes.get("fullName")
@@ -197,6 +214,40 @@ class StrapiClient:
                     "fullName": name,
                 }
         log.info(f"  Loaded {len(self._person_by_name)} people")
+
+    def load_publication_author_ids(self, document_id):
+        """Load current author relations for a publication so imports can merge additively."""
+        try:
+            response = requests.get(
+                f"{self.api_url}/publications/{document_id}",
+                headers=self.headers,
+                params={
+                    "populate[authors][fields][0]": "documentId",
+                    "populate[authors][fields][1]": "id",
+                },
+            )
+            response.raise_for_status()
+            data = response.json().get("data", {})
+            attributes = data.get("attributes", data)
+            author_data = self._extract_relation_items(attributes.get("authors"))
+            author_ids = []
+            for author in author_data:
+                author_id = author.get("documentId") or author.get("id")
+                if author_id:
+                    author_ids.append(author_id)
+            return author_ids
+        except requests.exceptions.RequestException as exc:
+            log.warning(f"Failed to load authors for publication {document_id}: {exc}")
+            return []
+
+    def merge_publication_author_ids(self, document_id, imported_author_ids):
+        """Merge imported author matches with existing curated author relations."""
+        if not imported_author_ids:
+            return None
+
+        existing_author_ids = self.load_publication_author_ids(document_id)
+        merged_author_ids = list(dict.fromkeys([*existing_author_ids, *imported_author_ids]))
+        return merged_author_ids
 
     def find_existing_publication(self, openalex_id=None, doi=None, title=None):
         """Find an existing publication by OpenAlex ID, DOI, or fuzzy title."""
@@ -296,18 +347,35 @@ class StrapiClient:
             log.error(f"Failed to update publication {document_id}: {exc}")
             return False
 
-    def build_graph_metadata_payload(self, embedding_payload=None, community_id=None, community_label=None, indexed_at=None):
+    def build_graph_metadata_payload(
+        self,
+        embedding_payload=None,
+        community_id=None,
+        community_label=None,
+        indexed_at=None,
+        clear_missing=False,
+    ):
         """Build a publication patch for graph-derived metadata only."""
-        payload = {}
+        payload = {"lastGraphIndexedAt": indexed_at} if indexed_at else {}
 
         if embedding_payload:
             payload.update(embedding_payload)
-        elif indexed_at:
-            payload["lastGraphIndexedAt"] = indexed_at
+        elif clear_missing:
+            payload.update(
+                {
+                    "embedding": None,
+                    "embeddingModel": None,
+                    "embeddingUpdatedAt": None,
+                    "embeddingSourceHash": None,
+                }
+            )
 
         if community_id is not None:
             payload["community"] = community_id
             payload["communityLabel"] = community_label
+        elif clear_missing:
+            payload["community"] = None
+            payload["communityLabel"] = None
 
         return payload
 

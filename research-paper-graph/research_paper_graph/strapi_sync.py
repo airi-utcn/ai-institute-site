@@ -21,6 +21,7 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
     log.info(f"Uploading {len(papers_to_upload)} publications...")
     for paper in papers_to_upload:
         oa_id = paper.get("openAlexId")
+        author_ids = strapi.match_authors(paper.get("authors", []))
         existing_id, match_type = strapi.find_existing_publication(
             openalex_id=oa_id,
             doi=paper.get("doi"),
@@ -30,7 +31,8 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
         if existing_id:
             pub_map[oa_id] = existing_id
             if args.update_existing:
-                update_payload = strapi.build_import_update_payload(paper)
+                merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)
+                update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
                 strapi.update_publication(existing_id, update_payload)
                 stats["updated"] += 1
                 log.debug(f"  Updated ({match_type}): {paper['title'][:60]}")
@@ -38,8 +40,6 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
                 stats["skipped"] += 1
                 log.debug(f"  Exists ({match_type}): {paper['title'][:60]}")
             continue
-
-        author_ids = strapi.match_authors(paper.get("authors", []))
 
         if args.upload_pdfs and paper.get("pdf_url"):
             safe_name = f"{oa_id.split('/')[-1]}.pdf"
@@ -147,6 +147,7 @@ def update_graph_metadata(strapi, graph, pub_map, logger=None):
             community_id=community_id,
             community_label=community_label,
             indexed_at=indexed_at,
+            clear_missing=True,
         )
         if not payload:
             continue

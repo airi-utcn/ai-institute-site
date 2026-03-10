@@ -32,6 +32,21 @@ def build_parser():
     p.add_argument("--author", type=str, help="Author name for mode=author")
     p.add_argument("--author-institution", type=str, help="Institution filter for author search")
     p.add_argument("--file", type=str, help="JSON file path for mode=file")
+    p.add_argument(
+        "--use-fetch-cache",
+        action="store_true",
+        help="Reuse or resume cached OpenAlex fetch results when available",
+    )
+    p.add_argument(
+        "--refresh-fetch-cache",
+        action="store_true",
+        help="Ignore any existing OpenAlex fetch cache and rebuild it from scratch",
+    )
+    p.add_argument(
+        "--fetch-cache-file",
+        type=str,
+        help="Override the default OpenAlex fetch cache file path",
+    )
 
     p.add_argument("--skip-graph", action="store_true", help="Skip link generation")
     p.add_argument("--skip-upload", action="store_true", help="Skip Strapi upload")
@@ -43,8 +58,8 @@ def build_parser():
     p.add_argument(
         "--limit",
         type=int,
-        default=100,
-        help="Maximum number of papers to process (default: 100; 0 = unlimited)",
+        default=0,
+        help="Maximum number of papers to process in this run (default: 0 = unlimited)",
     )
 
     p.add_argument("--similarity-threshold", type=float, default=None)
@@ -173,11 +188,12 @@ def _interactive_mode(args):
     else:
         args.mode = "author"
 
-    skip_graph = input("Generate similarity links? (y/n) [y]: ").strip().lower()
-    args.skip_graph = skip_graph == "n"
+    if args.mode in {"author", "institution"}:
+        use_fetch_cache = input("Reuse or resume cached OpenAlex fetches if available? (y/n) [y]: ").strip().lower()
+        args.use_fetch_cache = use_fetch_cache != "n"
 
-    skip_upload = input("Upload to Strapi? (y/n) [y]: ").strip().lower()
-    args.skip_upload = skip_upload == "n"
+        refresh_fetch_cache = input("Force a fresh OpenAlex fetch and rebuild the cache? (y/n) [n]: ").strip().lower()
+        args.refresh_fetch_cache = refresh_fetch_cache == "y"
 
     args.update_existing = input("Update existing publications? (y/n) [n]: ").strip().lower() == "y"
     args.upload_pdfs = input("Upload PDFs? (y/n) [n]: ").strip().lower() == "y"

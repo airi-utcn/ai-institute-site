@@ -24,7 +24,7 @@ export default async function Home() {
   }
 
   return (
-    <main>
+    <div>
       {/* Hero Section */}
       <section className="relative isolate h-[55vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-gray-900">
         <Image
@@ -220,6 +220,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

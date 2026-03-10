@@ -271,19 +271,55 @@ The CLI remains only as a thin wrapper.
 
 The implementation will proceed in small, validated steps.
 
+## Progress
+
+Completed:
+
+- GraphLink schema changed to support many edges per publication
+- Publication schema extended with provenance, visibility, and embedding metadata fields
+- Public publication listing queries now use `listingEligible`
+- Graph queries now use `graphEligible`
+- Static hand-maintained search data replaced by a server-generated search index endpoint
+- Search now renders directly on `/search` without redirecting to `/search/classic`
+- Navbar search now shows live suggestions from the same search index
+- Python runtime settings and paper source selection logic extracted from `main.py`
+- Python graph artifact generation and Strapi sync loops extracted from `main.py`
+- Python CLI moved into the package and `main.py` is now only a thin wrapper
+- Package-local OpenAlex and graph modules now back the refactored package layers
+- Package-local Strapi client now backs the sync layer, removing the last runtime dependency on legacy top-level modules
+
+In progress:
+
+- Python refactor of the main pipeline into clearer modules while preserving current CLI behavior
+
+Not started:
+
+- Deterministic duplicate resolution redesign
+- Full global graph rebuild semantics over all graph-eligible publications
+- Import field ownership enforcement in Strapi upsert logic
+- Embedding persistence back into Strapi-managed publication fields
+
 ### Step 1
+
+Status: completed
 
 Fix the `GraphLink` schema so it supports a real graph.
 
 ### Step 2
 
+Status: completed
+
 Validate the Strapi schema state after the graph-link change.
 
 ### Step 3
 
+Status: completed
+
 Extend `Publication` with provenance, eligibility, and embedding fields.
 
 ### Step 4
+
+Status: completed in frontend query layer and search UX
 
 Update frontend queries so:
 
@@ -292,25 +328,37 @@ Update frontend queries so:
 
 ### Step 5
 
+Status: in progress
+
 Refactor the Python pipeline into importable modules without changing behavior yet.
 
 ### Step 6
+
+Status: not started
 
 Add field ownership rules to publication upsert logic.
 
 ### Step 7
 
+Status: not started
+
 Replace the current duplicate logic with deterministic canonical selection.
 
 ### Step 8
+
+Status: not started
 
 Implement full global graph rebuild behavior over all graph-eligible publications.
 
 ### Step 9
 
+Status: not started
+
 Store embeddings and graph metadata in Strapi-managed fields.
 
 ### Step 10
+
+Status: not started
 
 Update documentation and operational usage notes.
 

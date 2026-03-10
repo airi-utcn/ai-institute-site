@@ -1,4 +1,5 @@
 import json
+import hashlib
 import logging
 import os
 from collections import defaultdict
@@ -43,6 +44,36 @@ def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
 
 def paper_identifier(paper):
     return paper.get("graphId") or paper.get("openAlexId")
+
+
+def build_embedding_payloads(filtered_papers, embeddings, model_name, indexed_at):
+    """Create Strapi-ready embedding metadata keyed by graph paper identifier."""
+    if len(filtered_papers) == 0 or len(embeddings) == 0:
+        return {}
+
+    payloads = {}
+    for paper, embedding in zip(filtered_papers, embeddings):
+        paper_id = paper_identifier(paper)
+        payloads[paper_id] = {
+            "embedding": embedding.tolist(),
+            "embeddingModel": model_name,
+            "embeddingUpdatedAt": indexed_at,
+            "embeddingSourceHash": embedding_source_hash(paper),
+            "lastGraphIndexedAt": indexed_at,
+        }
+    return payloads
+
+
+def embedding_source_hash(paper):
+    raw = json.dumps(
+        {
+            "title": paper.get("title") or "",
+            "abstract": paper.get("abstract") or "",
+        },
+        sort_keys=True,
+        ensure_ascii=True,
+    )
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def build_faiss_index(embeddings):

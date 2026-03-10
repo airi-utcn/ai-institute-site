@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 
 from .strapi import StrapiClient
 
@@ -128,3 +129,29 @@ def update_community_assignments(strapi, communities, community_labels, pub_map,
 
     log.info(f"Community assignments: {comm_ok} updated")
     return comm_ok
+
+
+def update_graph_metadata(strapi, graph, pub_map, logger=None):
+    """Write embedding and graph indexing metadata back onto publications."""
+    log = logger or logging.getLogger("paper-sync")
+
+    indexed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    updated = 0
+
+    for paper_id, document_id in pub_map.items():
+        embedding_payload = graph.embedding_payloads.get(paper_id)
+        community_id = graph.communities.get(paper_id)
+        community_label = graph.community_labels.get(community_id) if community_id is not None else None
+        payload = strapi.build_graph_metadata_payload(
+            embedding_payload=embedding_payload,
+            community_id=community_id,
+            community_label=community_label,
+            indexed_at=indexed_at,
+        )
+        if not payload:
+            continue
+        if strapi.update_publication(document_id, payload):
+            updated += 1
+
+    log.info(f"Graph metadata: {updated} publications updated")
+    return updated

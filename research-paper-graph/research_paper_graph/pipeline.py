@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 from . import graph as gg
 
@@ -13,6 +14,7 @@ class GraphArtifacts:
     communities: dict
     community_labels: dict
     filtered_papers: list
+    embedding_payloads: dict
     embeddings: object
 
 
@@ -53,6 +55,7 @@ def build_graph_artifacts(
             communities={},
             community_labels={},
             filtered_papers=[],
+            embedding_payloads={},
             embeddings=None,
         )
 
@@ -70,6 +73,14 @@ def build_graph_artifacts(
     if len(filtered_papers) > 0:
         index_path = os.path.join(output_dir, f"index_{label}.json")
         gg.save_index(embeddings, filtered_papers, index_path)
+
+    indexed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    embedding_payloads = gg.build_embedding_payloads(
+        filtered_papers,
+        embeddings,
+        model_name,
+        indexed_at,
+    )
 
     communities = {}
     community_labels = {}
@@ -101,5 +112,6 @@ def build_graph_artifacts(
         communities=communities,
         community_labels=community_labels,
         filtered_papers=filtered_papers,
+        embedding_payloads=embedding_payloads,
         embeddings=embeddings,
     )

@@ -6,7 +6,7 @@ from .pipeline import GraphArtifacts, build_graph_artifacts, save_paper_snapshot
 from .strapi_sync import (
 	create_client,
 	replace_graph_links,
-	update_community_assignments,
+	update_graph_metadata,
 	upload_graph_links,
 	upload_publications,
 )
@@ -24,7 +24,7 @@ __all__ = [
 	"replace_graph_links",
 	"run",
 	"save_paper_snapshot",
-	"update_community_assignments",
+	"update_graph_metadata",
 	"upload_graph_links",
 	"upload_publications",
 ]

@@ -10,7 +10,7 @@ from .sources import fetch_papers
 from .strapi_sync import (
     create_client,
     replace_graph_links,
-    update_community_assignments,
+    update_graph_metadata,
     upload_publications,
 )
 
@@ -138,13 +138,7 @@ def run(args):
         logger=log,
     )
 
-    update_community_assignments(
-        strapi,
-        global_graph.communities,
-        global_graph.community_labels,
-        global_pub_map,
-        logger=log,
-    )
+    update_graph_metadata(strapi, global_graph, global_pub_map, logger=log)
 
     log.info("Done.")
 

@@ -296,6 +296,21 @@ class StrapiClient:
             log.error(f"Failed to update publication {document_id}: {exc}")
             return False
 
+    def build_graph_metadata_payload(self, embedding_payload=None, community_id=None, community_label=None, indexed_at=None):
+        """Build a publication patch for graph-derived metadata only."""
+        payload = {}
+
+        if embedding_payload:
+            payload.update(embedding_payload)
+        elif indexed_at:
+            payload["lastGraphIndexedAt"] = indexed_at
+
+        if community_id is not None:
+            payload["community"] = community_id
+            payload["communityLabel"] = community_label
+
+        return payload
+
     def get_publication_id_by_openalex(self, openalex_id):
         """Find an existing Strapi document ID for a given OpenAlex ID."""
         if openalex_id in self._pub_by_oaid:

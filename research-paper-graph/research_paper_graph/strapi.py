@@ -122,6 +122,60 @@ class StrapiClient:
                 self._pub_by_title[attributes["title"].lower().strip()] = document_id
         log.info(f"  Loaded {len(publications)} publications ({len(self._pub_by_oaid)} with openAlexId)")
 
+    def load_graph_eligible_publications(self):
+        """Load all graph-eligible publications in a graph-builder friendly shape."""
+        log.info("Loading graph-eligible publications from Strapi...")
+        publications = self._fetch_all_pages(
+            "publications",
+            {
+                "filters[graphEligible][$eq]": "true",
+                "fields[0]": "documentId",
+                "fields[1]": "title",
+                "fields[2]": "openAlexId",
+                "fields[3]": "doi",
+                "fields[4]": "year",
+                "fields[5]": "cited_by",
+                "fields[6]": "abstract",
+                "fields[7]": "topics",
+                "populate[authors][fields][0]": "fullName",
+            },
+        )
+
+        graph_publications = []
+        publication_map = {}
+
+        for publication in publications:
+            attributes = publication.get("attributes", publication)
+            document_id = publication.get("documentId") or publication.get("id")
+            graph_id = attributes.get("openAlexId") or f"publication:{document_id}"
+
+            authors = []
+            author_data = attributes.get("authors", {}).get("data", [])
+            for author in author_data:
+                author_attributes = author.get("attributes", author)
+                full_name = author_attributes.get("fullName")
+                if full_name:
+                    authors.append(full_name)
+
+            graph_publications.append(
+                {
+                    "graphId": graph_id,
+                    "documentId": document_id,
+                    "openAlexId": attributes.get("openAlexId"),
+                    "title": attributes.get("title"),
+                    "doi": attributes.get("doi"),
+                    "year": attributes.get("year"),
+                    "cited_by": attributes.get("cited_by", 0),
+                    "abstract": attributes.get("abstract"),
+                    "topics": attributes.get("topics") or [],
+                    "authors": authors,
+                }
+            )
+            publication_map[graph_id] = document_id
+
+        log.info(f"  Loaded {len(graph_publications)} graph-eligible publications")
+        return graph_publications, publication_map
+
     def load_existing_people(self):
         """Pre-fetch all Person entries for author matching."""
         log.info("Loading existing people from Strapi...")
@@ -286,3 +340,26 @@ class StrapiClient:
         except requests.exceptions.RequestException as exc:
             log.error(f"Failed to link publications: {exc}")
             return False
+
+    def clear_graph_links(self):
+        """Delete all existing graph links so derived graph state can be rebuilt cleanly."""
+        graph_links = self._fetch_all_pages(
+            "graph-links",
+            {
+                "fields[0]": "documentId",
+                "fields[1]": "id",
+            },
+        )
+
+        deleted = 0
+        for graph_link in graph_links:
+            document_id = graph_link.get("documentId") or graph_link.get("id")
+            try:
+                response = requests.delete(f"{self.api_url}/graph-links/{document_id}", headers=self.headers)
+                response.raise_for_status()
+                deleted += 1
+            except requests.exceptions.RequestException as exc:
+                log.error(f"Failed to delete graph link {document_id}: {exc}")
+
+        log.info(f"Cleared {deleted} graph links")
+        return deleted

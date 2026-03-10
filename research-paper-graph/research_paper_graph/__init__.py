@@ -5,6 +5,7 @@ from .config import RuntimeSettings, load_runtime_settings
 from .pipeline import GraphArtifacts, build_graph_artifacts, save_paper_snapshot
 from .strapi_sync import (
 	create_client,
+	replace_graph_links,
 	update_community_assignments,
 	upload_graph_links,
 	upload_publications,
@@ -20,6 +21,7 @@ __all__ = [
 	"fetch_papers",
 	"load_runtime_settings",
 	"main",
+	"replace_graph_links",
 	"run",
 	"save_paper_snapshot",
 	"update_community_assignments",

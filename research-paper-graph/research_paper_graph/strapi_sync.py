@@ -73,11 +73,11 @@ def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logge
     link_fail = 0
 
     for link in links_to_upload:
-        src_oa = link["source_openalex_id"]
-        tgt_oa = link["target_openalex_id"]
+        source_paper_id = link["source_paper_id"]
+        target_paper_id = link["target_paper_id"]
 
-        src_id = pub_map.get(src_oa) or strapi.get_publication_id_by_openalex(src_oa)
-        tgt_id = pub_map.get(tgt_oa) or strapi.get_publication_id_by_openalex(tgt_oa)
+        src_id = pub_map.get(source_paper_id) or strapi.get_publication_id_by_openalex(source_paper_id)
+        tgt_id = pub_map.get(target_paper_id) or strapi.get_publication_id_by_openalex(target_paper_id)
 
         if not src_id or not tgt_id:
             link_fail += 1
@@ -85,8 +85,8 @@ def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logge
 
         is_cross = False
         if communities:
-            src_comm = communities.get(src_oa)
-            tgt_comm = communities.get(tgt_oa)
+            src_comm = communities.get(source_paper_id)
+            tgt_comm = communities.get(target_paper_id)
             is_cross = src_comm is not None and tgt_comm is not None and src_comm != tgt_comm
 
         success = strapi.create_graph_link(src_id, tgt_id, link["score"], is_cross_cluster=is_cross)
@@ -99,6 +99,15 @@ def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logge
     return {"created": link_ok, "failed": link_fail}
 
 
+def replace_graph_links(strapi, links_to_upload, pub_map, communities=None, logger=None):
+    """Replace all derived graph links with a freshly rebuilt set."""
+    log = logger or logging.getLogger("paper-sync")
+
+    log.info("Replacing graph links from global rebuild...")
+    strapi.clear_graph_links()
+    return upload_graph_links(strapi, links_to_upload, pub_map, communities=communities, logger=log)
+
+
 def update_community_assignments(strapi, communities, community_labels, pub_map, logger=None):
     """Write community assignments back onto publications."""
     log = logger or logging.getLogger("paper-sync")
@@ -108,8 +117,8 @@ def update_community_assignments(strapi, communities, community_labels, pub_map,
 
     log.info("Updating community assignments on publications...")
     comm_ok = 0
-    for oa_id, comm_id in communities.items():
-        doc_id = pub_map.get(oa_id) or strapi.get_publication_id_by_openalex(oa_id)
+    for paper_id, comm_id in communities.items():
+        doc_id = pub_map.get(paper_id) or strapi.get_publication_id_by_openalex(paper_id)
         if not doc_id:
             continue
 

@@ -41,6 +41,10 @@ def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
     return papers_with_text, embeddings
 
 
+def paper_identifier(paper):
+    return paper.get("graphId") or paper.get("openAlexId")
+
+
 def build_faiss_index(embeddings):
     """Build a FAISS inner-product index from normalized embeddings."""
     faiss = _get_faiss()
@@ -93,15 +97,15 @@ def generate_links(
                     continue
 
                 is_duplicate = score >= duplicate_threshold
-                source_openalex_id = filtered_papers[source_index]["openAlexId"]
-                target_openalex_id = filtered_papers[target_index]["openAlexId"]
+                source_paper_id = paper_identifier(filtered_papers[source_index])
+                target_paper_id = paper_identifier(filtered_papers[target_index])
                 if is_duplicate:
-                    duplicate_pairs.append((source_openalex_id, target_openalex_id))
+                    duplicate_pairs.append((source_paper_id, target_paper_id))
 
                 links.append(
                     {
-                        "source_openalex_id": source_openalex_id,
-                        "target_openalex_id": target_openalex_id,
+                        "source_paper_id": source_paper_id,
+                        "target_paper_id": target_paper_id,
                         "source_title": filtered_papers[source_index]["title"],
                         "target_title": filtered_papers[target_index]["title"],
                         "score": round(score, 4),
@@ -119,15 +123,15 @@ def generate_links(
                     continue
 
                 is_duplicate = score >= duplicate_threshold
-                source_openalex_id = filtered_papers[source_index]["openAlexId"]
-                target_openalex_id = filtered_papers[target_index]["openAlexId"]
+                source_paper_id = paper_identifier(filtered_papers[source_index])
+                target_paper_id = paper_identifier(filtered_papers[target_index])
                 if is_duplicate:
-                    duplicate_pairs.append((source_openalex_id, target_openalex_id))
+                    duplicate_pairs.append((source_paper_id, target_paper_id))
 
                 links.append(
                     {
-                        "source_openalex_id": source_openalex_id,
-                        "target_openalex_id": target_openalex_id,
+                        "source_paper_id": source_paper_id,
+                        "target_paper_id": target_paper_id,
                         "source_title": filtered_papers[source_index]["title"],
                         "target_title": filtered_papers[target_index]["title"],
                         "score": round(score, 4),
@@ -138,15 +142,13 @@ def generate_links(
     duplicate_paper_ids, canonical_by_duplicate = _resolve_duplicate_groups(filtered_papers, duplicate_pairs)
 
     for link in links:
-        source_openalex_id = link["source_openalex_id"]
-        target_openalex_id = link["target_openalex_id"]
-        link["is_duplicate"] = (
-            source_openalex_id in duplicate_paper_ids or target_openalex_id in duplicate_paper_ids
-        )
-        if source_openalex_id in duplicate_paper_ids:
-            link["source_canonical_openalex_id"] = canonical_by_duplicate[source_openalex_id]
-        if target_openalex_id in duplicate_paper_ids:
-            link["target_canonical_openalex_id"] = canonical_by_duplicate[target_openalex_id]
+        source_paper_id = link["source_paper_id"]
+        target_paper_id = link["target_paper_id"]
+        link["is_duplicate"] = source_paper_id in duplicate_paper_ids or target_paper_id in duplicate_paper_ids
+        if source_paper_id in duplicate_paper_ids:
+            link["source_canonical_paper_id"] = canonical_by_duplicate[source_paper_id]
+        if target_paper_id in duplicate_paper_ids:
+            link["target_canonical_paper_id"] = canonical_by_duplicate[target_paper_id]
 
     duplicate_links = sum(1 for link in links if link["is_duplicate"])
     log.info(f"Links: {len(links)} total | {len(links) - duplicate_links} clean | {duplicate_links} duplicates")
@@ -159,48 +161,48 @@ def _resolve_duplicate_groups(filtered_papers, duplicate_pairs):
     if not duplicate_pairs:
         return set(), {}
 
-    papers_by_id = {paper["openAlexId"]: paper for paper in filtered_papers}
+    papers_by_id = {paper_identifier(paper): paper for paper in filtered_papers}
     adjacency = defaultdict(set)
-    for source_openalex_id, target_openalex_id in duplicate_pairs:
-        adjacency[source_openalex_id].add(target_openalex_id)
-        adjacency[target_openalex_id].add(source_openalex_id)
+    for source_paper_id, target_paper_id in duplicate_pairs:
+        adjacency[source_paper_id].add(target_paper_id)
+        adjacency[target_paper_id].add(source_paper_id)
 
     duplicate_paper_ids = set()
     canonical_by_duplicate = {}
     visited = set()
 
-    for openalex_id in adjacency:
-        if openalex_id in visited:
+    for current_paper_id in adjacency:
+        if current_paper_id in visited:
             continue
 
-        component = _collect_component(openalex_id, adjacency, visited)
-        canonical_openalex_id = _choose_canonical_paper(component, papers_by_id)
-        for member_openalex_id in component:
-            if member_openalex_id == canonical_openalex_id:
+        component = _collect_component(current_paper_id, adjacency, visited)
+        canonical_paper_id = _choose_canonical_paper(component, papers_by_id)
+        for member_paper_id in component:
+            if member_paper_id == canonical_paper_id:
                 continue
-            duplicate_paper_ids.add(member_openalex_id)
-            canonical_by_duplicate[member_openalex_id] = canonical_openalex_id
+            duplicate_paper_ids.add(member_paper_id)
+            canonical_by_duplicate[member_paper_id] = canonical_paper_id
 
     return duplicate_paper_ids, canonical_by_duplicate
 
 
-def _collect_component(start_openalex_id, adjacency, visited):
-    stack = [start_openalex_id]
+def _collect_component(start_paper_id, adjacency, visited):
+    stack = [start_paper_id]
     component = []
 
     while stack:
-        current_openalex_id = stack.pop()
-        if current_openalex_id in visited:
+        current_paper_id = stack.pop()
+        if current_paper_id in visited:
             continue
-        visited.add(current_openalex_id)
-        component.append(current_openalex_id)
-        stack.extend(adjacency[current_openalex_id] - visited)
+        visited.add(current_paper_id)
+        component.append(current_paper_id)
+        stack.extend(adjacency[current_paper_id] - visited)
 
     return component
 
 
-def _choose_canonical_paper(component_openalex_ids, papers_by_id):
-    return max(component_openalex_ids, key=lambda openalex_id: _paper_rank_tuple(papers_by_id[openalex_id]))
+def _choose_canonical_paper(component_paper_ids, papers_by_id):
+    return max(component_paper_ids, key=lambda paper_id: _paper_rank_tuple(papers_by_id[paper_id]))
 
 
 def _paper_rank_tuple(paper):
@@ -233,14 +235,14 @@ def detect_communities(filtered_papers, embeddings, links, resolution=1.0):
         return {}, {}
 
     graph = nx.Graph()
-    openalex_ids = [paper["openAlexId"] for paper in filtered_papers]
-    graph.add_nodes_from(openalex_ids)
+    paper_ids = [paper_identifier(paper) for paper in filtered_papers]
+    graph.add_nodes_from(paper_ids)
 
     for link in links:
         if not link["is_duplicate"]:
             graph.add_edge(
-                link["source_openalex_id"],
-                link["target_openalex_id"],
+                link["source_paper_id"],
+                link["target_paper_id"],
                 weight=link["score"],
             )
 
@@ -249,8 +251,8 @@ def detect_communities(filtered_papers, embeddings, links, resolution=1.0):
 
     communities = {}
     for community_id, members in enumerate(communities_list):
-        for openalex_id in members:
-            communities[openalex_id] = community_id
+        for paper_id in members:
+            communities[paper_id] = community_id
 
     community_labels = _label_communities(filtered_papers, communities)
     log.info(f"Detected {len(communities_list)} communities")
@@ -263,7 +265,7 @@ def _label_communities(papers, communities):
 
     topic_counts = {}
     for paper in papers:
-        community_id = communities.get(paper["openAlexId"])
+        community_id = communities.get(paper_identifier(paper))
         if community_id is None:
             continue
         if community_id not in topic_counts:
@@ -282,7 +284,7 @@ def _label_communities(papers, communities):
 def save_index(embeddings, papers, path):
     """Persist embeddings and paper IDs for reuse."""
     data = {
-        "openalex_ids": [paper["openAlexId"] for paper in papers],
+        "paper_ids": [paper_identifier(paper) for paper in papers],
         "embeddings": embeddings.tolist(),
     }
     with open(path, "w", encoding="utf-8") as handle:
@@ -296,7 +298,7 @@ def load_index(path):
         return None, None
     with open(path, "r", encoding="utf-8") as handle:
         data = json.load(handle)
-    openalex_ids = data.get("openalex_ids", [])
+    paper_ids = data.get("paper_ids", data.get("openalex_ids", []))
     embeddings = np.array(data.get("embeddings", []), dtype=np.float32)
-    log.info(f"Loaded existing index ({len(openalex_ids)} papers) from {path}")
-    return openalex_ids, embeddings
+    log.info(f"Loaded existing index ({len(paper_ids)} papers) from {path}")
+    return paper_ids, embeddings

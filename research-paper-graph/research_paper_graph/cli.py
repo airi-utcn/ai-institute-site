@@ -9,8 +9,8 @@ from .pipeline import build_graph_artifacts, save_paper_snapshot
 from .sources import fetch_papers
 from .strapi_sync import (
     create_client,
+    replace_graph_links,
     update_community_assignments,
-    upload_graph_links,
     upload_publications,
 )
 
@@ -79,7 +79,7 @@ def run(args):
 
     save_paper_snapshot(papers, label, logger=log)
 
-    graph = build_graph_artifacts(
+    preview_graph = build_graph_artifacts(
         papers,
         label,
         skip_graph=args.skip_graph,
@@ -92,15 +92,13 @@ def run(args):
         logger=log,
     )
 
-    papers_to_upload = [paper for paper in papers if paper["openAlexId"] not in graph.duplicate_ids]
-    links_to_upload = [link for link in graph.all_links if not link["is_duplicate"]]
+    papers_to_upload = [paper for paper in papers if paper["openAlexId"] not in preview_graph.duplicate_ids]
     skipped_papers = len(papers) - len(papers_to_upload)
 
-    log.info(f"Papers: {len(papers_to_upload)} to process, {skipped_papers} duplicates skipped")
-    log.info(f"Links: {len(links_to_upload)} to upload")
+    log.info(f"Papers: {len(papers_to_upload)} to process, {skipped_papers} duplicates skipped before sync")
 
     if args.dry_run:
-        log.info("[DRY RUN] Would upload above papers and links. Exiting.")
+        log.info("[DRY RUN] Would sync publications, then rebuild graph from all graph-eligible Strapi publications. Exiting.")
         return
 
     if args.skip_upload:
@@ -110,13 +108,41 @@ def run(args):
     strapi = create_client(SETTINGS)
     pub_map, _stats = upload_publications(strapi, papers_to_upload, args, logger=log)
 
-    upload_graph_links(strapi, links_to_upload, pub_map, communities=graph.communities, logger=log)
+    if args.skip_graph:
+        log.info("Skipping global graph rebuild (--skip-graph).")
+        log.info("Done.")
+        return
+
+    global_papers, global_pub_map = strapi.load_graph_eligible_publications()
+    global_graph = build_graph_artifacts(
+        global_papers,
+        "global",
+        skip_graph=False,
+        skip_communities=args.skip_communities,
+        similarity_threshold=sim_thresh,
+        duplicate_threshold=dup_thresh,
+        model_name=model_name,
+        top_k=top_k,
+        community_resolution=args.community_resolution,
+        logger=log,
+    )
+
+    links_to_upload = [link for link in global_graph.all_links if not link["is_duplicate"]]
+    log.info(f"Global rebuild: {len(global_papers)} eligible publications, {len(links_to_upload)} links")
+
+    replace_graph_links(
+        strapi,
+        links_to_upload,
+        global_pub_map,
+        communities=global_graph.communities,
+        logger=log,
+    )
 
     update_community_assignments(
         strapi,
-        graph.communities,
-        graph.community_labels,
-        pub_map,
+        global_graph.communities,
+        global_graph.community_labels,
+        global_pub_map,
         logger=log,
     )
 

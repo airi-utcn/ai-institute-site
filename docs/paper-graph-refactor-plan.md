@@ -292,6 +292,7 @@ In progress:
 
 - Python refactor of the main pipeline into clearer modules while preserving current CLI behavior
 - Field-ownership refactor started in the Strapi sync layer: imports now build machine-owned payloads centrally and assign imported-record defaults only on create
+- Duplicate handling refactor started in the graph layer: duplicate groups now resolve to a deterministic canonical record instead of depending on pair iteration order
 
 Not started:
 

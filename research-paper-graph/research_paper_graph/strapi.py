@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from io import BytesIO
 
@@ -23,6 +24,62 @@ class StrapiClient:
         self._pub_by_doi = {}
         self._pub_by_title = {}
         self._person_by_name = {}
+
+    def build_import_create_payload(self, paper_data, author_ids=None, attachment_id=None):
+        """Build the create payload for a new imported publication.
+
+        This only sets machine-managed fields plus safe defaults for imported records.
+        """
+        payload = self._build_machine_owned_payload(paper_data)
+        payload.update(
+            {
+                "sourceKind": "openalex",
+                "verificationStatus": "imported",
+                "graphEligible": True,
+                "listingEligible": False,
+            }
+        )
+
+        if attachment_id:
+            payload["pdfFile"] = attachment_id
+
+        if author_ids:
+            payload["authors"] = author_ids
+
+        return payload
+
+    def build_import_update_payload(self, paper_data):
+        """Build the update payload for an existing publication.
+
+        Updates are restricted to machine-managed import fields so editorial data is preserved.
+        """
+        return self._build_machine_owned_payload(paper_data)
+
+    def _build_machine_owned_payload(self, paper_data):
+        imported_at = self._utc_now()
+        return {
+            "title": paper_data["title"],
+            "openAlexId": paper_data.get("openAlexId"),
+            "doi": paper_data.get("doi"),
+            "year": paper_data.get("year"),
+            "cited_by": paper_data.get("cited_by", 0),
+            "abstract": paper_data.get("abstract"),
+            "topics": paper_data.get("topics"),
+            "lastImportedAt": imported_at,
+            "rawImportMetadata": self._build_raw_import_metadata(paper_data, imported_at),
+        }
+
+    def _build_raw_import_metadata(self, paper_data, imported_at):
+        return {
+            "source": "openalex",
+            "sourceId": paper_data.get("openAlexId"),
+            "authors": paper_data.get("authors") or [],
+            "pdfUrl": paper_data.get("pdf_url"),
+            "importedAt": imported_at,
+        }
+
+    def _utc_now(self):
+        return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     def _fetch_all_pages(self, endpoint, params=None):
         """Paginate through all entries in a Strapi collection."""
@@ -144,21 +201,11 @@ class StrapiClient:
 
     def create_publication(self, paper_data, author_ids=None):
         """Create a publication entry in Strapi from a processed paper."""
-        payload = {
-            "title": paper_data["title"],
-            "openAlexId": paper_data.get("openAlexId"),
-            "doi": paper_data.get("doi"),
-            "year": paper_data.get("year"),
-            "cited_by": paper_data.get("cited_by", 0),
-            "abstract": paper_data.get("abstract"),
-            "topics": paper_data.get("topics"),
-        }
-
-        if paper_data.get("attachment"):
-            payload["pdfFile"] = paper_data["attachment"]
-
-        if author_ids:
-            payload["authors"] = author_ids
+        payload = self.build_import_create_payload(
+            paper_data,
+            author_ids=author_ids,
+            attachment_id=paper_data.get("attachment"),
+        )
 
         try:
             response = requests.post(

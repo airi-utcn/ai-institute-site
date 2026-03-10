@@ -29,16 +29,8 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
         if existing_id:
             pub_map[oa_id] = existing_id
             if args.update_existing:
-                strapi.update_publication(
-                    existing_id,
-                    {
-                        "openAlexId": oa_id,
-                        "doi": paper.get("doi"),
-                        "cited_by": paper.get("cited_by"),
-                        "abstract": paper.get("abstract"),
-                        "topics": paper.get("topics"),
-                    },
-                )
+                update_payload = strapi.build_import_update_payload(paper)
+                strapi.update_publication(existing_id, update_payload)
                 stats["updated"] += 1
                 log.debug(f"  Updated ({match_type}): {paper['title'][:60]}")
             else:

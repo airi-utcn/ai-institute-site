@@ -291,6 +291,7 @@ Completed:
 In progress:
 
 - Python refactor of the main pipeline into clearer modules while preserving current CLI behavior
+- Field-ownership refactor started in the Strapi sync layer: imports now build machine-owned payloads centrally and assign imported-record defaults only on create
 
 Not started:
 

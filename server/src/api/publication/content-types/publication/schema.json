@@ -24,6 +24,32 @@
       "type": "string",
       "unique": true
     },
+    "sourceKind": {
+      "type": "enumeration",
+      "enum": [
+        "manual",
+        "openalex",
+        "merged"
+      ],
+      "default": "manual"
+    },
+    "verificationStatus": {
+      "type": "enumeration",
+      "enum": [
+        "imported",
+        "reviewed",
+        "curated"
+      ],
+      "default": "curated"
+    },
+    "graphEligible": {
+      "type": "boolean",
+      "default": true
+    },
+    "listingEligible": {
+      "type": "boolean",
+      "default": true
+    },
     "doi": {
       "type": "string"
     },
@@ -48,6 +74,24 @@
     },
     "communityLabel": {
       "type": "string"
+    },
+    "lastImportedAt": {
+      "type": "datetime"
+    },
+    "lastGraphIndexedAt": {
+      "type": "datetime"
+    },
+    "embeddingModel": {
+      "type": "string"
+    },
+    "embeddingUpdatedAt": {
+      "type": "datetime"
+    },
+    "embeddingSourceHash": {
+      "type": "string"
+    },
+    "embedding": {
+      "type": "json"
     },
     "description": {
       "type": "richtext"
@@ -82,6 +126,9 @@
     "metadata": {
       "type": "json"
     },
+    "rawImportMetadata": {
+      "type": "json"
+    },
     "domain": {
       "type": "relation",
       "relation": "manyToOne",
@@ -110,6 +157,18 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::resource.resource"
+    },
+    "outgoingGraphLinks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::graph-link.graph-link",
+      "mappedBy": "source"
+    },
+    "incomingGraphLinks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::graph-link.graph-link",
+      "mappedBy": "target"
     }
   }
 }

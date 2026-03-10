@@ -612,18 +612,34 @@ export async function getPartners() {
  */
 export async function getPublications(options = {}) {
   try {
-    const { domainSlug } = options;
-    const params = new URLSearchParams();
-    params.set('sort', 'year:desc');
+    const { domainSlug, includeUnlisted = false, graphEligibleOnly = false } = options;
+    const filters = {};
+
     if (domainSlug) {
-      params.set('filters[domain][slug][$eq]', domainSlug);
+      filters.domain = { slug: { $eq: domainSlug } };
     }
-    setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
-    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
-    setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
-    setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+
+    if (!includeUnlisted) {
+      filters.listingEligible = { $eq: true };
+    }
+
+    if (graphEligibleOnly) {
+      filters.graphEligible = { $eq: true };
+    }
+
+    const params = createParams({
+      sort: 'year:desc',
+      filters,
+      populate: {
+        authors: PERSON_FLAT_POPULATE,
+        projects: { fields: ['title', 'slug'] },
+        domain: DEPARTMENT_POPULATE,
+        pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        bibFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        attachments: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+      },
+    });
+
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -1521,7 +1537,10 @@ export async function getPapers() {
   try {
     return await fetchAllEntries('/publications', {
       fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
-      filters: { openAlexId: { $notNull: true } },
+      filters: {
+        openAlexId: { $notNull: true },
+        graphEligible: { $eq: true },
+      },
     });
   } catch (error) {
     console.error('Failed to fetch papers:', error);
@@ -1536,7 +1555,11 @@ export async function getPapersByCommunity(communityId) {
   try {
     return await fetchAllEntries('/publications', {
       fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
-      filters: { openAlexId: { $notNull: true }, community: { $eq: communityId } },
+      filters: {
+        openAlexId: { $notNull: true },
+        graphEligible: { $eq: true },
+        community: { $eq: communityId },
+      },
     });
   } catch (error) {
     console.error('Failed to fetch papers by community:', error);

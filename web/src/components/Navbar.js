@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -51,6 +51,82 @@ const aboutMenu = [
   { href: '/about/rooms-calendar', label: 'Rooms & calendar' },
   { href: '/contact', label: 'Contact' },
 ];
+
+const strip = (value) =>
+  (value || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const parseTerms = (query) => strip(query).split(/\s+/).filter(Boolean);
+
+const matchesAllTerms = (item, terms) => {
+  if (!terms.length) return false;
+  const title = strip(item.title);
+  const snippet = strip(item.snippet);
+  const tags = (item.tags || []).map(strip);
+
+  return terms.every((term) => {
+    if (!term) return true;
+    if (title.includes(term)) return true;
+    if (snippet.includes(term)) return true;
+    return tags.some((tag) => tag.includes(term));
+  });
+};
+
+const scoreItem = (item, terms) => {
+  const title = strip(item.title);
+  const snippet = strip(item.snippet);
+  const tags = (item.tags || []).map(strip);
+
+  return terms.reduce((score, term) => {
+    if (!term) return score;
+    if (title.includes(term)) return score + 3;
+    if (tags.some((tag) => tag.includes(term))) return score + 2;
+    if (snippet.includes(term)) return score + 1;
+    return score;
+  }, 0);
+};
+
+const isExternalRoute = (route) => /^https?:\/\//i.test(route || '');
+
+const getBasePath = () => {
+  if (typeof window === 'undefined') return '';
+  const fromNext = window.__NEXT_DATA__?.assetPrefix;
+  if (fromNext) return fromNext;
+  const seg = window.location.pathname.split('/')[1] || '';
+  if (/staging/i.test(seg)) return `/${seg}`;
+  return '';
+};
+
+function SearchSuggestions({ suggestions, onSelect, emptyLabel = 'No matching pages found.' }) {
+  return (
+    <div className="absolute left-0 right-0 top-full mt-2 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-xl overflow-hidden z-50">
+      {suggestions.length > 0 ? (
+        <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+          {suggestions.map((item) => (
+            <li key={`${item.route}::${item.title}`}>
+              <button
+                type="button"
+                onClick={() => onSelect(item)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+              >
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 break-all mt-1">{item.route}</div>
+                {item.snippet ? (
+                  <div className="text-xs text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">{item.snippet}</div>
+                ) : null}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{emptyLabel}</div>
+      )}
+    </div>
+  );
+}
 
 function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
   return (
@@ -109,7 +185,10 @@ export default function Navbar() {
   // Search state
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchIndex, setSearchIndex] = useState([]);
   const searchInputRef = useRef(null);
+  const desktopSearchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   const desktopDropdowns = {
     'Research':      { open: researchOpen, setOpen: setResearchOpen, items: researchMenu },
@@ -124,20 +203,77 @@ export default function Navbar() {
     }
   }, [searchExpanded]);
 
+  useEffect(() => {
+    const base = getBasePath();
+    const url = `${base}/api/search-index`;
+    const fallbackUrl = `${base}/search-index.json`;
+
+    const loadIndex = async (targetUrl) => {
+      const response = await fetch(targetUrl);
+      if (!response.ok) return null;
+      return response.json();
+    };
+
+    loadIndex(url)
+      .then(async (data) => {
+        if (Array.isArray(data)) return data;
+        const fallback = await loadIndex(fallbackUrl);
+        return Array.isArray(fallback) ? fallback : [];
+      })
+      .then((data) => setSearchIndex(data))
+      .catch(() => setSearchIndex([]));
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      const target = event.target;
+      if (desktopSearchRef.current?.contains(target)) return;
+      if (mobileSearchRef.current?.contains(target)) return;
+      setSearchExpanded(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  const searchSuggestions = useMemo(() => {
+    const terms = parseTerms(searchQuery);
+    if (!terms.length) return [];
+
+    return searchIndex
+      .filter((item) => matchesAllTerms(item, terms))
+      .map((item) => ({ ...item, _score: scoreItem(item, terms) }))
+      .sort((a, b) => b._score - a._score || a.title.localeCompare(b.title))
+      .slice(0, 6);
+  }, [searchIndex, searchQuery]);
+
+  const finishSearchInteraction = () => {
+    setSearchExpanded(false);
+    setSearchQuery('');
+    setIsOpen(false);
+  };
+
+  const navigateToSearchTarget = (item) => {
+    if (!item?.route) return;
+    finishSearchInteraction();
+    if (isExternalRoute(item.route)) {
+      window.open(item.route, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    router.push(item.route);
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchExpanded(false);
-      setSearchQuery("");
-      setIsOpen(false);
+      finishSearchInteraction();
     }
   };
 
   const handleSearchKeyDown = (e) => {
     if (e.key === "Escape") {
-      setSearchExpanded(false);
-      setSearchQuery("");
+      finishSearchInteraction();
     }
   };
 
@@ -249,7 +385,7 @@ export default function Navbar() {
           })}
 
           {/* Search bar / icon */}
-          <li className="relative flex items-center ml-2">
+          <li className="relative flex items-center ml-2" ref={desktopSearchRef}>
             <div className={`flex items-center transition-all duration-300 ${searchExpanded ? 'w-64' : 'w-auto'}`}>
               {searchExpanded ? (
                 <form onSubmit={handleSearchSubmit} className="flex items-center w-full">
@@ -271,6 +407,12 @@ export default function Navbar() {
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                     </button>
+                    {searchQuery.trim() ? (
+                      <SearchSuggestions
+                        suggestions={searchSuggestions}
+                        onSelect={navigateToSearchTarget}
+                      />
+                    ) : null}
                   </div>
                 </form>
               ) : (
@@ -291,7 +433,7 @@ export default function Navbar() {
       {isOpen && (
         <ul className="md:hidden flex flex-col border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-2">
           {/* Mobile search bar */}
-          <li className="px-4 py-2 mb-2">
+          <li className="px-4 py-2 mb-2" ref={mobileSearchRef}>
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
               <div className="relative flex-1">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -299,9 +441,16 @@ export default function Navbar() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   placeholder="Search the site..."
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {searchQuery.trim() ? (
+                  <SearchSuggestions
+                    suggestions={searchSuggestions}
+                    onSelect={navigateToSearchTarget}
+                  />
+                ) : null}
               </div>
               <button
                 type="submit"

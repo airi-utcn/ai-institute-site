@@ -3,16 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-
-const container = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
-};
-const item = {
-  hidden: { y: 16, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
-};
 
 const strip = (s) =>
   (s || "")
@@ -99,6 +89,10 @@ function getBasePath() {
   return "";
 }
 
+function isExternalRoute(route) {
+  return /^https?:\/\//i.test(route || "");
+}
+
 export default function ClassicClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -117,15 +111,24 @@ export default function ClassicClient() {
 
   useEffect(() => {
     const base = getBasePath();
-    const url = `${base}/search-index.json`;
+    const url = `${base}/api/search-index`;
+    const fallbackUrl = `${base}/search-index.json`;
 
-    fetch(url)
-      .then(async (r) => {
-        if (!r.ok) {
-          console.error("[search] failed to load index:", url, r.status, r.statusText);
-          return [];
+    const loadIndex = async (targetUrl, { silent = false } = {}) => {
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        if (!silent) {
+          console.error("[search] failed to load index:", targetUrl, response.status, response.statusText);
         }
-        return r.json();
+        return null;
+      }
+      return response.json();
+    };
+
+    loadIndex(url)
+      .then(async (data) => {
+        if (data !== null) return data;
+        return loadIndex(fallbackUrl, { silent: true });
       })
       .then((data) => {
         if (!Array.isArray(data)) {
@@ -163,46 +166,53 @@ export default function ClassicClient() {
   }, [q, idx]);
 
   return (
-    <motion.div variants={container} initial="hidden" animate="visible">
-      <motion.h1
-        className="text-2xl md:text-3xl font-extrabold mb-6 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
-        variants={item}
-      >
-        🔎 Search
-      </motion.h1>
+    <div className="space-y-6 text-gray-900 dark:text-gray-100">
+      <div className="page-header mb-0">
+        <h1 className="page-header-title">Search</h1>
+        <p className="page-header-subtitle">
+          Search across pages, people, projects, publications, news, events, and resources.
+        </p>
+      </div>
 
-      <motion.div
-        className="rounded-2xl border p-4 mb-6 bg-white/70 dark:bg-slate-900/60 backdrop-blur"
-        variants={item}
-      >
+      <div className="card p-4 md:p-5">
         <input
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Type to search pages…"
-          className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
+          className="input"
         />
-      </motion.div>
+      </div>
 
       {ready && q.trim() && (
         <>
-          <motion.div className="text-sm text-slate-500 mb-3" variants={item}>
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             {results.length} result{results.length === 1 ? "" : "s"} for <strong>“{q.trim()}”</strong>
-          </motion.div>
+          </div>
 
-          <motion.ul className="space-y-3" variants={container}>
+          <ul className="space-y-3">
             {results.map((r) => (
-              <motion.li
+              <li
                 key={`${r.route}::${r.title}`}
-                className="rounded-xl border p-4 bg-white/80 dark:bg-slate-900/70 backdrop-blur hover:shadow-md transition"
-                variants={item}
+                className="card p-4 md:p-5 transition-shadow hover:shadow-md"
               >
-                <Link href={r.route} className="text-blue-600 dark:text-blue-400 underline font-medium">
-                  {highlightPrefix(r.title, terms)}
-                </Link>
-                <div className="text-xs text-slate-500 mt-1">{r.route}</div>
+                {isExternalRoute(r.route) ? (
+                  <a
+                    href={r.route}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link font-medium"
+                  >
+                    {highlightPrefix(r.title, terms)}
+                  </a>
+                ) : (
+                  <Link href={r.route} className="link font-medium">
+                    {highlightPrefix(r.title, terms)}
+                  </Link>
+                )}
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-all">{r.route}</div>
                 {r.snippet && (
-                  <p className="text-slate-700 dark:text-slate-300 mt-2">
+                  <p className="text-gray-700 dark:text-gray-300 mt-2">
                     {highlightPrefix(r.snippet, terms)}
                   </p>
                 )}
@@ -211,24 +221,29 @@ export default function ClassicClient() {
                     {r.tags.slice(0, 6).map((tag, i) => (
                       <span
                         key={`${r.route}::${r.title}::tag-${i}-${tag}`}
-                        className="text-xs px-2 py-0.5 rounded-full border bg-white dark:bg-slate-900"
+                        className="badge badge-gray"
                       >
                         #{highlightPrefix(String(tag), terms)}
                       </span>
                     ))}
                   </div>
                 )}
-              </motion.li>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
 
           {results.length === 0 && (
-            <motion.div className="text-slate-600 dark:text-slate-300" variants={item}>
+            <div className="empty-state py-6">
               No matches! Try different keywords or check your spelling!
-            </motion.div>
+            </div>
           )}
         </>
       )}
-    </motion.div>
+      {ready && !q.trim() && (
+        <div className="empty-state py-6">
+          Start typing to search the site.
+        </div>
+      )}
+    </div>
   );
 }

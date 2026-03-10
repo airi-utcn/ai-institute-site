@@ -1,11 +1,14 @@
-export const metadata = { title: "Search – Classic" };
+export const metadata = {
+  title: "Classic Search",
+  description: "Search across AIRi's research, people, projects, and publications.",
+};
 
 import { Suspense } from "react";
 import ClassicClient from "./ClassicClient";
 
 export default function Page() {
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <section className="card p-6 md:p-10">
           <Suspense fallback={<div className="text-center py-8 text-gray-500">Loading search...</div>}>
@@ -13,6 +16,6 @@ export default function Page() {
           </Suspense>
         </section>
       </div>
-    </main>
+    </div>
   );
 }

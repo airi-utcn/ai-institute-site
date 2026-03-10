@@ -1,5 +1,6 @@
 import { getProjects, getProjectBySlug, transformProjectData } from "@/lib/strapi";
 import ProjectDetailsClient from "./ProjectDetails";
+import { JsonLd, projectJsonLd } from "@/lib/jsonld";
 
 export async function generateStaticParams() {
   try {
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }) {
     const projectData = await getProjectBySlug(slug);
     const project = transformProjectData([projectData])[0];
     return {
-      title: project?.title ? `${project.title} – Projects` : "Project Details",
+      title: project?.title || "Project Details",
       description: project?.abstract?.slice(0, 160) || "Project details",
     };
   } catch {
@@ -31,5 +32,10 @@ export default async function ProjectPage({ params }) {
   const projectData = await getProjectBySlug(slug);
   const project = transformProjectData([projectData])[0];
 
-  return <ProjectDetailsClient project={project} />;
+  return (
+    <>
+      <JsonLd data={projectJsonLd(project)} />
+      <ProjectDetailsClient project={project} />
+    </>
+  );
 }

@@ -30,7 +30,7 @@ export default function PublicationDetailClient({ publication }) {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="mb-6">
           <Link
@@ -320,6 +320,6 @@ export default function PublicationDetailClient({ publication }) {
           )}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

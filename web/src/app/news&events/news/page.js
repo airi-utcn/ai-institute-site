@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - News",
+  title: "News",
+  description: "Latest news and announcements from AIRi at the Technical University of Cluj-Napoca.",
 };
 
 import NewsClient from "./NewsClient";

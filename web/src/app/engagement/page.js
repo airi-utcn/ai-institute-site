@@ -1,4 +1,7 @@
-export const metadata = { title: "Engagement – AIRi @ UTCN" };
+export const metadata = {
+  title: "Engagement",
+  description: "Discover how AIRi engages with industry, academia, high-school students, and the public through partnerships and programs.",
+};
 
 import { Suspense } from "react";
 import EngagementClient from "./EngagementClient";

@@ -72,7 +72,7 @@ export default function TimelineClient() {
     }, []);
 
     return (
-        <main className="page-container">
+        <div className="page-container">
             <div className="content-wrapper content-padding">
                 <div className="card p-6 md:p-10">
                     <motion.h1
@@ -115,6 +115,6 @@ export default function TimelineClient() {
                     </VerticalTimeline>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

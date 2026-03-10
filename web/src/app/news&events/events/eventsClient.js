@@ -24,7 +24,7 @@ export default function EventsClient({ events = [] }) {
   const t = useTranslations("news&events.events");
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
           title= {t("title")}
@@ -96,6 +96,6 @@ export default function EventsClient({ events = [] }) {
           </motion.ul>
         )}
       </div>
-    </main>
+    </div>
   );
 }

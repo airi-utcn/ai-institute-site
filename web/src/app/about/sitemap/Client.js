@@ -99,7 +99,7 @@ export default function Client() {
   }, [q, SECTIONS]);
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
         className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-8"
         variants={container}
@@ -178,6 +178,6 @@ export default function Client() {
           </motion.p>
         )}
       </motion.div>
-    </main>
+    </div>
   );
 }

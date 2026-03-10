@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Thesis",
+  title: "Thesis",
+  description: "Doctoral and master's theses supervised by AIRi researchers at UTCN.",
 };
 
 import ThesisClient from "./thesisClient";

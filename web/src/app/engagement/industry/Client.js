@@ -286,7 +286,7 @@ export default function Client({ projects: rawProjects = [] }) {
   }, [tab, query, domainFilter, domainOptions, filteredProjects, stats, t]);
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.h1
@@ -347,6 +347,6 @@ export default function Client({ projects: rawProjects = [] }) {
           </div>
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

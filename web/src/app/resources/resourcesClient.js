@@ -202,7 +202,7 @@ export default function ResourcesClient({ resources = [] }) {
   const hasActiveFilters = searchQuery || categoryFilter;
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -344,6 +344,6 @@ export default function ResourcesClient({ resources = [] }) {
           )
         )}
       </div>
-    </main>
+    </div>
   );
 }

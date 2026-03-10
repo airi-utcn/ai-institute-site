@@ -54,7 +54,7 @@ export default function DepartmentsClient({
   };
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
@@ -108,6 +108,6 @@ export default function DepartmentsClient({
 
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

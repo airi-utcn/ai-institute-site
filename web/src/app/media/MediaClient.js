@@ -85,7 +85,7 @@ export default function MediaClient() {
       <Head>
         <title>ICIA - Media</title>
       </Head>
-      <main className="page-container">
+      <div className="page-container">
         <motion.div
           className="content-wrapper content-padding"
           variants={containerVariants}
@@ -247,7 +247,7 @@ export default function MediaClient() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </div>
     </>
   );
 }

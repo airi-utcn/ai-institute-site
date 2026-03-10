@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "Organigram | AI Institute",
+  title: "Organigram",
+  description: "Organisational structure and team hierarchy of the Artificial Intelligence Research Institute at UTCN.",
 };
 
 import Client from "./Client";

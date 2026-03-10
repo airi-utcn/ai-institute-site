@@ -4,13 +4,14 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import { useTranslations } from "next-intl";
 
 export const metadata = {
-  title: "About – Mission & History | AIRi @ UTCN",
+  title: "About – Mission & History",
+  description: "Learn about AIRi's mission, history, and role in advancing AI research at the Technical University of Cluj-Napoca.",
 };
 
 export default function AboutPage() {
   const t = useTranslations("about.history");
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <section className="card p-8 md:p-10">
           <div className="flex flex-col items-center mb-8">
@@ -27,6 +28,6 @@ export default function AboutPage() {
           <HistorySection />
         </section>
       </div>
-    </main>
+    </div>
   );
 }

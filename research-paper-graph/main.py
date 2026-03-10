@@ -62,6 +62,9 @@ def build_parser():
     p.add_argument("--dry-run", action="store_true", help="Report what would happen without writing")
     p.add_argument("--upload-pdfs", action="store_true", help="Download and upload PDFs to Strapi")
 
+    p.add_argument("--limit", type=int, default=100,
+        help="Maximum number of papers to process (default: 100; 0 = unlimited)")
+
     p.add_argument("--similarity-threshold", type=float, default=None)
     p.add_argument("--duplicate-threshold", type=float, default=None)
     p.add_argument("--model", type=str, default=None)
@@ -151,6 +154,10 @@ def run(args):
     # ── 1. Fetch papers ──────────────────────────────────────────────────
     papers, label = fetch_papers(args)
     log.info(f"Fetched {len(papers)} papers ({label})")
+
+    if args.limit and args.limit > 0 and len(papers) > args.limit:
+        log.info(f"Limiting to {args.limit} papers (--limit {args.limit})")
+        papers = papers[:args.limit]
 
     # Save local copy
     os.makedirs("outputs", exist_ok=True)

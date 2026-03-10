@@ -1530,6 +1530,21 @@ export async function getPapers() {
 }
 
 /**
+ * Fetch papers belonging to a specific community cluster.
+ */
+export async function getPapersByCommunity(communityId) {
+  try {
+    return await fetchAllEntries('/publications', {
+      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
+      filters: { openAlexId: { $notNull: true }, community: { $eq: communityId } },
+    });
+  } catch (error) {
+    console.error('Failed to fetch papers by community:', error);
+    return [];
+  }
+}
+
+/**
  * Fetch all Graph Links for the Graph
  * (source/target now point at publications)
  */

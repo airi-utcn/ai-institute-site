@@ -368,6 +368,8 @@ Update documentation and operational usage notes.
 
 ## Operational Notes
 
+Detailed graph-generation mechanics are documented in [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md).
+
 Current pipeline behavior:
 
 - fetch a source batch from OpenAlex or a local file

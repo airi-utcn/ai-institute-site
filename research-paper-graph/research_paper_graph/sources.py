@@ -136,8 +136,16 @@ def fetch_papers(args, prompt=input, logger=None, settings=None):
 
 
 def _resolve_fetch_cache_path(args, cache_key):
-    if getattr(args, "fetch_cache_file", None):
-        return args.fetch_cache_file
+    override_path = getattr(args, "fetch_cache_file", None)
+    if override_path:
+        if getattr(args, "mode", None) == "strapi-people":
+            base_dir = os.path.dirname(override_path)
+            filename = os.path.basename(override_path)
+            stem, extension = os.path.splitext(filename)
+            extension = extension or ".json"
+            derived_name = f"{stem}_{cache_key}{extension}"
+            return os.path.join(base_dir, derived_name) if base_dir else derived_name
+        return override_path
     return os.path.join("outputs", "fetch-cache", f"{cache_key}.json")
 
 

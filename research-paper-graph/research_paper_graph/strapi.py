@@ -154,6 +154,9 @@ class StrapiClient:
                 "fields[5]": "cited_by",
                 "fields[6]": "abstract",
                 "fields[7]": "topics",
+                "fields[8]": "embedding",
+                "fields[9]": "embeddingModel",
+                "fields[10]": "embeddingSourceHash",
                 "populate[authors][fields][0]": "fullName",
             },
         )
@@ -186,6 +189,9 @@ class StrapiClient:
                     "abstract": attributes.get("abstract"),
                     "topics": attributes.get("topics") or [],
                     "authors": authors,
+                    "embedding": attributes.get("embedding"),
+                    "embeddingModel": attributes.get("embeddingModel"),
+                    "embeddingSourceHash": attributes.get("embeddingSourceHash"),
                 }
             )
             publication_map[graph_id] = document_id

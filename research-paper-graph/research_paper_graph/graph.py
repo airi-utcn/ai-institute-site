@@ -29,21 +29,40 @@ def _get_faiss():
 
 
 def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
-    """Generate embeddings for papers that have abstracts."""
+    """Generate embeddings for papers that have abstracts, reusing stored vectors when valid."""
     papers_with_text = [paper for paper in papers if paper.get("abstract")]
     if len(papers_with_text) < 2:
         log.warning("Not enough papers with abstracts to generate embeddings.")
         return papers_with_text, np.array([])
 
-    model = _load_sentence_transformer(model_name)
+    reused_count = 0
+    encode_positions = []
+    encode_inputs = []
+    embedding_rows = [None] * len(papers_with_text)
 
-    combined = [f"{paper['title']} {paper['abstract']}" for paper in papers_with_text]
-    log.info(f"Encoding {len(combined)} papers...")
-    embeddings = model.encode(combined, show_progress_bar=True, convert_to_numpy=True)
+    for index, paper in enumerate(papers_with_text):
+        stored_embedding = _get_reusable_embedding(paper, model_name)
+        if stored_embedding is not None:
+            embedding_rows[index] = stored_embedding
+            reused_count += 1
+            continue
 
-    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
-    norms[norms == 0] = 1
-    embeddings = embeddings / norms
+        encode_positions.append(index)
+        encode_inputs.append(f"{paper['title']} {paper['abstract']}")
+
+    encoded_count = len(encode_inputs)
+    if encoded_count:
+        model = _load_sentence_transformer(model_name)
+        log.info(f"Encoding {encoded_count} papers...")
+        encoded_embeddings = model.encode(encode_inputs, show_progress_bar=True, convert_to_numpy=True)
+        for position, embedding in zip(encode_positions, encoded_embeddings):
+            embedding_rows[position] = embedding
+
+    if reused_count:
+        log.info(f"Reused {reused_count} stored embeddings")
+
+    embeddings = np.asarray(embedding_rows, dtype=np.float32)
+    embeddings = _normalize_embeddings(embeddings)
 
     return papers_with_text, embeddings
 
@@ -80,6 +99,31 @@ def embedding_source_hash(paper):
         ensure_ascii=True,
     )
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _get_reusable_embedding(paper, model_name):
+    stored_embedding = paper.get("embedding")
+    if not stored_embedding:
+        return None
+    if paper.get("embeddingModel") != model_name:
+        return None
+    if paper.get("embeddingSourceHash") != embedding_source_hash(paper):
+        return None
+
+    try:
+        embedding = np.asarray(stored_embedding, dtype=np.float32)
+    except (TypeError, ValueError):
+        return None
+
+    if embedding.ndim != 1 or embedding.size == 0:
+        return None
+    return embedding
+
+
+def _normalize_embeddings(embeddings):
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    norms[norms == 0] = 1
+    return embeddings / norms
 
 
 def build_faiss_index(embeddings):

@@ -45,14 +45,22 @@ def build_parser():
     p.add_argument(
         "--fetch-cache-file",
         type=str,
-        help="Override the default OpenAlex fetch cache file path",
+        help="Override the default OpenAlex fetch cache path (in strapi-people mode, a per-person suffix is added)",
     )
 
-    p.add_argument("--skip-graph", action="store_true", help="Skip link generation")
+    p.add_argument(
+        "--skip-graph",
+        action="store_true",
+        help="Skip duplicate screening and both preview/global graph generation steps",
+    )
     p.add_argument("--skip-upload", action="store_true", help="Skip Strapi upload")
     p.add_argument("--skip-communities", action="store_true", help="Skip community detection")
     p.add_argument("--update-existing", action="store_true", help="Update publications that already exist in Strapi")
-    p.add_argument("--dry-run", action="store_true", help="Report what would happen without writing")
+    p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Do not write to Strapi (local outputs are still generated)",
+    )
     p.add_argument("--upload-pdfs", action="store_true", help="Download and upload PDFs to Strapi")
 
     p.add_argument(
@@ -74,7 +82,7 @@ def build_parser():
     )
 
     p.add_argument("--verbose", "-v", action="store_true")
-    p.add_argument("--interactive", "-i", action="store_true", help="Run in interactive prompt mode (legacy)")
+    p.add_argument("--interactive", "-i", action="store_true", help="Run the legacy interactive prompt flow")
 
     return p
 

@@ -3,11 +3,18 @@ import hashlib
 import logging
 import os
 from collections import defaultdict
+from functools import lru_cache
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
 log = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=None)
+def _load_sentence_transformer(model_name):
+    log.info(f"Loading model ({model_name})...")
+    return SentenceTransformer(model_name)
 
 
 def _get_faiss():
@@ -28,8 +35,7 @@ def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
         log.warning("Not enough papers with abstracts to generate embeddings.")
         return papers_with_text, np.array([])
 
-    log.info(f"Loading model ({model_name})...")
-    model = SentenceTransformer(model_name)
+    model = _load_sentence_transformer(model_name)
 
     combined = [f"{paper['title']} {paper['abstract']}" for paper in papers_with_text]
     log.info(f"Encoding {len(combined)} papers...")

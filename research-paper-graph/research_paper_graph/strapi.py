@@ -215,6 +215,37 @@ class StrapiClient:
                 }
         log.info(f"  Loaded {len(self._person_by_name)} people")
 
+    def load_import_people(self):
+        """Load Strapi people that can be used as author import seeds."""
+        log.info("Loading importable people from Strapi...")
+        people = self._fetch_all_pages(
+            "people",
+            {
+                "fields[0]": "fullName",
+                "fields[1]": "documentId",
+                "fields[2]": "type",
+            },
+        )
+
+        import_people = []
+        for person in people:
+            attributes = person.get("attributes", person)
+            document_id = person.get("documentId") or person.get("id")
+            full_name = attributes.get("fullName")
+            if not full_name or not document_id:
+                continue
+            import_people.append(
+                {
+                    "documentId": document_id,
+                    "fullName": full_name,
+                    "type": attributes.get("type"),
+                }
+            )
+
+        import_people.sort(key=lambda person: person["fullName"].lower())
+        log.info(f"  Loaded {len(import_people)} importable people")
+        return import_people
+
     def load_publication_author_ids(self, document_id):
         """Load current author relations for a publication so imports can merge additively."""
         try:

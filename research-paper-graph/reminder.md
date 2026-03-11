@@ -1,3 +1,0 @@
-- Create slugs for the papers
-- Refine linking algorithm
-- Inspire map drawing from HD2 galactic map

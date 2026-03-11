@@ -22,10 +22,10 @@ log = logging.getLogger("paper-sync")
 def build_parser():
     p = argparse.ArgumentParser(
         prog="paper-sync",
-        description="Fetch academic papers, build similarity graph, upload to Strapi.",
+        description="Fetch academic papers, build a global similarity graph, and sync them into Strapi.",
     )
     p.add_argument(
-        "--mode", choices=["institution", "author", "file"], default="institution",
+        "--mode", choices=["institution", "author", "strapi-people", "file"], default="institution",
         help="Source of papers (default: institution)",
     )
     p.add_argument("--institution", type=str, help="Institution name for mode=institution")
@@ -85,7 +85,7 @@ def run(args):
     model_name = args.model or SETTINGS.graph_ai_model
     top_k = args.top_k or SETTINGS.graph_top_k
 
-    papers, label = fetch_papers(args, logger=log)
+    papers, label = fetch_papers(args, logger=log, settings=SETTINGS)
     log.info(f"Fetched {len(papers)} papers ({label})")
 
     if args.limit and args.limit > 0 and len(papers) > args.limit:
@@ -179,21 +179,27 @@ def main(argv=None):
 
 def _interactive_mode(args):
     print("=== Research Paper Graph Manager ===")
-    choice = input("Load papers from (1) OpenAlex Author, (2) Local file, (3) Institution [1/2/3]: ").strip() or "1"
+    choice = input("Load papers from (1) OpenAlex Author, (2) Local file, (3) Institution, (4) Strapi People [1/2/3/4]: ").strip() or "1"
 
-    if choice == "3":
+    if choice == "4":
+        args.mode = "strapi-people"
+    elif choice == "3":
         args.mode = "institution"
     elif choice == "2":
         args.mode = "file"
     else:
         args.mode = "author"
 
-    if args.mode in {"author", "institution"}:
+    if args.mode in {"author", "institution", "strapi-people"}:
         use_fetch_cache = input("Reuse or resume cached OpenAlex fetches if available? (y/n) [y]: ").strip().lower()
         args.use_fetch_cache = use_fetch_cache != "n"
 
         refresh_fetch_cache = input("Force a fresh OpenAlex fetch and rebuild the cache? (y/n) [n]: ").strip().lower()
         args.refresh_fetch_cache = refresh_fetch_cache == "y"
+
+    if args.mode == "strapi-people":
+        institution_filter = input("Institution filter for author lookup (optional, Enter to skip): ").strip()
+        args.author_institution = institution_filter or None
 
     args.update_existing = input("Update existing publications? (y/n) [n]: ").strip().lower() == "y"
     args.upload_pdfs = input("Upload PDFs? (y/n) [n]: ").strip().lower() == "y"

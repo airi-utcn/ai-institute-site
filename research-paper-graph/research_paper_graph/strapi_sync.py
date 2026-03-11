@@ -21,7 +21,9 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
     log.info(f"Uploading {len(papers_to_upload)} publications...")
     for paper in papers_to_upload:
         oa_id = paper.get("openAlexId")
-        author_ids = strapi.match_authors(paper.get("authors", []))
+        matched_author_ids = strapi.match_authors(paper.get("authors", []))
+        seeded_author_ids = paper.get("seedPersonIds", [])
+        author_ids = list(dict.fromkeys([*matched_author_ids, *seeded_author_ids]))
         existing_id, match_type = strapi.find_existing_publication(
             openalex_id=oa_id,
             doi=paper.get("doi"),

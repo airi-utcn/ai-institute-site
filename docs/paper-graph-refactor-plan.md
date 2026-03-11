@@ -293,6 +293,7 @@ Completed:
 - Global rebuild now persists embeddings and graph metadata back into Strapi-managed publication fields
 - OpenAlex fetches now write resumable local cache files and can resume from the last saved cursor on demand
 - Default import runs are now unlimited unless an explicit `--limit` is provided
+- The importer can now seed from Strapi people directly, fetching OpenAlex works name by name and force-linking imported publications back to those people
 
 In progress:
 
@@ -370,8 +371,10 @@ Update documentation and operational usage notes.
 Current pipeline behavior:
 
 - fetch a source batch from OpenAlex or a local file
+- optionally fetch by iterating over Strapi people one by one instead of relying on a single institution search
 - upsert imported publications with machine-owned field updates only
 - merge matched authors additively with any existing curated author relations
+- merge seeded Strapi people into imported publication authors so fetched works appear under those people on the site
 - reload all `graphEligible` publications from Strapi after sync
 - rebuild duplicates, links, communities, and embeddings from that global set
 - replace all existing graph links with the rebuilt link set

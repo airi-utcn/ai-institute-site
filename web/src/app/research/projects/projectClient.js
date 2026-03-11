@@ -55,6 +55,16 @@ const normalizeProject = (p) => {
   const contributorNames = contributorObjs.map((c) => c?.name || c?.fullName || c).filter(Boolean);
   const contributorSlugs = contributorObjs.map((c) => c?.slug).filter(Boolean);
 
+  const themeObjs = Array.isArray(p?.themes) ? p.themes : [];
+  const themeNames = themeObjs
+    .map((t) => (typeof t === "string" ? t : t?.name || ""))
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const themeSlugs = themeObjs
+    .map((t) => (typeof t === "string" ? slugify(t) : t?.slug || slugify(t?.name || "")))
+    .filter(Boolean);
+
   // Merge team members + contributors for filter purposes (de-duplicated by name)
   const teamMemberNames = memberNames.length ? memberNames : normalizeTeams(p);
   const allMemberNames = [...new Set([...teamMemberNames, ...contributorNames])];
@@ -74,6 +84,8 @@ const normalizeProject = (p) => {
     members: allMemberNames,
     memberSlugs: allMemberSlugs,
     contributors: contributorObjs,
+    themes: themeNames,
+    themeSlugs,
     isIndustryEngagement: Boolean(p?.isIndustryEngagement),
   };
 };
@@ -106,6 +118,9 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
       .filter((p) => p.title && !p.isIndustryEngagement);
   }, [rawProjects]);
 
+  console.log("rawProjects", rawProjects);
+  console.log("normalizedProjects", projects);
+
   const { regionOptions, domainOptions, leadOptions, memberOptions } = useMemo(() => {
     const regions = new Set();
     const domains = new Set();
@@ -137,6 +152,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
         ...p.domainNames,
         ...p.regions,
         ...p.members,
+        ...(p.themes || []),
       ]
         .join(" ")
         .toLowerCase();
@@ -147,9 +163,12 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
       const matchesLead = !leadFilter || p.lead === leadFilter;
       const matchesMember = !memberFilter || p.members.includes(memberFilter);
       // Theme filter - check if project has themes and if the theme matches
-      const matchesTheme = !themeFilter || (p.themes && p.themes.some(t => 
-        t.toLowerCase().includes(themeFilter.toLowerCase())
-      ));
+      const normalizedThemeFilter = themeFilter.trim().toLowerCase();
+
+      const matchesTheme =
+        !normalizedThemeFilter ||
+        p.themes?.some((t) => t.toLowerCase().includes(normalizedThemeFilter)) ||
+        p.themeSlugs?.some((s) => s.toLowerCase() === normalizedThemeFilter);
 
       return matchesQ && matchesRegion && matchesDomain && matchesLead && matchesMember && matchesTheme;
     });

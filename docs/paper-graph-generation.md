@@ -140,9 +140,16 @@ Important distinction:
 - embeddings are not generated once globally for all time
 - embeddings are generated once per graph build for the paper set used by that build
 
-So the current system does not yet reuse previously stored Strapi embeddings to avoid recomputation.
+For the global rebuild, the current system now reuses previously stored Strapi embeddings when both of these still match the current paper content:
 
-It does, however, avoid reloading the Python model twice in one process by caching the `SentenceTransformer` instance in [research-paper-graph/research_paper_graph/graph.py](/home/shumy/Projects/ai-institute-site/research-paper-graph/research_paper_graph/graph.py#L12).
+- `embeddingModel`
+- `embeddingSourceHash`
+
+Only missing or stale papers are re-encoded in that build.
+
+The preview build does not usually get that benefit, because freshly fetched source papers generally do not yet carry Strapi-managed embedding metadata.
+
+The code also avoids reloading the Python model twice in one process by caching the `SentenceTransformer` instance in [research-paper-graph/research_paper_graph/graph.py](/home/shumy/Projects/ai-institute-site/research-paper-graph/research_paper_graph/graph.py#L12).
 
 ### Step 3: Normalize Embeddings
 
@@ -184,6 +191,18 @@ Important nuance:
 This is still comparing each paper against the full indexed set, but the output is limited to the nearest `top_k` candidates per paper before threshold filtering.
 
 So the final graph is not "all pairs above threshold" when FAISS mode is active. It is "all retained pairs that appear inside the top-k neighborhood searches and also exceed the threshold".
+
+FAISS uses the embedding vectors directly.
+
+The flow is:
+
+1. generate or reuse embeddings for the current build set
+2. normalize those vectors to unit length
+3. insert them into a FAISS inner-product index
+4. query nearest neighbors for each paper embedding
+5. convert returned neighbors into similarity links
+
+So FAISS is the mechanism that turns embeddings into candidate similar-paper pairs.
 
 #### Fallback Path: Brute Force
 
@@ -239,6 +258,10 @@ Community detection is another downstream use of the already generated links and
 
 It does not trigger another encoding pass.
 
+Louvain does not operate directly on the embedding vectors.
+
+Instead, it operates on the weighted similarity graph that was already built from those embeddings.
+
 `detect_communities(...)` in [research-paper-graph/research_paper_graph/graph.py](/home/shumy/Projects/ai-institute-site/research-paper-graph/research_paper_graph/graph.py#L244) constructs an undirected NetworkX graph using only links where `is_duplicate` is false.
 
 Then it runs Louvain with a fixed seed for stability.
@@ -249,6 +272,17 @@ The output is:
 - `community_labels`: community ID to human-readable label based on top topics in that cluster
 
 So communities are built from the final clean link graph, not directly from embeddings alone.
+
+The flow is:
+
+1. embeddings produce similarity links
+2. non-duplicate similarity links become weighted graph edges
+3. Louvain partitions that weighted graph into communities
+
+So the roles are intentionally separated:
+
+- FAISS consumes embeddings directly
+- Louvain consumes the graph derived from those embeddings
 
 ## Embeddings Versus Links
 
@@ -306,9 +340,14 @@ At the run level, the CLI performs two builds:
 
 So papers that appear in both sets may be encoded twice in the same run.
 
-Also, even though embeddings are written back to Strapi, the current graph generation code does not read and reuse those stored embeddings. It always re-encodes the input paper set for the current build.
+The global rebuild now reuses stored Strapi embeddings when both of these still match the current paper content:
 
-So the current pipeline does not yet implement incremental embedding reuse.
+- `embeddingModel`
+- `embeddingSourceHash`
+
+Only papers with missing or stale embeddings are re-encoded during that build.
+
+The preview build on freshly fetched source papers may still encode everything, because those source records usually do not yet carry Strapi-managed embedding metadata.
 
 ## What Gets Stored Back To Strapi
 
@@ -354,7 +393,7 @@ The current implementation is intentionally simpler than an incremental graph en
 
 Known limitations:
 
-- embeddings are recomputed per build rather than reused from Strapi
+- embeddings are reused only when the current build is operating on Strapi-loaded publications with matching `embeddingModel` and `embeddingSourceHash`
 - the preview build and global build may both encode overlapping papers in the same run
 - papers without abstracts cannot participate in similarity or communities
 - with FAISS enabled, link generation is restricted to top-k neighbors per paper rather than all pairs above threshold
@@ -377,6 +416,6 @@ That is the current system.
 
 ## Future Optimization Direction
 
-If the pipeline is optimized further, the most likely next improvement is not changing the graph math. It is avoiding unnecessary re-encoding by reusing stored embeddings whose `embeddingSourceHash` still matches the current `(title, abstract)` content.
+If the pipeline is optimized further, the most likely next improvement is not changing the graph math. It is expanding embedding reuse beyond the current global Strapi rebuild so that more of the preview-path work can also avoid re-encoding unchanged papers.
 
 That would preserve the same graph semantics while removing redundant embedding work.

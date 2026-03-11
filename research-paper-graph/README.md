@@ -1,34 +1,56 @@
-# Setup
+# Research Paper Graph
 
-1. Create venv:
+This package fetches publications from OpenAlex or local files, syncs them into Strapi `Publication` entries, and rebuilds the global similarity graph used by the site.
+
+## Setup
+
+1. Create a virtual environment.
 
 ```bash
 python3 -m venv venv
 ```
 
-2. Activate:
+2. Activate it.
 
 ```bash
 source venv/bin/activate
 ```
 
-3. Install dependencies:
+3. Install dependencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run:
+4. Ensure the repository `.env` contains a working `STRAPI_API_TOKEN` and Strapi URL settings.
+
+## Run
+
+Show current usage:
 
 ```bash
-python author_harvester.py
+python main.py --help
 ```
 
-___
+Common examples:
 
-#### If the requirements.txt is outdated, or breaks for whatever reason
+```bash
+python main.py --mode author --author "Adrian Groza" --use-fetch-cache --update-existing
+python main.py --mode institution --institution "Technical University of Cluj-Napoca" --use-fetch-cache
+python main.py --mode strapi-people --use-fetch-cache --update-existing
+python main.py --mode file --file outputs/papers_strapi_people.json --skip-upload
+```
+
+## Documentation
+
+- [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md): detailed explanation of embeddings, FAISS, links, duplicates, and Louvain communities
+- [docs/paper-sync-cli-guide.md](/home/shumy/Projects/ai-institute-site/docs/paper-sync-cli-guide.md): option-by-option CLI guide, usage patterns, and current caveats
+
+## Dependency fallback
+
+If `requirements.txt` fails in a fresh environment, install the core packages manually:
 
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install sentence-transformers requests numpy scikit-learn dotenv
+pip install sentence-transformers requests numpy scikit-learn python-dotenv
 ```

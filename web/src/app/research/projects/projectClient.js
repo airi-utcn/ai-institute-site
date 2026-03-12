@@ -118,9 +118,6 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
       .filter((p) => p.title && !p.isIndustryEngagement);
   }, [rawProjects]);
 
-  console.log("rawProjects", rawProjects);
-  console.log("normalizedProjects", projects);
-
   const { regionOptions, domainOptions, leadOptions, memberOptions } = useMemo(() => {
     const regions = new Set();
     const domains = new Set();

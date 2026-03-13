@@ -37,6 +37,19 @@ const authorsToNames = (authors, bySlugMap) => {
 
 const normalizePublication = (p, bySlugMap) => {
   const slug = toPublicationSlug({ slug: p.slug, title: p.title, year: p.year });
+
+  const themeObjs = Array.isArray(p?.themes) ? p.themes : [];
+  const themeNames = themeObjs
+    .map((t) => (typeof t === "string" ? t : t?.name || ""))
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const themeSlugs = themeObjs
+    .map((t) =>
+      typeof t === "string" ? slugify(t) : t?.slug || slugify(t?.name || "")
+    )
+    .filter(Boolean);
+  
   return {
     slug,
     title: p.title || "",
@@ -47,6 +60,8 @@ const normalizePublication = (p, bySlugMap) => {
     authors: authorsToNames(p.authors, bySlugMap),
     pdfFile: p.pdfFile || null,
     projects: Array.isArray(p.projects) ? p.projects : [],
+    themes: themeNames,
+    themeSlugs,
   };
 };
 
@@ -102,6 +117,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
   /* filtering */
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
+    const normalizedThemeFilter = themeFilter.trim().toLowerCase();
     return pubs.filter((p) => {
       const inSearch =
         !query ||
@@ -114,9 +130,10 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       const inDomain = !domainFilter || p.domain === domainFilter;
       const inKind = !kindFilter || p.kind === kindFilter;
       // Theme filter - simple text match on title/domain for now
-      const inTheme = !themeFilter || 
-        p.title.toLowerCase().includes(themeFilter.toLowerCase()) ||
-        p.domain.toLowerCase().includes(themeFilter.toLowerCase());
+      const inTheme =
+        !normalizedThemeFilter ||
+        p.themes?.some((t) => t.toLowerCase().includes(normalizedThemeFilter)) ||
+        p.themeSlugs?.some((s) => s.toLowerCase() === normalizedThemeFilter);
 
       return inSearch && inYear && inAuthor && inDomain && inKind && inTheme;
     });

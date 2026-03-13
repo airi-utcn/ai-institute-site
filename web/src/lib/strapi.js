@@ -621,6 +621,7 @@ export async function getPublications(options = {}) {
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
@@ -704,6 +705,7 @@ export async function getPublicationsByAuthor(authorSlug) {
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
   } catch (error) {

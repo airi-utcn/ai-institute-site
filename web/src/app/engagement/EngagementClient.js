@@ -117,7 +117,7 @@ function SectionCard({ title, children }) {
 function PublicContent() {
   const t = useTranslations('engagement.basic.PublicContent');
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div key="public" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
           {t('desc')}
@@ -173,7 +173,7 @@ function AcademicContent({ subTab, setSubTab }) {
   ];
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <div className="space-y-6">
       {/* Subtabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {ACADEMIC_SUBTABS.map(tab => (
@@ -186,109 +186,120 @@ function AcademicContent({ subTab, setSubTab }) {
         ))}
       </div>
 
-      {subTab === 'partnerships' && (
-        <div className="space-y-6">
-          <SectionCard title={t('partnerTitle')}>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('partnerDesc')}
-            </p>
-          </SectionCard>
-          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
-            <FeatureCard
-              icon={FaGraduationCap}
-              title={t('uniTitle')}
-              desc={t('uniDesc')}
-            />
-            <FeatureCard
-              icon={FaHandshake}
-              title={t('netTitle')}
-              desc={t('netDesc')}
-            />
-          </motion.div>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={subTab} 
+          variants={containerVariants} 
+          initial="hidden" 
+          animate="visible"
+          exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+          className="space-y-6"
+        >
+          {subTab === 'partnerships' && (
+            <div className="space-y-6">
+              <SectionCard title={t('partnerTitle')}>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {t('partnerDesc')}
+                </p>
+              </SectionCard>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FeatureCard
+                  icon={FaGraduationCap}
+                  title={t('uniTitle')}
+                  desc={t('uniDesc')}
+                />
+                <FeatureCard
+                  icon={FaHandshake}
+                  title={t('netTitle')}
+                  desc={t('netDesc')}
+                />
+              </div>
+            </div>
+          )}
 
-      {subTab === 'teaching' && (
-        <div className="space-y-6">
-          <SectionCard title={t('teachTitle')}>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('teachDesc')}
-            </p>
-          </SectionCard>
-          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
-            <FeatureCard
-              icon={FaChalkboardTeacher}
-              title={t('summerTitle')}
-              desc={t('summerDesc')}
-            />
-            <FeatureCard
-              icon={FaBook}
-              title={t('workTitle')}
-              desc={t('workDesc')}
-            />
-          </motion.div>
-        </div>
-      )}
+          {subTab === 'teaching' && (
+            <div className="space-y-6">
+              <SectionCard title={t('teachTitle')}>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {t('teachDesc')}
+                </p>
+              </SectionCard>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FeatureCard
+                  icon={FaChalkboardTeacher}
+                  title={t('summerTitle')}
+                  desc={t('summerDesc')}
+                />
+                <FeatureCard
+                  icon={FaBook}
+                  title={t('workTitle')}
+                  desc={t('workDesc')}
+                />
+              </div>
+            </div>
+          )}
 
-      {subTab === 'courses' && (
-        <div className="space-y-6">
-          <SectionCard title={t('courseTitle')}>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              {t('courseDesc')}
-            </p>
-          </SectionCard>
-          <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
-            <FeatureCard
-              icon={FaFlask}
-              title={t('mlTitle')}
-              desc={t('mlDesc')}
-            />
-            <FeatureCard
-              icon={FaProjectDiagram}
-              title={t('robotTitle')}
-              desc={t('robotDesc')}
-            />
-            <FeatureCard
-              icon={FaIndustry}
-              title={t('hpcTitle')}
-              desc={t('hpcDesc')}
-            />
-            <FeatureCard
-              icon={FaInfoCircle}
-              title={t('ethicsTitle')}
-              desc={t('ethicsDesc')}
-            />
-          </motion.div>
-        </div>
-      )}
+          {subTab === 'courses' && (
+            <div className="space-y-6">
+              <SectionCard title={t('courseTitle')}>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {t('courseDesc')}
+                </p>
+              </SectionCard>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FeatureCard
+                  icon={FaFlask}
+                  title={t('mlTitle')}
+                  desc={t('mlDesc')}
+                />
+                <FeatureCard
+                  icon={FaProjectDiagram}
+                  title={t('robotTitle')}
+                  desc={t('robotDesc')}
+                />
+                <FeatureCard
+                  icon={FaIndustry}
+                  title={t('hpcTitle')}
+                  desc={t('hpcDesc')}
+                />
+                <FeatureCard
+                  icon={FaInfoCircle}
+                  title={t('ethicsTitle')}
+                  desc={t('ethicsDesc')}
+                />
+              </div>
+            </div>
+          )}
 
-      {subTab === 'mobility' && (
-        <div className="space-y-6">
-          <SectionCard title={t('mobTitle')}>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('mobDesc')}
-            </p>
-          </SectionCard>
-          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
-            <FeatureCard
-              icon={FaUserGraduate}
-              title={t('supTitle')}
-              desc={t('supDesc')}
-            />
-            <FeatureCard
-              icon={FaPlane}
-              title={t('grantTitle')}
-              desc={t('grantDesc')}
-            />
-            <FeatureCard
-              icon={FaUsers}
-              title={t('exTitle')}
-              desc={t('exDesc')}
-            />
-          </motion.div>
-        </div>
-      )}
-    </motion.div>
+          {subTab === 'mobility' && (
+            <div className="space-y-6">
+              <SectionCard title={t('mobTitle')}>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {t('mobDesc')}
+                </p>
+              </SectionCard>
+              <div className="grid gap-4 md:grid-cols-3">
+                <FeatureCard
+                  icon={FaUserGraduate}
+                  title={t('supTitle')}
+                  desc={t('supDesc')}
+                />
+                <FeatureCard
+                  icon={FaPlane}
+                  title={t('grantTitle')}
+                  desc={t('grantDesc')}
+                />
+                <FeatureCard
+                  icon={FaUsers}
+                  title={t('exTitle')}
+                  desc={t('exDesc')}
+                />
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -342,7 +353,7 @@ function IndustryContent({ projects, subTab, setSubTab }) {
   }, [industryProjects]);
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <div className="space-y-6">
       {/* Subtabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {INDUSTRY_SUBTABS.map(tab => (
@@ -355,156 +366,167 @@ function IndustryContent({ projects, subTab, setSubTab }) {
         ))}
       </div>
 
-      {subTab === 'overview' && (
-        <div className="space-y-6">
-          {/* Stats */}
-          <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid grid-cols-3 gap-4">
-            <motion.div variants={itemVariants} className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.projectCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statProjects')}</div>
-            </motion.div>
-            <motion.div variants={itemVariants} className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.domainCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statDomains')}</div>
-            </motion.div>
-            <motion.div variants={itemVariants} className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center">
-              <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.partnerCount}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">{t('statPartners')}</div>
-            </motion.div>
-          </motion.div>
-
-          <SectionCard title={t('collabTitle')}>
-            <p className="text-gray-700 dark:text-gray-300">
-              {t('collabDesc')}
-            </p>
-          </SectionCard>
-        </div>
-      )}
-
-      {subTab === 'projects' && (
-        <div className="space-y-6">
-          {/* Filters */}
-          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('searchPlaceholder')}
-                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-              />
-            </div>
-            <select
-              value={domainFilter}
-              onChange={(e) => setDomainFilter(e.target.value)}
-              className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
-            >
-              <option value="">{t('allDomains')}</option>
-              {domainOptions.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-            {(query || domainFilter) && (
-              <button
-                onClick={() => { setQuery(''); setDomainFilter(''); }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              >
-                <FaTimes className="w-4 h-4" />
-                {t('clear')}
-              </button>
-            )}
-          </div>
-
-          {/* Projects Grid */}
-          {filteredProjects.length > 0 ? (
-            <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-2">
-              {filteredProjects.map(project => (
-                <motion.div
-                  key={project.slug || project.title}
-                  variants={itemVariants}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition-all"
-                >
-                  <Link href={`/research/projects/${project.slug}`} className="block group">
-                    <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
-                      {project.title}
-                    </h3>
-                    {project.lead && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        {t('leadLabel')} {project.lead}
-                      </p>
-                    )}
-                    {project.abstract && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
-                        {project.abstract}
-                      </p>
-                    )}
-                    <div className="flex flex-wrap gap-1">
-                      {(project.domains || []).map((d, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs">
-                          {d}
-                        </span>
-                      ))}
-                    </div>
-                  </Link>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={subTab}
+          variants={containerVariants} 
+          initial="hidden" 
+          animate="visible"
+          exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+          className="space-y-6"
+        >
+          {subTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4">
+                <motion.div variants={itemVariants} className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">{stats.projectCount}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{t('statProjects')}</div>
                 </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <div className="text-center py-12">
-              <FaProjectDiagram className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-500 dark:text-gray-400">{t('noProjects')}</p>
+                <motion.div variants={itemVariants} className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">{stats.domainCount}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{t('statDomains')}</div>
+                </motion.div>
+                <motion.div variants={itemVariants} className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 text-center">
+                  <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.partnerCount}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{t('statPartners')}</div>
+                </motion.div>
+              </div>
+
+              <SectionCard title={t('collabTitle')}>
+                <p className="text-gray-700 dark:text-gray-300">
+                  {t('collabDesc')}
+                </p>
+              </SectionCard>
             </div>
           )}
-        </div>
-      )}
 
-      {subTab === 'engagement' && (
-        <div className="space-y-6">
-          <SectionCard title={t('workTitle')}>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
-              {t('workDesc')}
-            </p>
-          </SectionCard>
-          <motion.div variants={containerVariants} className="grid gap-4 md:grid-cols-2">
-            <FeatureCard
-              icon={FaFlask}
-              title={t('rdTitle')}
-              desc={t('rdDesc')}
-            />
-            <FeatureCard
-              icon={FaChalkboardTeacher}
-              title={t('consTitle')}
-              desc={t('consDesc')}
-            />
-            <FeatureCard
-              icon={FaUserGraduate}
-              title={t('trainTitle')}
-              desc={t('trainDesc')}
-            />
-            <FeatureCard
-              icon={FaHandshake}
-              title={t('techTitle')}
-              desc={t('techDesc')}
-            />
-          </motion.div>
-        </div>
-      )}
-    </motion.div>
+          {subTab === 'projects' && (
+            <div className="space-y-6">
+              {/* Filters */}
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder={t('searchPlaceholder')}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
+                  />
+                </div>
+                <select
+                  value={domainFilter}
+                  onChange={(e) => setDomainFilter(e.target.value)}
+                  className="px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm"
+                >
+                  <option value="">{t('allDomains')}</option>
+                  {domainOptions.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                {(query || domainFilter) && (
+                  <button
+                    onClick={() => { setQuery(''); setDomainFilter(''); }}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                  >
+                    <FaTimes className="w-4 h-4" />
+                    {t('clear')}
+                  </button>
+                )}
+              </div>
+
+              {/* Projects Grid */}
+              {filteredProjects.length > 0 ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {filteredProjects.map(project => (
+                    <motion.div
+                      key={project.slug || project.title}
+                      variants={itemVariants}
+                      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition-all"
+                    >
+                      <Link href={`/research/projects/${project.slug}`} className="block group">
+                        <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
+                          {project.title}
+                        </h3>
+                        {project.lead && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            {t('leadLabel')} {project.lead}
+                          </p>
+                        )}
+                        {project.abstract && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-3">
+                            {project.abstract}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {(project.domains || []).map((d, i) => (
+                            <span key={i} className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs">
+                              {d}
+                            </span>
+                          ))}
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <FaProjectDiagram className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-400">{t('noProjects')}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {subTab === 'engagement' && (
+            <div className="space-y-6">
+              <SectionCard title={t('workTitle')}>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                  {t('workDesc')}
+                </p>
+              </SectionCard>
+              <div className="grid gap-4 md:grid-cols-2">
+                <FeatureCard
+                  icon={FaFlask}
+                  title={t('rdTitle')}
+                  desc={t('rdDesc')}
+                />
+                <FeatureCard
+                  icon={FaChalkboardTeacher}
+                  title={t('consTitle')}
+                  desc={t('consDesc')}
+                />
+                <FeatureCard
+                  icon={FaUserGraduate}
+                  title={t('trainTitle')}
+                  desc={t('trainDesc')}
+                />
+                <FeatureCard
+                  icon={FaHandshake}
+                  title={t('techTitle')}
+                  desc={t('techDesc')}
+                />
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
 function HighSchoolContent() {
   const t = useTranslations('engagement.basic.HighSchoolContent');
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div key="highschool" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300">
           {t('desc')}
         </p>
       </SectionCard>
 
-      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaGraduationCap}
           title={t('compTitle')}
@@ -520,7 +542,7 @@ function HighSchoolContent() {
           title={t('eduTitle')}
           desc={t('eduDesc')}
         />
-      </motion.div>
+      </div>
 
       <motion.div variants={itemVariants}>
         <a
@@ -540,7 +562,7 @@ function HighSchoolContent() {
 function PartnersContent({ partners, CollaboratorsClient }) {
   const t = useTranslations('engagement.basic.PartnersContent');
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div key="partners" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       <SectionCard title={t('title')}>
         <p className="text-gray-700 dark:text-gray-300">
           {t('desc')}
@@ -548,7 +570,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
       </SectionCard>
 
       {partners && partners.length > 0 && (
-        <motion.div variants={containerVariants} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {partners.map(p => (
             <motion.a
               key={p.name}
@@ -564,14 +586,14 @@ function PartnersContent({ partners, CollaboratorsClient }) {
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{p.blurb}</p>
             </motion.a>
           ))}
-        </motion.div>
+        </div>
       )}
 
       {CollaboratorsClient && (
-        <div>
+        <motion.div variants={itemVariants}>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{t('mapTitle')}</h2>
           <CollaboratorsClient partners={partners} />
-        </div>
+        </motion.div>
       )}
     </motion.div>
   );
@@ -580,7 +602,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
 function IndustrialPhDContent() {
   const t = useTranslations('engagement.basic.PhDContent');
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div key="phd" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       <SectionCard title={t('title')}>
         <div className="space-y-4 text-gray-700 dark:text-gray-300">
           <p>{t('p1')}</p>
@@ -588,7 +610,7 @@ function IndustrialPhDContent() {
         </div>
       </SectionCard>
 
-      <motion.div initial="hidden" animate="visible" variants={containerVariants} className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <FeatureCard
           icon={FaIndustry}
           title={t('compTitle')}
@@ -604,7 +626,7 @@ function IndustrialPhDContent() {
           title={t('collabTitle')}
           desc={t('collabDesc')}
         />
-      </motion.div>
+      </div>
 
       <motion.div variants={itemVariants}>
         <Link
@@ -663,6 +685,7 @@ export default function EngagementClient({ projects = [], partners = [], Collabo
 
   return (
     <motion.div
+      key="main-page-container"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -701,7 +724,7 @@ export default function EngagementClient({ projects = [], partners = [], Collabo
         {/* Tab Content */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeTab}
+            key={activeTab} // <-- The Main Tab Key
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}

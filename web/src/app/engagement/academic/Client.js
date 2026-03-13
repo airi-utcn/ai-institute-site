@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
-import { useTranslations } from "next-intl"; 
+import { motion, AnimatePresence } from "framer-motion"; 
+import { useTranslations } from "next-intl";
 
 const TABS = [
   {
@@ -159,7 +159,6 @@ export default function Client() {
       );
     }
 
-    // Dynamic rendering for all other standard sections
     if (t.has(`Content.${tab}.${sub}.title`)) {
       return (
         <SectionTitle 
@@ -175,7 +174,7 @@ export default function Client() {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div key="main-container" variants={containerVariants} initial="hidden" animate="visible">
           
           <motion.h1
             variants={itemVariants}
@@ -234,22 +233,24 @@ export default function Client() {
                         : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800")
                     }
                   >
-                    {/* Dynamic Sub-tab Label */}
                     {t(`Tabs.${activeTab.key}.subtabs.${st.key}`)}
                   </button>
                 );
               })}
             </div>
             
-            {/* right content */}
-            <motion.div
-              className="rounded-xl border border-gray-200 dark:border-gray-800 p-6 bg-white dark:bg-gray-900 shadow-sm"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {renderSubContent(tab, sub)}
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`${tab}-${sub}`}
+                className="rounded-xl border border-gray-200 dark:border-gray-800 p-6 bg-white dark:bg-gray-900 shadow-sm"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }} 
+              >
+                {renderSubContent(tab, sub)}
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           <div className="mt-8 flex justify-center">

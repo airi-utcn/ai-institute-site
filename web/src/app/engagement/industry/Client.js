@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; 
 import { useTranslations } from "next-intl";
 
 const TABS = [
@@ -124,7 +124,14 @@ export default function Client({ projects: rawProjects = [] }) {
     switch (tab) {
       case "Projects":
         return (
-          <motion.section className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.section 
+            key="Projects" 
+            className="space-y-6" 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="visible"
+            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }} 
+          >
             <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
               <input
                 value={query}
@@ -242,7 +249,14 @@ export default function Client({ projects: rawProjects = [] }) {
         );
       case "Engagement":
         return (
-          <motion.section className="space-y-4" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.section 
+            key="Engagement"
+            className="space-y-4" 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="visible"
+            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+          >
             <motion.h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100" variants={itemVariants}>
               {t("EngagementTab.title")}
             </motion.h2>
@@ -260,7 +274,14 @@ export default function Client({ projects: rawProjects = [] }) {
         );
       default:
         return (
-          <motion.section className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.section 
+            key="Overview" 
+            className="space-y-6" 
+            variants={containerVariants} 
+            initial="hidden" 
+            animate="visible"
+            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
+          >
             <div className="grid gap-4 md:grid-cols-3">
               <Feature title={t("OverviewTab.feature1Title")} desc={t("OverviewTab.feature1Desc")} />
               <Feature title={t("OverviewTab.feature2Title")} desc={t("OverviewTab.feature2Desc")} />
@@ -288,7 +309,7 @@ export default function Client({ projects: rawProjects = [] }) {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
-        <motion.div variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div key="main-container" variants={containerVariants} initial="hidden" animate="visible">
           <motion.h1
             variants={itemVariants}
             className="text-2xl md:text-3xl font-extrabold mb-2 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
@@ -329,7 +350,11 @@ export default function Client({ projects: rawProjects = [] }) {
             <div className="mt-2 border-b border-gray-200 dark:border-gray-800" />
           </div>
 
-          <div className="mt-6">{content}</div>
+          <div className="mt-6">
+            <AnimatePresence mode="wait">
+               {content}
+            </AnimatePresence>
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link

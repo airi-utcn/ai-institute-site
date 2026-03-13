@@ -38,7 +38,7 @@ Common examples:
 python main.py --mode author --author "Adrian Groza" --use-fetch-cache --update-existing
 python main.py --mode institution --institution "Technical University of Cluj-Napoca" --use-fetch-cache
 python main.py --mode strapi-people --use-fetch-cache --update-existing
-python main.py --mode file --file outputs/papers_strapi_people.json --skip-upload
+python main.py --mode file --file outputs/papers_strapi_people.json --dry-run
 ```
 
 ## Documentation

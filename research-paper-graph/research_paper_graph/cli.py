@@ -53,13 +53,12 @@ def build_parser():
         action="store_true",
         help="Skip duplicate screening and both preview/global graph generation steps",
     )
-    p.add_argument("--skip-upload", action="store_true", help="Skip Strapi upload")
     p.add_argument("--skip-communities", action="store_true", help="Skip community detection")
     p.add_argument("--update-existing", action="store_true", help="Update publications that already exist in Strapi")
     p.add_argument(
         "--dry-run",
         action="store_true",
-        help="Do not write to Strapi (local outputs are still generated)",
+        help="Skip all Strapi writes (local preview artifacts are still generated)",
     )
     p.add_argument("--upload-pdfs", action="store_true", help="Download and upload PDFs to Strapi")
 
@@ -121,11 +120,7 @@ def run(args):
     log.info(f"Papers: {len(papers_to_upload)} to process, {skipped_papers} duplicates skipped before sync")
 
     if args.dry_run:
-        log.info("[DRY RUN] Would sync publications, then rebuild graph from all graph-eligible Strapi publications. Exiting.")
-        return
-
-    if args.skip_upload:
-        log.info("Skipping Strapi upload (--skip-upload).")
+        log.info("[DRY RUN] Strapi writes are disabled; generated local preview artifacts only.")
         return
 
     strapi = create_client(SETTINGS)

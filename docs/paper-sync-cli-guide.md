@@ -20,7 +20,7 @@ The CLI orchestrates four broad stages:
 
 1. fetch a source batch
 2. run a preview graph build on that batch
-3. sync publications into Strapi unless upload is skipped
+3. sync publications into Strapi unless dry-run mode is enabled
 4. rebuild the global graph from all `graphEligible` Strapi publications unless graph work is skipped
 
 ## Source Selection Options
@@ -101,9 +101,9 @@ If a paper has an Open Access PDF URL, download it and upload it into Strapi's m
 
 This does not retroactively attach PDFs to already existing publications unless they are recreated.
 
-### `--skip-upload`
+### `--dry-run`
 
-Do not write publications to Strapi.
+Skip all Strapi writes.
 
 Important behavior:
 
@@ -111,14 +111,6 @@ Important behavior:
 - the preview graph build is still performed
 - local debug artifacts are still written
 - the run exits before publication sync and before the global graph rebuild
-
-This is useful for inspecting a source batch locally.
-
-### `--dry-run`
-
-Do not write to Strapi.
-
-Current behavior is close to `--skip-upload`, with one important caveat: local outputs are still written.
 
 That means `--dry-run` is not a zero-side-effect mode. It means "no Strapi writes", not "no filesystem writes".
 
@@ -217,7 +209,7 @@ python main.py --mode strapi-people --use-fetch-cache --update-existing
 ### Inspect a local snapshot without touching Strapi
 
 ```bash
-python main.py --mode file --file outputs/papers_strapi_people.json --skip-upload
+python main.py --mode file --file outputs/papers_strapi_people.json --dry-run
 ```
 
 ### Rebuild from a fresh OpenAlex fetch
@@ -234,11 +226,9 @@ These are the main option-level observations from the current codebase.
 
 It does not just skip final link upload. It disables the entire graph path, including preview duplicate screening.
 
-### `--dry-run` and `--skip-upload` overlap heavily
+### `--dry-run` is the only no-write mode
 
-Both avoid Strapi writes after the preview stage.
-
-Current difference in practice is mostly intent and messaging, not a radically different execution path. If the CLI is simplified later, these two options are candidates for consolidation.
+The CLI now has a single no-write option: `--dry-run`.
 
 ### `--dry-run` still writes local artifacts
 

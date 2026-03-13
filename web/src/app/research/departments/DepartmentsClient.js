@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/lib/animations";
+import { useTranslations } from "next-intl";
 
 export default function DepartmentsClient({
   staffData = [],
@@ -11,6 +12,7 @@ export default function DepartmentsClient({
   projects = [],
   publications = [],
 }) {
+  const t = useTranslations("research.departments");
   const departmentList = Array.isArray(departments) ? departments : [];
   
   const departmentGroups = useMemo(() => {
@@ -26,13 +28,7 @@ export default function DepartmentsClient({
   }, [departmentList]);
 
   const typeLabel = (type) => {
-    const map = {
-      research: "Research Departments",
-      research_networks: "Research Networks",
-      support: "Support Departments",
-      other: "Departments",
-    };
-    return map[type] || type || "Departments";
+    return t.has(`types.${type}`) ? t(`types.${type}`) : t("types.other");
   };
 
   // Count projects and staff for each department
@@ -62,9 +58,9 @@ export default function DepartmentsClient({
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">Departments</h1>
+            <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
-              Explore our research and support departments at AIRi @ UTCN
+              {t("subtitle")}
             </p>
           </motion.div>
 
@@ -99,8 +95,8 @@ export default function DepartmentsClient({
                           </p>
                         )}
                         <div className="flex gap-4 mt-3 text-xs text-muted">
-                          <span>{stats.memberCount} members</span>
-                          <span>{stats.projectCount} projects</span>
+                          <span>{t("members", { count: stats.memberCount })}</span>
+                          <span>{t("projects", { count: stats.projectCount })}</span>
                         </div>
                       </Link>
                     </motion.div>

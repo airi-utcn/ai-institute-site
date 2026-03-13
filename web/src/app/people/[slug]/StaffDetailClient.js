@@ -20,6 +20,7 @@ import {
 } from 'react-icons/fa';
 import { toPublicationSlug } from '@/lib/slug';
 import { containerVariants, itemVariants } from '@/lib/animations';
+import { useTranslations } from 'next-intl';
 
 // Tab Button Component
 function TabButton({ active, onClick, icon: Icon, label, count }) {
@@ -69,7 +70,7 @@ function FilterDropdown({ value, onChange, options, placeholder, icon: Icon }) {
 }
 
 // Publication Card Component
-function PublicationCard({ publication }) {
+function PublicationCard({ publication, t }) {
   const publicationSlug = toPublicationSlug(publication);
   
   return (
@@ -128,7 +129,7 @@ function PublicationCard({ publication }) {
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
           >
             <FaFileAlt className="w-3 h-3" />
-            View Details
+            {t('viewDetails')}
           </Link>
         )}
         {publication.pdfFile?.url && (
@@ -139,7 +140,7 @@ function PublicationCard({ publication }) {
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
           >
             <FaExternalLinkAlt className="w-3 h-3" />
-            PDF
+            {t('pdf')}
           </a>
         )}
       </div>
@@ -155,7 +156,7 @@ const PHASE_STYLES = {
   archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
 };
 
-function TeamCard({ team }) {
+function TeamCard({ team, t }) {
   return (
     <motion.div
       variants={itemVariants}
@@ -186,7 +187,7 @@ function TeamCard({ team }) {
           {team.isLead && (
             <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full shrink-0">
               <FaStar className="w-2.5 h-2.5" />
-              Lead
+              {t('lead')}
             </span>
           )}
         </div>
@@ -229,7 +230,7 @@ function TeamCard({ team }) {
             <div className="flex items-center gap-1.5 mb-2">
               <FaProjectDiagram className="w-3 h-3 text-gray-400" />
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                Projects
+                {t('projects')}
               </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -267,6 +268,7 @@ function TeamCard({ team }) {
   
 export default function StaffDetailClient({ person, publications, teams, slug }) {
   const [activeTab, setActiveTab] = useState('publications');
+  const t = useTranslations('people.details');
   
   // Publications filters
   const [pubQuery, setPubQuery] = useState('');
@@ -316,14 +318,14 @@ export default function StaffDetailClient({ person, publications, teams, slug })
           active={activeTab === 'publications'}
           onClick={() => setActiveTab('publications')}
           icon={FaBook}
-          label="Publications"
+          label={t('publications')}
           count={publications.length}
         />
         <TabButton
           active={activeTab === 'teams'}
           onClick={() => setActiveTab('teams')}
           icon={FaUsers}
-          label="Teams"
+          label={t('teams')}
           count={teams.length}
         />
       </motion.div>
@@ -343,7 +345,7 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 type="text"
                 value={pubQuery}
                 onChange={(e) => setPubQuery(e.target.value)}
-                placeholder="Search publications..."
+                placeholder={t('searchPubs')}
                 className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
@@ -351,21 +353,21 @@ export default function StaffDetailClient({ person, publications, teams, slug })
               value={yearFilter}
               onChange={setYearFilter}
               options={yearOptions.map(String)}
-              placeholder="All Years"
+              placeholder={t('allYears')}
               icon={FaCalendarAlt}
             />
             <FilterDropdown
               value={kindFilter}
               onChange={setKindFilter}
               options={kindOptions}
-              placeholder="All Types"
+              placeholder={t('allTypes')}
               icon={FaTag}
             />
             <FilterDropdown
               value={domainFilter}
               onChange={setDomainFilter}
               options={pubDomainOptions}
-              placeholder="All Domains"
+              placeholder={t('allDomains')}
               icon={FaGlobe}
             />
             {hasActiveFilters && (
@@ -374,7 +376,7 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 className="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               >
                 <FaTimes className="w-4 h-4" />
-                Clear
+                {t('clear')}
               </button>
             )}
           </div>
@@ -398,7 +400,7 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 className="grid gap-4 md:grid-cols-2"
               >
                 {filteredPubs.map((pub, i) => (
-                  <PublicationCard key={pub.slug || i} publication={pub} />
+                  <PublicationCard key={pub.slug || i} publication={pub} t={t} />
                 ))}
               </motion.div>
             ) : (
@@ -406,8 +408,8 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 <FaBook className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
                   {publications.length === 0 
-                    ? 'No publications available.'
-                    : 'No publications match your filters.'}
+                    ? t('noPubs')
+                    : t('noPubsMatch')}
                 </p>
               </div>
             )}
@@ -422,14 +424,14 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 className="grid gap-4 md:grid-cols-2"
               >
                 {teams.map((team, i) => (
-                  <TeamCard key={team.slug || i} team={team} />
+                  <TeamCard key={team.slug || i} team={team} t={t} />
                 ))}
               </motion.div>
             ) : (
               <div className="text-center py-12">
                 <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
-                  Not currently assigned to any teams.
+                  {t('noTeams')}
                 </p>
               </div>
             )}

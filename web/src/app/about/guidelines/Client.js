@@ -1,11 +1,5 @@
 import { FaBookOpen, FaChalkboardTeacher, FaFlask, FaIdBadge } from "react-icons/fa";
-
-const ITEMS = [
-  { label: "Students",    href: "/engagement/academic",  icon: FaBookOpen },
-  { label: "Faculty",     href: "/people",              icon: FaChalkboardTeacher },
-  { label: "Researchers", href: "/research/departments", icon: FaFlask },
-  { label: "Staff",       href: "/people",             icon: FaIdBadge },
-];
+import { useTranslations } from "next-intl";
 
 function Tile({ label, href, icon: Icon }) {
   const Wrapper = href ? "a" : "div";
@@ -29,11 +23,20 @@ function Tile({ label, href, icon: Icon }) {
 }
 
 export default function Client() {
+  const t = useTranslations("about.guidelines");
+
+  const ITEMS = [
+    { label: t("students"),    href: "/engagement/academic",  icon: FaBookOpen },
+    { label: t("faculty"),     href: "/people",               icon: FaChalkboardTeacher },
+    { label: t("researchers"), href: "/research/departments", icon: FaFlask },
+    { label: t("staff"),       href: "/people",               icon: FaIdBadge },
+  ];
+
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
+    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10 animate-fade-in">
         <h1 className="text-2xl md:text-3xl font-extrabold mb-10 text-blue-600 dark:text-yellow-400 tracking-tight text-center animate-slide-down">
-          Just For You
+          {t("title")}
         </h1>
 
         <section className="grid grid-cols-2 md:grid-cols-4 gap-x-12 gap-y-10">
@@ -44,6 +47,6 @@ export default function Client() {
           ))}
         </section>
       </div>
-    </div>
+    </main>
   );
 }

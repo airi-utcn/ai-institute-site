@@ -10,7 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "next-intl": "^4.8.3",
     "framer-motion": "^12.23.12",
+    "jsonld": "^9.0.0",
     "leaflet": "^1.9.4",
     "markdown-to-jsx": "^9.6.1",
     "next": "^16.0.7",

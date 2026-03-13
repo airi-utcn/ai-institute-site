@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -102,6 +103,7 @@ function getBasePath() {
 export default function ClassicClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  const t = useTranslations("search.classic");
 
   const [idx, setIdx] = useState([]);
   const [q, setQ] = useState(initialQuery);
@@ -168,7 +170,7 @@ export default function ClassicClient() {
         className="text-2xl md:text-3xl font-extrabold mb-6 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
         variants={item}
       >
-        🔎 Search
+        {t("title")}
       </motion.h1>
 
       <motion.div
@@ -179,7 +181,7 @@ export default function ClassicClient() {
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Type to search pages…"
+          placeholder={t("placeholder")}
           className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
       </motion.div>
@@ -187,7 +189,10 @@ export default function ClassicClient() {
       {ready && q.trim() && (
         <>
           <motion.div className="text-sm text-slate-500 mb-3" variants={item}>
-            {results.length} result{results.length === 1 ? "" : "s"} for <strong>“{q.trim()}”</strong>
+            {results.length === 1 
+              ? t("resultsSingular", { count: results.length }) 
+              : t("resultsPlural", { count: results.length })
+            } <strong>“{q.trim()}”</strong>
           </motion.div>
 
           <motion.ul className="space-y-3" variants={container}>
@@ -224,7 +229,7 @@ export default function ClassicClient() {
 
           {results.length === 0 && (
             <motion.div className="text-slate-600 dark:text-slate-300" variants={item}>
-              No matches! Try different keywords or check your spelling!
+              {t("noMatches")}
             </motion.div>
           )}
         </>

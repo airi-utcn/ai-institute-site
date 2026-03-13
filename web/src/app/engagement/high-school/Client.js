@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl"; 
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -16,6 +17,8 @@ const itemVariants = {
 };
 
 export default function HighSchoolClient() {
+  const t = useTranslations("engagement.high-school");
+
   const Feature = ({ title, desc }) => (
     <motion.div
       className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800/70 transition"
@@ -33,6 +36,7 @@ export default function HighSchoolClient() {
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
+        key="high-school-container" 
         className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl"
         variants={containerVariants}
         initial="hidden"
@@ -43,23 +47,32 @@ export default function HighSchoolClient() {
             className="text-2xl md:text-3xl font-extrabold mb-3 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
             variants={itemVariants}
           >
-            High-school engagement
+            {t("title")}
           </motion.h1>
 
           <motion.p
             className="text-gray-700 dark:text-gray-300 mb-6"
             variants={itemVariants}
           >
-            Competitions, events, and AI literacy resources for students and teachers.
+            {t("description")}
           </motion.p>
 
           <motion.div
             className="grid gap-4 md:grid-cols-3 mb-8"
             variants={containerVariants}
           >
-            <Feature title="Competitions" desc="AI and programming competitions for high-school students." />
-            <Feature title="Events" desc="Workshops, lab visits, and sessions with experts." />
-            <Feature title="Educational resources" desc="Guides and materials for AI literacy." />
+            <Feature 
+              title={t("features.competitions.title")} 
+              desc={t("features.competitions.desc")} 
+            />
+            <Feature 
+              title={t("features.events.title")} 
+              desc={t("features.events.desc")} 
+            />
+            <Feature 
+              title={t("features.resources.title")} 
+              desc={t("features.resources.desc")} 
+            />
           </motion.div>
 
           <motion.a
@@ -69,7 +82,7 @@ export default function HighSchoolClient() {
             className="inline-flex items-center rounded-xl border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition"
             variants={itemVariants}
           >
-            AILIT Framework – Resources
+            {t("linkText")}
           </motion.a>
         </section>
       </motion.div>

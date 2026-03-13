@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import Markdown from "markdown-to-jsx";
 import { toPublicationSlug } from "@/lib/slug";
+import { useTranslations } from "next-intl";
 
 const FALLBACK_AVATAR = "/people/Basic_avatar_image.png";
 
@@ -13,6 +14,8 @@ export default function ProjectDetailClient({
   publications = [],
   teamMembers = [],
 }) {
+  const t = useTranslations("people.projectDetails");
+
   const domainList = useMemo(
     () => (Array.isArray(project?.domain) ? project.domain : []),
     [project?.domain]
@@ -65,6 +68,12 @@ export default function ProjectDetailClient({
   const bodyBlocks = Array.isArray(project?.body) ? project.body : [];
   const timeline = Array.isArray(project?.timeline) ? project.timeline : [];
   const hasBody = bodyBlocks.length > 0;
+
+  const getTranslatedPhase = (phase) => {
+    if (!phase) return "";
+    const lowerPhase = phase.toLowerCase();
+    return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
+  };
 
   const renderRichText = (markdown, key) =>
     markdown ? (
@@ -164,7 +173,7 @@ export default function ProjectDetailClient({
             href={`/people/${staffSlug}`}
             className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center gap-1"
           >
-            ← Back to {staffSlug === leadSlug ? "Profile" : "Staff Profile"}
+            {staffSlug === leadSlug ? t("backToProfile") : t("backToStaffProfile")}
           </Link>
         </div>
       </div>
@@ -181,7 +190,7 @@ export default function ProjectDetailClient({
                       project.phase === 'planned' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800' :
                       'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800'
                     }`}>
-                    {project.phase}
+                    {getTranslatedPhase(project.phase)}
                   </span>
                 )}
                 {project?.region && (
@@ -192,7 +201,7 @@ export default function ProjectDetailClient({
               </div>
               
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
-                {project?.title || "Project Details"}
+                {project?.title || t("projectDetails")}
               </h1>
               
               {/* Abstract / Summary */}
@@ -207,13 +216,13 @@ export default function ProjectDetailClient({
                 {project?.officialUrl && (
                   <a href={project.officialUrl} target="_blank" rel="noopener noreferrer" 
                      className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm">
-                    Visit Website
+                    {t("visitWebsite")}
                   </a>
                 )}
                 {project?.docUrl && (
                   <a href={project.docUrl} target="_blank" rel="noopener noreferrer"
                      className="px-4 py-2 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                    Documentation
+                    {t("documentation")}
                   </a>
                 )}
               </div>
@@ -252,7 +261,7 @@ export default function ProjectDetailClient({
             {timeline.length > 0 && (
               <section className="border-t border-gray-200 dark:border-gray-800 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                   <span className="text-blue-500">📅</span> Project Timeline
+                   <span className="text-blue-500">📅</span> {t("projectTimeline")}
                 </h3>
                 <div className="relative border-l-2 border-gray-200 dark:border-gray-700 ml-3 space-y-10 pl-8 pb-4">
                   {timeline.map((item, idx) => (
@@ -280,7 +289,7 @@ export default function ProjectDetailClient({
             {resourcesList.length > 0 && (
               <section className="border-t border-gray-200 dark:border-gray-800 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                   <span className="text-purple-500">💾</span> Resources
+                   <span className="text-purple-500">💾</span> {t("resources")}
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {resourcesList.map((resource) => (
@@ -309,7 +318,7 @@ export default function ProjectDetailClient({
             {publicationsList.length > 0 && (
               <section className="border-t border-gray-200 dark:border-gray-800 pt-10">
                 <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                   <span className="text-green-500">📄</span> Related Publications
+                   <span className="text-green-500">📄</span> {t("relatedPublications")}
                 </h3>
                 <div className="space-y-4">
                   {publicationsList.map((pub) => (
@@ -329,7 +338,7 @@ export default function ProjectDetailClient({
                             )}
                           </h4>
                           <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                             {pub.year} • {pub.kind}
+                              {pub.year} • {pub.kind}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -338,7 +347,7 @@ export default function ProjectDetailClient({
                               href={`/research/publications/${encodeURIComponent(toPublicationSlug(pub))}`}
                               className="shrink-0 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300"
                             >
-                              Details
+                              {t("details")}
                             </Link>
                           ) : null}
                           {pub.pdfFile?.url ? (
@@ -368,14 +377,14 @@ export default function ProjectDetailClient({
                 {project.officialUrl && (
                   <a href={project.officialUrl} target="_blank" rel="noopener noreferrer" 
                      className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md transform hover:-translate-y-0.5">
-                    Visit Project Website
+                    {t("visitProjectWebsite")}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                   </a>
                 )}
                 {project.docUrl && (
                   <a href={project.docUrl} target="_blank" rel="noopener noreferrer"
                      className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
-                    View Documentation
+                    {t("viewDocumentation")}
                   </a>
                 )}
               </div>
@@ -383,13 +392,13 @@ export default function ProjectDetailClient({
 
             {/* Project Team */}
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Project Team</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t("projectTeam")}</h3>
               
               <div className="space-y-4">
                 {/* Lead */}
                 {leadMember && (
                   <div className="mb-4">
-                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Lead</span>
+                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">{t("lead")}</span>
                      <Link href={leadMember.slug ? `/people/${leadMember.slug}` : "#"} className={`flex items-center gap-3 group ${!leadMember.slug ? "pointer-events-none" : ""}`}>
                         <img 
                           src={leadMember.image || FALLBACK_AVATAR} 
@@ -409,7 +418,7 @@ export default function ProjectDetailClient({
                 {/* Other Members */}
                 {otherMembers.length > 0 && (
                   <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 block">Members</span>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 block">{t("members")}</span>
                     <ul className="space-y-3">
                       {otherMembers.map((member) => (
                         <li key={member.slug || member.name}>
@@ -434,7 +443,7 @@ export default function ProjectDetailClient({
             {/* Partners */}
             {partnersList.length > 0 && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Partners</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{t("partners")}</h3>
                 <div className="flex flex-wrap gap-3">
                   {partnersList.map((partner, i) => (
                     typeof partner === 'string' ? (
@@ -457,7 +466,7 @@ export default function ProjectDetailClient({
               <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
                  {themesList.length > 0 && (
                    <div className="mb-6 last:mb-0">
-                     <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Themes</h3>
+                     <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">{t("themes")}</h3>
                      <div className="flex flex-wrap gap-2">
                        {themesList.map((theme, i) => (
                          <span key={i} className="px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-100 text-xs font-semibold dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
@@ -469,7 +478,7 @@ export default function ProjectDetailClient({
                  )}
                  {domainList.length > 0 && (
                    <div className="mb-0">
-                     <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Research Areas</h3>
+                     <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-3">{t("researchAreas")}</h3>
                      <div className="flex flex-wrap gap-2">
                         {domainList.map((domain, i) => (
                           <span key={i} className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-100 text-xs font-semibold dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">

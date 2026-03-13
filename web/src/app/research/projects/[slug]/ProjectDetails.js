@@ -20,6 +20,7 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
+import { useTranslations } from 'next-intl';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -149,7 +150,7 @@ function InfoCard({ icon: Icon, label, value, href }) {
 }
 
 // Resource Card Component
-function ResourceCard({ resource }) {
+function ResourceCard({ resource, t }) {
   return (
     <motion.a
       href={resource.source_url || resource.url}
@@ -168,7 +169,7 @@ function ResourceCard({ resource }) {
           </h4>
           {resource.platform && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Platform: {resource.platform}
+              {t("platform")} {resource.platform}
             </p>
           )}
         </div>
@@ -179,7 +180,7 @@ function ResourceCard({ resource }) {
 }
 
 // Publication Card Component
-function PublicationCard({ publication }) {
+function PublicationCard({ publication, t }) {
   const slug = publication.slug ? encodeURIComponent(publication.slug) : '';
 
   return (
@@ -231,7 +232,7 @@ function PublicationCard({ publication }) {
           {/* Authors */}
           {publication.authors && publication.authors.length > 0 && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2.5 leading-relaxed">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Authors:</span>{' '}
+              <span className="font-medium text-gray-600 dark:text-gray-300">{t("authors")}</span>{' '}
               {publication.authors.join(', ')}
             </p>
           )}
@@ -250,7 +251,7 @@ function PublicationCard({ publication }) {
                 href={`/research/publications/${slug}`}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
-                View details
+                {t("viewDetails")}
                 <FaExternalLinkAlt className="w-3 h-3" />
               </Link>
             )}
@@ -262,7 +263,7 @@ function PublicationCard({ publication }) {
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
                 <FaFilePdf className="w-3.5 h-3.5" />
-                PDF
+                {t("pdf")}
               </a>
             )}
           </div>
@@ -272,13 +273,21 @@ function PublicationCard({ publication }) {
   );
 }
 
+const PHASE_STYLES = {
+  ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
+  planned:   'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
+  completed: 'bg-gray-100   dark:bg-gray-700      text-gray-600   dark:text-gray-300',
+  archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+};
+
 export default function ProjectDetails({ project }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const t = useTranslations("research.projectDetails");
 
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400">Project not found</p>
+        <p className="text-gray-500 dark:text-gray-400">{t("notFound")}</p>
       </div>
     );
   }
@@ -293,6 +302,12 @@ export default function ProjectDetails({ project }) {
     ? project.partnersData
     : (project.partners || []).map((name) => ({ name, slug: '' }));
   
+  const getTranslatedPhase = (phase) => {
+    if (!phase) return "";
+    const lowerPhase = phase.toLowerCase();
+    return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
+  };
+
   const renderMarkdown = (markdown, key) => {
     if (!markdown) return null;
     const content = typeof markdown === 'string' ? markdown : String(markdown);
@@ -325,18 +340,16 @@ export default function ProjectDetails({ project }) {
 
   const peopleCount = teams.length + contributors.length;
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: FaInfoCircle },
-    { id: 'team', label: 'People', icon: FaUsers, count: peopleCount > 0 ? peopleCount : undefined },
+    { id: 'overview', label: t('tabs.overview'), icon: FaInfoCircle },
+    { id: 'team', label: t('tabs.people'), icon: FaUsers, count: peopleCount > 0 ? peopleCount : undefined },
   ];
 
-  // Add resources tab if there are resources
   if (project.resources && project.resources.length > 0) {
-    tabs.push({ id: 'resources', label: 'Resources', icon: FaDatabase, count: project.resources.length });
+    tabs.push({ id: 'resources', label: t('tabs.resources'), icon: FaDatabase, count: project.resources.length });
   }
 
-  // Add publications tab if there are publications
   if (project.publications && project.publications.length > 0) {
-    tabs.push({ id: 'publications', label: 'Publications', icon: FaBookOpen, count: project.publications.length });
+    tabs.push({ id: 'publications', label: t('tabs.publications'), icon: FaBookOpen, count: project.publications.length });
   }
 
   return (
@@ -363,7 +376,7 @@ export default function ProjectDetails({ project }) {
               className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
             >
               <FaArrowLeft className="w-4 h-4" />
-              <span>Back to Projects</span>
+              <span>{t("backToProjects")}</span>
             </Link>
             <motion.h1
               variants={itemVariants}
@@ -405,16 +418,19 @@ export default function ProjectDetails({ project }) {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 mb-8 relative z-10"
         >
           {project.region && (
-            <InfoCard icon={FaMapMarkerAlt} label="Region" value={project.region} />
+            <InfoCard icon={FaMapMarkerAlt} label={t("region")} value={project.region} />
           )}
           {project.phase && (
-            <InfoCard icon={FaChartLine} label="Phase" value={project.phase} />
+            <InfoCard icon={FaChartLine} label={t("phase")} value={getTranslatedPhase(project.phase)} />
           )}
           {project.partners && project.partners.length > 0 && (
             <InfoCard
               icon={FaHandshake}
-              label="Partners"
-              value={`${project.partners.length} partner${project.partners.length > 1 ? 's' : ''}`}
+              label={t("partners")}
+              value={project.partners.length === 1 
+                ? t("partnerCount", { count: project.partners.length })
+                : t("partnerCountPlural", { count: project.partners.length })
+              }
             />
           )}
         </motion.div>
@@ -430,7 +446,7 @@ export default function ProjectDetails({ project }) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FaExternalLinkAlt className="w-4 h-4" />
-                <span>Official Website</span>
+                <span>{t("officialWebsite")}</span>
               </a>
             )}
             {project.docUrl && (
@@ -441,7 +457,7 @@ export default function ProjectDetails({ project }) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
               >
                 <FaFileAlt className="w-4 h-4" />
-                <span>Documentation</span>
+                <span>{t("documentation")}</span>
               </a>
             )}
           </motion.div>
@@ -483,7 +499,7 @@ export default function ProjectDetails({ project }) {
                 >
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <FaLightbulb className="text-yellow-500" />
-                    Abstract
+                    {t("abstract")}
                   </h2>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {project.abstract}
@@ -530,7 +546,7 @@ export default function ProjectDetails({ project }) {
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
                 >
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                    Research Domains
+                    {t("researchDomains")}
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {project.domains.map(domain => (
@@ -554,7 +570,7 @@ export default function ProjectDetails({ project }) {
                 >
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <FaHandshake className="text-blue-600" />
-                    Partners
+                    {t("partners")}
                   </h2>
                   <motion.div
                     initial="hidden"
@@ -580,7 +596,7 @@ export default function ProjectDetails({ project }) {
                     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                       <FaUsers className="w-4 h-4" />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teams</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("teams")}</h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {teams.length}
                     </span>
@@ -606,7 +622,7 @@ export default function ProjectDetails({ project }) {
                             <div key={m.person?.slug || i} className="relative">
                               {m.isLead && (
                                 <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                                  Lead
+                                  {t("lead")}
                                 </span>
                               )}
                               <PersonCard person={m.person} role={m.role} />
@@ -614,7 +630,7 @@ export default function ProjectDetails({ project }) {
                           ))}
                         </motion.div>
                       ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No members listed for this team.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("noTeamMembers")}</p>
                       )}
                     </div>
                   ))}
@@ -629,7 +645,7 @@ export default function ProjectDetails({ project }) {
                       <FaUserTie className="w-4 h-4" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {teams.length > 0 ? 'Individual Contributors' : 'Contributors'}
+                      {teams.length > 0 ? t("individualContributors") : t("contributors")}
                     </h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {contributors.length}
@@ -673,7 +689,7 @@ export default function ProjectDetails({ project }) {
                 <div className="text-center py-12">
                   <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No people assigned to this project.
+                    {t("noPeople")}
                   </p>
                 </div>
               )}
@@ -690,14 +706,14 @@ export default function ProjectDetails({ project }) {
                   className="grid gap-4 md:grid-cols-2"
                 >
                   {project.resources.map((resource, index) => (
-                    <ResourceCard key={resource.slug || index} resource={resource} />
+                    <ResourceCard key={resource.slug || index} resource={resource} t={t} />
                   ))}
                 </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No resources available for this project.
+                    {t("noResources")}
                   </p>
                 </div>
               )}
@@ -726,7 +742,10 @@ export default function ProjectDetails({ project }) {
                           </h3>
                           <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                           <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                            {pubs.length} publication{pubs.length !== 1 ? 's' : ''}
+                            {pubs.length === 1 
+                              ? t("publicationCount", { count: pubs.length })
+                              : t("publicationCountPlural", { count: pubs.length })
+                            }
                           </span>
                         </div>
                         <motion.div
@@ -736,7 +755,7 @@ export default function ProjectDetails({ project }) {
                           className="grid gap-4"
                         >
                           {pubs.map((pub, index) => (
-                            <PublicationCard key={pub.slug || pub.id || index} publication={pub} />
+                            <PublicationCard key={pub.slug || pub.id || index} publication={pub} t={t} />
                           ))}
                         </motion.div>
                       </div>
@@ -747,7 +766,7 @@ export default function ProjectDetails({ project }) {
                 <div className="text-center py-12">
                   <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No publications available for this project.
+                    {t("noPublications")}
                   </p>
                 </div>
               )}

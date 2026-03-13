@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown } from "react-icons/fa";
 import { slugify } from "@/lib/slug";
 import { containerVariants, itemVariants } from "@/lib/animations";
+import { useTranslations } from "next-intl";
 
 const normalizeTeams = (proj) =>
   Array.isArray(proj?.teams)
@@ -92,6 +93,7 @@ const normalizeProject = (p) => {
 
 export default function ProjectsClient({ projects: rawProjects = [] }) {
   const searchParams = useSearchParams();
+  const t = useTranslations("research.projects");
   
   // ---- State filters ----
   const [q, setQ] = useState("");
@@ -187,9 +189,9 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">Projects</h1>
+            <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
-              Explore our research projects across various domains
+              {t("subtitle")}
             </p>
           </motion.div>
 
@@ -201,7 +203,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search projects by title, lead, department..."
+                  placeholder={t("searchPlaceholder")}
                   className="input pl-11 pr-10 text-base"
                 />
                 {q && (
@@ -229,7 +231,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
               `}
             >
               <FaFilter className="text-xs" />
-              Filters
+              {t("filters")}
               {hasActiveFilters && (
                 <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary-600 text-white">
                   {[regionFilter, domainFilter, leadFilter, memberFilter, themeFilter].filter(Boolean).length}
@@ -252,13 +254,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                 <div className="card p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div>
-                      <label className="label">Region</label>
+                      <label className="label">{t("region")}</label>
                       <select
                         value={regionFilter}
                         onChange={(e) => setRegionFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All regions</option>
+                        <option value="">{t("allRegions")}</option>
                         {regionOptions.map((r) => (
                           <option key={r} value={r}>{r}</option>
                         ))}
@@ -266,13 +268,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                     </div>
 
                     <div>
-                      <label className="label">Department</label>
+                      <label className="label">{t("department")}</label>
                       <select
                         value={domainFilter}
                         onChange={(e) => setDomainFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All departments</option>
+                        <option value="">{t("allDepartments")}</option>
                         {domainOptions.map((d) => (
                           <option key={d} value={d}>{d}</option>
                         ))}
@@ -280,13 +282,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                     </div>
 
                     <div>
-                      <label className="label">Lead</label>
+                      <label className="label">{t("lead")}</label>
                       <select
                         value={leadFilter}
                         onChange={(e) => setLeadFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All leads</option>
+                        <option value="">{t("allLeads")}</option>
                         {leadOptions.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
@@ -294,13 +296,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                     </div>
 
                     <div>
-                      <label className="label">Member</label>
+                      <label className="label">{t("member")}</label>
                       <select
                         value={memberFilter}
                         onChange={(e) => setMemberFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All members</option>
+                        <option value="">{t("allMembers")}</option>
                         {memberOptions.map((m) => (
                           <option key={m} value={m}>{m}</option>
                         ))}
@@ -308,11 +310,11 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                     </div>
 
                     <div>
-                      <label className="label">Theme</label>
+                      <label className="label">{t("theme")}</label>
                       <input
                         value={themeFilter}
                         onChange={(e) => setThemeFilter(e.target.value)}
-                        placeholder="Filter by theme..."
+                        placeholder={t("filterByTheme")}
                         className="input"
                       />
                     </div>
@@ -321,13 +323,16 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                   {hasActiveFilters && (
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                       <span className="text-sm text-muted">
-                        {filtered.length} project{filtered.length !== 1 ? "s" : ""} found
+                        {filtered.length === 1 
+                          ? t("projectsFound", { count: filtered.length }) 
+                          : t("projectsFoundPlural", { count: filtered.length })
+                        }
                       </span>
                       <button
                         onClick={clearFilters}
                         className="text-sm text-primary-600 dark:text-accent-400 hover:underline"
                       >
-                        Clear all filters
+                        {t("clearAllFilters")}
                       </button>
                     </div>
                   )}
@@ -350,13 +355,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                       <div className="mt-3 text-sm text-muted space-y-1.5">
                         {p.lead && (
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500">Lead:</span>
+                            <span className="text-gray-500">{t("leadLabel")}</span>
                             <span className="font-medium text-gray-700 dark:text-gray-300">{p.lead}</span>
                           </div>
                         )}
                         {p.domains.length > 0 && (
                           <div className="flex items-start gap-2">
-                            <span className="text-gray-500">Dept:</span>
+                            <span className="text-gray-500">{t("dept")}</span>
                             <div className="flex flex-wrap gap-1">
                               {p.domains.map((d, idx) => (
                                 <span
@@ -371,7 +376,7 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                         )}
                         {p.regions.length > 0 && (
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500">Region:</span>
+                            <span className="text-gray-500">{t("region")}:</span>
                             <span>{p.regions[0]}</span>
                           </div>
                         )}
@@ -402,10 +407,10 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
               </div>
             ) : (
               <div className="empty-state">
-                <p>No projects found matching your criteria.</p>
+                <p>{t("noProjects")}</p>
                 {hasActiveFilters && (
                   <button onClick={clearFilters} className="btn btn-secondary mt-4">
-                    Clear filters
+                    {t("clearFilters")}
                   </button>
                 )}
               </div>

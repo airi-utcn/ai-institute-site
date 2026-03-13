@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 /* Animations */
 const containerVariants = {
@@ -66,6 +67,7 @@ function SectionToggle({ label, children, defaultOpen = false }) {
 
 export default function SeminarsClient({ seminars = [] }) {
   const items = Array.isArray(seminars) ? seminars : [];
+  const t = useTranslations("news&events.seminars");
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
@@ -75,7 +77,7 @@ export default function SeminarsClient({ seminars = [] }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        Seminars
+        {t("title")}
       </motion.h1>
 
       <motion.p
@@ -84,7 +86,7 @@ export default function SeminarsClient({ seminars = [] }) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.6 }}
       >
-        Academic seminars hosted by AIRI and guests.
+        {t("subtitle")}
       </motion.p>
 
       {items.length === 0 ? (
@@ -94,7 +96,7 @@ export default function SeminarsClient({ seminars = [] }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.25, duration: 0.6 }}
         >
-          No seminars available at the moment.
+          {t("emptyState")}
         </motion.p>
       ) : (
         <motion.ul
@@ -122,7 +124,7 @@ export default function SeminarsClient({ seminars = [] }) {
 
                 {/* Collapsible: What you'll learn */}
                 {Array.isArray(s.about) && s.about.length > 0 && (
-                  <SectionToggle label="What you’ll learn">
+                  <SectionToggle label={t("whatYouWillLearn")}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.about.map((point, i) => (
                         <li key={`about-${idx}-${i}`}>{point}</li>
@@ -133,7 +135,7 @@ export default function SeminarsClient({ seminars = [] }) {
 
                 {/* Collapsible: Modules */}
                 {Array.isArray(s.modules) && s.modules.length > 0 && (
-                  <SectionToggle label="Modules">
+                  <SectionToggle label={t("modules")}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.modules.map((m, i) => (
                         <li key={`module-${idx}-${i}`}>{m}</li>

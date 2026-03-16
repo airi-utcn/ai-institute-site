@@ -297,9 +297,9 @@ export default function Navbar() {
             </div>
           </li>
 
-          {/* Desktop Language Switcher */}
+          {/* Desktop Language Switcher (compact) */}
           <li className="ml-2">
-            <LanguageSwitcher />
+            <LanguageSwitcher compact />
           </li>
         </ul>
       </div>

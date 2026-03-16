@@ -1066,6 +1066,16 @@ export function transformNewsData(strapiNews) {
     return d.toISOString();
   };
 
+  const normalizeExternalUrl = (value) => {
+    const raw = typeof value === 'string' ? value.trim() : '';
+    if (!raw) return '';
+
+    if (/^https?:\/\//i.test(raw)) return raw;
+    if (/^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw)) return `https://${raw}`;
+
+    return '';
+  };
+
   return list
     .map((item) => {
       const attributes = item?.attributes ?? item ?? {};
@@ -1077,7 +1087,7 @@ export function transformNewsData(strapiNews) {
         summary: attributes.summary || '',
         category: attributes.category || 'other',
         date: normalizeDate(attributes.publishedDate),
-        linkUrl: attributes.linkUrl || '',
+        linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
         tags,
         _strapi: item,

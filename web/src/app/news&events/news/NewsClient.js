@@ -21,6 +21,8 @@ const parseSearchTerms = (query) =>
     .split(/\s+/)
     .filter(Boolean);
 
+const hasNewsLink = (value) => typeof value === "string" && value.trim().length > 0;
+
 export default function NewsClient({ newsItems = [] }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
   const [category, setCategory] = useState("all");
@@ -169,17 +171,23 @@ export default function NewsClient({ newsItems = [] }) {
                       ))}
                   </div>
                   <div className="pt-2">
-                    <a
-                      href={hero.linkUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200"
-                    >
-                      {t("readStory")}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
+                    {hasNewsLink(hero.linkUrl) ? (
+                      <a
+                        href={hero.linkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200"
+                      >
+                        {t("readStory")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-white/70">
+                        {t("readStory")}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -201,17 +209,23 @@ export default function NewsClient({ newsItems = [] }) {
                   ))}
                 </div>
                 <div className="pt-2">
-                  <a
-                    href={hero.linkUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
-                  >
-                    {t("openArticle")}
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                      <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                    </svg>
-                  </a>
+                  {hasNewsLink(hero.linkUrl) ? (
+                    <a
+                      href={hero.linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
+                    >
+                      {t("openArticle")}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+                      {t("openArticle")}
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -256,17 +270,23 @@ export default function NewsClient({ newsItems = [] }) {
                   </div>
 
                   <div className="px-5 pb-5">
-                    <a
-                      href={item.linkUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
-                    >
-                      {t("readMore")}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
+                    {hasNewsLink(item.linkUrl) ? (
+                      <a
+                        href={item.linkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
+                      >
+                        {t("readMore")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+                        {t("readMore")}
+                      </span>
+                    )}
                   </div>
                 </motion.article>
               ))}

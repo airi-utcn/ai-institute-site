@@ -35,6 +35,18 @@ const authorsToNames = (authors, bySlugMap) => {
     .filter(Boolean);
 };
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 const normalizePublication = (p, bySlugMap) => {
   const slug = toPublicationSlug({ slug: p.slug, title: p.title, year: p.year });
 
@@ -116,14 +128,15 @@ export default function PublicationsClient({ publications: pubData, staff: staff
 
   /* filtering */
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
+    const terms = parseSearchTerms(q);
     const normalizedThemeFilter = themeFilter.trim().toLowerCase();
     return pubs.filter((p) => {
-      const inSearch =
-        !query ||
+      const searchable = normalizeSearchText(
         `${p.title} ${p.year} ${p.domain} ${p.kind} ${(p.authors || []).join(" ")}`
-          .toLowerCase()
-          .includes(query);
+      );
+
+      const inSearch =
+        !terms.length || terms.every((term) => searchable.includes(term));
 
       const inYear = !yearFilter || p.year === yearFilter;
       const inAuthor = !authorFilter || (p.authors || []).includes(authorFilter);

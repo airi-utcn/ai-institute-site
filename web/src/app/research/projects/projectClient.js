@@ -21,6 +21,18 @@ const sortStrings = (values) =>
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b));
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 const toDomainEntries = (proj) => {
   if (Array.isArray(proj?.domains)) {
     return proj.domains
@@ -143,20 +155,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
 
   // filtering
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
+    const terms = parseSearchTerms(q);
     return projects.filter((p) => {
-      const haystack = [
-        p.title,
-        p.lead,
-        ...p.domainNames,
-        ...p.regions,
-        ...p.members,
-        ...(p.themes || []),
-      ]
-        .join(" ")
-        .toLowerCase();
+      const haystack = normalizeSearchText(
+        [p.title, p.lead, ...p.domainNames, ...p.regions, ...p.members, ...(p.themes || [])].join(" ")
+      );
 
-      const matchesQ = !query || haystack.includes(query);
+      const matchesQ = !terms.length || terms.every((term) => haystack.includes(term));
       const matchesRegion = !regionFilter || p.regions.includes(regionFilter);
       const matchesDomain = !domainFilter || p.domainNames.includes(domainFilter);
       const matchesLead = !leadFilter || p.lead === leadFilter;

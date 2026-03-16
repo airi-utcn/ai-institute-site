@@ -63,6 +63,18 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 } 
 };
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 function ResourceCard({ resource, t }) {
   const IconComponent = iconMap[resource.icon] || FaLink;
   const categoryColor = categoryColors[resource.category] || categoryColors.other;
@@ -173,14 +185,15 @@ export default function ResourcesClient({ resources = [] }) {
 
   /* Filter resources */
   const filteredResources = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const terms = parseSearchTerms(searchQuery);
 
     return resources.filter((r) => {
+      const searchable = normalizeSearchText(
+        [r.title, r.description, ...(r.tags || [])].filter(Boolean).join(" ")
+      );
+
       const matchesSearch =
-        !query ||
-        r.title.toLowerCase().includes(query) ||
-        r.description.toLowerCase().includes(query) ||
-        (r.tags || []).some(tag => tag.toLowerCase().includes(query));
+        !terms.length || terms.every((term) => searchable.includes(term));
       const matchesCategory = !categoryFilter || r.category === categoryFilter;
 
       return matchesSearch && matchesCategory;

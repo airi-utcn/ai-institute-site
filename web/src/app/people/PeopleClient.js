@@ -19,6 +19,18 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 function PersonCard({ person, basePath = "/people" }) {
   return (
     <motion.article
@@ -77,17 +89,15 @@ export default function PeopleClient({
 
   const currentPeople = useMemo(() => {
     const list = allPeople[activeTab] || [];
-    const query = searchQuery.toLowerCase().trim();
+    const terms = parseSearchTerms(searchQuery);
     
-    const filtered = query
+    const filtered = terms.length
       ? list.filter((p) => {
-          const searchable = [
-            p.name,
-            p.title,
-            p.department,
-            p.email,
-          ].filter(Boolean).join(" ").toLowerCase();
-          return searchable.includes(query);
+          const searchable = normalizeSearchText(
+            [p.name, p.title, p.department, p.email].filter(Boolean).join(" ")
+          );
+
+          return terms.every((term) => searchable.includes(term));
         })
       : list;
 

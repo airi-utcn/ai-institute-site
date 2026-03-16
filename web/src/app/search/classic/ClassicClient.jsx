@@ -100,6 +100,10 @@ function getBasePath() {
   return "";
 }
 
+function isExternalRoute(route) {
+  return /^https?:\/\//i.test(route || "");
+}
+
 export default function ClassicClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -119,15 +123,24 @@ export default function ClassicClient() {
 
   useEffect(() => {
     const base = getBasePath();
-    const url = `${base}/search-index.json`;
+    const url = `${base}/api/search-index`;
+    const fallbackUrl = `${base}/search-index.json`;
 
-    fetch(url)
-      .then(async (r) => {
-        if (!r.ok) {
-          console.error("[search] failed to load index:", url, r.status, r.statusText);
-          return [];
+    const loadIndex = async (targetUrl, { silent = false } = {}) => {
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        if (!silent) {
+          console.error("[search] failed to load index:", targetUrl, response.status, response.statusText);
         }
-        return r.json();
+        return null;
+      }
+      return response.json();
+    };
+
+    loadIndex(url)
+      .then(async (data) => {
+        if (data !== null) return data;
+        return loadIndex(fallbackUrl, { silent: true });
       })
       .then((data) => {
         if (!Array.isArray(data)) {
@@ -184,7 +197,7 @@ export default function ClassicClient() {
           placeholder={t("placeholder")}
           className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
-      </motion.div>
+      </div>
 
       {ready && q.trim() && (
         <>
@@ -195,19 +208,29 @@ export default function ClassicClient() {
             } <strong>“{q.trim()}”</strong>
           </motion.div>
 
-          <motion.ul className="space-y-3" variants={container}>
+          <ul className="space-y-3">
             {results.map((r) => (
-              <motion.li
+              <li
                 key={`${r.route}::${r.title}`}
-                className="rounded-xl border p-4 bg-white/80 dark:bg-slate-900/70 backdrop-blur hover:shadow-md transition"
-                variants={item}
+                className="card p-4 md:p-5 transition-shadow hover:shadow-md"
               >
-                <Link href={r.route} className="text-blue-600 dark:text-blue-400 underline font-medium">
-                  {highlightPrefix(r.title, terms)}
-                </Link>
-                <div className="text-xs text-slate-500 mt-1">{r.route}</div>
+                {isExternalRoute(r.route) ? (
+                  <a
+                    href={r.route}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link font-medium"
+                  >
+                    {highlightPrefix(r.title, terms)}
+                  </a>
+                ) : (
+                  <Link href={r.route} className="link font-medium">
+                    {highlightPrefix(r.title, terms)}
+                  </Link>
+                )}
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 break-all">{r.route}</div>
                 {r.snippet && (
-                  <p className="text-slate-700 dark:text-slate-300 mt-2">
+                  <p className="text-gray-700 dark:text-gray-300 mt-2">
                     {highlightPrefix(r.snippet, terms)}
                   </p>
                 )}
@@ -216,16 +239,16 @@ export default function ClassicClient() {
                     {r.tags.slice(0, 6).map((tag, i) => (
                       <span
                         key={`${r.route}::${r.title}::tag-${i}-${tag}`}
-                        className="text-xs px-2 py-0.5 rounded-full border bg-white dark:bg-slate-900"
+                        className="badge badge-gray"
                       >
                         #{highlightPrefix(String(tag), terms)}
                       </span>
                     ))}
                   </div>
                 )}
-              </motion.li>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
 
           {results.length === 0 && (
             <motion.div className="text-slate-600 dark:text-slate-300" variants={item}>
@@ -234,6 +257,11 @@ export default function ClassicClient() {
           )}
         </>
       )}
-    </motion.div>
+      {ready && !q.trim() && (
+        <div className="empty-state py-6">
+          Start typing to search the site.
+        </div>
+      )}
+    </div>
   );
 }

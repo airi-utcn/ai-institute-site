@@ -9,6 +9,18 @@ const motionCard = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.35 } },
 };
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 export default function NewsClient({ newsItems = [] }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
   const [category, setCategory] = useState("all");
@@ -38,11 +50,11 @@ export default function NewsClient({ newsItems = [] }) {
   }, [items]);
 
   const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
+    const terms = parseSearchTerms(query);
     return items.filter((it) => {
       const matchesCategory = category === "all" || (it.category || "other") === category;
-      const text = `${it.title} ${it.summary}`.toLowerCase();
-      const matchesQuery = !term || text.includes(term);
+      const text = normalizeSearchText(`${it.title} ${it.summary}`);
+      const matchesQuery = !terms.length || terms.every((term) => text.includes(term));
       return matchesCategory && matchesQuery;
     });
   }, [items, category, query]);

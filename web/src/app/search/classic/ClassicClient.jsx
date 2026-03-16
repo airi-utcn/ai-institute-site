@@ -197,7 +197,7 @@ export default function ClassicClient() {
           placeholder={t("placeholder")}
           className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
-      </div>
+      </motion.div>
 
       {ready && q.trim() && (
         <>
@@ -258,10 +258,10 @@ export default function ClassicClient() {
         </>
       )}
       {ready && !q.trim() && (
-        <div className="empty-state py-6">
+        <motion.div className="empty-state py-6" variants={item}>
           Start typing to search the site.
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

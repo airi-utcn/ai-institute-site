@@ -612,11 +612,11 @@ export async function getPartners() {
  */
 export async function getPublications(options = {}) {
   try {
-    const { domainSlug } = options;
-    const params = new URLSearchParams();
-    params.set('sort', 'year:desc');
+    const { domainSlug, includeUnlisted = false, graphEligibleOnly = false } = options;
+    const filters = {};
+
     if (domainSlug) {
-      params.set('filters[domain][slug][$eq]', domainSlug);
+      filters.domain = { slug: { $eq: domainSlug } };
     }
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });

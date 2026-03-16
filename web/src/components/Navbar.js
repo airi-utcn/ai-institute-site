@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -11,6 +11,84 @@ import EUT_Logo from '../../public/media/Logos/EUT_WideLogo.png';
 import { useTheme } from "@/components/ThemeProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslations } from "next-intl"; // Added import
+
+const strip = (value) =>
+  (value || '')
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const parseTerms = (query) => strip(query).split(/\s+/).filter(Boolean);
+
+const matchesAllTerms = (item, terms) => {
+  if (!terms.length) return false;
+
+  const title = strip(item?.title);
+  const snippet = strip(item?.snippet);
+  const tags = (item?.tags || []).map(strip);
+
+  return terms.every((term) => {
+    if (!term) return true;
+    if (title.includes(term)) return true;
+    if (snippet.includes(term)) return true;
+    return tags.some((tag) => tag.includes(term));
+  });
+};
+
+const scoreItem = (item, terms) => {
+  let score = 0;
+  const title = strip(item?.title);
+  const snippet = strip(item?.snippet);
+  const tags = (item?.tags || []).map(strip);
+
+  for (const term of terms) {
+    if (!term) continue;
+    if (title.includes(term)) score += 3;
+    else if (tags.some((tag) => tag.includes(term))) score += 2;
+    else if (snippet.includes(term)) score += 1;
+  }
+
+  return score;
+};
+
+const getBasePath = () => {
+  if (typeof window === 'undefined') return '';
+  const fromNext = window.__NEXT_DATA__?.assetPrefix;
+  if (fromNext) return fromNext;
+  const firstSegment = window.location.pathname.split('/')[1] || '';
+  if (/staging/i.test(firstSegment)) return `/${firstSegment}`;
+  return '';
+};
+
+const isExternalRoute = (route) => /^https?:\/\//i.test(route || '');
+
+function SearchSuggestions({ suggestions, onSelect }) {
+  if (!suggestions?.length) {
+    return (
+      <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+        <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400">No quick matches.</div>
+      </div>
+    );
+  }
+
+  return (
+    <ul className="absolute z-50 mt-2 w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+      {suggestions.map((item) => (
+        <li key={`${item.route}::${item.title}`}>
+          <button
+            type="button"
+            onClick={() => onSelect(item)}
+            className="w-full border-b border-gray-100 px-3 py-2 text-left last:border-b-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800"
+          >
+            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
+            <p className="truncate text-xs text-gray-500 dark:text-gray-400">{item.route}</p>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
   return (
@@ -71,7 +149,10 @@ export default function Navbar() {
 
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchIndex, setSearchIndex] = useState([]);
   const searchInputRef = useRef(null);
+  const desktopSearchRef = useRef(null);
+  const mobileSearchRef = useRef(null);
 
   // Moved arrays inside the component to access 't'
   const navLinks = [
@@ -124,20 +205,77 @@ export default function Navbar() {
     }
   }, [searchExpanded]);
 
+  useEffect(() => {
+    const base = getBasePath();
+    const url = `${base}/api/search-index`;
+    const fallbackUrl = `${base}/search-index.json`;
+
+    const loadIndex = async (targetUrl) => {
+      const response = await fetch(targetUrl);
+      if (!response.ok) return null;
+      return response.json();
+    };
+
+    loadIndex(url)
+      .then(async (data) => {
+        if (Array.isArray(data)) return data;
+        const fallback = await loadIndex(fallbackUrl);
+        return Array.isArray(fallback) ? fallback : [];
+      })
+      .then((data) => setSearchIndex(data))
+      .catch(() => setSearchIndex([]));
+  }, []);
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      const target = event.target;
+      if (desktopSearchRef.current?.contains(target)) return;
+      if (mobileSearchRef.current?.contains(target)) return;
+      setSearchExpanded(false);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
+  const searchSuggestions = useMemo(() => {
+    const terms = parseTerms(searchQuery);
+    if (!terms.length) return [];
+
+    return searchIndex
+      .filter((item) => matchesAllTerms(item, terms))
+      .map((item) => ({ ...item, _score: scoreItem(item, terms) }))
+      .sort((a, b) => b._score - a._score || a.title.localeCompare(b.title))
+      .slice(0, 6);
+  }, [searchIndex, searchQuery]);
+
+  const finishSearchInteraction = () => {
+    setSearchExpanded(false);
+    setSearchQuery('');
+    setIsOpen(false);
+  };
+
+  const navigateToSearchTarget = (item) => {
+    if (!item?.route) return;
+    finishSearchInteraction();
+    if (isExternalRoute(item.route)) {
+      window.open(item.route, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    router.push(item.route);
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchExpanded(false);
-      setSearchQuery("");
-      setIsOpen(false);
+      finishSearchInteraction();
     }
   };
 
   const handleSearchKeyDown = (e) => {
     if (e.key === "Escape") {
-      setSearchExpanded(false);
-      setSearchQuery("");
+      finishSearchInteraction();
     }
   };
 
@@ -260,7 +398,7 @@ export default function Navbar() {
           })}
 
           {/* Search bar / icon */}
-          <li className="relative flex items-center ml-2">
+          <li className="relative flex items-center ml-2" ref={desktopSearchRef}>
             <div className={`flex items-center transition-all duration-300 ${searchExpanded ? 'w-64' : 'w-auto'}`}>
               {searchExpanded ? (
                 <form onSubmit={handleSearchSubmit} className="flex items-center w-full">
@@ -282,6 +420,12 @@ export default function Navbar() {
                     >
                       <FaTimes className="w-3.5 h-3.5" />
                     </button>
+                    {searchQuery.trim() ? (
+                      <SearchSuggestions
+                        suggestions={searchSuggestions}
+                        onSelect={navigateToSearchTarget}
+                      />
+                    ) : null}
                   </div>
                 </form>
               ) : (
@@ -307,7 +451,7 @@ export default function Navbar() {
       {isOpen && (
         <ul className="md:hidden flex flex-col border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 py-2">
           {/* Mobile search bar */}
-          <li className="px-4 py-2 mb-2">
+          <li className="px-4 py-2 mb-2" ref={mobileSearchRef}>
             <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
               <div className="relative flex-1">
                 <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -318,6 +462,12 @@ export default function Navbar() {
                   placeholder={t('search.mobilePlaceholder')}
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {searchQuery.trim() ? (
+                  <SearchSuggestions
+                    suggestions={searchSuggestions}
+                    onSelect={navigateToSearchTarget}
+                  />
+                ) : null}
               </div>
               <button
                 type="submit"

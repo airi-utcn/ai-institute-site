@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
 import LogoLight from '../../public/media/Logos/LogoLight.svg';
 import LogoDark from '../../public/media/Logos/LogoDark.svg';
+import EUT_Logo from '../../public/media/Logos/EUT_WideLogo.png';
 import { useTheme } from "@/components/ThemeProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslations } from "next-intl"; // Added import
@@ -212,6 +213,17 @@ export default function Navbar() {
               style={{ cursor: 'pointer' }}
             />
           </Link>
+          <Link href="https://www.univ-tech.eu/" aria-label="EUT">
+            <Image
+              src={EUT_Logo}
+              alt="EUT Logo"
+              width={160}
+              height={160}
+              priority
+              className="ml-4"
+              style={{ cursor: 'pointer' }}
+            />
+          </Link>
         </div>
 
         <button
@@ -285,9 +297,9 @@ export default function Navbar() {
             </div>
           </li>
 
-          {/* Desktop Language Switcher */}
+          {/* Desktop Language Switcher (compact) */}
           <li className="ml-2">
-            <LanguageSwitcher />
+            <LanguageSwitcher compact />
           </li>
         </ul>
       </div>

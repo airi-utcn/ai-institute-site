@@ -3,6 +3,7 @@
 import Image from "next/image";
 import LogoLight from "../../public/media/Logos/LogoLight.svg";
 import LogoDark from "../../public/media/Logos/LogoDark.svg";
+import EUT_Logo from '../../public/media/Logos/EUT_Logo.png';
 import { useTheme } from "@/components/ThemeProvider";
 import { useTranslations } from "next-intl";
 
@@ -45,9 +46,9 @@ export default function Footer() {
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {/* Logo & Social */}
-          <div className="flex flex-col items-center md:items-start gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+                    {/* Logo & Social */}
+          <div className="flex flex-col items-center gap-6">
             <a href="/" aria-label="Home">
               <Image
                 src={isDark ? LogoDark : LogoLight}
@@ -57,6 +58,22 @@ export default function Footer() {
                 priority
               />
             </a>
+
+            <a
+              href="https://www.univ-tech.eu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="EUT+"
+            >
+              <Image
+                src={EUT_Logo}
+                alt="EUT+ Logo"
+                width={140}
+                height={140}
+                priority
+              />
+            </a>
+
             <ul className="flex gap-3">
               {socialLinks.map((link) => (
                 <li key={link.href}>
@@ -77,7 +94,7 @@ export default function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+          <div className="flex flex-col items-center gap-4 text-center">
             <h3 className="font-semibold text-gray-900 dark:text-white">{t('contact.title')}</h3>
             <a
               href="https://www.google.com/maps/dir//Laboratoarele+UTC-N+Strada+Observatorului+2+Cluj-Napoca+400347"
@@ -106,9 +123,9 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-col items-center md:items-start gap-4">
+          <div className="flex flex-col items-center gap-4 text-center">
             <h3 className="font-semibold text-gray-900 dark:text-white">{t('quickLinks.title')}</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 text-center">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <a

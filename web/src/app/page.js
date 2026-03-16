@@ -153,40 +153,79 @@ export default async function Home() {
         {latestNews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {latestNews.map((article) => (
-              <Link
-                key={article.id || article.slug}
-                href={`/news&events/news/${article.slug}`}
-                className="card card-hover overflow-hidden group"
-              >
-                {article.image && (
-                  <div className="relative h-40 overflow-hidden">
-                    <Image
-                      src={article.image}
-                      alt={article.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      unoptimized
-                    />
-                  </div>
-                )}
-                <div className="p-5">
-                  <time className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
-                    {article.date ? new Date(article.date).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : ''}
-                  </time>
-                  <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2 mb-2">
-                    {article.title}
-                  </h3>
-                  {article.summary && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                      {article.summary}
-                    </p>
+              article.linkUrl ? (
+                <a
+                  key={article.id || article.slug}
+                  href={article.linkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card card-hover overflow-hidden group"
+                >
+                  {article.image && (
+                    <div className="relative h-40 overflow-hidden">
+                      <Image
+                        src={article.image}
+                        alt={article.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        unoptimized
+                      />
+                    </div>
                   )}
-                </div>
-              </Link>
+                  <div className="p-5">
+                    <time className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
+                      {article.date ? new Date(article.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : ''}
+                    </time>
+                    <h3 className="font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2 mb-2">
+                      {article.title}
+                    </h3>
+                    {article.summary && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {article.summary}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ) : (
+                <article
+                  key={article.id || article.slug}
+                  className="card overflow-hidden opacity-90"
+                  aria-label={article.title}
+                >
+                  {article.image && (
+                    <div className="relative h-40 overflow-hidden">
+                      <Image
+                        src={article.image}
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  )}
+                  <div className="p-5">
+                    <time className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">
+                      {article.date ? new Date(article.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      }) : ''}
+                    </time>
+                    <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2">
+                      {article.title}
+                    </h3>
+                    {article.summary && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {article.summary}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              )
             ))}
           </div>
         ) : (

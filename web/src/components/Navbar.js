@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
 import LogoLight from '../../public/media/Logos/LogoLight.svg';
 import LogoDark from '../../public/media/Logos/LogoDark.svg';
-import EUT_Logo from '../../public/media/Logos/EUT_WideLogo.png';
+import EUT_Logo from '../../public/media/Logos/UT&EUT_Logo.png';
 import { useTheme } from "@/components/ThemeProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslations } from "next-intl"; // Added import
@@ -341,7 +341,7 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex items-center">
-          <Link href="/" aria-label="Home">
+          {/* <Link href="/" aria-label="Home">
             <Image
               src={isDark ? LogoDark : LogoLight}
               alt="AI Institute Logo"
@@ -350,13 +350,13 @@ export default function Navbar() {
               priority
               style={{ cursor: 'pointer' }}
             />
-          </Link>
-          <Link href="https://www.univ-tech.eu/" aria-label="EUT">
+          </Link> */}
+          <Link href="/" aria-label="Home">
             <Image
               src={EUT_Logo}
               alt="EUT Logo"
-              width={160}
-              height={160}
+              width={200} // Absurd, and way beyond the width of the navbar, TODO: figure out a better way
+              height={200}
               priority
               className="ml-4"
               style={{ cursor: 'pointer' }}

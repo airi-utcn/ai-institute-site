@@ -174,8 +174,8 @@ export default function Client({ projects: rawProjects = [] }) {
                       <div className="relative z-10 flex gap-4">
                         {p.expandedPartners.map((partner) =>
                           partner.logo ? (
-                            <div key={partner.name} className="h-16 w-16 bg-white rounded-lg p-2 shadow-sm flex items-center justify-center" title={partner.name}>
-                              <img src={partner.logo} alt={partner.name} className="max-h-full max-w-full object-contain" />
+                            <div key={partner.name} className="h-12 w-12 sm:h-16 sm:w-16 bg-white dark:bg-[#0a0a0a] rounded-xl p-2.5 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-center" title={partner.name}>
+                              <img src={partner.logo} alt={partner.name} className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal" />
                             </div>
                           ) : null
                         )}

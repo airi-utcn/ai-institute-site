@@ -99,23 +99,40 @@ function PersonCard({ person, role }) {
 // Partner Card Component
 function PartnerCard({ partner }) {
   const logoUrl = partner?.logo || null;
+  const partnerProfileHref = partner?.slug ? `/engagement/partners/${encodeURIComponent(partner.slug)}` : '';
+  const websiteHref = partner?.url || '';
 
   return (
     <motion.div
       variants={itemVariants}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center justify-center"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4"
     >
-      {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt={partner.name}
-          className="object-contain max-h-12 max-w-[120px]"
-        />
-      ) : (
-        <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
-          {partner.name}
-        </span>
-      )}
+      <div className="flex items-center justify-center min-h-12">
+        {logoUrl ? (
+          <img
+            src={logoUrl}
+            alt={partner.name}
+            className="object-contain max-h-12 max-w-[120px]"
+          />
+        ) : (
+          <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
+            {partner.name}
+          </span>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs">
+        {partnerProfileHref ? (
+          <Link href={partnerProfileHref} className="text-blue-600 dark:text-blue-400 hover:underline">
+            Partner profile
+          </Link>
+        ) : null}
+        {websiteHref ? (
+          <a href={websiteHref} target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:underline">
+            Website
+          </a>
+        ) : null}
+      </div>
     </motion.div>
   );
 }

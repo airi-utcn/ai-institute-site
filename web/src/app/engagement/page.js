@@ -6,13 +6,14 @@ export const metadata = {
 import { Suspense } from "react";
 import EngagementClient from "./EngagementClient";
 import CollaboratorsClient from "../collaborators/CollaboratorsClient";
-import { getPartners, getProjects, transformProjectData } from "@/lib/strapi";
+import { getPartners, getProjects, transformPartnerData, transformProjectData } from "@/lib/strapi";
 
 
 export default async function EngagementPage() {
   const strapiProjects = await getProjects();
   const projects = transformProjectData(strapiProjects);
-  const partners = await getPartners();
+  const partnerRows = await getPartners();
+  const partners = transformPartnerData(partnerRows);
 
   return (
     <Suspense fallback={null}>

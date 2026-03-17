@@ -4,6 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import Markdown from 'markdown-to-jsx';
 import { useTranslations } from 'next-intl';
 import {
   FaUsers,
@@ -561,6 +562,9 @@ function HighSchoolContent() {
 
 function PartnersContent({ partners, CollaboratorsClient }) {
   const t = useTranslations('engagement.basic.PartnersContent');
+
+  const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
+
   return (
     <motion.div key="partners" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
       <SectionCard title={t('title')}>
@@ -569,22 +573,73 @@ function PartnersContent({ partners, CollaboratorsClient }) {
         </p>
       </SectionCard>
 
-      {partners && partners.length > 0 && (
+      {partnerList.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {partners.map(p => (
-            <motion.a
-              key={p.name}
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
+          {partnerList.map(p => (
+            <motion.div
+              key={p.slug || p.name}
               variants={itemVariants}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition-all group"
             >
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {p.name}
-              </h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{p.blurb}</p>
-            </motion.a>
+              <div className="flex items-start gap-3 mb-3">
+                {p.logo ? (
+                  <div className="h-12 w-12 shrink-0 rounded-lg bg-gray-50 dark:bg-gray-700/40 p-2 flex items-center justify-center">
+                    <img src={p.logo} alt={p.name} className="max-h-full max-w-full object-contain" />
+                  </div>
+                ) : null}
+                <div className="min-w-0">
+                  {p.slug ? (
+                    <Link
+                      href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
+                      className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                    >
+                      {p.name}
+                    </Link>
+                  ) : (
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{p.name}</h3>
+                  )}
+                  {p.country ? <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{p.country}</p> : null}
+                </div>
+              </div>
+
+              {p.descriptionMarkdown ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 line-clamp-4">
+                  <Markdown>{p.descriptionMarkdown}</Markdown>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-400">{p.blurb || p.description}</p>
+              )}
+
+              {Array.isArray(p.projects) && p.projects.length > 0 ? (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {p.projects.slice(0, 3).map((project) => (
+                    <Link
+                      key={project.slug || project.title}
+                      href={project.slug ? `/research/projects/${encodeURIComponent(project.slug)}` : '/research/projects'}
+                      className="inline-flex items-center rounded-full px-2.5 py-1 text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                    >
+                      {project.title}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+
+              <div className="mt-4 flex items-center gap-4 text-sm">
+                {p.slug ? (
+                  <Link
+                    href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
+                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Partner profile
+                  </Link>
+                ) : null}
+                {p.url ? (
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="text-gray-600 dark:text-gray-300 hover:underline">
+                    Website
+                  </a>
+                ) : null}
+              </div>
+            </motion.div>
           ))}
         </div>
       )}

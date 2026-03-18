@@ -202,7 +202,7 @@ const PROJECT_POPULATE = {
       fields: ['name', 'slug'],
     },
     partners: {
-      fields: ['name', 'slug', 'website', 'country', 'description'],
+      fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
       populate: {
         logo: {
           fields: ['url', 'formats', 'alternativeText'],
@@ -596,7 +596,7 @@ export async function getProjectBySlug(slug) {
  */
 export async function getPartners() {
   const PARTNER_POPULATE = {
-    fields: ['name', 'slug', 'website', 'country', 'description'],
+    fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
     populate: {
       logo: {
         fields: ['url', 'formats', 'alternativeText'],
@@ -634,7 +634,7 @@ export async function getPartnerBySlug(slug) {
     const params = createParams({
       publicationState: 'preview',
       filters: { slug: { $eq: slug } },
-      fields: ['name', 'slug', 'website', 'country', 'description'],
+      fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
       populate: {
         logo: {
           fields: ['url', 'formats', 'alternativeText'],
@@ -1610,6 +1610,12 @@ export function transformResourceData(strapiResources) {
 export function transformPartnerData(strapiPartners) {
   const list = Array.isArray(strapiPartners) ? strapiPartners : strapiPartners ? [strapiPartners] : [];
 
+  const normalizePartnerStatus = (rawStatus) => {
+    const value = (rawStatus || '').toString().trim().toLowerCase();
+    if (value === 'former') return 'former';
+    return 'current';
+  };
+
   const normalizeBodyBlocks = (blocks) =>
     toArray(blocks)
       .map((block) => {
@@ -1668,6 +1674,7 @@ export function transformPartnerData(strapiPartners) {
     const markdownDescription = typeof attributes.description === 'string' ? attributes.description : '';
     const plainDescription = stripHtml(markdownDescription);
     const blurb = plainDescription;
+    const status = normalizePartnerStatus(attributes.partnershipStatus);
     
     return {
       id: partner?.id ?? null,
@@ -1683,6 +1690,8 @@ export function transformPartnerData(strapiPartners) {
       heroImage: resolveMediaUrl(attributes.heroImage),
       body: normalizeBodyBlocks(attributes.body),
       projects: partnerProjects,
+      partnerStatus: status,
+      isCurrentPartner: status === 'current',
       _strapi: partner,
     };
   });

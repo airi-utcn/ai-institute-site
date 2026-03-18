@@ -518,9 +518,16 @@
         "filters": {
           "searchPlaceholder": "Search by partner, country, project",
           "allCountries": "All countries",
+          "allStatuses": "All statuses",
+          "currentPartners": "Current partners",
+          "formerPartners": "Former partners",
           "clear": "Clear"
         },
         "activeProjects": "Active Projects",
+        "status": {
+          "current": "Current",
+          "former": "Former"
+        },
         "actions": {
           "exploreProfile": "Explore Profile",
           "visitWebsite": "Visit website"

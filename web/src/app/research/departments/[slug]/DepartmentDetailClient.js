@@ -166,7 +166,7 @@ export default function DepartmentDetailClient({
   teams = [],
 }) {
   const [activeTab, setActiveTab] = useState("overview");
-  const t = useTranslations("research.departmentDetails");
+  const t = useTranslations("research.departments.departmentDetails");
 
   const TABS = [
     { id: "overview", label: t("tabs.overview"), icon: FaInfoCircle },

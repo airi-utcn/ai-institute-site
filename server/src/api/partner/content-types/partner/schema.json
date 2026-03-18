@@ -43,6 +43,15 @@
     "country": {
       "type": "string"
     },
+    "partnershipStatus": {
+      "type": "enumeration",
+      "enum": [
+        "current",
+        "former"
+      ],
+      "default": "current",
+      "required": true
+    },
     "description": {
       "type": "richtext"
     },

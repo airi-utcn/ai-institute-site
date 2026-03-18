@@ -568,6 +568,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
   const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
   const [searchQuery, setSearchQuery] = useState('');
   const [countryFilter, setCountryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('current');
 
   const countryOptions = useMemo(() => {
     const countries = new Set();
@@ -595,9 +596,13 @@ function PartnersContent({ partners, CollaboratorsClient }) {
 
       const matchesQuery = !q || haystack.includes(q);
       const matchesCountry = !countryFilter || partner?.country === countryFilter;
-      return matchesQuery && matchesCountry;
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'current' && partner?.partnerStatus === 'current') ||
+        (statusFilter === 'former' && partner?.partnerStatus === 'former');
+      return matchesQuery && matchesCountry && matchesStatus;
     });
-  }, [partnerList, searchQuery, countryFilter]);
+  }, [partnerList, searchQuery, countryFilter, statusFilter]);
 
   const totalProjects = useMemo(() => {
     return partnerList.reduce((acc, partner) => acc + (Array.isArray(partner?.projects) ? partner.projects.length : 0), 0);
@@ -663,11 +668,22 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                 ))}
               </select>
 
-              {(searchQuery || countryFilter) ? (
+              <select
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+                className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[180px]"
+              >
+                <option value="all">{tr('filters.allStatuses', 'All statuses')}</option>
+                <option value="current">{tr('filters.currentPartners', 'Current partners')}</option>
+                <option value="former">{tr('filters.formerPartners', 'Former partners')}</option>
+              </select>
+
+              {(searchQuery || countryFilter || statusFilter !== 'current') ? (
                 <button
                   onClick={() => {
                     setSearchQuery('');
                     setCountryFilter('');
+                    setStatusFilter('current');
                   }}
                   className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shrink-0"
                 >
@@ -689,11 +705,11 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                   <div className="flex flex-col sm:flex-row gap-6 relative z-10 h-full">
                     {/* Visual Anchor / Logo */}
                     {p.logo ? (
-                      <div className="shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black">
+                      <div className="shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black p-2 flex items-center justify-center">
                         <img
                           src={p.logo}
                           alt={p.name}
-                          className="w-full h-full object-cover rounded-2xl"
+                          className="w-full h-full object-contain"
                         />
                       </div>
                     ) : (
@@ -723,6 +739,12 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                               {p.country}
                             </span>
                           ) : null}
+
+                          <span className={`inline-flex mt-2 px-2 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide ${p.partnerStatus === 'current' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'}`}>
+                            {p.partnerStatus === 'current'
+                              ? tr('status.current', 'Current')
+                              : tr('status.former', 'Former')}
+                          </span>
                         </div>
                       </div>
 

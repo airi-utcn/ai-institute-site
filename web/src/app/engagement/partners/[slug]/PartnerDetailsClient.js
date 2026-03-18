@@ -51,8 +51,8 @@ export default function PartnerDetailsClient({ partner }) {
             <div className="sticky top-24">
               {/* Logo Box */}
               {partner.logo ? (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mb-8 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                  <img src={partner.logo} alt={partner.name} className="w-full h-full object-cover rounded-2xl" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 mb-8 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-3 flex items-center justify-center">
+                  <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain" />
                 </div>
               ) : null}
 

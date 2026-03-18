@@ -688,11 +688,11 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                   <div className="flex flex-col sm:flex-row gap-6 relative z-10 h-full">
                     {/* Visual Anchor / Logo */}
                     {p.logo ? (
-                      <div className="shrink-0 flex items-center justify-center p-3 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black">
+                      <div className="shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black">
                         <img
                           src={p.logo}
                           alt={p.name}
-                          className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal"
+                          className="w-full h-full object-cover rounded-2xl"
                         />
                       </div>
                     ) : (

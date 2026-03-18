@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Nuestros Socios",
         "desc": "Estamos orgullosos de colaborar con organizaciones líderes en la academia y la industria.",
-        "mapTitle": "Mapa de Socios"
+        "mapTitle": "Mapa de Socios",
+        "eyebrow": "Red estratégica",
+        "stats": {
+          "partners": "Socios",
+          "countries": "Países",
+          "projects": "Proyectos"
+        },
+        "filters": {
+          "searchPlaceholder": "Buscar por socio, país, proyecto",
+          "allCountries": "Todos los países",
+          "clear": "Limpiar"
+        },
+        "activeProjects": "Proyectos activos",
+        "actions": {
+          "exploreProfile": "Explorar perfil",
+          "visitWebsite": "Visitar sitio web"
+        },
+        "empty": {
+          "filtered": "Ningún socio coincide con tus filtros."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Socios",
+        "visitOfficialWebsite": "Visitar sitio web oficial",
+        "collaborativeProjects": "Proyectos colaborativos",
+        "collaborativeProjectsSubtitle": "Investigaciones e iniciativas con {partnerName}.",
+        "noLinkedProjects": "No hay proyectos vinculados por ahora."
       },
       "PhDContent": {
         "title": "Programa de Doctorado Industrial",

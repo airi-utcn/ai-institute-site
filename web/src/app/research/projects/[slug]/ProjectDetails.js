@@ -99,23 +99,61 @@ function PersonCard({ person, role }) {
 // Partner Card Component
 function PartnerCard({ partner }) {
   const logoUrl = partner?.logo || null;
+  const partnerProfileHref = partner?.slug ? `/engagement/partners/${encodeURIComponent(partner.slug)}` : '';
+  const websiteHref = partner?.url || '';
 
   return (
-    <motion.div
-      variants={itemVariants}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center justify-center"
-    >
-      {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt={partner.name}
-          className="object-contain max-h-12 max-w-[120px]"
-        />
-      ) : (
-        <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
-          {partner.name}
-        </span>
-      )}
+    <motion.div variants={itemVariants} className="h-full">
+      <div
+        className={`group relative flex flex-col justify-between h-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 transition-all duration-300 ${partnerProfileHref ? 'hover:-translate-y-1 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-900' : ''}`}
+      >
+        <div className="flex flex-col items-center justify-center min-h-[5rem] mb-4">
+          {logoUrl ? (
+            <>
+              <img
+                src={logoUrl}
+                alt={partner.name}
+                className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
+              />
+              <span className="mt-3 text-gray-900 dark:text-white font-semibold text-sm text-center leading-tight">
+                {partner.name}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-900 dark:text-white font-bold text-lg text-center leading-tight">
+              {partner.name}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-800/60 mt-auto relative z-20">
+          {partnerProfileHref ? (
+            <>
+              {/* Invisible overlay linking the whole card to the profile */}
+              <Link href={partnerProfileHref} className="absolute inset-0 z-10" aria-label={`View ${partner.name} profile`} />
+              <span 
+                className="text-xs font-bold text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors inline-flex items-center gap-1.5"
+                aria-hidden="true"
+              >
+                Profile
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </>
+          ) : null}
+          {websiteHref ? (
+            <a 
+              href={websiteHref} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="relative z-30 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Website
+            </a>
+          ) : null}
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -566,17 +604,26 @@ export default function ProjectDetails({ project }) {
               {partners && partners.length > 0 && (
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                  className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white/60 dark:bg-gray-900/40 backdrop-blur-sm p-6 md:p-10 shadow-sm mt-8"
                 >
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FaHandshake className="text-blue-600" />
-                    {t("partners")}
-                  </h2>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400 rounded-xl">
+                      <FaHandshake className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {t("partners")}
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Collaborating organizations on this project.
+                      </p>
+                    </div>
+                  </div>
                   <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={containerVariants}
-                    className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5"
                   >
                     {partners.map(partner => (
                       <PartnerCard key={partner.slug || partner.name} partner={partner} />

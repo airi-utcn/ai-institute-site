@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Οι Συνεργάτες Μας",
         "desc": "Είμαστε περήφανοι που συνεργαζόμαστε με κορυφαίους οργανισμούς στον ακαδημαϊκό και βιομηχανικό χώρο.",
-        "mapTitle": "Χάρτης Συνεργατών"
+        "mapTitle": "Χάρτης Συνεργατών",
+        "eyebrow": "Στρατηγικό Δίκτυο",
+        "stats": {
+          "partners": "Συνεργάτες",
+          "countries": "Χώρες",
+          "projects": "Έργα"
+        },
+        "filters": {
+          "searchPlaceholder": "Αναζήτηση ανά συνεργάτη, χώρα, έργο",
+          "allCountries": "Όλες οι χώρες",
+          "clear": "Καθαρισμός"
+        },
+        "activeProjects": "Ενεργά Έργα",
+        "actions": {
+          "exploreProfile": "Εξερεύνηση Προφίλ",
+          "visitWebsite": "Επισκεφθείτε τον ιστότοπο"
+        },
+        "empty": {
+          "filtered": "Κανένας συνεργάτης δεν ταιριάζει με τα φίλτρα σας."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Συνεργάτες",
+        "visitOfficialWebsite": "Επισκεφθείτε την επίσημη ιστοσελίδα",
+        "collaborativeProjects": "Συνεργατικά Έργα",
+        "collaborativeProjectsSubtitle": "Έρευνα και πρωτοβουλίες με τον/την {partnerName}.",
+        "noLinkedProjects": "Δεν υπάρχουν ακόμη συνδεδεμένα έργα."
       },
       "PhDContent": {
         "title": "Πρόγραμμα Βιομηχανικού Διδακτορικού",

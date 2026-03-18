@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Нашите партньори",
         "desc": "Гордеем се, че си сътрудничим с водещи организации в академичните среди и индустрията.",
-        "mapTitle": "Карта на партньорите"
+        "mapTitle": "Карта на партньорите",
+        "eyebrow": "Стратегическа мрежа",
+        "stats": {
+          "partners": "Партньори",
+          "countries": "Държави",
+          "projects": "Проекти"
+        },
+        "filters": {
+          "searchPlaceholder": "Търсене по партньор, държава, проект",
+          "allCountries": "Всички държави",
+          "clear": "Изчисти"
+        },
+        "activeProjects": "Активни проекти",
+        "actions": {
+          "exploreProfile": "Разгледай профила",
+          "visitWebsite": "Посети уебсайта"
+        },
+        "empty": {
+          "filtered": "Няма партньори, които да съответстват на филтрите."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Партньори",
+        "visitOfficialWebsite": "Посетете официалния уебсайт",
+        "collaborativeProjects": "Съвместни проекти",
+        "collaborativeProjectsSubtitle": "Изследвания и инициативи с участието на {partnerName}.",
+        "noLinkedProjects": "Все още няма свързани проекти."
       },
       "PhDContent": {
         "title": "Програма за Индустриална докторантура",

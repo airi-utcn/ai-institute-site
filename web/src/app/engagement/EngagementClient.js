@@ -21,7 +21,9 @@ import {
   FaBook,
   FaChalkboardTeacher,
   FaPlane,
-  FaUserGraduate
+  FaUserGraduate,
+  FaMapMarkerAlt,
+  FaArrowRight
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 
@@ -561,33 +563,233 @@ function HighSchoolContent() {
 
 function PartnersContent({ partners, CollaboratorsClient }) {
   const t = useTranslations('engagement.basic.PartnersContent');
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
+
+  const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+
+  const countryOptions = useMemo(() => {
+    const countries = new Set();
+    partnerList.forEach((partner) => {
+      if (partner?.country) {
+        countries.add(partner.country.trim());
+      }
+    });
+    return Array.from(countries).sort((a, b) => a.localeCompare(b));
+  }, [partnerList]);
+
+  const filteredPartners = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return partnerList.filter((partner) => {
+      const haystack = [
+        partner?.name,
+        partner?.country,
+        partner?.description,
+        partner?.descriptionMarkdown,
+        ...(Array.isArray(partner?.projects) ? partner.projects.map((project) => project?.title) : []),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+
+      const matchesQuery = !q || haystack.includes(q);
+      const matchesCountry = !countryFilter || partner?.country === countryFilter;
+      return matchesQuery && matchesCountry;
+    });
+  }, [partnerList, searchQuery, countryFilter]);
+
+  const totalProjects = useMemo(() => {
+    return partnerList.reduce((acc, partner) => acc + (Array.isArray(partner?.projects) ? partner.projects.length : 0), 0);
+  }, [partnerList]);
+
   return (
     <motion.div key="partners" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
-      <SectionCard title={t('title')}>
-        <p className="text-gray-700 dark:text-gray-300">
-          {t('desc')}
-        </p>
-      </SectionCard>
-
-      {partners && partners.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {partners.map(p => (
-            <motion.a
-              key={p.name}
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              variants={itemVariants}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-5 hover:shadow-lg transition-all group"
-            >
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                {p.name}
-              </h3>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{p.blurb}</p>
-            </motion.a>
-          ))}
+      <motion.section
+        variants={itemVariants}
+        className="relative overflow-hidden rounded-3xl bg-[#0a0a0a] text-white dark:bg-white dark:text-[#0a0a0a] py-10 px-8 lg:px-12 flex flex-col md:flex-row md:items-center justify-between gap-10"
+      >
+        <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-white/5 dark:bg-black/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+        
+        <div className="relative z-10 max-w-2xl">
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4 text-gray-400 dark:text-gray-500">{tr('eyebrow', 'Strategic Network')}</p>
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">{t('title')}</h2>
+          <p className="text-lg text-gray-400 dark:text-gray-600 leading-relaxed md:max-w-xl">{t('desc')}</p>
         </div>
-      )}
+
+        <div className="relative z-10 flex flex-wrap items-center gap-8 md:gap-12">
+          <div className="flex flex-col">
+            <span className="text-4xl md:text-5xl font-bold tracking-tighter">{partnerList.length}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.partners', 'Partners')}</span>
+          </div>
+          <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
+          <div className="flex flex-col">
+            <span className="text-4xl md:text-5xl font-bold tracking-tighter">{countryOptions.length}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.countries', 'Countries')}</span>
+          </div>
+          <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
+          <div className="flex flex-col">
+            <span className="text-4xl md:text-5xl font-bold tracking-tighter">{totalProjects}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.projects', 'Projects')}</span>
+          </div>
+        </div>
+      </motion.section>
+
+      {partnerList.length > 0 ? (
+        <>
+          <motion.div variants={itemVariants} className="rounded-2xl p-2 bg-gray-50/80 border border-gray-100 dark:bg-gray-900/50 dark:border-gray-800">
+            <div className="flex flex-col md:flex-row gap-2">
+              <div className="relative flex-1">
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder={tr('filters.searchPlaceholder', 'Search by partner, country, project')}
+                  className="w-full h-12 rounded-xl bg-white pl-11 pr-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow"
+                />
+              </div>
+
+              <select
+                value={countryFilter}
+                onChange={(event) => setCountryFilter(event.target.value)}
+                className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[200px]"
+              >
+                <option value="">{tr('filters.allCountries', 'All countries')}</option>
+                {countryOptions.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
+
+              {(searchQuery || countryFilter) ? (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setCountryFilter('');
+                  }}
+                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shrink-0"
+                >
+                  <FaTimes className="w-3.5 h-3.5" />
+                  {tr('filters.clear', 'Clear')}
+                </button>
+              ) : null}
+            </div>
+          </motion.div>
+
+          {filteredPartners.length > 0 ? (
+            <div className="grid gap-6 xl:grid-cols-2">
+              {filteredPartners.map((p) => (
+                <motion.article
+                  key={p.slug || p.name}
+                  variants={itemVariants}
+                  className="group flex flex-col rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-gray-200 dark:border-gray-800 dark:bg-[#0a0a0a] dark:hover:border-gray-700 relative overflow-hidden"
+                >
+                  <div className="flex flex-col sm:flex-row gap-6 relative z-10 h-full">
+                    {/* Visual Anchor / Logo */}
+                    {p.logo ? (
+                      <div className="shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black">
+                        <img
+                          src={p.logo}
+                          alt={p.name}
+                          className="w-full h-full object-cover rounded-2xl"
+                        />
+                      </div>
+                    ) : (
+                      <div className="shrink-0 flex items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 text-gray-400 font-bold text-2xl">
+                        {p.name.charAt(0)}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col flex-1 min-w-0">
+                      {/* Headers */}
+                      <div className="flex justify-between items-start gap-4 mb-3">
+                        <div className="min-w-0">
+                          {p.slug ? (
+                            <Link
+                              href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
+                              className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2"
+                            >
+                              {p.name}
+                            </Link>
+                          ) : (
+                            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-2">{p.name}</h3>
+                          )}
+                          
+                          {p.country ? (
+                            <span className="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                              <FaMapMarkerAlt className="w-3.5 h-3.5" />
+                              {p.country}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 mt-4">
+                        {Array.isArray(p.projects) && p.projects.length > 0 ? (
+                          <div className="space-y-3">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                              <FaProjectDiagram className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                              {tr('activeProjects', 'Active Projects')}
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {p.projects.slice(0, 3).map((project) => (
+                                <Link
+                                  key={project.slug || project.title}
+                                  href={project.slug ? `/research/projects/${encodeURIComponent(project.slug)}` : '/research/projects'}
+                                  className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-blue-300 hover:text-blue-700 dark:hover:border-blue-700/60 dark:hover:text-blue-300 transition-colors"
+                                >
+                                  {project.title}
+                                </Link>
+                              ))}
+                              {p.projects.length > 3 && (
+                                <span className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium text-gray-500">
+                                  +{p.projects.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="mt-8 pt-5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
+                        {p.slug ? (
+                          <Link
+                            href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
+                            className="inline-flex items-center gap-2 text-sm font-bold text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-all group/btn"
+                          >
+                            {tr('actions.exploreProfile', 'Explore Profile')} 
+                            <FaArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+                          </Link>
+                        ) : <span />}
+
+                        {p.url ? (
+                          <a
+                            href={p.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 w-10 h-10 justify-center rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            title={tr('actions.visitWebsite', 'Visit website')}
+                          >
+                            <FaExternalLinkAlt className="w-3.5 h-3.5" />
+                          </a>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </div>
+          ) : (
+            <motion.div variants={itemVariants} className="rounded-2xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
+              <FaSearch className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+              <p className="text-sm text-gray-600 dark:text-gray-300">{tr('empty.filtered', 'No partners match your filters.')}</p>
+            </motion.div>
+          )}
+        </>
+      ) : null}
 
       {CollaboratorsClient && (
         <motion.div variants={itemVariants}>

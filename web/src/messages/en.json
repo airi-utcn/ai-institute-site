@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Our Partners",
         "desc": "We are proud to collaborate with leading organizations across academia and industry.",
-        "mapTitle": "Partner Map"
+        "mapTitle": "Partner Map",
+        "eyebrow": "Strategic Network",
+        "stats": {
+          "partners": "Partners",
+          "countries": "Countries",
+          "projects": "Projects"
+        },
+        "filters": {
+          "searchPlaceholder": "Search by partner, country, project",
+          "allCountries": "All countries",
+          "clear": "Clear"
+        },
+        "activeProjects": "Active Projects",
+        "actions": {
+          "exploreProfile": "Explore Profile",
+          "visitWebsite": "Visit website"
+        },
+        "empty": {
+          "filtered": "No partners match your filters."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partners",
+        "visitOfficialWebsite": "Visit Official Website",
+        "collaborativeProjects": "Collaborative Projects",
+        "collaborativeProjectsSubtitle": "Research and initiatives featuring {partnerName}.",
+        "noLinkedProjects": "No linked projects available yet."
       },
       "PhDContent": {
         "title": "Industrial PhD Program",

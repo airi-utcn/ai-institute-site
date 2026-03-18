@@ -231,7 +231,7 @@ function buildPartnerEntries(partners) {
   return partners.map((partner) =>
     makeEntry({
       title: partner.name,
-      route: partner.url || "/collaborators",
+      route: partner.slug ? `/engagement/partners/${partner.slug}` : partner.url || "/collaborators",
       tags: ["partner", partner.country],
       snippet: partner.description || partner.country,
     })

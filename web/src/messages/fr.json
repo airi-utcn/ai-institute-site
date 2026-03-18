@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Nos Partenaires",
         "desc": "Nous sommes fiers de collaborer avec des organisations de premier plan.",
-        "mapTitle": "Carte des Partenaires"
+        "mapTitle": "Carte des Partenaires",
+        "eyebrow": "Reseau strategique",
+        "stats": {
+          "partners": "Partenaires",
+          "countries": "Pays",
+          "projects": "Projets"
+        },
+        "filters": {
+          "searchPlaceholder": "Rechercher par partenaire, pays, projet",
+          "allCountries": "Tous les pays",
+          "clear": "Effacer"
+        },
+        "activeProjects": "Projets actifs",
+        "actions": {
+          "exploreProfile": "Explorer le profil",
+          "visitWebsite": "Visiter le site web"
+        },
+        "empty": {
+          "filtered": "Aucun partenaire ne correspond a vos filtres."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partenaires",
+        "visitOfficialWebsite": "Visiter le site officiel",
+        "collaborativeProjects": "Projets collaboratifs",
+        "collaborativeProjectsSubtitle": "Des recherches et initiatives avec {partnerName}.",
+        "noLinkedProjects": "Aucun projet lie pour le moment."
       },
       "PhDContent": {
         "title": "Programme de Doctorat Industriel",

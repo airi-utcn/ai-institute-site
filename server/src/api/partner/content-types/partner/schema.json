@@ -29,6 +29,14 @@
         "images"
       ]
     },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
     "website": {
       "type": "string"
     },
@@ -36,7 +44,16 @@
       "type": "string"
     },
     "description": {
-      "type": "text"
+      "type": "richtext"
+    },
+    "body": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.section",
+        "shared.rich-text",
+        "shared.media",
+        "shared.slider"
+      ]
     },
     "projects": {
       "type": "relation",

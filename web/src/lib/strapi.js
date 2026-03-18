@@ -46,6 +46,16 @@ const stripHtml = (value) =>
         .trim()
     : '';
 
+const normalizeExternalUrl = (value) => {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) return '';
+
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw)) return `https://${raw}`;
+
+  return '';
+};
+
 const resolveMediaUrl = (media) => {
   if (!media) return '';
 
@@ -192,7 +202,7 @@ const PROJECT_POPULATE = {
       fields: ['name', 'slug'],
     },
     partners: {
-      fields: ['name', 'slug'],
+      fields: ['name', 'slug', 'website', 'country', 'description'],
       populate: {
         logo: {
           fields: ['url', 'formats', 'alternativeText'],
@@ -586,10 +596,16 @@ export async function getProjectBySlug(slug) {
  */
 export async function getPartners() {
   const PARTNER_POPULATE = {
-    fields: ['name', 'slug', 'website', 'country', 'description'], 
+    fields: ['name', 'slug', 'website', 'country', 'description'],
     populate: {
       logo: {
         fields: ['url', 'formats', 'alternativeText'],
+      },
+      heroImage: {
+        fields: ['url', 'formats', 'alternativeText'],
+      },
+      projects: {
+        fields: ['title', 'slug', 'featured', 'isIndustryEngagement'],
       },
     },
   };
@@ -607,6 +623,61 @@ export async function getPartners() {
 }
 
 /**
+ * Get one partner by slug, including related projects.
+ * @param {string} slug - Partner slug
+ * @returns {Promise<Object|null>} Partner entry or null
+ */
+export async function getPartnerBySlug(slug) {
+  try {
+    if (!slug) return null;
+
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { slug: { $eq: slug } },
+      fields: ['name', 'slug', 'website', 'country', 'description'],
+      populate: {
+        logo: {
+          fields: ['url', 'formats', 'alternativeText'],
+        },
+        heroImage: {
+          fields: ['url', 'formats', 'alternativeText'],
+        },
+        projects: {
+          fields: ['title', 'slug', 'abstract', 'phase', 'featured', 'isIndustryEngagement'],
+          populate: {
+            heroImage: {
+              fields: ['url', 'formats', 'alternativeText'],
+            },
+            domains: DEPARTMENT_POPULATE,
+          },
+        },
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.media': {
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.slider': {
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+          },
+        },
+      },
+    });
+
+    const data = await fetchAPI(`/partners?${params.toString()}`);
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch partner by slug:', error);
+    return null;
+  }
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
@@ -618,6 +689,15 @@ export async function getPublications(options = {}) {
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
     }
+    const params = createParams({
+      sort: 'year:desc',
+      filters: Object.keys(filters).length ? filters : null,
+    });
+
+    // Kept for API compatibility with existing callers.
+    void includeUnlisted;
+    void graphEligibleOnly;
+
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
@@ -1066,16 +1146,6 @@ export function transformNewsData(strapiNews) {
     return d.toISOString();
   };
 
-  const normalizeExternalUrl = (value) => {
-    const raw = typeof value === 'string' ? value.trim() : '';
-    if (!raw) return '';
-
-    if (/^https?:\/\//i.test(raw)) return raw;
-    if (/^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw)) return `https://${raw}`;
-
-    return '';
-  };
-
   return list
     .map((item) => {
       const attributes = item?.attributes ?? item ?? {};
@@ -1187,11 +1257,25 @@ export function transformProjectData(strapiProjects) {
 
     const partners = toArray(attributes.partners?.data ?? attributes.partners).map((partner) => {
       const partnerData = partner?.attributes ?? partner ?? {};
+      const partnerProjects = toArray(partnerData.projects?.data ?? partnerData.projects).map((linkedProject) => {
+        const linkedProjectData = linkedProject?.attributes ?? linkedProject ?? {};
+        return {
+          id: linkedProject?.id ?? null,
+          slug: linkedProjectData.slug || '',
+          title: linkedProjectData.title || '',
+        };
+      }).filter((linkedProject) => linkedProject.slug || linkedProject.title);
+
       return {
         id: partner?.id ?? null,
         slug: partnerData.slug || '',
         name: partnerData.name || '',
+        country: partnerData.country || '',
+        description: stripHtml(partnerData.description || ''),
+        descriptionMarkdown: typeof partnerData.description === 'string' ? partnerData.description : '',
+        url: normalizeExternalUrl(partnerData.website),
         logo: resolveMediaUrl(partnerData.logo),
+        projects: partnerProjects,
       };
     });
 
@@ -1526,22 +1610,79 @@ export function transformResourceData(strapiResources) {
 export function transformPartnerData(strapiPartners) {
   const list = Array.isArray(strapiPartners) ? strapiPartners : strapiPartners ? [strapiPartners] : [];
 
+  const normalizeBodyBlocks = (blocks) =>
+    toArray(blocks)
+      .map((block) => {
+        if (!block || typeof block !== 'object') return null;
+        switch (block.__component) {
+          case 'shared.media':
+            return {
+              ...block,
+              file: resolveMediaUrl(block.file),
+            };
+          case 'shared.section':
+            return {
+              ...block,
+              media: resolveMediaUrl(block.media),
+            };
+          case 'shared.slider':
+            return {
+              ...block,
+              files: toArray(block.files).map(resolveMediaUrl).filter(Boolean),
+            };
+          default:
+            return block;
+        }
+      })
+      .filter(Boolean);
+
   return list.map((partner) => {
     const attributes = partner?.attributes ?? partner ?? {};
-    
-    let normalizedWebsite = attributes.website || '';
-    if (normalizedWebsite && !/^https?:\/\//i.test(normalizedWebsite)) {
-      normalizedWebsite = `https://${normalizedWebsite}`;
-    }
+
+    const partnerProjects = toArray(attributes.projects?.data ?? attributes.projects)
+      .map((project) => {
+        const projectData = project?.attributes ?? project ?? {};
+        return {
+          id: project?.id ?? null,
+          title: projectData.title || '',
+          slug: projectData.slug || '',
+          abstract: projectData.abstract || '',
+          featured: !!projectData.featured,
+          isIndustryEngagement: !!projectData.isIndustryEngagement,
+          heroImage: resolveMediaUrl(projectData.heroImage),
+          domains: toArray(projectData.domains?.data ?? projectData.domains)
+            .map((domain) => {
+              const domainData = domain?.attributes ?? domain ?? {};
+              return {
+                id: domain?.id ?? null,
+                name: domainData.name || '',
+                slug: domainData.slug || '',
+              };
+            })
+            .filter((domain) => domain.name || domain.slug),
+        };
+      })
+      .filter((project) => project.title || project.slug);
+
+    const website = normalizeExternalUrl(attributes.website);
+    const markdownDescription = typeof attributes.description === 'string' ? attributes.description : '';
+    const plainDescription = stripHtml(markdownDescription);
+    const blurb = plainDescription;
     
     return {
       id: partner?.id ?? null,
       name: attributes.name || '',
       slug: attributes.slug || '',
       country: attributes.country || '',
-      description: attributes.description ? stripHtml(attributes.description) : '',
-      url: normalizedWebsite, 
-      logo: resolveMediaUrl(attributes.logo), 
+      description: plainDescription,
+      descriptionMarkdown: markdownDescription,
+      blurb,
+      url: website,
+      website,
+      logo: resolveMediaUrl(attributes.logo),
+      heroImage: resolveMediaUrl(attributes.heroImage),
+      body: normalizeBodyBlocks(attributes.body),
+      projects: partnerProjects,
       _strapi: partner,
     };
   });

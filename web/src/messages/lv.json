@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Mūsu partneri",
         "desc": "Mēs lepojamies ar sadarbību ar vadošajām organizācijām visā akadēmiskajā un rūpniecības vidē.",
-        "mapTitle": "Partneru karte"
+        "mapTitle": "Partneru karte",
+        "eyebrow": "Stratēģiskais tīkls",
+        "stats": {
+          "partners": "Partneri",
+          "countries": "Valstis",
+          "projects": "Projekti"
+        },
+        "filters": {
+          "searchPlaceholder": "Meklēt pēc partnera, valsts, projekta",
+          "allCountries": "Visas valstis",
+          "clear": "Notīrīt"
+        },
+        "activeProjects": "Aktīvie projekti",
+        "actions": {
+          "exploreProfile": "Apskatīt profilu",
+          "visitWebsite": "Apmeklēt vietni"
+        },
+        "empty": {
+          "filtered": "Neviens partneris neatbilst jūsu filtriem."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partneri",
+        "visitOfficialWebsite": "Apmeklēt oficiālo vietni",
+        "collaborativeProjects": "Sadarbības projekti",
+        "collaborativeProjectsSubtitle": "Pētījumi un iniciatīvas, kurās piedalās {partnerName}.",
+        "noLinkedProjects": "Pagaidām nav saistītu projektu."
       },
       "PhDContent": {
         "title": "Industriālās doktorantūras programma",

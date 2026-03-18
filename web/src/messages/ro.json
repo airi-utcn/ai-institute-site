@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Partenerii Noștri",
         "desc": "Suntem mândri să colaborăm cu organizații de top din mediul academic și din industrie.",
-        "mapTitle": "Harta Partenerilor"
+        "mapTitle": "Harta Partenerilor",
+        "eyebrow": "Rețea strategică",
+        "stats": {
+          "partners": "Parteneri",
+          "countries": "Țări",
+          "projects": "Proiecte"
+        },
+        "filters": {
+          "searchPlaceholder": "Căutați după partener, țară, proiect",
+          "allCountries": "Toate țările",
+          "clear": "Resetare"
+        },
+        "activeProjects": "Proiecte active",
+        "actions": {
+          "exploreProfile": "Explorează profilul",
+          "visitWebsite": "Vizitează website-ul"
+        },
+        "empty": {
+          "filtered": "Niciun partener nu corespunde filtrelor."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Parteneri",
+        "visitOfficialWebsite": "Vizitează site-ul oficial",
+        "collaborativeProjects": "Proiecte colaborative",
+        "collaborativeProjectsSubtitle": "Cercetări și inițiative care îl includ pe {partnerName}.",
+        "noLinkedProjects": "Nu există încă proiecte asociate."
       },
       "PhDContent": {
         "title": "Program de Doctorat Industrial",

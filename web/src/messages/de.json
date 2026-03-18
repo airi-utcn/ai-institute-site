@@ -499,7 +499,33 @@
       "PartnersContent": {
         "title": "Partner",
         "desc": "Zusammenarbeit mit führenden Organisationen.",
-        "mapTitle": "Partnerkarte"
+        "mapTitle": "Partnerkarte",
+        "eyebrow": "Strategisches Netzwerk",
+        "stats": {
+          "partners": "Partner",
+          "countries": "Länder",
+          "projects": "Projekte"
+        },
+        "filters": {
+          "searchPlaceholder": "Suche nach Partner, Land, Projekt",
+          "allCountries": "Alle Länder",
+          "clear": "Zurücksetzen"
+        },
+        "activeProjects": "Aktive Projekte",
+        "actions": {
+          "exploreProfile": "Profil ansehen",
+          "visitWebsite": "Website besuchen"
+        },
+        "empty": {
+          "filtered": "Kein Partner entspricht Ihren Filtern."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partner",
+        "visitOfficialWebsite": "Offizielle Website besuchen",
+        "collaborativeProjects": "Kollaborative Projekte",
+        "collaborativeProjectsSubtitle": "Forschung und Initiativen mit {partnerName}.",
+        "noLinkedProjects": "Noch keine verknüpften Projekte verfügbar."
       },
       "PhDContent": {
         "title": "Industrielle Promotion",

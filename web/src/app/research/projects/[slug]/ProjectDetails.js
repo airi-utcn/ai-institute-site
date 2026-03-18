@@ -109,11 +109,16 @@ function PartnerCard({ partner }) {
       >
         <div className="flex flex-col items-center justify-center min-h-[5rem] mb-4">
           {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt={partner.name}
-              className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
-            />
+            <>
+              <img
+                src={logoUrl}
+                alt={partner.name}
+                className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
+              />
+              <span className="mt-3 text-gray-900 dark:text-white font-semibold text-sm text-center leading-tight">
+                {partner.name}
+              </span>
+            </>
           ) : (
             <span className="text-gray-900 dark:text-white font-bold text-lg text-center leading-tight">
               {partner.name}

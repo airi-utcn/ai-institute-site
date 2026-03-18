@@ -689,6 +689,15 @@ export async function getPublications(options = {}) {
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
     }
+    const params = createParams({
+      sort: 'year:desc',
+      filters: Object.keys(filters).length ? filters : null,
+    });
+
+    // Kept for API compatibility with existing callers.
+    void includeUnlisted;
+    void graphEligibleOnly;
+
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);

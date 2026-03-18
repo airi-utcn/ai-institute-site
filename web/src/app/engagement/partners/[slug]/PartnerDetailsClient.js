@@ -3,8 +3,12 @@
 import Link from 'next/link';
 import Markdown from 'markdown-to-jsx';
 import { FaArrowLeft, FaExternalLinkAlt, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
+import { useTranslations } from 'next-intl';
 
 export default function PartnerDetailsClient({ partner }) {
+  const t = useTranslations('engagement.basic');
+  const tr = (key, fallback, values) =>
+    (t.has(`PartnerDetails.${key}`) ? t(`PartnerDetails.${key}`, values) : fallback);
   const projects = Array.isArray(partner?.projects) ? partner.projects : [];
   const bodyBlocks = Array.isArray(partner?.body) ? partner.body : [];
 
@@ -36,7 +40,7 @@ export default function PartnerDetailsClient({ partner }) {
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
           >
             <FaArrowLeft className="w-4 h-4" />
-            Partners
+            {tr('back', 'Partners')}
           </Link>
         </div>
 
@@ -84,7 +88,7 @@ export default function PartnerDetailsClient({ partner }) {
                   className="inline-flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-medium transition-all shadow-sm"
                 >
                   <FaGlobe className="w-5 h-5" />
-                  Visit Official Website
+                  {tr('visitOfficialWebsite', 'Visit Official Website')}
                   <FaExternalLinkAlt className="w-3.5 h-3.5 ml-auto" />
                 </a>
               )}
@@ -156,10 +160,14 @@ export default function PartnerDetailsClient({ partner }) {
             <section className="pt-10 border-t border-gray-100 dark:border-gray-800">
               <header className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                  Collaborative Projects
+                  {tr('collaborativeProjects', 'Collaborative Projects')}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 mt-2">
-                  Research and initiatives featuring {partner.name}.
+                  {tr(
+                    'collaborativeProjectsSubtitle',
+                    `Research and initiatives featuring ${partner.name || ''}.`,
+                    { partnerName: partner.name || '' }
+                  )}
                 </p>
               </header>
 
@@ -194,7 +202,7 @@ export default function PartnerDetailsClient({ partner }) {
                 </div>
               ) : (
                 <div className="py-12 px-6 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-800 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">No linked projects available yet.</p>
+                  <p className="text-gray-500 dark:text-gray-400">{tr('noLinkedProjects', 'No linked projects available yet.')}</p>
                 </div>
               )}
             </section>

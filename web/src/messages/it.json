@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "I Nostri Partner",
         "desc": "Siamo orgogliosi di collaborare con organizzazioni leader in ambito accademico e industriale.",
-        "mapTitle": "Mappa dei Partner"
+        "mapTitle": "Mappa dei Partner",
+        "eyebrow": "Rete strategica",
+        "stats": {
+          "partners": "Partner",
+          "countries": "Paesi",
+          "projects": "Progetti"
+        },
+        "filters": {
+          "searchPlaceholder": "Cerca per partner, paese, progetto",
+          "allCountries": "Tutti i paesi",
+          "clear": "Cancella"
+        },
+        "activeProjects": "Progetti attivi",
+        "actions": {
+          "exploreProfile": "Esplora profilo",
+          "visitWebsite": "Visita sito web"
+        },
+        "empty": {
+          "filtered": "Nessun partner corrisponde ai filtri."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partner",
+        "visitOfficialWebsite": "Visita il sito ufficiale",
+        "collaborativeProjects": "Progetti collaborativi",
+        "collaborativeProjectsSubtitle": "Ricerche e iniziative con {partnerName}.",
+        "noLinkedProjects": "Nessun progetto collegato al momento."
       },
       "PhDContent": {
         "title": "Programma di Dottorato Industriale",

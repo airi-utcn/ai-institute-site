@@ -563,6 +563,7 @@ function HighSchoolContent() {
 
 function PartnersContent({ partners, CollaboratorsClient }) {
   const t = useTranslations('engagement.basic.PartnersContent');
+  const tr = (key, fallback) => (t.has(key) ? t(key) : fallback);
 
   const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -611,7 +612,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
         <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-white/5 dark:bg-black/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
         
         <div className="relative z-10 max-w-2xl">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4 text-gray-400 dark:text-gray-500">Strategic Network</p>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4 text-gray-400 dark:text-gray-500">{tr('eyebrow', 'Strategic Network')}</p>
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">{t('title')}</h2>
           <p className="text-lg text-gray-400 dark:text-gray-600 leading-relaxed md:max-w-xl">{t('desc')}</p>
         </div>
@@ -619,17 +620,17 @@ function PartnersContent({ partners, CollaboratorsClient }) {
         <div className="relative z-10 flex flex-wrap items-center gap-8 md:gap-12">
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{partnerList.length}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">Partners</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.partners', 'Partners')}</span>
           </div>
           <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{countryOptions.length}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">Countries</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.countries', 'Countries')}</span>
           </div>
           <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{totalProjects}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">Projects</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{tr('stats.projects', 'Projects')}</span>
           </div>
         </div>
       </motion.section>
@@ -644,7 +645,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Search by partner, country, project"
+                  placeholder={tr('filters.searchPlaceholder', 'Search by partner, country, project')}
                   className="w-full h-12 rounded-xl bg-white pl-11 pr-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow"
                 />
               </div>
@@ -654,7 +655,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                 onChange={(event) => setCountryFilter(event.target.value)}
                 className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[200px]"
               >
-                <option value="">All countries</option>
+                <option value="">{tr('filters.allCountries', 'All countries')}</option>
                 {countryOptions.map((country) => (
                   <option key={country} value={country}>
                     {country}
@@ -671,7 +672,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                   className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shrink-0"
                 >
                   <FaTimes className="w-3.5 h-3.5" />
-                  Clear
+                  {tr('filters.clear', 'Clear')}
                 </button>
               ) : null}
             </div>
@@ -730,7 +731,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                           <div className="space-y-3">
                             <span className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                               <FaProjectDiagram className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                              Active Projects
+                              {tr('activeProjects', 'Active Projects')}
                             </span>
                             <div className="flex flex-wrap gap-2">
                               {p.projects.slice(0, 3).map((project) => (
@@ -759,7 +760,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                             href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
                             className="inline-flex items-center gap-2 text-sm font-bold text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-all group/btn"
                           >
-                            Explore Profile 
+                            {tr('actions.exploreProfile', 'Explore Profile')} 
                             <FaArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                           </Link>
                         ) : <span />}
@@ -770,7 +771,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 w-10 h-10 justify-center rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            title="Visit website"
+                            title={tr('actions.visitWebsite', 'Visit website')}
                           >
                             <FaExternalLinkAlt className="w-3.5 h-3.5" />
                           </a>
@@ -784,7 +785,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
           ) : (
             <motion.div variants={itemVariants} className="rounded-2xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
               <FaSearch className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
-              <p className="text-sm text-gray-600 dark:text-gray-300">No partners match your filters.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{tr('empty.filtered', 'No partners match your filters.')}</p>
             </motion.div>
           )}
         </>

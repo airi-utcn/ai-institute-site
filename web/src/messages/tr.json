@@ -508,7 +508,33 @@
       "PartnersContent": {
         "title": "Ortaklarımız",
         "desc": "Akademi ve endüstri genelinde önde gelen kuruluşlarla işbirliği yapmaktan gurur duyuyoruz.",
-        "mapTitle": "Ortak Haritası"
+        "mapTitle": "Ortak Haritası",
+        "eyebrow": "Stratejik Ağ",
+        "stats": {
+          "partners": "Ortaklar",
+          "countries": "Ülkeler",
+          "projects": "Projeler"
+        },
+        "filters": {
+          "searchPlaceholder": "Ortak, ülke, proje ara",
+          "allCountries": "Tüm ülkeler",
+          "clear": "Temizle"
+        },
+        "activeProjects": "Aktif Projeler",
+        "actions": {
+          "exploreProfile": "Profili Keşfet",
+          "visitWebsite": "Web sitesini ziyaret et"
+        },
+        "empty": {
+          "filtered": "Filtrelerle eşleşen ortak yok."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Ortaklar",
+        "visitOfficialWebsite": "Resmi web sitesini ziyaret et",
+        "collaborativeProjects": "İş Birliği Projeleri",
+        "collaborativeProjectsSubtitle": "{partnerName} ile yürütülen araştırma ve girişimler.",
+        "noLinkedProjects": "Henüz bağlantılı proje yok."
       },
       "PhDContent": {
         "title": "Endüstriyel Doktora Programı",

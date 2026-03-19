@@ -34,6 +34,17 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
             pub_map[oa_id] = existing_id
             existing_source = strapi.get_publication_source_kind(existing_id)
             existing_listing_eligible = strapi.get_publication_listing_eligible(existing_id)
+
+            # Ensure imported automated records are routeable by slug pages.
+            if existing_source == "openAlexAutomated":
+                ensure_payload = {}
+                if not strapi.get_publication_slug(existing_id):
+                    ensure_payload["slug"] = strapi.build_publication_slug(paper)
+                if not strapi.is_publication_published(existing_id):
+                    ensure_payload["publishedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+                if ensure_payload:
+                    strapi.update_publication(existing_id, ensure_payload)
+
             if args.update_existing:
                 if existing_source == "openAlexAutomated" and not existing_listing_eligible:
                     merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)

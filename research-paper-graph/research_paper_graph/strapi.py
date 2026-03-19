@@ -1,4 +1,6 @@
 import logging
+import re
+import unicodedata
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from io import BytesIO
@@ -25,12 +27,35 @@ class StrapiClient:
         self._pub_by_title = {}
         self._pub_source_kind = {}
         self._pub_listing_eligible = {}
+        self._pub_slug = {}
+        self._pub_published = {}
         self._person_by_name = {}
 
     def _normalize_source_kind(self, source_kind):
         if source_kind in {"openAlexAutomated", "openalex", "merged"}:
             return "openAlexAutomated"
         return "manual"
+
+    def _slugify(self, value):
+        text = str(value or "")
+        text = unicodedata.normalize("NFD", text)
+        text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+        text = text.lower().strip()
+        text = re.sub(r"[^a-z0-9\s-]", "", text)
+        text = re.sub(r"\s+", "-", text)
+        text = re.sub(r"-+", "-", text)
+        return text.strip("-")
+
+    def build_publication_slug(self, paper_data):
+        title = paper_data.get("title") or ""
+        slug = self._slugify(title)
+        if slug:
+            return slug
+
+        openalex_id = str(paper_data.get("openAlexId") or "")
+        fallback = openalex_id.rstrip("/").split("/")[-1] if openalex_id else ""
+        fallback_slug = self._slugify(fallback)
+        return fallback_slug or f"publication-{int(datetime.now(timezone.utc).timestamp())}"
 
     def build_import_create_payload(self, paper_data, author_ids=None, attachment_id=None):
         """Build the create payload for a new imported publication.
@@ -40,9 +65,11 @@ class StrapiClient:
         payload = self._build_machine_owned_payload(paper_data)
         payload.update(
             {
+                "slug": self.build_publication_slug(paper_data),
                 "sourceKind": "openAlexAutomated",
                 "graphEligible": True,
                 "listingEligible": False,
+                "publishedAt": self._utc_now(),
             }
         )
 
@@ -134,6 +161,8 @@ class StrapiClient:
                 "fields[3]": "documentId",
                 "fields[4]": "sourceKind",
                 "fields[5]": "listingEligible",
+                "fields[6]": "slug",
+                "fields[7]": "publishedAt",
             },
         )
         for publication in publications:
@@ -141,6 +170,8 @@ class StrapiClient:
             document_id = publication.get("documentId") or publication.get("id")
             self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
             self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
+            self._pub_slug[document_id] = attributes.get("slug") or ""
+            self._pub_published[document_id] = bool(attributes.get("publishedAt"))
             if attributes.get("openAlexId"):
                 self._pub_by_oaid[attributes["openAlexId"]] = document_id
             if attributes.get("doi"):
@@ -218,6 +249,12 @@ class StrapiClient:
 
     def get_publication_listing_eligible(self, document_id):
         return bool(self._pub_listing_eligible.get(document_id))
+
+    def get_publication_slug(self, document_id):
+        return self._pub_slug.get(document_id) or ""
+
+    def is_publication_published(self, document_id):
+        return bool(self._pub_published.get(document_id))
 
     def load_existing_people(self):
         """Pre-fetch all Person entries for author matching."""
@@ -381,6 +418,8 @@ class StrapiClient:
             if document_id:
                 self._pub_source_kind[document_id] = "openAlexAutomated"
                 self._pub_listing_eligible[document_id] = False
+                self._pub_slug[document_id] = payload.get("slug") or ""
+                self._pub_published[document_id] = bool(payload.get("publishedAt"))
                 if paper_data.get("openAlexId"):
                     self._pub_by_oaid[paper_data["openAlexId"]] = document_id
                 if paper_data.get("doi"):
@@ -401,6 +440,14 @@ class StrapiClient:
                 json={"data": update_data},
             )
             response.raise_for_status()
+            if "sourceKind" in update_data:
+                self._pub_source_kind[document_id] = self._normalize_source_kind(update_data.get("sourceKind"))
+            if "listingEligible" in update_data:
+                self._pub_listing_eligible[document_id] = bool(update_data.get("listingEligible"))
+            if "slug" in update_data:
+                self._pub_slug[document_id] = update_data.get("slug") or ""
+            if "publishedAt" in update_data:
+                self._pub_published[document_id] = bool(update_data.get("publishedAt"))
             return True
         except requests.exceptions.RequestException as exc:
             log.error(f"Failed to update publication {document_id}: {exc}")
@@ -450,6 +497,8 @@ class StrapiClient:
             "fields[1]": "id",
             "fields[2]": "sourceKind",
             "fields[3]": "listingEligible",
+            "fields[4]": "slug",
+            "fields[5]": "publishedAt",
         }
         try:
             response = requests.get(f"{self.api_url}/publications", headers=self.headers, params=params)
@@ -460,6 +509,8 @@ class StrapiClient:
                 attributes = data[0].get("attributes", data[0])
                 self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
                 self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
+                self._pub_slug[document_id] = attributes.get("slug") or ""
+                self._pub_published[document_id] = bool(attributes.get("publishedAt"))
                 self._pub_by_oaid[openalex_id] = document_id
                 return document_id
             return None

@@ -694,7 +694,7 @@ export async function getPapers(options = {}) {
       filters.community = { $eq: community };
     }
 
-    const params = createParams({
+    const baseOptions = {
       sort: ['cited_by:desc', 'year:desc'],
       filters,
       fields: [
@@ -713,10 +713,9 @@ export async function getPapers(options = {}) {
         authors: PERSON_FLAT_POPULATE,
         pdfFile: { fields: ['url'] },
       },
-    });
+    };
 
-    const data = await fetchAPI(`/publications?${params.toString()}`);
-    return data.data || [];
+    return await fetchAllEntries('/publications', baseOptions, 200);
   } catch (error) {
     console.error('Failed to fetch graph papers:', error);
     return [];
@@ -739,16 +738,15 @@ export async function getPapersByCommunity(communityId) {
  */
 export async function getGraphLinks() {
   try {
-    const params = createParams({
+    const baseOptions = {
       fields: ['isCrossCluster', 'score'],
       populate: {
         source: { fields: ['openAlexId'] },
         target: { fields: ['openAlexId'] },
       },
-    });
+    };
 
-    const data = await fetchAPI(`/graph-links?${params.toString()}`);
-    return data.data || [];
+    return await fetchAllEntries('/graph-links', baseOptions, 500);
   } catch (error) {
     console.error('Failed to fetch graph links:', error);
     return [];

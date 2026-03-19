@@ -4,13 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog, FaUserTie } from "react-icons/fa";
-
-const TABS = [
-  { id: "overview", label: "Overview", icon: FaInfoCircle },
-  { id: "members", label: "People & Teams", icon: FaUsers },
-  { id: "projects", label: "Projects", icon: FaFlask },
-  { id: "publications", label: "Publications", icon: FaBook },
-];
+import { useTranslations } from "next-intl";
 
 const PHASE_STYLES = {
   ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
@@ -58,10 +52,16 @@ function PersonChip({ person, role, isLead, image }) {
 }
 
 /* ── Team card (inline in Members tab) ───────────────────── */
-function TeamCard({ team, staffLookup }) {
+function TeamCard({ team, staffLookup, t }) {
   const leads = (team.members || []).filter((m) => m.isLead);
   const others = (team.members || []).filter((m) => !m.isLead);
   const ordered = [...leads, ...others];
+
+  const getTranslatedPhase = (phase) => {
+    if (!phase) return "";
+    const lowerPhase = phase.toLowerCase();
+    return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
+  };
 
   return (
     <motion.div
@@ -88,7 +88,7 @@ function TeamCard({ team, staffLookup }) {
             )}
           </div>
           <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 shrink-0">
-            {ordered.length} {ordered.length === 1 ? 'member' : 'members'}
+            {ordered.length} {ordered.length === 1 ? t('members.member') : t('members.membersPlural')}
           </span>
         </div>
 
@@ -117,7 +117,7 @@ function TeamCard({ team, staffLookup }) {
             <div className="flex items-center gap-1.5 mb-2">
               <FaProjectDiagram className="w-3 h-3 text-gray-400" />
               <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                Projects
+                {t('members.projects')}
               </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -131,7 +131,7 @@ function TeamCard({ team, staffLookup }) {
                     {p.title}
                     {p.phase && (
                       <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${phaseClass}`}>
-                        {p.phase}
+                        {getTranslatedPhase(p.phase)}
                       </span>
                     )}
                   </span>
@@ -166,6 +166,14 @@ export default function DepartmentDetailClient({
   teams = [],
 }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const t = useTranslations("research.departments.departmentDetails");
+
+  const TABS = [
+    { id: "overview", label: t("tabs.overview"), icon: FaInfoCircle },
+    { id: "members", label: t("tabs.members"), icon: FaUsers },
+    { id: "projects", label: t("tabs.projects"), icon: FaFlask },
+    { id: "publications", label: t("tabs.publications"), icon: FaBook },
+  ];
 
   /* Build a lookup map: slug → staff member (for images etc.) */
   const staffLookup = useMemo(() => {
@@ -191,16 +199,16 @@ export default function DepartmentDetailClient({
 
   if (!department) {
     return (
-      <main className="page-container">
+      <div className="page-container">
         <div className="content-wrapper content-padding">
           <div className="empty-state">
-            <p>Department not found.</p>
+            <p>{t("notFound")}</p>
             <Link href="/research/departments" className="btn btn-primary mt-4">
-              Back to Departments
+              {t("backToDepartments")}
             </Link>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
@@ -211,7 +219,7 @@ export default function DepartmentDetailClient({
   };
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         {/* Back link */}
         <motion.div
@@ -224,7 +232,7 @@ export default function DepartmentDetailClient({
             className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
           >
             <FaArrowLeft className="text-xs" />
-            Back to Departments
+            {t("backToDepartments")}
           </Link>
         </motion.div>
 
@@ -252,19 +260,19 @@ export default function DepartmentDetailClient({
             <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
               {counts.members}
             </div>
-            <div className="text-sm text-muted">Members</div>
+            <div className="text-sm text-muted">{t("membersCount")}</div>
           </div>
           <div className="card p-4 text-center">
             <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
               {counts.projects}
             </div>
-            <div className="text-sm text-muted">Projects</div>
+            <div className="text-sm text-muted">{t("projectsCount")}</div>
           </div>
           <div className="card p-4 text-center">
             <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
               {counts.publications}
             </div>
-            <div className="text-sm text-muted">Publications</div>
+            <div className="text-sm text-muted">{t("publicationsCount")}</div>
           </div>
         </motion.div>
 
@@ -324,7 +332,7 @@ export default function DepartmentDetailClient({
               {/* Description */}
               {department.description && (
                 <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">About</h2>
+                  <h2 className="heading-3 heading-accent mb-4">{t("overview.about")}</h2>
                   <div className="prose prose-gray dark:prose-invert max-w-none">
                     <p className="text-body">{department.description}</p>
                   </div>
@@ -334,7 +342,7 @@ export default function DepartmentDetailClient({
               {/* Coordinator */}
               {department.coordinator && (
                 <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">Coordinator</h2>
+                  <h2 className="heading-3 heading-accent mb-4">{t("overview.coordinator")}</h2>
                   {(() => {
                     const coordName = typeof department.coordinator === 'string' 
                       ? department.coordinator 
@@ -371,7 +379,7 @@ export default function DepartmentDetailClient({
               {/* Contact links */}
               {department.contactLinks && department.contactLinks.length > 0 && (
                 <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">Contact</h2>
+                  <h2 className="heading-3 heading-accent mb-4">{t("overview.contact")}</h2>
                   <div className="flex flex-wrap gap-3">
                     {department.contactLinks.map((link, idx) => (
                       <a
@@ -407,14 +415,14 @@ export default function DepartmentDetailClient({
                     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                       <FaUsers className="w-4 h-4" />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teams</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("members.teams")}</h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {teams.length}
                     </span>
                   </motion.div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {teams.map((team, i) => (
-                      <TeamCard key={team.id || i} team={team} staffLookup={staffLookup} />
+                      <TeamCard key={team.id || i} team={team} staffLookup={staffLookup} t={t} />
                     ))}
                   </div>
                 </div>
@@ -428,7 +436,7 @@ export default function DepartmentDetailClient({
                       <FaUserTie className="w-4 h-4" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {teams.length > 0 ? 'Independent Researchers' : 'Members'}
+                      {teams.length > 0 ? t("members.independentResearchers") : t("tabs.members")}
                     </h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {independentStaff.length}
@@ -465,7 +473,7 @@ export default function DepartmentDetailClient({
               {/* Empty state */}
               {staff.length === 0 && teams.length === 0 && (
                 <div className="empty-state">
-                  <p>No members found for this department.</p>
+                  <p>{t("members.noMembers")}</p>
                 </div>
               )}
             </motion.div>
@@ -496,7 +504,7 @@ export default function DepartmentDetailClient({
                         </h3>
                         {project.lead && (
                           <p className="text-sm text-muted mt-2">
-                            Lead: {project.lead}
+                            {t("projects.lead")} {project.lead}
                           </p>
                         )}
                       </Link>
@@ -505,7 +513,7 @@ export default function DepartmentDetailClient({
                 </div>
               ) : (
                 <div className="empty-state">
-                  <p>No projects found for this department.</p>
+                  <p>{t("projects.noProjects")}</p>
                 </div>
               )}
             </motion.div>
@@ -553,13 +561,13 @@ export default function DepartmentDetailClient({
                 </div>
               ) : (
                 <div className="empty-state">
-                  <p>No publications found for this department.</p>
+                  <p>{t("publications.noPublications")}</p>
                 </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-    </main>
+    </div>
   );
 }

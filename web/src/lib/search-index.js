@@ -42,7 +42,6 @@ const STATIC_ENTRIES = [
   { title: "Projects", route: "/research/projects", tags: ["research", "projects"], snippet: "Research projects across the institute." },
   { title: "Publications", route: "/research/publications", tags: ["research", "publications", "papers"], snippet: "Academic publications and papers." },
   { title: "Paper Graph", route: "/research/paper-graph", tags: ["research", "graph", "publications"], snippet: "Interactive publication graph and communities." },
-  { title: "Tools", route: "/research/tools", tags: ["research", "tools", "infrastructure"], snippet: "Research infrastructure and tools." },
   { title: "Thesis", route: "/research/thesis", tags: ["research", "thesis"], snippet: "Thesis and related research work." },
   { title: "Engagement", route: "/engagement", tags: ["engagement", "outreach"], snippet: "Overview of public, academic, and industry engagement." },
   { title: "Public Engagement", route: "/engagement/public", tags: ["engagement", "public"], snippet: "Public-facing outreach and events." },
@@ -231,7 +230,7 @@ function buildPartnerEntries(partners) {
   return partners.map((partner) =>
     makeEntry({
       title: partner.name,
-      route: partner.url || "/collaborators",
+      route: partner.slug ? `/engagement/partners/${partner.slug}` : partner.url || "/collaborators",
       tags: ["partner", partner.country],
       snippet: partner.description || partner.country,
     })

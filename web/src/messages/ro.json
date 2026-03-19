@@ -1,0 +1,1112 @@
+{
+  "footer": {
+    "contact": {
+      "title": "Contact",
+      "addressLine1": "Strada Observatorului 2,",
+      "addressLine2": "Cluj-Napoca 400347,",
+      "addressLine3": "România"
+    },
+    "quickLinks": {
+      "title": "Link-uri utile",
+      "projects": "Proiecte",
+      "sitemap": "Hartă site",
+      "rooms": "Săli",
+      "dissemination": "Diseminare",
+      "contactUs": "Contactează-ne"
+    },
+    "copyright": "© {year} Universitatea Tehnică din Cluj-Napoca. Toate drepturile rezervate."
+  },
+  "navbar": {
+    "navLinks": {
+      "research": "Cercetare",
+      "engagement": "Colaborări",
+      "people": "Echipă",
+      "news": "Știri și Evenimente",
+      "about": "Despre noi"
+    },
+    "researchMenu": {
+      "departments": "Departamente",
+      "themes": "Teme de cercetare",
+      "projects": "Proiecte",
+      "publications": "Publicații",
+      "thesis": "Teze",
+      "resources": "Resurse",
+      "paperGraph": "Paper Graph"
+    },
+    "newsMenu": {
+      "news": "Știri",
+      "events": "Evenimente",
+      "seminars": "Seminarii",
+      "calls": "Apeluri de proiecte",
+      "awards": "Premii",
+      "careers": "Oportunități de carieră"
+    },
+    "aboutMenu": {
+      "mission": "Misiune",
+      "organigram": "Organigramă",
+      "sitemap": "Hartă site",
+      "reports": "Rapoarte",
+      "regulations": "Regulamente",
+      "guidelines": "Ghiduri",
+      "tour": "Tur virtual",
+      "rooms": "Săli și calendar",
+      "contact": "Contact"
+    },
+    "search": {
+      "placeholder": "Căutare...",
+      "mobilePlaceholder": "Caută pe site...",
+      "button": "Caută",
+      "chatbot": "Chatbot AIRi",
+      "knowledgeGraph": "Grafuri de cunoștințe"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Acasă",
+      "description": "Promovarea cercetării, inovației și explorării în inteligența artificială la Universitatea Tehnică din Cluj-Napoca - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Institutul de Cercetare în Inteligența Artificială",
+      "subtitle": "Promovarea cercetării, inovației și explorării în domeniul inteligenței artificiale la Universitatea Tehnică din Cluj-Napoca.",
+      "learnMore": "Află mai multe",
+      "altHero": "Erou Cercetare IA",
+      "altQr": "Cod QR pentru înscriere"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN este în prezent în construcție. Urmăriți canalele noastre pentru actualizări."
+    },
+    "About": {
+      "title": "Despre noi",
+      "description": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă din cadrul Universității Tehnice din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și impactul prin parteneriate de co-creare în mediul public și de afaceri."
+    },
+    "Cards": {
+      "research": {
+        "title": "Cercetare",
+        "description": "Explorați unitățile și proiectele noastre de cercetare."
+      },
+      "people": {
+        "title": "Echipă",
+        "description": "Cunoașteți cercetătorii și personalul nostru."
+      },
+      "resources": {
+        "title": "Resurse",
+        "description": "Instrumente, resurse și materiale de învățare."
+      }
+    },
+    "LatestNews": {
+      "title": "Ultimele știri",
+      "viewAll": "Vezi toate știrile →",
+      "emptyState": "Articolele de știri vor apărea aici odată ce vor fi publicate.",
+      "visitNews": "Vizitează Știri și Evenimente →"
+    },
+    "Social": {
+      "title": "Urmărește-ne pe LinkedIn",
+      "visit": "Vizitează LinkedIn →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Contactează-ne",
+      "subtitle": "Ne-am bucura să primim un mesaj de la tine! Indiferent dacă ai o întrebare despre cercetările noastre, evenimente sau orice altceva, echipa noastră este pregătită să îți răspundă la toate întrebările."
+    },
+    "Social": {
+      "title": "Conectează-te cu noi"
+    },
+    "Form": {
+      "title": "Formular de contact",
+      "iframeTitle": "Formular de contact"
+    },
+    "Location": {
+      "title": "Locația noastră",
+      "address": "📍 Strada Observatorului 2, Cluj-Napoca 400347, România",
+      "iframeTitle": "Harta locației"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Colaborare academică",
+      "description": "Colaborări cu universități și institute: co-tutelă, cursuri comune, workshop-uri, vizite de cercetare, mobilitate.",
+      "contactButton": "Contactează echipa academică",
+      "selectTopic": "Selectează un subiect din meniul din stânga.",
+      "Tabs": {
+        "Overview": {
+          "label": "Prezentare generală",
+          "subtabs": {
+            "partnerships": "Parteneriate academice",
+            "teaching": "Predare și formare",
+            "mobility": "Mobilitate"
+          }
+        },
+        "Initiatives": {
+          "label": "Inițiative",
+          "subtabs": {
+            "schools": "Școli de vară și workshop-uri",
+            "seminars": "Seminarii comune",
+            "visits": "Vizite de cercetare"
+          }
+        },
+        "Courses": {
+          "label": "Cursuri și Workshop-uri",
+          "subtabs": {
+            "ml": "Machine Learning",
+            "robotics": "Robotică și Viziune",
+            "hpc": "HPC pentru IA",
+            "ethics": "Etică și Siguranță în IA"
+          }
+        },
+        "Mobility": {
+          "label": "Co-tutelă și Mobilitate",
+          "subtabs": {
+            "phd": "Co-tutelă",
+            "grants": "Granturi de mobilitate",
+            "placements": "Stagii și schimburi de experiență"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": {
+            "title": "Parteneriate academice",
+            "desc": "O rețea de colaborări și activități comune."
+          },
+          "teaching": {
+            "title": "Predare și formare",
+            "desc": "Cursuri, școli de vară și workshop-uri."
+          },
+          "mobility": {
+            "title": "Mobilitate",
+            "desc": "Co-tutelă, vizite, internship-uri, schimburi de experiență."
+          }
+        },
+        "Initiatives": {
+          "schools": {
+            "title": "Școli de vară și workshop-uri",
+            "desc": "Evenimente internaționale și locale pentru studenți și cercetători."
+          },
+          "seminars": {
+            "title": "Seminarii comune",
+            "desc": "Prezentări colaborative și speakeri invitați."
+          },
+          "visits": {
+            "title": "Vizite de cercetare",
+            "desc": "Stagii de cercetare pe termen scurt și lung."
+          }
+        },
+        "Courses": {
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Cursuri comune, module aplicate, proiecte."
+          },
+          "robotics": {
+            "title": "Robotică și Viziune",
+            "desc": "Laboratoare practice, automatizări și sisteme de viziune."
+          },
+          "hpc": {
+            "title": "HPC pentru IA",
+            "desc": "Programare GPU și antrenarea modelelor IA la scară largă."
+          },
+          "ethics": {
+            "title": "Etică și Siguranță în IA",
+            "desc": "Echitate, explicabilitate și guvernanță în IA."
+          }
+        },
+        "Mobility": {
+          "phd": {
+            "title": "Co-tutelă",
+            "desc": "Coordonarea comună a doctoratelor cu parteneri internaționali."
+          },
+          "grants": {
+            "title": "Granturi de mobilitate",
+            "desc": "Finanțare pentru schimburi și stagii de cercetare."
+          },
+          "placements": {
+            "title": "Stagii și schimburi de experiență",
+            "desc": "Internship-uri, vizite și schimburi de personal."
+          }
+        }
+      },
+      "Event": {
+        "title": "Forumul „Progrese și Inovații în Oftalmologie” 2025",
+        "desc1": "A treia ediție a workshop-ului „Eye and AI” este organizată în comun de Departamentul de Oftalmologie, Universitatea de Medicină și Farmacie „Iuliu Hațieganu”, Spitalul Clinic Județean de Urgență Cluj și Institutul de Cercetare în Inteligența Artificială (AIRi@UTCN), Universitatea Tehnică din Cluj-Napoca, România. Reunind clinicieni, cercetători și practicieni din industrie, evenimentul explorează modul în care inteligența artificială transformă îngrijirea oftalmologică – de la imagistică și screening la suport decizional și optimizarea fluxului de lucru.",
+        "moderators": "Moderatori:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Reconstrucția volumelor compacte 3D OCT din B-scanări: un studiu comparativ al arhitecturilor U-Net",
+        "paper1Authors": "Adrian POP — Universitatea Tehnică, Cluj-Napoca",
+        "paper2Title": "Reconstrucție 3D bazată pe setul AROI",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Universitatea Tehnică, Cluj-Napoca",
+        "paper3Title": "Adaptarea modelelor fundamentale de viziune pentru OCT și fund de ochi",
+        "paper3Authors": "Anca MĂRGINEAN — Universitatea Tehnică, Cluj-Napoca",
+        "paper4Title": "Segmentarea rețelei vasculare retiniene și cuantificarea biomarkerilor în imagistica OCTA",
+        "paper4Authors": "Darius STAN, Raluca BREHAR — Universitatea Tehnică, Cluj-Napoca",
+        "linkText": "Vezi detaliile complete ale evenimentului →"
+      }
+    },
+    "high-school": {
+      "title": "Colaborare cu liceele",
+      "description": "Competiții, evenimente și resurse de alfabetizare în IA pentru elevi și profesori.",
+      "features": {
+        "competitions": {
+          "title": "Competiții",
+          "desc": "Competiții de IA și programare pentru liceeni."
+        },
+        "events": {
+          "title": "Evenimente",
+          "desc": "Workshop-uri, vizite de laborator și sesiuni cu experți."
+        },
+        "resources": {
+          "title": "Resurse educaționale",
+          "desc": "Ghiduri și materiale pentru alfabetizarea în domeniul IA."
+        }
+      },
+      "linkText": "Framework-ul AILIT – Resurse"
+    },
+    "industrial-phd": {
+      "title": "Doctorat Industrial",
+      "p1": "Un doctorat industrial este recunoscut ca un program de pregătire universitară care permite obținerea titlului de doctor printr-un proiect de cercetare industrială sau de dezvoltare experimentală, creat în colaborare între o companie și mediul academic, care va deveni subiectul tezei de doctorat a unui student doctorand.",
+      "p2": "Dacă reprezentați o companie și sunteți interesați să desfășurați un doctorat industrial, contactați-ne prin e-mail.",
+      "p3": "Dacă doriți să urmați un Doctorat Industrial în Inteligența Artificială la noi, în oricare dintre temele propuse, contactați-ne prin e-mail."
+    },
+    "industry": {
+      "title": "Colaborare cu industria",
+      "description": "Dezvoltați parteneriate cu AIRi pentru cercetare aplicată și transfer tehnologic, de la descoperire la implementare.",
+      "Tabs": {
+        "Overview": "Prezentare generală",
+        "Projects": "Proiecte",
+        "Engagement": "Cum lucrăm"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Caută după proiect, responsabil, partener...",
+        "allDomains": "Toate domeniile",
+        "noProjects": "Niciun proiect nu se potrivește filtrelor dvs. momentan.",
+        "cardLead": "Responsabil",
+        "cardDetails": "Detalii",
+        "cardSite": "Site",
+        "cardDocs": "Documentație"
+      },
+      "EngagementTab": {
+        "title": "Model de colaborare",
+        "listItem1": "Cercetare aplicată comună cu rezultate măsurabile",
+        "listItem2": "Prototipare și validare împreună cu echipele dumneavoastră",
+        "listItem3": "Transfer de cunoștințe și colaborare pe termen lung"
+      },
+      "OverviewTab": {
+        "feature1Title": "Cercetare aplicată",
+        "feature1Desc": "Colaborări industriale vizând implementarea în lumea reală.",
+        "feature2Title": "Co-dezvoltare",
+        "feature2Desc": "Planuri comune, prototipare rapidă și cicluri de validare.",
+        "feature3Title": "Transfer de cunoștințe",
+        "feature3Desc": "Conectarea rezultatelor cercetării cu echipele de producție.",
+        "statsProjects": "Proiecte active",
+        "statsDomains": "Domenii implicate",
+        "statsPartners": "Parteneri"
+      },
+      "Buttons": {
+        "contact": "Contactează echipa pentru industrie",
+        "explore": "Explorează toate proiectele"
+      }
+    },
+    "partners": {
+      "title": "Parteneri",
+      "mapTitle": "Harta partenerilor"
+    },
+    "main": {
+      "Hero": {
+        "title": "Colaborări",
+        "subtitle": "Conectăm AIRi @ UTCN cu publicul, mediul academic și industria."
+      },
+      "Tabs": {
+        "public": "Public",
+        "academic": "Academic",
+        "industry": "Industrie",
+        "high-school": "Licee",
+        "partners": "Parteneri",
+        "phd": "Doctorat Industrial"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Parteneriate",
+          "teaching": "Predare",
+          "courses": "Cursuri",
+          "mobility": "Mobilitate"
+        },
+        "industry": {
+          "overview": "Prezentare generală",
+          "projects": "Proiecte",
+          "engagement": "Cum lucrăm"
+        }
+      },
+      "Public": {
+        "title": "Implicare Publică",
+        "desc": "Conectăm comunitatea de cercetare în IA cu publicul larg prin resurse accesibile, apariții în presă și programe de informare.",
+        "btnMedia": "Vezi Media și Presă",
+        "btnNews": "Știri și Evenimente",
+        "f1Title": "Programe de informare",
+        "f1Desc": "Prezentări publice, demonstrații și inițiative de implicare a comunității.",
+        "f2Title": "Resurse educaționale",
+        "f2Desc": "Materiale cu acces deschis care explică conceptele de IA publicului larg.",
+        "f3Title": "Apariții în presă",
+        "f3Desc": "Interviuri, articole și acoperire mediatică a cercetării noastre."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Parteneriate academice",
+          "desc": "O rețea de colaborări academice internaționale, programe comune de cercetare și parteneriate instituționale care avansează cercetarea și educația în IA.",
+          "f1Title": "Colaborări universitare",
+          "f1Desc": "Programe comune de cercetare cu universități de top din întreaga lume.",
+          "f2Title": "Rețele de cercetare",
+          "f2Desc": "Participare în CLAIRE, ELLIS și alte rețele europene de IA."
+        },
+        "Teaching": {
+          "title": "Predare și Formare",
+          "desc": "Cursuri, școli de vară și workshop-uri pentru studenți și cercetători de la toate nivelurile.",
+          "f1Title": "Școli de vară",
+          "f1Desc": "Programe internaționale de vară în IA și machine learning.",
+          "f2Title": "Workshop-uri",
+          "f2Desc": "Sesiuni practice de lucru și formare."
+        },
+        "Courses": {
+          "title": "Cursuri și Workshop-uri",
+          "desc": "Cursuri specializate care acoperă machine learning, robotică, HPC pentru IA și etica în IA.",
+          "f1Title": "Machine Learning",
+          "f1Desc": "Module practice de ML, proiecte și cursuri orientate spre cercetare.",
+          "f2Title": "Robotică și Viziune",
+          "f2Desc": "Laboratoare practice de automatizare și sisteme de viziune.",
+          "f3Title": "HPC pentru IA",
+          "f3Desc": "Programare GPU și antrenarea modelelor IA la scară largă.",
+          "f4Title": "Etică și Siguranță în IA",
+          "f4Desc": "Echitate, explicabilitate și guvernanță în sistemele IA."
+        },
+        "Mobility": {
+          "title": "Co-tutelă și Mobilitate",
+          "desc": "Programe internaționale de schimb, coordonare comună a doctoratelor și oportunități pentru vizite de cercetare.",
+          "f1Title": "Co-tutelă",
+          "f1Desc": "Coordonarea comună a tezelor de doctorat cu parteneri internaționali.",
+          "f2Title": "Granturi de mobilitate",
+          "f2Desc": "Finanțare pentru stagii de cercetare și schimburi de experiență.",
+          "f3Title": "Schimburi de experiență",
+          "f3Desc": "Programe de schimb pentru studenți și cercetători."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Proiecte",
+          "domains": "Domenii",
+          "partners": "Parteneri"
+        },
+        "Collaboration": {
+          "title": "Colaborare cu industria",
+          "desc": "Dezvoltăm parteneriate cu lideri din industrie pentru a avansa cercetarea în IA și pentru a aduce inovațiile pe piață. Colaborările noastre acoperă consultanță, proiecte comune de C&D și transfer tehnologic."
+        },
+        "Projects": {
+          "searchPlaceholder": "Caută proiecte...",
+          "allDomains": "Toate domeniile",
+          "clear": "Curăță",
+          "lead": "Responsabil:",
+          "noProjects": "Niciun proiect nu se potrivește cu filtrele selectate."
+        },
+        "HowWeWork": {
+          "title": "Cum lucrăm cu industria",
+          "desc": "Oferim diverse modele de implicare pentru a răspunde diferitelor nevoi ale industriei și nivelurilor de colaborare.",
+          "f1Title": "Proiecte comune de C&D",
+          "f1Desc": "Proiecte de cercetare colaborativă cu IP și rezultate partajate.",
+          "f2Title": "Servicii de consultanță",
+          "f2Desc": "Sfaturi de specialitate privind strategia IA, implementarea și bunele practici.",
+          "f3Title": "Programe de formare",
+          "f3Desc": "Training personalizat pentru echipele din industrie în domeniul tehnologiilor IA.",
+          "f4Title": "Transfer tehnologic",
+          "f4Desc": "Licențierea și comercializarea rezultatelor cercetării."
+        }
+      },
+      "HighSchool": {
+        "title": "Colaborare cu liceele",
+        "desc": "Competiții, evenimente și resurse de alfabetizare în IA pentru elevi și profesori, formând următoarea generație de cercetători în IA.",
+        "f1Title": "Competiții",
+        "f1Desc": "Competiții de IA și programare pentru liceeni.",
+        "f2Title": "Evenimente",
+        "f2Desc": "Workshop-uri, vizite de laborator și sesiuni cu experți.",
+        "f3Title": "Resurse educaționale",
+        "f3Desc": "Ghiduri și materiale pentru alfabetizarea în domeniul IA.",
+        "btnFramework": "Framework-ul AILIT – Resurse"
+      },
+      "Partners": {
+        "title": "Partenerii noștri",
+        "desc": "Colaborăm cu organizații de top din cercetarea și dezvoltarea IA, inclusiv CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe și BDVA.",
+        "mapTitle": "Harta partenerilor"
+      },
+      "PhD": {
+        "title": "Programul de Doctorat Industrial",
+        "p1": "Un doctorat industrial este un program de pregătire universitară care permite obținerea titlului de doctor printr-un proiect de cercetare industrială sau de dezvoltare experimentală, creat în colaborare între o companie și mediul academic.",
+        "p2": "Dacă reprezentați o companie interesată de un doctorat industrial sau dacă doriți să urmați un Doctorat Industrial în Inteligența Artificială alături de noi, vă rugăm să ne contactați prin e-mail.",
+        "f1Title": "Pentru companii",
+        "f1Desc": "Colaborați cu noi pentru cercetare aplicată în IA care rezolvă provocări reale de afaceri.",
+        "f2Title": "Pentru candidați",
+        "f2Desc": "Combinați cercetarea academică cu experiența practică în industrie.",
+        "f3Title": "Model de colaborare",
+        "f3Desc": "Supervizare comună din partea mentorilor din industrie și a coordonatorilor academici.",
+        "btnContact": "Contactați-ne"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Implicare",
+        "subtitle": "Conectăm AIRi cu publicul, mediul academic și industria"
+      },
+      "Tabs": {
+        "public": "Public",
+        "academic": "Academic",
+        "industry": "Industrie",
+        "highSchool": "Licee",
+        "partners": "Parteneri",
+        "phd": "Doctorat Industrial"
+      },
+      "SubTabs": {
+        "partnerships": "Parteneriate",
+        "teaching": "Predare",
+        "courses": "Cursuri",
+        "mobility": "Mobilitate",
+        "overview": "Prezentare Generală",
+        "projects": "Proiecte",
+        "engagement": "Cum Lucrăm"
+      },
+      "PublicContent": {
+        "title": "Implicare Publică",
+        "desc": "Interacționăm activ cu publicul pentru a demistifica IA și a ne împărtăși descoperirile.",
+        "btnMedia": "Apariții Media",
+        "btnNews": "Noutăți și Evenimente",
+        "outreachTitle": "Implicarea Comunității",
+        "outreachDesc": "Organizarea de zile deschise, prelegeri publice și demonstrații interactive pentru a apropia IA de comunitate.",
+        "eduTitle": "Conținut Educațional",
+        "eduDesc": "Crearea de materiale accesibile, bloguri și videoclipuri care explică concepte complexe de IA publicului larg.",
+        "mediaTitle": "Media și Presă",
+        "mediaDesc": "Contribuții regulate în presă, comentarii de specialitate asupra tendințelor IA și comunicate de presă despre descoperirile noastre majore."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Parteneriate Academice",
+        "partnerDesc": "Construim relații puternice cu universități și centre de cercetare din întreaga lume.",
+        "uniTitle": "Colaborări Universitare",
+        "uniDesc": "Proiecte comune de cercetare și resurse partajate cu instituții academice de top.",
+        "netTitle": "Rețele de Cercetare",
+        "netDesc": "Participare activă în consorții internaționale de cercetare în IA.",
+        "teachTitle": "Predare și Seminarii",
+        "teachDesc": "Contribuim la comunitatea academică prin activități dedicate de predare.",
+        "summerTitle": "Școli de Vară",
+        "summerDesc": "Programe intensive pentru studenți și cercetători la început de carieră.",
+        "workTitle": "Ateliere și Seminarii",
+        "workDesc": "Seminarii academice regulate care prezintă cercetări de ultimă oră în IA.",
+        "courseTitle": "Cursuri Universitare",
+        "courseDesc": "Concepem și susținem cursuri specializate de IA la diverse niveluri academice.",
+        "mlTitle": "Învățare Automată (Machine Learning)",
+        "mlDesc": "Cursuri fundamentale și avansate în algoritmi și aplicații ML.",
+        "robotTitle": "Robotică și Viziune",
+        "robotDesc": "Module specializate axate pe viziune computerizată și robotică inteligentă.",
+        "hpcTitle": "Calcul de Înaltă Performanță (HPC)",
+        "hpcDesc": "Formare în utilizarea clusterelor de supercalculatoare pentru IA.",
+        "ethicsTitle": "Etica în IA",
+        "ethicsDesc": "Cursuri dedicate dezvoltării și implementării responsabile a IA.",
+        "mobTitle": "Mobilitate și Schimburi",
+        "mobDesc": "Promovarea schimburilor academice internaționale și a mobilității cercetătorilor.",
+        "supTitle": "Supervizare Doctorat",
+        "supDesc": "Co-supervizarea candidaților la doctorat între instituții internaționale.",
+        "grantTitle": "Granturi de Mobilitate",
+        "grantDesc": "Sprijin pentru vizite de cercetare pe termen scurt și lung.",
+        "exTitle": "Programe de Schimb",
+        "exDesc": "Facilitarea schimburilor de cercetători și studenți cu universitățile partenere."
+      },
+      "IndustryContent": {
+        "statProjects": "Proiecte în Industrie",
+        "statDomains": "Domenii de Cercetare",
+        "statPartners": "Parteneri din Industrie",
+        "collabTitle": "Colaborare cu Industria",
+        "collabDesc": "AIRi se asociază cu companii de top pentru a transpune cercetarea de ultimă oră din IA în aplicații din lumea reală.",
+        "searchPlaceholder": "Căutați proiecte din industrie...",
+        "allDomains": "Toate domeniile",
+        "clear": "Șterge filtrele",
+        "noProjects": "Niciun proiect din industrie găsit.",
+        "leadLabel": "Lider:",
+        "workTitle": "Cum Lucrăm cu Industria",
+        "workDesc": "Oferim modele flexibile de colaborare adaptate nevoilor industriei.",
+        "rdTitle": "C&D Comun",
+        "rdDesc": "Proiecte de cercetare colaborativă pentru rezolvarea unor provocări industriale complexe.",
+        "consTitle": "Consultanță",
+        "consDesc": "Servicii de consiliere expertă privind strategia și implementarea IA.",
+        "trainTitle": "Formare Corporativă",
+        "trainDesc": "Programe personalizate de formare în IA pentru profesioniști din industrie.",
+        "techTitle": "Transfer Tehnologic",
+        "techDesc": "Licențiere și crearea de spin-off-uri din rezultatele cercetărilor noastre."
+      },
+      "HighSchoolContent": {
+        "title": "Implicare pentru Licee",
+        "desc": "Inspirăm următoarea generație de cercetători și ingineri în IA.",
+        "compTitle": "Competiții",
+        "compDesc": "Organizarea de provocări de IA și programare pentru elevii de liceu.",
+        "eventTitle": "Evenimente Deschise",
+        "eventDesc": "Găzduim tururi de laborator și ateliere interactive pentru școli.",
+        "eduTitle": "Resurse Educaționale",
+        "eduDesc": "Oferim materiale pentru profesori pentru a introduce IA în sălile de clasă.",
+        "btnLabel": "Vezi Cadrul de Alfabetizare în IA"
+      },
+      "PartnersContent": {
+        "title": "Partenerii Noștri",
+        "desc": "Suntem mândri să colaborăm cu organizații de top din mediul academic și din industrie.",
+        "mapTitle": "Harta Partenerilor",
+        "eyebrow": "Rețea strategică",
+        "stats": {
+          "partners": "Parteneri",
+          "countries": "Țări",
+          "projects": "Proiecte"
+        },
+        "filters": {
+          "searchPlaceholder": "Căutați după partener, țară, proiect",
+          "allCountries": "Toate țările",
+          "clear": "Resetare"
+        },
+        "activeProjects": "Proiecte active",
+        "actions": {
+          "exploreProfile": "Explorează profilul",
+          "visitWebsite": "Vizitează website-ul"
+        },
+        "empty": {
+          "filtered": "Niciun partener nu corespunde filtrelor."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Parteneri",
+        "visitOfficialWebsite": "Vizitează site-ul oficial",
+        "collaborativeProjects": "Proiecte colaborative",
+        "collaborativeProjectsSubtitle": "Cercetări și inițiative care îl includ pe {partnerName}.",
+        "noLinkedProjects": "Nu există încă proiecte asociate."
+      },
+      "PhDContent": {
+        "title": "Program de Doctorat Industrial",
+        "p1": "Creăm o punte între cercetarea academică și aplicarea industrială.",
+        "p2": "Programul nostru de Doctorat Industrial permite candidaților să efectueze cercetări academice riguroase, rezolvând în același timp provocări din lumea reală în cadrul unei companii partenere.",
+        "compTitle": "Pentru Companii",
+        "compDesc": "Stimulați inovația prin sponsorizarea unui cercetător dedicat care să abordeze provocările dvs. specifice.",
+        "candTitle": "Pentru Candidați",
+        "candDesc": "Obțineți doctoratul dobândind în același timp experiență neprețuită în industrie și un salariu competitiv.",
+        "collabTitle": "Supervizare Comună",
+        "collabDesc": "Beneficiați de expertiza combinată a supervizorilor academici și a mentorilor din industrie.",
+        "btnContact": "Contactați-ne despre Doctoratele Industriale"
+      }
+    }
+  },
+  "about": {
+    "mission": {
+      "title": "Misiune",
+      "text": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă la Universitatea Tehnică din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din cadrul UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și obținerea unui impact prin parteneriate de co-creare cu mediul public și de afaceri."
+    },
+    "history": {
+      "title": "Evoluția AIRI",
+      "event1": {
+        "date": "15 Ianuarie 2023",
+        "title": "Anunțarea Institutului de IA la UTCN",
+        "description": "Universitatea Tehnică din Cluj-Napoca a anunțat planurile de a înființa un institut dedicat Inteligenței Artificiale pentru a promova cercetarea și inovația în tehnologiile IA."
+      },
+      "event2": {
+        "date": "10 Iunie 2023",
+        "title": "Ceremonia de inaugurare",
+        "description": "Ceremonia oficială de inaugurare a lucrărilor de construcție pentru clădirea Institutului de IA, cu participarea oficialilor universității și a demnitarilor locali."
+      },
+      "event3": {
+        "date": "1 Septembrie 2024",
+        "title": "Finalizarea construcției",
+        "description": "Construcția facilității de ultimă generație a Institutului de IA a fost finalizată, dispunând de laboratoare moderne și spații colaborative."
+      },
+      "event4": {
+        "date": "15 Octombrie 2024",
+        "title": "Simpozionul inaugural de IA",
+        "description": "Institutul a găzduit primul său simpozion, reunind cercetători în IA, experți din industrie și studenți pentru a discuta cele mai recente progrese în domeniu."
+      },
+      "event5": {
+        "date": "20 August 2025",
+        "title": "Stadiul actual al clădirii",
+        "descriptionPart1": "Fii la curent cu stadiul actual al lucrărilor la Institutul de IA.",
+        "descriptionPart2": "Urmărește live prin intermediul camerei noastre web:"
+      }
+    },
+    "guidelines": {
+      "students": "Studenți",
+      "faculty": "Facultate",
+      "researchers": "Cercetatori",
+      "staff": "Personal",
+      "title": "Doar pentru tine"
+    },
+    "organigram": {
+      "title": "Organigramă",
+      "description": "Descrierea <strong>Comitetului Director</strong> și a <strong>Comitetului Științific</strong>",
+      "directorCommittee": "Comitetul Director",
+      "viewDirectorStructure": "Vizualizați structura Comitetului Director:",
+      "scientificCommittee": "Comitetul Științific",
+      "viewScientificStructure": "Vizualizați structura Comitetului Științific:",
+      "downloadPdf": "Descarcă PDF",
+      "viewPng": "Vezi PNG"
+    },
+    "regulations": {
+      "title": "Regulamente",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "reports": {
+      "title": "Rapoarte",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "roomsCalendar": {
+      "title": "Săli și Calendar",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    },
+    "sitemap": {
+      "title": "Hartă Site",
+      "filterPlaceholder": "Filtrează paginile…",
+      "clear": "Șterge",
+      "noResults": "Niciun rezultat pentru „{query}”.",
+      "sections": {
+        "research": {
+          "title": "Cercetare",
+          "links": {
+            "departments": "Departamente",
+            "themes": "Teme",
+            "projects": "Proiecte",
+            "publications": "Publicații",
+            "thesis": "Teze",
+            "tools": "Instrumente",
+            "resources": "Resurse"
+          }
+        },
+        "engagement": {
+          "title": "Implicare",
+          "links": {
+            "public": "Implicare publică",
+            "academic": "Implicare academică",
+            "industry": "Implicare în industrie",
+            "highSchool": "Implicare pentru licee",
+            "partners": "Parteneri",
+            "industrialPhd": "Doctorat industrial"
+          }
+        },
+        "people": {
+          "title": "Oameni",
+          "links": {
+            "researchers": "Cercetători",
+            "staff": "Personal",
+            "alumni": "Alumni",
+            "visiting": "Cercetători invitați"
+          }
+        },
+        "newsEvents": {
+          "title": "Noutăți și Evenimente",
+          "links": {
+            "news": "Noutăți",
+            "events": "Evenimente",
+            "seminars": "Seminarii",
+            "openCalls": "Apeluri deschise pentru proiecte",
+            "awards": "Premii",
+            "careers": "Oportunități de Carieră/Job"
+          }
+        },
+        "about": {
+          "title": "Despre",
+          "links": {
+            "missionHistory": "Misiune, Istoric (cronologie)",
+            "organigram": "Organigramă",
+            "sitemap": "Hartă Site",
+            "reports": "Rapoarte de autoevaluare",
+            "regulations": "Proceduri și Regulamente",
+            "guidelines": "Linii directoare",
+            "virtualTour": "Tur Virtual",
+            "roomsCalendar": "Săli și calendar",
+            "contact": "Contact"
+          }
+        },
+        "search": {
+          "title": "Căutare",
+          "links": {
+            "classic": "Căutare clasică",
+            "chatbot": "Chatbot AIRi (bazat pe LLM)",
+            "knowledgeGraph": "Navigator grafuri de cunoștințe AIRi"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Tur Virtual",
+      "comingSoon": "Conținutul va fi disponibil în curând."
+    }
+  },
+  "media": {
+    "header-title": "Galerie media",
+    "header-subtitle": "Explorează imagini și videoclipuri care reflectă progresul institutului AIRI."
+  },
+  "news&events": {
+    "awards": {
+      "title": "Premii",
+      "subtitle": "Recunoașteri și distincții obținute de AIRI și colaboratorii săi.",
+      "coming-soon": "Mai multe informații vor fi disponibile în curând."
+    },
+    "careers": {
+      "title": "Oportunități de carieră",
+      "subtitle": "Explorează modalități de a lucra cu AIRI la diferite niveluri de studiu și roluri.",
+      "coming-soon": "Mai multe informații vor fi disponibile în curând.",
+      "undergraduate": "Ca student la licență",
+      "postgraduate": "Ca student la studii postuniversitare",
+      "postdoctoral": "Ca cercetător postdoctoral",
+      "visiting-researcher": "Ca cercetător invitat",
+      "software-engineer": "Ca inginer software"
+    },
+    "events": {
+      "title": "Evenimente",
+      "subtitle": "Repere și momente memorabile de la AIRI.",
+      "calendar-title": "Calendarul Institutului",
+      "no-events": "Nu există evenimente disponibile în acest moment."
+    },
+    "news": {
+      "title": "Știri și Evenimente",
+      "latest": "Noutăți de la AIRI",
+      "subtitle": "Povești recente, etape importante ale cercetării și momente de presă direct din redacție.",
+      "quickFilters": "Filtre rapide",
+      "searchLabel": "Caută știri",
+      "searchPlaceholder": "Caută titluri, cuvinte cheie sau rezumate",
+      "stories": "articole",
+      "readStory": "Citește povestea",
+      "spotlight": "În prim-plan",
+      "noSummary": "Niciun rezumat disponibil momentan.",
+      "openArticle": "Deschide articolul",
+      "emptyState": "Nu există știri disponibile în acest moment.",
+      "noImage": "Fără imagine",
+      "readMore": "Citește mai mult",
+      "categories": {
+        "all": "Toate",
+        "announcement": "Anunțuri",
+        "construction": "Construcție",
+        "collaboration": "Colaborări",
+        "award": "Premii",
+        "press": "Presă",
+        "other": "Altele"
+      }
+    },
+    "open-project-calls": {
+      "title": "Apeluri de proiecte",
+      "subtitle": "Apeluri pentru propuneri și oportunități de colaborare.",
+      "coming-soon": "Mai multe actualizări pentru această secțiune vor apărea în curând."
+    },
+    "seminars": {
+      "title": "Seminarii",
+      "subtitle": "Seminarii academice găzduite de AIRI și invitați.",
+      "emptyState": "Nu există seminarii disponibile în acest moment.",
+      "whatYouWillLearn": "Ce vei învăța",
+      "modules": "Module"
+    }
+  },
+  "people": {
+    "title": "Personal",
+    "subtitle": "Cunoaște echipa din spatele AIRi @ UTCN",
+    "searchPlaceholder": "Caută după nume, funcție sau departament...",
+    "clearSearch": "Șterge căutarea",
+    "tabs": {
+      "researchers": "Cercetători",
+      "staff": "Personal administrativ",
+      "visiting": "Cercetători invitați",
+      "alumni": "Alumni"
+    },
+    "results": "A fost găsit {count} rezultat pentru \"{query}\"",
+    "resultsPlural": "Au fost găsite {count} rezultate pentru \"{query}\"",
+    "emptySearch": "Nicio persoană nu se potrivește căutării tale.",
+    "emptyTab": "Nu s-au găsit {tabName} disponibili momentan.",
+    "details": {
+      "publications": "Publicații",
+      "teams": "Echipe",
+      "searchPubs": "Caută publicații...",
+      "allYears": "Toți anii",
+      "allTypes": "Toate tipurile",
+      "allDomains": "Toate domeniile",
+      "clear": "Curăță",
+      "viewDetails": "Vezi detalii",
+      "pdf": "PDF",
+      "lead": "Lider",
+      "projects": "Proiecte",
+      "noPubs": "Nicio publicație disponibilă.",
+      "noPubsMatch": "Nicio publicație nu se potrivește cu filtrele tale.",
+      "noTeams": "Nu este alocat niciunei echipe momentan."
+    },
+    "projectDetails": {
+      "backToProfile": "← Înapoi la Profil",
+      "backToStaffProfile": "← Înapoi la Profilul Personalului",
+      "projectDetails": "Detalii Proiect",
+      "visitWebsite": "Vizitează Site-ul",
+      "documentation": "Documentație",
+      "projectTimeline": "Cronologia Proiectului",
+      "resources": "Resurse",
+      "relatedPublications": "Publicații Aferente",
+      "details": "Detalii",
+      "visitProjectWebsite": "Vizitează Site-ul Proiectului",
+      "viewDocumentation": "Vezi Documentația",
+      "projectTeam": "Echipa Proiectului",
+      "lead": "Lider",
+      "members": "Membri",
+      "partners": "Parteneri",
+      "themes": "Teme",
+      "researchAreas": "Domenii de Cercetare",
+      "phases": {
+        "completed": "Finalizat",
+        "planned": "Planificat",
+        "ongoing": "În desfășurare"
+      }
+    }
+  },
+  "research": {
+    "departments": {
+      "title": "Departamente",
+      "subtitle": "Explorează departamentele noastre de cercetare și suport din cadrul AIRi @ UTCN",
+      "members": "{count} membri",
+      "projects": "{count} proiecte",
+      "types": {
+        "research": "Departamente de Cercetare",
+        "research_networks": "Rețele de Cercetare",
+        "support": "Departamente de Suport",
+        "other": "Departamente"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Înapoi la Departamente",
+        "notFound": "Departamentul nu a fost găsit.",
+        "membersCount": "Membri",
+        "projectsCount": "Proiecte",
+        "publicationsCount": "Publicații",
+        "tabs": {
+          "overview": "Prezentare generală",
+          "members": "Oameni și Echipe",
+          "projects": "Proiecte",
+          "publications": "Publicații"
+        },
+        "overview": {
+          "about": "Despre",
+          "coordinator": "Coordonator",
+          "contact": "Contact"
+        },
+        "members": {
+          "teams": "Echipe",
+          "member": "membru",
+          "membersPlural": "membri",
+          "independentResearchers": "Cercetători Independenți",
+          "noMembers": "Niciun membru găsit pentru acest departament.",
+          "projects": "Proiecte"
+        },
+        "projects": {
+          "lead": "Lider:",
+          "noProjects": "Niciun proiect găsit pentru acest departament."
+        },
+        "publications": {
+          "noPublications": "Nicio publicație găsită pentru acest departament."
+        },
+        "phases": {
+          "completed": "Finalizat",
+          "planned": "Planificat",
+          "ongoing": "În desfășurare",
+          "archived": "Arhivat"
+        }
+      }
+    },
+    "projects": {
+      "title": "Proiecte",
+      "subtitle": "Explorează proiectele noastre de cercetare în diverse domenii",
+      "searchPlaceholder": "Caută proiecte după titlu, lider, departament...",
+      "filters": "Filtre",
+      "allRegions": "Toate regiunile",
+      "allDepartments": "Toate departamentele",
+      "allLeads": "Toți liderii",
+      "allMembers": "Toți membrii",
+      "filterByTheme": "Filtrează după temă...",
+      "region": "Regiune",
+      "department": "Departament",
+      "dept": "Departament:",
+      "lead": "Lider",
+      "leadLabel": "Lider:",
+      "member": "Membru",
+      "theme": "Temă",
+      "projectsFound": "A fost găsit {count} proiect",
+      "projectsFoundPlural": "Au fost găsite {count} proiecte",
+      "clearAllFilters": "Șterge toate filtrele",
+      "clearFilters": "Șterge filtrele",
+      "noProjects": "Nu a fost găsit niciun proiect care să corespundă criteriilor."
+    },
+    "projectDetails": {
+      "notFound": "Proiectul nu a fost găsit",
+      "backToProjects": "Înapoi la Proiecte",
+      "region": "Regiune",
+      "phase": "Fază",
+      "partners": "Parteneri",
+      "partnerCount": "{count} partener",
+      "partnerCountPlural": "{count} parteneri",
+      "officialWebsite": "Site Oficial",
+      "documentation": "Documentație",
+      "tabs": {
+        "overview": "Prezentare generală",
+        "people": "Oameni",
+        "resources": "Resurse",
+        "publications": "Publicații"
+      },
+      "abstract": "Rezumat",
+      "researchDomains": "Domenii de Cercetare",
+      "teams": "Echipe",
+      "memberCount": "{count} membru",
+      "memberCountPlural": "{count} membri",
+      "lead": "Lider",
+      "noTeamMembers": "Niciun membru listat pentru această echipă.",
+      "individualContributors": "Contribuitori Individuali",
+      "contributors": "Contribuitori",
+      "noPeople": "Nicio persoană alocată acestui proiect.",
+      "platform": "Platformă:",
+      "noResources": "Nicio resursă disponibilă pentru acest proiect.",
+      "publicationCount": "{count} publicație",
+      "publicationCountPlural": "{count} publicații",
+      "noPublications": "Nicio publicație disponibilă pentru acest proiect.",
+      "authors": "Autori:",
+      "viewDetails": "Vezi detalii",
+      "pdf": "PDF",
+      "teamProjects": "Proiecte",
+      "phases": {
+        "ongoing": "În desfășurare",
+        "planned": "Planificat",
+        "completed": "Finalizat",
+        "archived": "Arhivat"
+      }
+    },
+    "publications": {
+      "title": "Publicații",
+      "subtitle": "Lucrări de cercetare, articole și publicații academice ale echipei noastre",
+      "searchPlaceholder": "Caută publicații după titlu, autor, tip...",
+      "filters": "Filtre",
+      "year": "An",
+      "allYears": "Toți anii",
+      "author": "Autor",
+      "allAuthors": "Toți autorii",
+      "department": "Departament",
+      "allDepartments": "Toate departamentele",
+      "type": "Tip",
+      "allTypes": "Toate tipurile",
+      "theme": "Temă",
+      "filterByTheme": "Filtrează după temă...",
+      "publicationsFound": "A fost găsită {count} publicație",
+      "publicationsFoundPlural": "Au fost găsite {count} publicații",
+      "clearAllFilters": "Șterge toate filtrele",
+      "clearFilters": "Șterge filtrele",
+      "authorsLabel": "Autori:",
+      "viewDetails": "Vezi detalii",
+      "openPdf": "Deschide PDF",
+      "noPublications": "Nicio publicație nu se potrivește criteriilor tale."
+    },
+    "publicationDetails": {
+      "notFound": "Publicația nu a fost găsită.",
+      "backToPublications": "← Înapoi la publicații",
+      "openPdf": "Deschide PDF",
+      "downloadBibtex": "Descarcă BibTeX",
+      "authors": "Autori",
+      "noAuthors": "Niciun autor listat.",
+      "relatedProjects": "Proiecte asociate",
+      "noProjects": "Niciun proiect asociat.",
+      "themes": "Teme",
+      "noThemes": "Nicio temă asociată.",
+      "resources": "Resurse",
+      "noResources": "Nicio resursă asociată.",
+      "viewResource": "Vezi resursa",
+      "attachments": "Atașamente",
+      "noAttachments": "Niciun atașament momentan.",
+      "images": "Imagini",
+      "files": "Fișiere",
+      "download": "Descarcă"
+    },
+    "themes": {
+      "title": "Teme de Cercetare",
+      "subtitle": "Explorează domeniile noastre cheie de cercetare și descoperă proiectele și publicațiile asociate.",
+      "viewProjects": "Vezi Proiecte",
+      "viewPublications": "Vezi Publicații",
+      "noThemes": "Nicio temă găsită."
+    },
+    "thesis": {
+      "title": "Teze",
+      "tabs": {
+        "phd": "Doctorat",
+        "master": "Masterat",
+        "bachelor": "Licență"
+      },
+      "messages": {
+        "phd": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Doctorat.",
+        "master": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Masterat.",
+        "bachelor": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Licență."
+      }
+    }
+  },
+  "resources": {
+    "title": "Resurse",
+    "subtitle": "Explorează colecția noastră de instrumente, resurse, API-uri și materiale de învățare pentru a-ți sprijini cercetarea și dezvoltarea în domeniul IA.",
+    "searchPlaceholder": "Caută resurse...",
+    "allCategories": "Toate categoriile",
+    "clearFilters": "Șterge filtrele",
+    "clearAllFilters": "Șterge toate filtrele",
+    "showing": "Afișare {filtered} din {total} resurse",
+    "filtered": " (filtrat)",
+    "featuredResources": "Resurse Recomandate",
+    "allResources": "Toate Resursele",
+    "noResourcesFound": "Nicio resursă găsită",
+    "noResourcesFilterMatch": "Nu am putut găsi nicio resursă care să corespundă filtrelor actuale. Încearcă să ajustezi criteriile de căutare.",
+    "noResourcesYet": "Resursele vor apărea aici odată ce vor fi adăugate în sistem.",
+    "visitResource": "Accesează resursa",
+    "categories": {
+      "resource": "Resursă",
+      "tool": "Instrument",
+      "software": "Software",
+      "documentation": "Documentație",
+      "api": "API",
+      "library": "Bibliotecă",
+      "framework": "Framework",
+      "learning": "Învățare",
+      "other": "Altele"
+    }
+  },
+  "search": {
+    "chatbot": {
+      "title": "Chatbot AIRi",
+      "cardTitle": "Chatbot AIRi",
+      "comingSoon": "În curând — Chatbot bazat pe LLM pentru baza de cunoștințe AIRi și conținutul site-ului."
+    },
+    "classic": {
+      "title": "🔎 Căutare",
+      "placeholder": "Tastați pentru a căuta în pagini…",
+      "resultsSingular": "{count} rezultat pentru",
+      "resultsPlural": "{count} rezultate pentru",
+      "noMatches": "Nicio potrivire! Încercați alte cuvinte cheie sau verificați ortografia!"
+    },
+    "knowledgeGraph": {
+      "title": "Navigator Grafuri de Cunoștințe",
+      "cardTitle": "Grafuri de Cunoștințe AIRi",
+      "comingSoon": "În curând — navigator interactiv pentru grafurile de cunoștințe AIRi."
+    }
+  },
+  "timeline": {
+    "title": "📅 Cronologie AIRI",
+    "events": {
+      "event1": {
+        "date": "15 Ian. 2023",
+        "title": "Anunțarea Institutului de IA la UTCN",
+        "description": "Universitatea Tehnică din Cluj-Napoca a anunțat planurile de a înființa un institut dedicat Inteligenței Artificiale pentru a promova cercetarea și inovația în tehnologiile IA."
+      },
+      "event2": {
+        "date": "10 Iun. 2023",
+        "title": "Ceremonia de inaugurare",
+        "description": "Ceremonia oficială de inaugurare a lucrărilor de construcție pentru clădirea Institutului de IA, cu participarea oficialilor universității și a demnitarilor locali."
+      },
+      "event3": {
+        "date": "1 Sep. 2024",
+        "title": "Finalizarea construcției",
+        "description": "Construcția facilității de ultimă generație a Institutului de IA a fost finalizată, dispunând de laboratoare moderne și spații colaborative."
+      },
+      "event4": {
+        "date": "15 Oct. 2024",
+        "title": "Simpozionul inaugural de IA",
+        "description": "Institutul a găzduit primul său simpozion, reunind cercetători în IA, experți din industrie și studenți pentru a discuta cele mai recente progrese în domeniul inteligenței artificiale."
+      },
+      "event5": {
+        "title": "Stadiul actual al clădirii",
+        "descriptionPart1": "Fii la curent cu stadiul actual al lucrărilor la Institutul de IA.",
+        "descriptionPart2": "Urmărește live prin intermediul camerei noastre web:"
+      }
+    }
+  }
+}

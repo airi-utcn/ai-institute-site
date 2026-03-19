@@ -508,7 +508,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
     summary: Schema.Attribute.Text;
     teams: Schema.Attribute.Relation<'oneToMany', 'api::team.team'>;
     type: Schema.Attribute.Enumeration<
-      ['research', 'academic', 'support', 'other']
+      ['research', 'research_networks', 'support', 'other']
     > &
       Schema.Attribute.DefaultTo<'research'>;
     updatedAt: Schema.Attribute.DateTime;

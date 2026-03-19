@@ -1,0 +1,1112 @@
+{
+  "footer": {
+    "contact": {
+      "title": "Kontakti",
+      "addressLine1": "Observatorului iela 2,",
+      "addressLine2": "Kluža-Napoka 400347,",
+      "addressLine3": "Rumānija"
+    },
+    "quickLinks": {
+      "title": "Ātrās saites",
+      "projects": "Projekti",
+      "sitemap": "Vietnes karte",
+      "rooms": "Telpas",
+      "dissemination": "Izplatīšana",
+      "contactUs": "Sazināties ar mums"
+    },
+    "copyright": "© {year} Klužas-Napokas Tehniskā universitāte. Visas tiesības aizsargātas."
+  },
+  "navbar": {
+    "navLinks": {
+      "research": "Pētniecība",
+      "engagement": "Iesaiste",
+      "people": "Cilvēki",
+      "news": "Jaunumi un notikumi",
+      "about": "Par mums"
+    },
+    "researchMenu": {
+      "departments": "Departamenti",
+      "themes": "Tēmas",
+      "projects": "Projekti",
+      "publications": "Publikācijas",
+      "thesis": "Disertācijas",
+      "resources": "Resursi",
+      "paperGraph": "Paper Graph"
+    },
+    "newsMenu": {
+      "news": "Jaunumi",
+      "events": "Notikumi",
+      "seminars": "Semināri",
+      "calls": "Projektu uzsaukumi",
+      "awards": "Apbalvojumi",
+      "careers": "Karjeras iespējas"
+    },
+    "aboutMenu": {
+      "mission": "Misija",
+      "organigram": "Organizācijas shēma",
+      "sitemap": "Vietnes karte",
+      "reports": "Ziņojumi",
+      "regulations": "Noteikumi",
+      "guidelines": "Vadlīnijas",
+      "tour": "Virtuālā tūre",
+      "rooms": "Telpas un kalendārs",
+      "contact": "Kontakti"
+    },
+    "search": {
+      "placeholder": "Meklēt...",
+      "mobilePlaceholder": "Meklēt vietnē...",
+      "button": "Meklēt",
+      "chatbot": "AIRi tērzēšanas robots",
+      "knowledgeGraph": "Zināšanu grafiki"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Sākums",
+      "description": "Pētniecības, inovāciju un izpētes veicināšana mākslīgā intelekta jomā Klužas-Napokas Tehniskajā universitātē - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Mākslīgā intelekta pētniecības institūts",
+      "subtitle": "Pētniecības, inovāciju un izpētes veicināšana mākslīgā intelekta jomā Klužas-Napokas Tehniskajā universitātē.",
+      "learnMore": "Uzzināt vairāk",
+      "altHero": "MI pētniecības varonis",
+      "altQr": "Reģistrēšanās QR kods"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN pašlaik atrodas izstrādes stadijā. Sekojiet mūsu kanāliem, lai uzzinātu jaunumus."
+    },
+    "About": {
+      "title": "Par mums",
+      "description": "Mākslīgā intelekta pētniecības institūts (AIRi) ir Klužas-Napokas Tehniskās universitātes sadarbības pētniecības centrs. AIRi@UTCN veicina izcilību MI teorijā un praksē, apvienojot pētniekus no visas UTCN ap atvērtas sadarbības vīziju. Mūsu darbs aptver starpdisciplinārus pētījumus, MI pratību dažādās disciplīnās un ietekmi caur biznesa un sabiedrības koprades partnerībām."
+    },
+    "Cards": {
+      "research": {
+        "title": "Pētniecība",
+        "description": "Izpētiet mūsu pētniecības nodaļas un projektus."
+      },
+      "people": {
+        "title": "Cilvēki",
+        "description": "Iepazīstieties ar mūsu pētniekiem un darbiniekiem."
+      },
+      "resources": {
+        "title": "Resursi",
+        "description": "Rīki, resursi un mācību materiāli."
+      }
+    },
+    "LatestNews": {
+      "title": "Jaunākās ziņas",
+      "viewAll": "Skatīt visas ziņas →",
+      "emptyState": "Ziņu raksti parādīsies šeit, tiklīdz tie būs publicēti.",
+      "visitNews": "Apmeklēt Jaunumi un notikumi →"
+    },
+    "Social": {
+      "title": "Sekojiet mums LinkedIn",
+      "visit": "Apmeklēt LinkedIn →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Sazināties ar mums",
+      "subtitle": "Mēs priecāsimies dzirdēt no jums! Neatkarīgi no tā, vai jums ir jautājums par mūsu pētījumiem, pasākumiem vai ko citu, mūsu komanda ir gatava atbildēt uz visiem jūsu jautājumiem."
+    },
+    "Social": {
+      "title": "Sazinieties ar mums"
+    },
+    "Form": {
+      "title": "Saziņas forma",
+      "iframeTitle": "Sazināties ar mums forma"
+    },
+    "Location": {
+      "title": "Mūsu atrašanās vieta",
+      "address": "📍 Strada Observatorului 2, Kluža-Napoka 400347, Rumānija",
+      "iframeTitle": "Atrašanās vietas karte"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Akadēmiskā iesaiste",
+      "description": "Sadarbība ar universitātēm un institūtiem: kopīga uzraudzība, kopīgi kursi, semināri, pētniecības vizītes, mobilitāte.",
+      "contactButton": "Sazināties ar akadēmisko komandu",
+      "selectTopic": "Izvēlieties tēmu no kreisās puses izvēlnes.",
+      "Tabs": {
+        "Overview": {
+          "label": "Pārskats",
+          "subtabs": {
+            "partnerships": "Akadēmiskās partnerības",
+            "teaching": "Mācīšana un apmācība",
+            "mobility": "Mobilitāte"
+          }
+        },
+        "Initiatives": {
+          "label": "Iniciatīvas",
+          "subtabs": {
+            "schools": "Vasaras skolas un darbnīcas",
+            "seminars": "Kopīgi semināri",
+            "visits": "Pētniecības vizītes"
+          }
+        },
+        "Courses": {
+          "label": "Kursi un darbnīcas",
+          "subtabs": {
+            "ml": "Mašīnmācīšanās",
+            "robotics": "Robotika un redze",
+            "hpc": "HPC MI vajadzībām",
+            "ethics": "MI ētika un drošība"
+          }
+        },
+        "Mobility": {
+          "label": "Kopīga uzraudzība un mobilitāte",
+          "subtabs": {
+            "phd": "Kopīga uzraudzība",
+            "grants": "Mobilitātes granti",
+            "placements": "Prakse un apmaiņa"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": {
+            "title": "Akadēmiskās partnerības",
+            "desc": "Sadarbības un kopīgu aktivitāšu tīkls."
+          },
+          "teaching": {
+            "title": "Mācīšana un apmācība",
+            "desc": "Kursi, vasaras skolas un darbnīcas."
+          },
+          "mobility": {
+            "title": "Mobilitāte",
+            "desc": "Kopīga uzraudzība, vizītes, stažēšanās, apmaiņa."
+          }
+        },
+        "Initiatives": {
+          "schools": {
+            "title": "Vasaras skolas un darbnīcas",
+            "desc": "Starptautiski un vietēji pasākumi studentiem un pētniekiem."
+          },
+          "seminars": {
+            "title": "Kopīgi semināri",
+            "desc": "Kopīgas uzstāšanās un vieslektori."
+          },
+          "visits": {
+            "title": "Pētniecības vizītes",
+            "desc": "Īstermiņa un ilgtermiņa pētniecības uzturēšanās."
+          }
+        },
+        "Courses": {
+          "ml": {
+            "title": "Mašīnmācīšanās",
+            "desc": "Kopīgi kursi, lietišķie moduļi, projekti."
+          },
+          "robotics": {
+            "title": "Robotika un redze",
+            "desc": "Praktiskās laboratorijas, automatizācija un redzes sistēmas."
+          },
+          "hpc": {
+            "title": "HPC MI vajadzībām",
+            "desc": "GPU programmēšana un liela mēroga MI apmācība."
+          },
+          "ethics": {
+            "title": "MI ētika un drošība",
+            "desc": "Taisnīgums, izskaidrojamība un pārvaldība mākslīgajā intelektā."
+          }
+        },
+        "Mobility": {
+          "phd": {
+            "title": "Kopīga uzraudzība",
+            "desc": "Kopīga doktorantūras uzraudzība ar starptautiskiem partneriem."
+          },
+          "grants": {
+            "title": "Mobilitātes granti",
+            "desc": "Finansējums apmaiņai un pētniecības uzturēšanās periodiem."
+          },
+          "placements": {
+            "title": "Prakse un apmaiņa",
+            "desc": "Stažēšanās, vizītes un personāla apmaiņa."
+          }
+        }
+      },
+      "Event": {
+        "title": "Forums “Progress un inovācijas oftalmoloģijā” 2025",
+        "desc1": "Darbnīcas “Eye and AI” 3. izdevumu kopīgi organizē Oftalmoloģijas nodaļa, Jūlija Hacieganu Medicīnas un farmācijas universitāte, Klužas apriņķa neatliekamās palīdzības klīniskā slimnīca un Mākslīgā intelekta pētniecības institūts (AIRi@UTCN), Klužas-Napokas Tehniskā universitāte, Rumānija. Apvienojot klīnicistus, pētniekus un nozares speciālistus, pasākums pēta, kā mākslīgais intelekts pārveido oftalmoloģisko aprūpi — no attēlveidošanas un skrīninga līdz lēmumu pieņemšanas atbalstam un darbplūsmas optimizācijai.",
+        "moderators": "Moderatori:",
+        "moderatorsNames": "Adrians GROZA, Anka MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Kompaktu 3D OCT tilpumu rekonstrukcija no B-skenējumiem: U-Net arhitektūru salīdzinošs pētījums",
+        "paper1Authors": "Adrians POP — Tehniskā universitāte, Kluža-Napoka",
+        "paper2Title": "3D rekonstrukcija, pamatojoties uz AROI kopu",
+        "paper2Authors": "Kristians Rauls MOLDOVAN, Radu-Răzvan SLĂVESCU — Tehniskā universitāte, Kluža-Napoka",
+        "paper3Title": "Redzes pamata modeļu pielāgošana OCT un acs dibenam",
+        "paper3Authors": "Anka MĂRGINEAN — Tehniskā universitāte, Kluža-Napoka",
+        "paper4Title": "Tīklenes asinsvadu tīkla segmentācija un biomarķieru kvantitatīva noteikšana OCTA attēlveidošanā",
+        "paper4Authors": "Dariuss STAN, Raluka BREHAR — Tehniskā universitāte, Kluža-Napoka",
+        "linkText": "Skatīt visu pasākuma informāciju →"
+      }
+    },
+    "high-school": {
+      "title": "Iesaiste vidusskolās",
+      "description": "Sacensības, pasākumi un MI pratības resursi skolēniem un skolotājiem.",
+      "features": {
+        "competitions": {
+          "title": "Sacensības",
+          "desc": "MI un programmēšanas izaicinājumi vidusskolēniem."
+        },
+        "events": {
+          "title": "Pasākumi",
+          "desc": "Darbnīcas, laboratoriju vizītes un sesijas ar ekspertiem."
+        },
+        "resources": {
+          "title": "Izglītības resursi",
+          "desc": "Vadlīnijas un materiāli MI pratībai."
+        }
+      },
+      "linkText": "AILIT ietvars – Resursi"
+    },
+    "industrial-phd": {
+      "title": "Industriālā doktorantūra",
+      "p1": "Industriālā doktorantūra ir pazīstama kā universitātes apmācības programma, kas kvalificējas doktora grāda iegūšanai, izmantojot industriālu pētniecības vai eksperimentālās izstrādes projektu, kas tika izveidots sadarbībā starp uzņēmumu un akadēmisko vidi, kas kļūs par doktoranta doktora disertācijas tēmu.",
+      "p2": "Ja esat uzņēmums un esat ieinteresēts veikt industriālo doktorantūru, sazinieties ar mums pa e-pastu.",
+      "p3": "Ja vēlaties ierasties un veikt industriālo doktorantūru mākslīgajā intelektā pie mums kādā no piedāvātajām tēmām, sazinieties pa e-pastu."
+    },
+    "industry": {
+      "title": "Nozares iesaiste",
+      "description": "Sadarbojieties ar AIRi lietišķajos pētījumos un tehnoloģiju pārnesē, sākot no atklāšanas līdz ieviešanai.",
+      "Tabs": {
+        "Overview": "Pārskats",
+        "Projects": "Projekti",
+        "Engagement": "Kā mēs strādājam"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Meklēt pēc projekta, vadītāja, partnera...",
+        "allDomains": "Visi domēni",
+        "noProjects": "Pagaidām neviens projekts neatbilst jūsu filtriem.",
+        "cardLead": "Vadītājs",
+        "cardDetails": "Sīkāka informācija",
+        "cardSite": "Vietne",
+        "cardDocs": "Dokumenti"
+      },
+      "EngagementTab": {
+        "title": "Iesaistes modelis",
+        "listItem1": "Kopīgi lietišķie pētījumi ar izmērāmiem rezultātiem",
+        "listItem2": "Prototipu veidošana un validācija kopā ar jūsu komandām",
+        "listItem3": "Zināšanu pārnese un ilgtermiņa sadarbība"
+      },
+      "OverviewTab": {
+        "feature1Title": "Lietišķā pētniecība",
+        "feature1Desc": "Rūpnieciskās sadarbības, kuru mērķis ir ieviešana reālajā pasaulē.",
+        "feature2Title": "Kopīga attīstība",
+        "feature2Desc": "Kopīgi ceļveži, ātra prototipu veidošana un validācijas cikli.",
+        "feature3Title": "Zināšanu pārnese",
+        "feature3Desc": "Pētījumu rezultātu piesaistīšana ražošanas komandām.",
+        "statsProjects": "Aktīvie projekti",
+        "statsDomains": "Iesaistītie domēni",
+        "statsPartners": "Partneri"
+      },
+      "Buttons": {
+        "contact": "Sazināties ar nozares komandu",
+        "explore": "Izpētīt visus projektus"
+      }
+    },
+    "partners": {
+      "title": "Partneri",
+      "mapTitle": "Partneru karte"
+    },
+    "main": {
+      "Hero": {
+        "title": "Iesaiste",
+        "subtitle": "Savienojot AIRi @ UTCN ar sabiedrību, akadēmisko vidi un rūpniecību."
+      },
+      "Tabs": {
+        "public": "Sabiedrība",
+        "academic": "Akadēmiskā",
+        "industry": "Nozare",
+        "high-school": "Vidusskolas",
+        "partners": "Partneri",
+        "phd": "Industriālā doktorantūra"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Partnerības",
+          "teaching": "Mācīšana",
+          "courses": "Kursi",
+          "mobility": "Mobilitāte"
+        },
+        "industry": {
+          "overview": "Pārskats",
+          "projects": "Projekti",
+          "engagement": "Kā mēs strādājam"
+        }
+      },
+      "Public": {
+        "title": "Sabiedrības iesaiste",
+        "desc": "MI pētniecības kopienas savienošana ar plašāku sabiedrību, izmantojot pieejamus resursus, uzstāšanos medijos un informēšanas programmas.",
+        "btnMedia": "Skatīt medijus un presi",
+        "btnNews": "Jaunumi un notikumi",
+        "f1Title": "Informēšanas programmas",
+        "f1Desc": "Publiskas lekcijas, demonstrācijas un kopienas iesaistīšanas iniciatīvas.",
+        "f2Title": "Izglītības resursi",
+        "f2Desc": "Atvērtās piekļuves materiāli, kas izskaidro MI koncepcijas plašai auditorijai.",
+        "f3Title": "Uzstāšanās medijos",
+        "f3Desc": "Intervijas, raksti un mūsu pētījumu atspoguļojums medijos."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Akadēmiskās partnerības",
+          "desc": "Starptautiskas akadēmiskās sadarbības, kopīgu pētniecības programmu un institucionālo partnerību tīkls, kas veicina MI pētniecību un izglītību.",
+          "f1Title": "Universitāšu sadarbība",
+          "f1Desc": "Kopīgas pētniecības programmas ar vadošajām universitātēm visā pasaulē.",
+          "f2Title": "Pētniecības tīkli",
+          "f2Desc": "Līdzdalība CLAIRE, ELLIS un citos Eiropas MI tīklos."
+        },
+        "Teaching": {
+          "title": "Mācīšana un apmācība",
+          "desc": "Kursi, vasaras skolas un darbnīcas studentiem un pētniekiem visos līmeņos.",
+          "f1Title": "Vasaras skolas",
+          "f1Desc": "Starptautiskas vasaras programmas MI un mašīnmācībā.",
+          "f2Title": "Darbnīcas",
+          "f2Desc": "Praktiskās darbnīcas un apmācības sesijas."
+        },
+        "Courses": {
+          "title": "Kursi un darbnīcas",
+          "desc": "Specializēti kursi, kas aptver mašīnmācīšanos, robotiku, HPC MI vajadzībām un MI ētiku.",
+          "f1Title": "Mašīnmācīšanās",
+          "f1Desc": "Lietišķās ML moduļi, projekti un uz pētniecību vērsti kursi.",
+          "f2Title": "Robotika un redze",
+          "f2Desc": "Praktiskās laboratorijas automatizācijā un redzes sistēmās.",
+          "f3Title": "HPC MI vajadzībām",
+          "f3Desc": "GPU programmēšana un liela mēroga MI apmācība.",
+          "f4Title": "MI ētika un drošība",
+          "f4Desc": "Taisnīgums, izskaidrojamība un pārvaldība MI sistēmās."
+        },
+        "Mobility": {
+          "title": "Kopīga uzraudzība un mobilitāte",
+          "desc": "Starptautiskās apmaiņas programmas, kopīga doktorantūras uzraudzība un pētniecības vizīšu iespējas.",
+          "f1Title": "Kopīga uzraudzība",
+          "f1Desc": "Kopīga doktorantūras uzraudzība ar starptautiskiem partneriem.",
+          "f2Title": "Mobilitātes granti",
+          "f2Desc": "Finansējums pētniecības uzturēšanās periodiem un apmaiņai.",
+          "f3Title": "Apmaiņas",
+          "f3Desc": "Studentu un pētnieku apmaiņas programmas."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Projekti",
+          "domains": "Domēni",
+          "partners": "Partneri"
+        },
+        "Collaboration": {
+          "title": "Nozares sadarbība",
+          "desc": "Mēs sadarbojamies ar nozares līderiem, lai virzītu MI pētniecību un ieviestu inovācijas tirgū. Mūsu sadarbība ietver konsultācijas, kopīgus R&D projektus un tehnoloģiju pārnesi."
+        },
+        "Projects": {
+          "searchPlaceholder": "Meklēt projektus...",
+          "allDomains": "Visi domēni",
+          "clear": "Notīrīt",
+          "lead": "Vadītājs:",
+          "noProjects": "Neviens projekts neatbilst jūsu filtriem."
+        },
+        "HowWeWork": {
+          "title": "Kā mēs strādājam ar nozari",
+          "desc": "Mēs piedāvājam dažādus iesaistīšanās modeļus, lai atbilstu dažādām nozares vajadzībām un sadarbības dziļumam.",
+          "f1Title": "Kopīgi R&D projekti",
+          "f1Desc": "Kopīgi pētniecības projekti ar kopīgu intelektuālo īpašumu un rezultātiem.",
+          "f2Title": "Konsultāciju pakalpojumi",
+          "f2Desc": "Ekspertu konsultācijas par MI stratēģiju, ieviešanu un paraugpraksi.",
+          "f3Title": "Apmācības programmas",
+          "f3Desc": "Pielāgotas apmācības nozares komandām par MI tehnoloģijām.",
+          "f4Title": "Tehnoloģiju pārnese",
+          "f4Desc": "Pētījumu rezultātu licencēšana un komercializācija."
+        }
+      },
+      "HighSchool": {
+        "title": "Vidusskolu iesaiste",
+        "desc": "Sacensības, pasākumi un MI pratības resursi skolēniem un skolotājiem, veicinot nākamo MI pētnieku paaudzi.",
+        "f1Title": "Sacensības",
+        "f1Desc": "MI un programmēšanas izaicinājumi vidusskolēniem.",
+        "f2Title": "Pasākumi",
+        "f2Desc": "Darbnīcas, laboratoriju vizītes un sesijas ar ekspertiem.",
+        "f3Title": "Izglītības resursi",
+        "f3Desc": "Vadlīnijas un materiāli MI pratībai.",
+        "btnFramework": "AILIT ietvars – Resursi"
+      },
+      "Partners": {
+        "title": "Mūsu partneri",
+        "desc": "Mēs sadarbojamies ar vadošajām organizācijām MI pētniecībā un attīstībā, tostarp CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe un BDVA.",
+        "mapTitle": "Partneru karte"
+      },
+      "PhD": {
+        "title": "Industriālās doktorantūras programma",
+        "p1": "Plaisas mazināšana starp akadēmisko pētniecību un rūpniecisko pielietojumu.",
+        "p2": "Mūsu Industriālās doktorantūras programma ļauj kandidātiem veikt stingru akadēmisko pētniecību, vienlaikus risinot reālās pasaules izaicinājumus partnervalsts uzņēmumā.",
+        "f1Title": "Uzņēmumiem",
+        "f1Desc": "Sadarbojieties ar mums lietišķos MI pētījumos, kas risina reālus biznesa izaicinājumus.",
+        "f2Title": "Kandidātiem",
+        "f2Desc": "Apvienojiet akadēmisko pētniecību ar praktisko pieredzi nozarē.",
+        "f3Title": "Sadarbības modelis",
+        "f3Desc": "Kopīga uzraudzība starp nozares mentoriem un akadēmiskajiem padomdevējiem.",
+        "btnContact": "Sazinieties ar mums"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Iesaiste",
+        "subtitle": "Savienojot AIRi ar sabiedrību, akadēmisko vidi un rūpniecību"
+      },
+      "Tabs": {
+        "public": "Sabiedrība",
+        "academic": "Akadēmiskā",
+        "industry": "Nozare",
+        "highSchool": "Vidusskolas",
+        "partners": "Partneri",
+        "phd": "Industriālā doktorantūra"
+      },
+      "SubTabs": {
+        "partnerships": "Partnerības",
+        "teaching": "Mācīšana",
+        "courses": "Kursi",
+        "mobility": "Mobilitāte",
+        "overview": "Pārskats",
+        "projects": "Projekti",
+        "engagement": "Kā mēs strādājam"
+      },
+      "PublicContent": {
+        "title": "Sabiedrības iesaiste",
+        "desc": "Mēs aktīvi sadarbojamies ar sabiedrību, lai demistificētu MI un dalītos ar saviem atklājumiem.",
+        "btnMedia": "Uzstāšanās medijos",
+        "btnNews": "Jaunumi un notikumi",
+        "outreachTitle": "Kopienas informēšana",
+        "outreachDesc": "Atvērto durvju dienu, publisku lekciju un interaktīvu demonstrāciju organizēšana, lai tuvinātu MI kopienai.",
+        "eduTitle": "Izglītojošs saturs",
+        "eduDesc": "Pieejamu materiālu, emuāru un videoklipu izveide, kas izskaidro sarežģītus MI jēdzienus plašai auditorijai.",
+        "mediaTitle": "Mediji un prese",
+        "mediaDesc": "Regulārs ieguldījums plašsaziņas līdzekļos, ekspertu komentāri par MI tendencēm un paziņojumi presei par mūsu lielākajiem atklājumiem."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Akadēmiskās partnerības",
+        "partnerDesc": "Spēcīgu attiecību veidošana ar universitātēm un pētniecības centriem visā pasaulē.",
+        "uniTitle": "Universitāšu sadarbība",
+        "uniDesc": "Kopīgi pētniecības projekti un kopīgi resursi ar vadošajām akadēmiskajām iestādēm.",
+        "netTitle": "Pētniecības tīkli",
+        "netDesc": "Aktīva dalība starptautiskos MI pētniecības konsorcijos.",
+        "teachTitle": "Mācīšana un semināri",
+        "teachDesc": "Ieguldījums akadēmiskajā kopienā, izmantojot mērķtiecīgas mācību aktivitātes.",
+        "summerTitle": "Vasaras skolas",
+        "summerDesc": "Intensīvas programmas studentiem un pētniekiem karjeras sākumā.",
+        "workTitle": "Darbnīcas un semināri",
+        "workDesc": "Regulāri akadēmiski semināri, kuros tiek prezentēti jaunākie MI pētījumi.",
+        "courseTitle": "Universitātes kursi",
+        "courseDesc": "Mēs izstrādājam un pasniedzam specializētus MI kursus dažādos akadēmiskajos līmeņos.",
+        "mlTitle": "Mašīnmācīšanās",
+        "mlDesc": "Pamata un uzlaboti kursi ML algoritmos un lietojumos.",
+        "robotTitle": "Robotika un redze",
+        "robotDesc": "Specializēti moduļi, kas koncentrējas uz datorredzi un viedo robotiku.",
+        "hpcTitle": "Augstas veiktspējas skaitļošana (HPC)",
+        "hpcDesc": "Apmācība par superdatoru klasteru izmantošanu MI vajadzībām.",
+        "ethicsTitle": "MI ētika",
+        "ethicsDesc": "Specializēti kursi par atbildīgu MI izstrādi un ieviešanu.",
+        "mobTitle": "Mobilitāte un apmaiņa",
+        "mobDesc": "Starptautiskās akadēmiskās apmaiņas un pētnieku mobilitātes veicināšana.",
+        "supTitle": "Doktorantūras uzraudzība",
+        "supDesc": "Kopīga doktorantūras kandidātu uzraudzība starptautiskās iestādēs.",
+        "grantTitle": "Mobilitātes granti",
+        "grantDesc": "Atbalsts īstermiņa un ilgtermiņa pētniecības vizītēm.",
+        "exTitle": "Apmaiņas programmas",
+        "exDesc": "Pētnieku un studentu apmaiņas atvieglošana ar partnervalstu universitātēm."
+      },
+      "IndustryContent": {
+        "statProjects": "Nozares projekti",
+        "statDomains": "Pētniecības domēni",
+        "statPartners": "Nozares partneri",
+        "collabTitle": "Nozares sadarbība",
+        "collabDesc": "AIRi sadarbojas ar vadošajiem uzņēmumiem, lai pārvērstu jaunākos MI pētījumus reālās pasaules lietojumprogrammās.",
+        "searchPlaceholder": "Meklēt nozares projektus...",
+        "allDomains": "Visi domēni",
+        "clear": "Notīrīt filtrus",
+        "noProjects": "Nozares projekti nav atrasti.",
+        "leadLabel": "Vadītājs:",
+        "workTitle": "Kā mēs strādājam ar nozari",
+        "workDesc": "Mēs piedāvājam elastīgus iesaistīšanās modeļus, kas pielāgoti nozares vajadzībām.",
+        "rdTitle": "Kopīga R&D",
+        "rdDesc": "Kopīgi pētniecības projekti, kas risina sarežģītus rūpnieciskos izaicinājumus.",
+        "consTitle": "Konsultācijas",
+        "consDesc": "Ekspertu konsultāciju pakalpojumi par MI stratēģiju un ieviešanu.",
+        "trainTitle": "Korporatīvās apmācības",
+        "trainDesc": "Pielāgotas MI apmācības programmas nozares profesionāļiem.",
+        "techTitle": "Tehnoloģiju pārnese",
+        "techDesc": "Licencēšana un atvasinātu uzņēmumu izveide no mūsu pētījumu rezultātiem."
+      },
+      "HighSchoolContent": {
+        "title": "Vidusskolu iesaiste",
+        "desc": "Iedvesmot nākamo MI pētnieku un inženieru paaudzi.",
+        "compTitle": "Sacensības",
+        "compDesc": "MI un programmēšanas izaicinājumu organizēšana vidusskolēniem.",
+        "eventTitle": "Atvērtie pasākumi",
+        "eventDesc": "Laboratoriju ekskursiju un interaktīvu darbnīcu rīkošana skolām.",
+        "eduTitle": "Izglītības resursi",
+        "eduDesc": "Materiālu nodrošināšana skolotājiem MI ieviešanai klasēs.",
+        "btnLabel": "Skatīt MI pratības ietvaru"
+      },
+      "PartnersContent": {
+        "title": "Mūsu partneri",
+        "desc": "Mēs lepojamies ar sadarbību ar vadošajām organizācijām visā akadēmiskajā un rūpniecības vidē.",
+        "mapTitle": "Partneru karte",
+        "eyebrow": "Stratēģiskais tīkls",
+        "stats": {
+          "partners": "Partneri",
+          "countries": "Valstis",
+          "projects": "Projekti"
+        },
+        "filters": {
+          "searchPlaceholder": "Meklēt pēc partnera, valsts, projekta",
+          "allCountries": "Visas valstis",
+          "clear": "Notīrīt"
+        },
+        "activeProjects": "Aktīvie projekti",
+        "actions": {
+          "exploreProfile": "Apskatīt profilu",
+          "visitWebsite": "Apmeklēt vietni"
+        },
+        "empty": {
+          "filtered": "Neviens partneris neatbilst jūsu filtriem."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partneri",
+        "visitOfficialWebsite": "Apmeklēt oficiālo vietni",
+        "collaborativeProjects": "Sadarbības projekti",
+        "collaborativeProjectsSubtitle": "Pētījumi un iniciatīvas, kurās piedalās {partnerName}.",
+        "noLinkedProjects": "Pagaidām nav saistītu projektu."
+      },
+      "PhDContent": {
+        "title": "Industriālās doktorantūras programma",
+        "p1": "Plaisas mazināšana starp akadēmisko pētniecību un rūpniecisko pielietojumu.",
+        "p2": "Mūsu Industriālās doktorantūras programma ļauj kandidātiem veikt stingru akadēmisko pētniecību, vienlaikus risinot reālās pasaules izaicinājumus partnervalsts uzņēmumā.",
+        "compTitle": "Uzņēmumiem",
+        "compDesc": "Veiciniet inovācijas, sponsorējot īpašu pētnieku, lai risinātu jūsu īpašos izaicinājumus.",
+        "candTitle": "Kandidātiem",
+        "candDesc": "Iegūstiet doktora grādu, vienlaikus iegūstot neprocenjamu pieredzi nozarē un konkurētspējīgu atalgojumu.",
+        "collabTitle": "Kopīga uzraudzība",
+        "collabDesc": "Izmantojiet akadēmisko vadītāju un nozares mentoru apvienoto pieredzi.",
+        "btnContact": "Sazinieties ar mums par industriālajām doktorantūrām"
+      }
+    }
+  },
+  "about": {
+    "mission": {
+      "title": "Misija",
+      "text": "Mākslīgā intelekta pētniecības institūts (AIRi) ir Klužas-Napokas Tehniskās universitātes sadarbības pētniecības centrs. AIRi@UTCN veicina izcilību MI teorijā un praksē, apvienojot pētniekus no visas UTCN ap atvērtas sadarbības vīziju. Mūsu darbs aptver starpdisciplinārus pētījumus, MI pratību dažādās disciplīnās un ietekmi caur biznesa un sabiedrības koprades partnerībām."
+    },
+    "history": {
+      "title": "AIRI laika josla",
+      "event1": {
+        "date": "2023. gada 15. janv.",
+        "title": "MI institūta paziņošana UTCN",
+        "description": "Klužas-Napokas Tehniskā universitāte paziņoja par plāniem izveidot īpašu Mākslīgā intelekta institūtu, lai veicinātu pētniecību un inovācijas MI tehnoloģijās."
+      },
+      "event2": {
+        "date": "2023. gada 10. jūn.",
+        "title": "Pamatakmens likšanas ceremonija",
+        "description": "Oficiāla MI institūta ēkas būvniecības pamatakmens likšanas ceremonija, kurā piedalījās universitātes amatpersonas un vietējās amatpersonas."
+      },
+      "event3": {
+        "date": "2024. gada 1. sept.",
+        "title": "Būvniecības pabeigšana",
+        "description": "Tika pabeigta MI institūta modernākās iekārtas celtniecība, kurā ir modernas laboratorijas un sadarbības telpas."
+      },
+      "event4": {
+        "date": "2024. gada 15. okt.",
+        "title": "Atklāšanas MI simpozijs",
+        "description": "Institūts rīkoja savu pirmo simpoziju, pulcējot MI pētniekus, nozares ekspertus un studentus, lai apspriestu jaunākos sasniegumus mākslīgā intelekta jomā."
+      },
+      "event5": {
+        "date": "2025. gada 20. aug.",
+        "title": "Pašreizējais ēkas progress",
+        "descriptionPart1": "Sekojiet līdzi aktuālajam MI institūta ēkas celtniecības progresam.",
+        "descriptionPart2": "Skatieties tiešraidē caur mūsu tīmekļa kameru:"
+      }
+    },
+    "guidelines": {
+      "students": "Studenti",
+      "faculty": "Fakultāte",
+      "researchers": "Pētnieki",
+      "staff": "Personāls",
+      "title": "Tikai tev"
+    },
+    "organigram": {
+      "title": "Organizācijas shēma",
+      "description": "<strong>Direktoru komitejas</strong> un <strong>Zinātniskās komitejas</strong> apraksts",
+      "directorCommittee": "Direktoru komiteja",
+      "viewDirectorStructure": "Skatīt Direktoru komitejas struktūru:",
+      "scientificCommittee": "Zinātniskā komiteja",
+      "viewScientificStructure": "Skatīt Zinātniskās komitejas struktūru:",
+      "downloadPdf": "Lejupielādēt PDF",
+      "viewPng": "Skatīt PNG"
+    },
+    "regulations": {
+      "title": "Noteikumi",
+      "comingSoon": "Saturs drīzumā būs pieejams."
+    },
+    "reports": {
+      "title": "Ziņojumi",
+      "comingSoon": "Saturs drīzumā būs pieejams."
+    },
+    "roomsCalendar": {
+      "title": "Telpas un kalendārs",
+      "comingSoon": "Saturs drīzumā būs pieejams."
+    },
+    "sitemap": {
+      "title": "Vietnes karte",
+      "filterPlaceholder": "Filtrēt lapas…",
+      "clear": "Notīrīt",
+      "noResults": "Nav rezultātu vaicājumam “{query}”.",
+      "sections": {
+        "research": {
+          "title": "Pētniecība",
+          "links": {
+            "departments": "Departamenti",
+            "themes": "Tēmas",
+            "projects": "Projekti",
+            "publications": "Publikācijas",
+            "thesis": "Disertācijas",
+            "tools": "Rīki",
+            "resources": "Resursi"
+          }
+        },
+        "engagement": {
+          "title": "Iesaiste",
+          "links": {
+            "public": "Sabiedrības iesaiste",
+            "academic": "Akadēmiskā iesaiste",
+            "industry": "Nozares iesaiste",
+            "highSchool": "Iesaiste vidusskolās",
+            "partners": "Partneri",
+            "industrialPhd": "Industriālā doktorantūra"
+          }
+        },
+        "people": {
+          "title": "Cilvēki",
+          "links": {
+            "researchers": "Pētnieki",
+            "staff": "Personāls",
+            "alumni": "Absolventi",
+            "visiting": "Viespētnieki"
+          }
+        },
+        "newsEvents": {
+          "title": "Jaunumi un notikumi",
+          "links": {
+            "news": "Jaunumi",
+            "events": "Notikumi",
+            "seminars": "Semināri",
+            "openCalls": "Atvērtie projektu uzsaukumi",
+            "awards": "Apbalvojumi",
+            "careers": "Karjeras/Darba iespējas"
+          }
+        },
+        "about": {
+          "title": "Par mums",
+          "links": {
+            "missionHistory": "Misija, Vēsture (laika josla)",
+            "organigram": "Organizācijas shēma",
+            "sitemap": "Vietnes karte",
+            "reports": "Ziņojumi Pašnovērtējuma ziņojumi",
+            "regulations": "Procedūras un noteikumi",
+            "guidelines": "Vadlīnijas",
+            "virtualTour": "Virtuālā tūre",
+            "roomsCalendar": "Telpas un kalendārs",
+            "contact": "Kontakti"
+          }
+        },
+        "search": {
+          "title": "Meklēt",
+          "links": {
+            "classic": "Klasiskā meklēšana",
+            "chatbot": "AIRi tērzēšanas robots (uz LLM bāzes)",
+            "knowledgeGraph": "AIRi zināšanu grafiku navigators"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Virtuālā tūre",
+      "comingSoon": "Saturs drīzumā būs pieejams."
+    }
+  },
+  "media": {
+    "header-title": "Multivides galerija",
+    "header-subtitle": "Izpētiet attēlus un videoklipus, kas atspoguļo AIRI institūta progresu."
+  },
+  "news&events": {
+    "awards": {
+      "title": "Apbalvojumi",
+      "subtitle": "AIRI un līdzstrādnieku iegūtie atzinības un izcilības apbalvojumi.",
+      "coming-soon": "Plašāka informācija būs pieejama drīzumā."
+    },
+    "careers": {
+      "title": "Karjeras iespējas",
+      "subtitle": "Izpētiet iespējas sadarboties ar AIRI visos studiju līmeņos un lomās.",
+      "coming-soon": "Plašāka informācija būs pieejama drīzumā.",
+      "undergraduate": "Kā bakalaura students",
+      "postgraduate": "Kā maģistrants/doktorants",
+      "postdoctoral": "Kā pēcdoktorantūras pētnieks",
+      "visiting-researcher": "Kā viespētnieks",
+      "software-engineer": "Kā programmatūras inženieris"
+    },
+    "events": {
+      "title": "Notikumi",
+      "subtitle": "Spilgtākie notikumi un neaizmirstami mirkļi no AIRI.",
+      "calendar-title": "Institūta kalendārs",
+      "no-events": "Šobrīd nav pieejamu notikumu."
+    },
+    "news": {
+      "title": "Jaunumi un notikumi",
+      "latest": "Jaunākais no AIRI",
+      "subtitle": "Svaigi stāsti, pētniecības atskaites punkti un preses mirkļi, kas apkopoti tieši no Strapi darbinātās ziņu telpas.",
+      "quickFilters": "Ātrie filtri",
+      "searchLabel": "Meklēt ziņas",
+      "searchPlaceholder": "Meklēt virsrakstus, atslēgvārdus vai kopsavilkumus",
+      "stories": "stāsti",
+      "readStory": "Lasīt stāstu",
+      "spotlight": "Uzmanības centrā",
+      "noSummary": "Kopsavilkums vēl nav sniegts.",
+      "openArticle": "Atvērt rakstu",
+      "emptyState": "Šobrīd ziņu nav.",
+      "noImage": "Nav attēla",
+      "readMore": "Lasīt vairāk",
+      "categories": {
+        "all": "Visi",
+        "announcement": "Paziņojumi",
+        "construction": "Būvniecība",
+        "collaboration": "Sadarbības",
+        "award": "Apbalvojumi",
+        "press": "Prese",
+        "other": "Cits"
+      }
+    },
+    "open-project-calls": {
+      "title": "Projektu uzsaukumi",
+      "subtitle": "Priekšlikumu pieprasījumi un sadarbības iespējas.",
+      "coming-soon": "Plašāka informācija par šo sadaļu būs pieejama drīzumā."
+    },
+    "seminars": {
+      "title": "Semināri",
+      "subtitle": "AIRI un viesu rīkoti akadēmiskie semināri.",
+      "emptyState": "Šobrīd nav pieejamu semināru.",
+      "whatYouWillLearn": "Ko jūs uzzināsiet",
+      "modules": "Moduļi"
+    }
+  },
+  "people": {
+    "title": "Cilvēki",
+    "subtitle": "Iepazīstieties ar komandu aiz AIRi @ UTCN",
+    "searchPlaceholder": "Meklēt pēc vārda, amata vai departamenta...",
+    "clearSearch": "Notīrīt meklēšanu",
+    "tabs": {
+      "researchers": "Pētnieki",
+      "staff": "Personāls",
+      "visiting": "Viespētnieki",
+      "alumni": "Absolventi"
+    },
+    "results": "Atrasts {count} rezultāts vaicājumam \"{query}\"",
+    "resultsPlural": "Atrasti {count} rezultāti vaicājumam \"{query}\"",
+    "emptySearch": "Neviens neatbilst jūsu meklēšanai.",
+    "emptyTab": "Pagaidām nav pieejamu {tabName}.",
+    "details": {
+      "publications": "Publikācijas",
+      "teams": "Komandas",
+      "searchPubs": "Meklēt publikācijas...",
+      "allYears": "Visi gadi",
+      "allTypes": "Visi tipi",
+      "allDomains": "Visi domēni",
+      "clear": "Notīrīt",
+      "viewDetails": "Skatīt sīkāku informāciju",
+      "pdf": "PDF",
+      "lead": "Vadītājs",
+      "projects": "Projekti",
+      "noPubs": "Nav pieejamu publikāciju.",
+      "noPubsMatch": "Neviena publikācija neatbilst jūsu filtriem.",
+      "noTeams": "Pašlaik nav piesaistīts nevienai komandai."
+    },
+    "projectDetails": {
+      "backToProfile": "← Atpakaļ uz profilu",
+      "backToStaffProfile": "← Atpakaļ uz personāla profilu",
+      "projectDetails": "Projekta informācija",
+      "visitWebsite": "Apmeklēt vietni",
+      "documentation": "Dokumentācija",
+      "projectTimeline": "Projekta laika josla",
+      "resources": "Resursi",
+      "relatedPublications": "Saistītās publikācijas",
+      "details": "Sīkāka informācija",
+      "visitProjectWebsite": "Apmeklēt projekta vietni",
+      "viewDocumentation": "Skatīt dokumentāciju",
+      "projectTeam": "Projekta komanda",
+      "lead": "Vadītājs",
+      "members": "Dalībnieki",
+      "partners": "Partneri",
+      "themes": "Tēmas",
+      "researchAreas": "Pētniecības jomas",
+      "phases": {
+        "completed": "Pabeigts",
+        "planned": "Plānots",
+        "ongoing": "Aktīvs"
+      }
+    }
+  },
+  "research": {
+    "departments": {
+      "title": "Departamenti",
+      "subtitle": "Izpētiet mūsu pētniecības un atbalsta departamentus AIRi @ UTCN",
+      "members": "{count} dalībnieki",
+      "projects": "{count} projekti",
+      "types": {
+        "research": "Pētniecības departamenti",
+        "research_networks": "Pētniecības tīkli",
+        "support": "Atbalsta departamenti",
+        "other": "Departamenti"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Atpakaļ uz departamentiem",
+        "notFound": "Departaments nav atrasts.",
+        "membersCount": "Dalībnieki",
+        "projectsCount": "Projekti",
+        "publicationsCount": "Publikācijas",
+        "tabs": {
+          "overview": "Pārskats",
+          "members": "Cilvēki un komandas",
+          "projects": "Projekti",
+          "publications": "Publikācijas"
+        },
+        "overview": {
+          "about": "Par",
+          "coordinator": "Koordinators",
+          "contact": "Kontakti"
+        },
+        "members": {
+          "teams": "Komandas",
+          "member": "dalībnieks",
+          "membersPlural": "dalībnieki",
+          "independentResearchers": "Neatkarīgie pētnieki",
+          "noMembers": "Šim departamentam nav atrasts neviens dalībnieks.",
+          "projects": "Projekti"
+        },
+        "projects": {
+          "lead": "Vadītājs:",
+          "noProjects": "Šim departamentam nav atrasts neviens projekts."
+        },
+        "publications": {
+          "noPublications": "Šim departamentam nav atrasta neviena publikācija."
+        },
+        "phases": {
+          "completed": "Pabeigts",
+          "planned": "Plānots",
+          "ongoing": "Aktīvs",
+          "archived": "Arhivēts"
+        }
+      }
+    },
+    "projects": {
+      "title": "Projekti",
+      "subtitle": "Izpētiet mūsu pētniecības projektus dažādās jomās",
+      "searchPlaceholder": "Meklēt projektus pēc nosaukuma, vadītāja, departamenta...",
+      "filters": "Filtri",
+      "allRegions": "Visi reģioni",
+      "allDepartments": "Visi departamenti",
+      "allLeads": "Visi vadītāji",
+      "allMembers": "Visi dalībnieki",
+      "filterByTheme": "Filtrēt pēc tēmas...",
+      "region": "Reģions",
+      "department": "Departaments",
+      "dept": "Dep:",
+      "lead": "Vadītājs",
+      "leadLabel": "Vadītājs:",
+      "member": "Dalībnieks",
+      "theme": "Tēma",
+      "projectsFound": "Atrasts {count} projekts",
+      "projectsFoundPlural": "Atrasti {count} projekti",
+      "clearAllFilters": "Notīrīt visus filtrus",
+      "clearFilters": "Notīrīt filtrus",
+      "noProjects": "Nav atrasti projekti, kas atbilstu jūsu kritērijiem."
+    },
+    "projectDetails": {
+      "notFound": "Projekts nav atrasts",
+      "backToProjects": "Atpakaļ uz projektiem",
+      "region": "Reģions",
+      "phase": "Fāze",
+      "partners": "Partneri",
+      "partnerCount": "{count} partneris",
+      "partnerCountPlural": "{count} partneri",
+      "officialWebsite": "Oficiālā vietne",
+      "documentation": "Dokumentācija",
+      "tabs": {
+        "overview": "Pārskats",
+        "people": "Cilvēki",
+        "resources": "Resursi",
+        "publications": "Publikācijas"
+      },
+      "abstract": "Kopsavilkums",
+      "researchDomains": "Pētniecības domēni",
+      "teams": "Komandas",
+      "memberCount": "{count} dalībnieks",
+      "memberCountPlural": "{count} dalībnieki",
+      "lead": "Vadītājs",
+      "noTeamMembers": "Šai komandai nav norādīts neviens dalībnieks.",
+      "individualContributors": "Individuālie atbalstītāji",
+      "contributors": "Atbalstītāji",
+      "noPeople": "Šim projektam nav piesaistīti cilvēki.",
+      "platform": "Platforma:",
+      "noResources": "Šim projektam nav pieejamu resursu.",
+      "publicationCount": "{count} publikācija",
+      "publicationCountPlural": "{count} publikācijas",
+      "noPublications": "Šim projektam nav pieejamu publikāciju.",
+      "authors": "Autori:",
+      "viewDetails": "Skatīt informāciju",
+      "pdf": "PDF",
+      "teamProjects": "Projekti",
+      "phases": {
+        "ongoing": "Aktīvs",
+        "planned": "Plānots",
+        "completed": "Pabeigts",
+        "archived": "Arhivēts"
+      }
+    },
+    "publications": {
+      "title": "Publikācijas",
+      "subtitle": "Mūsu komandas pētījumi, raksti un akadēmiskās publikācijas",
+      "searchPlaceholder": "Meklēt publikācijas pēc nosaukuma, autora, veida...",
+      "filters": "Filtri",
+      "year": "Gads",
+      "allYears": "Visi gadi",
+      "author": "Autors",
+      "allAuthors": "Visi autori",
+      "department": "Departaments",
+      "allDepartments": "Visi departamenti",
+      "type": "Veids",
+      "allTypes": "Visi veidi",
+      "theme": "Tēma",
+      "filterByTheme": "Filtrēt pēc tēmas...",
+      "publicationsFound": "Atrasta {count} publikācija",
+      "publicationsFoundPlural": "Atrastas {count} publikācijas",
+      "clearAllFilters": "Notīrīt visus filtrus",
+      "clearFilters": "Notīrīt filtrus",
+      "authorsLabel": "Autori:",
+      "viewDetails": "Skatīt informāciju",
+      "openPdf": "Atvērt PDF",
+      "noPublications": "Nav atrastas publikācijas, kas atbilstu jūsu kritērijiem."
+    },
+    "publicationDetails": {
+      "notFound": "Publikācija nav atrasta.",
+      "backToPublications": "← Atpakaļ uz publikācijām",
+      "openPdf": "Atvērt PDF",
+      "downloadBibtex": "Lejupielādēt BibTeX",
+      "authors": "Autori",
+      "noAuthors": "Nav norādīti autori.",
+      "relatedProjects": "Saistītie projekti",
+      "noProjects": "Nav piesaistītu projektu.",
+      "themes": "Tēmas",
+      "noThemes": "Nav piesaistītu tēmu.",
+      "resources": "Resursi",
+      "noResources": "Nav piesaistītu resursu.",
+      "viewResource": "Skatīt resursu",
+      "attachments": "Pielikumi",
+      "noAttachments": "Pagaidām nav pielikumu.",
+      "images": "Attēli",
+      "files": "Faili",
+      "download": "Lejupielādēt"
+    },
+    "themes": {
+      "title": "Pētniecības tēmas",
+      "subtitle": "Izpētiet mūsu galvenās pētniecības jomas un atklājiet saistītos projektus un publikācijas.",
+      "viewProjects": "Skatīt projektus",
+      "viewPublications": "Skatīt publikācijas",
+      "noThemes": "Nav atrastas tēmas."
+    },
+    "thesis": {
+      "title": "Disertācijas",
+      "tabs": {
+        "phd": "Doktorantūra",
+        "master": "Maģistrantūra",
+        "bachelor": "Bakalaura līmenis"
+      },
+      "messages": {
+        "phd": "Drīzumā būs pieejami papildinājumi Doktorantūras sadaļā.",
+        "master": "Drīzumā būs pieejami papildinājumi Maģistrantūras sadaļā.",
+        "bachelor": "Drīzumā būs pieejami papildinājumi Bakalaura līmeņa sadaļā."
+      }
+    }
+  },
+  "resources": {
+    "title": "Resursi",
+    "subtitle": "Izpētiet mūsu apkopoto rīku, resursu, API un mācību materiālu kolekciju, lai atbalstītu savu MI izpēti un izstrādi.",
+    "searchPlaceholder": "Meklēt resursus...",
+    "allCategories": "Visas kategorijas",
+    "clearFilters": "Notīrīt filtrus",
+    "clearAllFilters": "Notīrīt visus filtrus",
+    "showing": "Rāda {filtered} no {total} resursiem",
+    "filtered": " (filtrēts)",
+    "featuredResources": "Piedāvātie resursi",
+    "allResources": "Visi resursi",
+    "noResourcesFound": "Nav atrasti resursi",
+    "noResourcesFilterMatch": "Mēs nevarējām atrast resursus, kas atbilstu jūsu pašreizējiem filtriem. Mēģiniet pielāgot meklēšanas kritērijus.",
+    "noResourcesYet": "Resursi parādīsies šeit, tiklīdz tie būs pievienoti sistēmai.",
+    "visitResource": "Apmeklēt resursu",
+    "categories": {
+      "resource": "Resurss",
+      "tool": "Rīks",
+      "software": "Programmatūra",
+      "documentation": "Dokumentācija",
+      "api": "API",
+      "library": "Bibliotēka",
+      "framework": "Ietvars (Framework)",
+      "learning": "Mācīšanās",
+      "other": "Cits"
+    }
+  },
+  "search": {
+    "chatbot": {
+      "title": "AIRi tērzēšanas robots",
+      "cardTitle": "AIRi tērzēšanas robots",
+      "comingSoon": "Drīzumā — uz LLM balstīts tērzēšanas robots AIRi zināšanām un vietnes saturam."
+    },
+    "classic": {
+      "title": "🔎 Meklēšana",
+      "placeholder": "Ierakstiet, lai meklētu lapās…",
+      "resultsSingular": "{count} rezultāts vaicājumam",
+      "resultsPlural": "{count} rezultāti vaicājumam",
+      "noMatches": "Nav sakritību! Mēģiniet izmantot citus atslēgvārdus vai pārbaudiet pareizrakstību!"
+    },
+    "knowledgeGraph": {
+      "title": "Zināšanu grafiku navigators",
+      "cardTitle": "AIRi Zināšanu grafiki",
+      "comingSoon": "Drīzumā — interaktīvs navigators AIRi zināšanu grafikiem."
+    }
+  },
+  "timeline": {
+    "title": "📅 AIRI laika josla",
+    "events": {
+      "event1": {
+        "date": "2023. gada 15. janv.",
+        "title": "MI institūta paziņošana UTCN",
+        "description": "Klužas-Napokas Tehniskā universitāte paziņoja par plāniem izveidot īpašu Mākslīgā intelekta institūtu, lai veicinātu pētniecību un inovācijas MI tehnoloģijās."
+      },
+      "event2": {
+        "date": "2023. gada 10. jūn.",
+        "title": "Pamatakmens likšanas ceremonija",
+        "description": "Oficiāla MI institūta ēkas būvniecības pamatakmens likšanas ceremonija, kurā piedalījās universitātes amatpersonas un vietējās amatpersonas."
+      },
+      "event3": {
+        "date": "2024. gada 1. sept.",
+        "title": "Būvniecības pabeigšana",
+        "description": "Tika pabeigta MI institūta modernākās iekārtas celtniecība, kurā ir modernas laboratorijas un sadarbības telpas."
+      },
+      "event4": {
+        "date": "2024. gada 15. okt.",
+        "title": "Atklāšanas MI simpozijs",
+        "description": "Institūts rīkoja savu pirmo simpoziju, pulcējot MI pētniekus, nozares ekspertus un studentus, lai apspriestu jaunākos sasniegumus mākslīgā intelekta jomā."
+      },
+      "event5": {
+        "title": "Pašreizējais ēkas progress",
+        "descriptionPart1": "Sekojiet līdzi aktuālajam MI institūta ēkas celtniecības progresam.",
+        "descriptionPart2": "Skatieties tiešraidē caur mūsu tīmekļa kameru:"
+      }
+    }
+  }
+}

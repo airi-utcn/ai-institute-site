@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function PublicationDetailClient({ publication }) {
-  if (!publication) return <div className="p-6">Publication not found.</div>;
+  const t = useTranslations("research.publicationDetails");
+
+  if (!publication) return <div className="p-6">{t("notFound")}</div>;
 
   const {
     title,
@@ -27,14 +30,14 @@ export default function PublicationDetailClient({ publication }) {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="mb-6">
           <Link
             href="/research/publications"
             className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
           >
-            ← Back to publications
+            {t("backToPublications")}
           </Link>
         </div>
 
@@ -95,7 +98,7 @@ export default function PublicationDetailClient({ publication }) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
                   >
-                    Open PDF
+                    {t("openPdf")}
                   </a>
                 </div>
               ) : null}
@@ -108,7 +111,7 @@ export default function PublicationDetailClient({ publication }) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
                   >
-                    Download BibTeX
+                    {t("downloadBibtex")}
                   </a>
                 </div>
               ) : null}
@@ -119,7 +122,7 @@ export default function PublicationDetailClient({ publication }) {
         <div className="grid gap-6 mt-8 lg:grid-cols-3">
           <section className="lg:col-span-2 space-y-6">
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Authors</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("authors")}</h2>
               {authors.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {authors.map((author, idx) => {
@@ -143,12 +146,12 @@ export default function PublicationDetailClient({ publication }) {
                   })}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-gray-500">No authors listed.</p>
+                <p className="mt-3 text-sm text-gray-500">{t("noAuthors")}</p>
               )}
             </div>
 
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Related projects</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("relatedProjects")}</h2>
               {projects.length ? (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {projects.map((project, idx) => {
@@ -172,7 +175,7 @@ export default function PublicationDetailClient({ publication }) {
                   })}
                 </div>
               ) : (
-                <p className="mt-3 text-sm text-gray-500">No projects linked.</p>
+                <p className="mt-3 text-sm text-gray-500">{t("noProjects")}</p>
               )}
             </div>
 
@@ -180,7 +183,7 @@ export default function PublicationDetailClient({ publication }) {
 
           <aside className="space-y-6">
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">Themes</h3>
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">{t("themes")}</h3>
               {themes.length ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {themes.map((theme, idx) => (
@@ -193,12 +196,12 @@ export default function PublicationDetailClient({ publication }) {
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-gray-500">No themes linked.</p>
+                <p className="mt-2 text-sm text-gray-500">{t("noThemes")}</p>
               )}
             </div>
 
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">Resources</h3>
+              <h3 className="text-base font-bold text-gray-900 dark:text-white">{t("resources")}</h3>
               {resources.length ? (
                 <div className="mt-3 space-y-3">
                   {resources.map((resource, idx) => (
@@ -216,21 +219,21 @@ export default function PublicationDetailClient({ publication }) {
                           rel="noopener noreferrer"
                           className="mt-2 inline-flex text-xs text-blue-600 dark:text-blue-400 hover:underline"
                         >
-                          View resource
+                          {t("viewResource")}
                         </a>
                       ) : null}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-gray-500">No resources linked.</p>
+                <p className="mt-2 text-sm text-gray-500">{t("noResources")}</p>
               )}
             </div>
           </aside>
         </div>
 
         <section className="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Attachments</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("attachments")}</h2>
           {attachments.length ? (
             (() => {
               const isImage = (file) => {
@@ -246,7 +249,7 @@ export default function PublicationDetailClient({ publication }) {
                 <div className="mt-4 space-y-6">
                   {imageFiles.length ? (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Images</h3>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{t("images")}</h3>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {imageFiles.map((file, idx) => (
                           <a
@@ -282,7 +285,7 @@ export default function PublicationDetailClient({ publication }) {
 
                   {otherFiles.length ? (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Files</h3>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{t("files")}</h3>
                       <div className="grid gap-3 sm:grid-cols-2">
                         {otherFiles.map((file, idx) => (
                           <a
@@ -303,7 +306,7 @@ export default function PublicationDetailClient({ publication }) {
                                   : ""}
                               </div>
                             </div>
-                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">Download</span>
+                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">{t("download")}</span>
                           </a>
                         ))}
                       </div>
@@ -313,10 +316,10 @@ export default function PublicationDetailClient({ publication }) {
               );
             })()
           ) : (
-            <p className="mt-3 text-sm text-gray-500">No attachments yet.</p>
+            <p className="mt-3 text-sm text-gray-500">{t("noAttachments")}</p>
           )}
         </section>
       </div>
-    </main>
+    </div>
   );
 }

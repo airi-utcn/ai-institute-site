@@ -4,13 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaTimes } from "react-icons/fa";
-
-const TABS = [
-  { id: "researchers", label: "Researchers", icon: "🔬" },
-  { id: "staff", label: "Staff", icon: "👥" },
-  { id: "visiting", label: "Visiting Researchers", icon: "🌍" },
-  { id: "alumni", label: "Alumni", icon: "🎓" },
-];
+import { useTranslations } from "next-intl";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -24,6 +18,18 @@ const itemVariants = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0 },
 };
+
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
 
 function PersonCard({ person, basePath = "/people" }) {
   return (
@@ -65,6 +71,14 @@ export default function PeopleClient({
 }) {
   const [activeTab, setActiveTab] = useState("researchers");
   const [searchQuery, setSearchQuery] = useState("");
+  const t = useTranslations("people");
+
+  const TABS = [
+    { id: "researchers", label: t("tabs.researchers"), icon: "🔬" },
+    { id: "staff", label: t("tabs.staff"), icon: "👥" },
+    { id: "visiting", label: t("tabs.visiting"), icon: "🌍" },
+    { id: "alumni", label: t("tabs.alumni"), icon: "🎓" },
+  ];
 
   const allPeople = useMemo(() => ({
     researchers: Array.isArray(researchers) ? researchers : [],
@@ -75,17 +89,15 @@ export default function PeopleClient({
 
   const currentPeople = useMemo(() => {
     const list = allPeople[activeTab] || [];
-    const query = searchQuery.toLowerCase().trim();
+    const terms = parseSearchTerms(searchQuery);
     
-    const filtered = query
+    const filtered = terms.length
       ? list.filter((p) => {
-          const searchable = [
-            p.name,
-            p.title,
-            p.department,
-            p.email,
-          ].filter(Boolean).join(" ").toLowerCase();
-          return searchable.includes(query);
+          const searchable = normalizeSearchText(
+            [p.name, p.title, p.department, p.email].filter(Boolean).join(" ")
+          );
+
+          return terms.every((term) => searchable.includes(term));
         })
       : list;
 
@@ -105,7 +117,7 @@ export default function PeopleClient({
   }), [allPeople]);
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         {/* Header */}
         <motion.div 
@@ -114,9 +126,9 @@ export default function PeopleClient({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="page-header-title">People</h1>
+          <h1 className="page-header-title">{t("title")}</h1>
           <p className="page-header-subtitle">
-            Meet the team behind AIRi @ UTCN
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -131,7 +143,7 @@ export default function PeopleClient({
             <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name, title, or department..."
+              placeholder={t("searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="input pl-11 pr-10"
@@ -193,8 +205,10 @@ export default function PeopleClient({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            Found {currentPeople.length} result{currentPeople.length !== 1 ? "s" : ""} 
-            {" "}for &ldquo;{searchQuery}&rdquo;
+            {currentPeople.length === 1 
+              ? t("results", { count: currentPeople.length, query: searchQuery }) 
+              : t("resultsPlural", { count: currentPeople.length, query: searchQuery })
+            }
           </motion.p>
         )}
 
@@ -210,8 +224,8 @@ export default function PeopleClient({
             >
               <p className="text-lg">
                 {searchQuery 
-                  ? "No people match your search." 
-                  : `No ${TABS.find(t => t.id === activeTab)?.label.toLowerCase()} available yet.`
+                  ? t("emptySearch") 
+                  : t("emptyTab", { tabName: TABS.find(tObj => tObj.id === activeTab)?.label.toLowerCase() })
                 }
               </p>
               {searchQuery && (
@@ -219,7 +233,7 @@ export default function PeopleClient({
                   onClick={() => setSearchQuery("")}
                   className="btn btn-secondary mt-4"
                 >
-                  Clear search
+                  {t("clearSearch")}
                 </button>
               )}
             </motion.div>
@@ -243,6 +257,6 @@ export default function PeopleClient({
           )}
         </AnimatePresence>
       </div>
-    </main>
+    </div>
   );
 }

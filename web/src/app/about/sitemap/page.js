@@ -1,4 +1,7 @@
-export const metadata = { title: "Sitemap – AIRi @ UTCN" };
+export const metadata = {
+  title: "Sitemap",
+  description: "Overview of all pages and sections of the AIRi website.",
+};
 
 import Client from "./Client";
 

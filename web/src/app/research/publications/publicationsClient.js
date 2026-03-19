@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { slugify, toPublicationSlug } from "@/lib/slug";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown, FaExternalLinkAlt } from "react-icons/fa";
 import { containerVariants, itemVariants } from "@/lib/animations";
+import { useTranslations } from "next-intl";
 
 const buildStaffLookup = (staffJson) => {
   const arr = Array.isArray(staffJson) ? staffJson : Object.values(staffJson || {}).flat();
@@ -43,8 +44,33 @@ const normalizeSourceKind = (value, openAlexId) => {
 const sourceKindLabel = (sourceKind) =>
   sourceKind === "openAlexAutomated" ? "OpenAlex automated" : "Manual";
 
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
 const normalizePublication = (p, bySlugMap) => {
   const slug = toPublicationSlug({ slug: p.slug, title: p.title, year: p.year });
+
+  const themeObjs = Array.isArray(p?.themes) ? p.themes : [];
+  const themeNames = themeObjs
+    .map((t) => (typeof t === "string" ? t : t?.name || ""))
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const themeSlugs = themeObjs
+    .map((t) =>
+      typeof t === "string" ? slugify(t) : t?.slug || slugify(t?.name || "")
+    )
+    .filter(Boolean);
+  
   return {
     slug,
     title: p.title || "",
@@ -56,11 +82,14 @@ const normalizePublication = (p, bySlugMap) => {
     authors: authorsToNames(p.authors, bySlugMap),
     pdfFile: p.pdfFile || null,
     projects: Array.isArray(p.projects) ? p.projects : [],
+    themes: themeNames,
+    themeSlugs,
   };
 };
 
 export default function PublicationsClient({ publications: pubData, staff: staffData }) {
   const searchParams = useSearchParams();
+  const t = useTranslations("research.publications");
 
   // TODO: This can be replaced with Strapi function
   const staffBySlug = useMemo(() => buildStaffLookup(staffData), [staffData]);
@@ -113,13 +142,15 @@ export default function PublicationsClient({ publications: pubData, staff: staff
 
   /* filtering */
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
+    const terms = parseSearchTerms(q);
+    const normalizedThemeFilter = themeFilter.trim().toLowerCase();
     return pubs.filter((p) => {
-      const inSearch =
-        !query ||
+      const searchable = normalizeSearchText(
         `${p.title} ${p.year} ${p.domain} ${p.kind} ${(p.authors || []).join(" ")}`
-          .toLowerCase()
-          .includes(query);
+      );
+
+      const inSearch =
+        !terms.length || terms.every((term) => searchable.includes(term));
 
       const inYear = !yearFilter || p.year === yearFilter;
       const inAuthor = !authorFilter || (p.authors || []).includes(authorFilter);
@@ -127,9 +158,10 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       const inKind = !kindFilter || p.kind === kindFilter;
       const inSource = !sourceFilter || p.sourceKind === sourceFilter;
       // Theme filter - simple text match on title/domain for now
-      const inTheme = !themeFilter || 
-        p.title.toLowerCase().includes(themeFilter.toLowerCase()) ||
-        p.domain.toLowerCase().includes(themeFilter.toLowerCase());
+      const inTheme =
+        !normalizedThemeFilter ||
+        p.themes?.some((t) => t.toLowerCase().includes(normalizedThemeFilter)) ||
+        p.themeSlugs?.some((s) => s.toLowerCase() === normalizedThemeFilter);
 
       return inSearch && inYear && inAuthor && inDomain && inKind && inSource && inTheme;
     });
@@ -148,13 +180,13 @@ export default function PublicationsClient({ publications: pubData, staff: staff
   };
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">Publications</h1>
+            <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
-              Research papers, articles, and academic publications from our team
+              {t("subtitle")}
             </p>
           </motion.div>
 
@@ -166,7 +198,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search publications by title, author, type..."
+                  placeholder={t("searchPlaceholder")}
                   className="input pl-11 pr-10 text-base"
                 />
                 {q && (
@@ -194,7 +226,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
               `}
             >
               <FaFilter className="text-xs" />
-              Filters
+              {t("filters")}
               {hasActiveFilters && (
                 <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary-600 text-white">
                   {[yearFilter, authorFilter, domainFilter, kindFilter, sourceFilter, themeFilter].filter(Boolean).length}
@@ -217,13 +249,13 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 <div className="card p-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                     <div>
-                      <label className="label">Year</label>
+                      <label className="label">{t("year")}</label>
                       <select
                         value={yearFilter}
                         onChange={(e) => setYearFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All years</option>
+                        <option value="">{t("allYears")}</option>
                         {yearOptions.map((y) => (
                           <option key={y} value={y}>{y}</option>
                         ))}
@@ -231,13 +263,13 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                     </div>
 
                     <div>
-                      <label className="label">Author</label>
+                      <label className="label">{t("author")}</label>
                       <select
                         value={authorFilter}
                         onChange={(e) => setAuthorFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All authors</option>
+                        <option value="">{t("allAuthors")}</option>
                         {authorOptions.map((a) => (
                           <option key={a} value={a}>{a}</option>
                         ))}
@@ -245,13 +277,13 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                     </div>
 
                     <div>
-                      <label className="label">Department</label>
+                      <label className="label">{t("department")}</label>
                       <select
                         value={domainFilter}
                         onChange={(e) => setDomainFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All departments</option>
+                        <option value="">{t("allDepartments")}</option>
                         {domainOptions.map((d) => (
                           <option key={d} value={d}>{d}</option>
                         ))}
@@ -259,13 +291,13 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                     </div>
 
                     <div>
-                      <label className="label">Type</label>
+                      <label className="label">{t("type")}</label>
                       <select
                         value={kindFilter}
                         onChange={(e) => setKindFilter(e.target.value)}
                         className="select"
                       >
-                        <option value="">All types</option>
+                        <option value="">{t("allTypes")}</option>
                         {kindOptions.map((k) => (
                           <option key={k} value={k}>{k}</option>
                         ))}
@@ -293,7 +325,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                       <input
                         value={themeFilter}
                         onChange={(e) => setThemeFilter(e.target.value)}
-                        placeholder="Filter by theme..."
+                        placeholder={t("filterByTheme")}
                         className="input"
                       />
                     </div>
@@ -302,13 +334,16 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                   {hasActiveFilters && (
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
                       <span className="text-sm text-muted">
-                        {filtered.length} publication{filtered.length !== 1 ? "s" : ""} found
+                        {filtered.length === 1 
+                          ? t("publicationsFound", { count: filtered.length }) 
+                          : t("publicationsFoundPlural", { count: filtered.length })
+                        }
                       </span>
                       <button
                         onClick={clearFilters}
                         className="text-sm text-primary-600 dark:text-accent-400 hover:underline"
                       >
-                        Clear all filters
+                        {t("clearAllFilters")}
                       </button>
                     </div>
                   )}
@@ -362,7 +397,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                         {/* Authors */}
                         {p.authors?.length > 0 && (
                           <p className="text-sm text-muted mt-3">
-                            <span className="font-medium">Authors:</span>{" "}
+                            <span className="font-medium">{t("authorsLabel")}</span>{" "}
                             {p.authors.join(", ")}
                           </p>
                         )}
@@ -381,7 +416,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                               href={`/research/publications/${encodeURIComponent(p.slug)}`}
                               className="btn btn-primary btn-sm"
                             >
-                              View details
+                              {t("viewDetails")}
                             </Link>
                           )}
                           {p.pdfFile?.url && (
@@ -391,7 +426,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                               rel="noopener noreferrer"
                               className="btn btn-outline btn-sm inline-flex items-center gap-2"
                             >
-                              Open PDF
+                              {t("openPdf")}
                               <FaExternalLinkAlt className="text-xs" />
                             </a>
                           )}
@@ -403,10 +438,10 @@ export default function PublicationsClient({ publications: pubData, staff: staff
               </div>
             ) : (
               <div className="empty-state">
-                <p>No publications found matching your criteria.</p>
+                <p>{t("noPublications")}</p>
                 {hasActiveFilters && (
                   <button onClick={clearFilters} className="btn btn-secondary mt-4">
-                    Clear filters
+                    {t("clearFilters")}
                   </button>
                 )}
               </div>
@@ -414,6 +449,6 @@ export default function PublicationsClient({ publications: pubData, staff: staff
           </div>
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

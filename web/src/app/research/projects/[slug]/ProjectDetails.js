@@ -20,6 +20,7 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
+import { useTranslations } from 'next-intl';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -98,23 +99,61 @@ function PersonCard({ person, role }) {
 // Partner Card Component
 function PartnerCard({ partner }) {
   const logoUrl = partner?.logo || null;
+  const partnerProfileHref = partner?.slug ? `/engagement/partners/${encodeURIComponent(partner.slug)}` : '';
+  const websiteHref = partner?.url || '';
 
   return (
-    <motion.div
-      variants={itemVariants}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center justify-center"
-    >
-      {logoUrl ? (
-        <img
-          src={logoUrl}
-          alt={partner.name}
-          className="object-contain max-h-12 max-w-[120px]"
-        />
-      ) : (
-        <span className="text-gray-600 dark:text-gray-400 font-medium text-center">
-          {partner.name}
-        </span>
-      )}
+    <motion.div variants={itemVariants} className="h-full">
+      <div
+        className={`group relative flex flex-col justify-between h-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 transition-all duration-300 ${partnerProfileHref ? 'hover:-translate-y-1 hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-900' : ''}`}
+      >
+        <div className="flex flex-col items-center justify-center min-h-[5rem] mb-4">
+          {logoUrl ? (
+            <>
+              <img
+                src={logoUrl}
+                alt={partner.name}
+                className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
+              />
+              <span className="mt-3 text-gray-900 dark:text-white font-semibold text-sm text-center leading-tight">
+                {partner.name}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-900 dark:text-white font-bold text-lg text-center leading-tight">
+              {partner.name}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-4 border-t border-gray-100 dark:border-gray-800/60 mt-auto relative z-20">
+          {partnerProfileHref ? (
+            <>
+              {/* Invisible overlay linking the whole card to the profile */}
+              <Link href={partnerProfileHref} className="absolute inset-0 z-10" aria-label={`View ${partner.name} profile`} />
+              <span 
+                className="text-xs font-bold text-black dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors inline-flex items-center gap-1.5"
+                aria-hidden="true"
+              >
+                Profile
+                <svg className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </span>
+            </>
+          ) : null}
+          {websiteHref ? (
+            <a 
+              href={websiteHref} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="relative z-30 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+            >
+              Website
+            </a>
+          ) : null}
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -149,7 +188,7 @@ function InfoCard({ icon: Icon, label, value, href }) {
 }
 
 // Resource Card Component
-function ResourceCard({ resource }) {
+function ResourceCard({ resource, t }) {
   return (
     <motion.a
       href={resource.source_url || resource.url}
@@ -168,7 +207,7 @@ function ResourceCard({ resource }) {
           </h4>
           {resource.platform && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Platform: {resource.platform}
+              {t("platform")} {resource.platform}
             </p>
           )}
         </div>
@@ -179,7 +218,7 @@ function ResourceCard({ resource }) {
 }
 
 // Publication Card Component
-function PublicationCard({ publication }) {
+function PublicationCard({ publication, t }) {
   const slug = publication.slug ? encodeURIComponent(publication.slug) : '';
 
   return (
@@ -231,7 +270,7 @@ function PublicationCard({ publication }) {
           {/* Authors */}
           {publication.authors && publication.authors.length > 0 && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2.5 leading-relaxed">
-              <span className="font-medium text-gray-600 dark:text-gray-300">Authors:</span>{' '}
+              <span className="font-medium text-gray-600 dark:text-gray-300">{t("authors")}</span>{' '}
               {publication.authors.join(', ')}
             </p>
           )}
@@ -250,7 +289,7 @@ function PublicationCard({ publication }) {
                 href={`/research/publications/${slug}`}
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
-                View details
+                {t("viewDetails")}
                 <FaExternalLinkAlt className="w-3 h-3" />
               </Link>
             )}
@@ -262,7 +301,7 @@ function PublicationCard({ publication }) {
                 className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
               >
                 <FaFilePdf className="w-3.5 h-3.5" />
-                PDF
+                {t("pdf")}
               </a>
             )}
           </div>
@@ -272,13 +311,21 @@ function PublicationCard({ publication }) {
   );
 }
 
+const PHASE_STYLES = {
+  ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
+  planned:   'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
+  completed: 'bg-gray-100   dark:bg-gray-700      text-gray-600   dark:text-gray-300',
+  archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+};
+
 export default function ProjectDetails({ project }) {
   const [activeTab, setActiveTab] = useState('overview');
+  const t = useTranslations("research.projectDetails");
 
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400">Project not found</p>
+        <p className="text-gray-500 dark:text-gray-400">{t("notFound")}</p>
       </div>
     );
   }
@@ -293,6 +340,12 @@ export default function ProjectDetails({ project }) {
     ? project.partnersData
     : (project.partners || []).map((name) => ({ name, slug: '' }));
   
+  const getTranslatedPhase = (phase) => {
+    if (!phase) return "";
+    const lowerPhase = phase.toLowerCase();
+    return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
+  };
+
   const renderMarkdown = (markdown, key) => {
     if (!markdown) return null;
     const content = typeof markdown === 'string' ? markdown : String(markdown);
@@ -325,18 +378,16 @@ export default function ProjectDetails({ project }) {
 
   const peopleCount = teams.length + contributors.length;
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: FaInfoCircle },
-    { id: 'team', label: 'People', icon: FaUsers, count: peopleCount > 0 ? peopleCount : undefined },
+    { id: 'overview', label: t('tabs.overview'), icon: FaInfoCircle },
+    { id: 'team', label: t('tabs.people'), icon: FaUsers, count: peopleCount > 0 ? peopleCount : undefined },
   ];
 
-  // Add resources tab if there are resources
   if (project.resources && project.resources.length > 0) {
-    tabs.push({ id: 'resources', label: 'Resources', icon: FaDatabase, count: project.resources.length });
+    tabs.push({ id: 'resources', label: t('tabs.resources'), icon: FaDatabase, count: project.resources.length });
   }
 
-  // Add publications tab if there are publications
   if (project.publications && project.publications.length > 0) {
-    tabs.push({ id: 'publications', label: 'Publications', icon: FaBookOpen, count: project.publications.length });
+    tabs.push({ id: 'publications', label: t('tabs.publications'), icon: FaBookOpen, count: project.publications.length });
   }
 
   return (
@@ -363,7 +414,7 @@ export default function ProjectDetails({ project }) {
               className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
             >
               <FaArrowLeft className="w-4 h-4" />
-              <span>Back to Projects</span>
+              <span>{t("backToProjects")}</span>
             </Link>
             <motion.h1
               variants={itemVariants}
@@ -405,16 +456,19 @@ export default function ProjectDetails({ project }) {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 -mt-12 mb-8 relative z-10"
         >
           {project.region && (
-            <InfoCard icon={FaMapMarkerAlt} label="Region" value={project.region} />
+            <InfoCard icon={FaMapMarkerAlt} label={t("region")} value={project.region} />
           )}
           {project.phase && (
-            <InfoCard icon={FaChartLine} label="Phase" value={project.phase} />
+            <InfoCard icon={FaChartLine} label={t("phase")} value={getTranslatedPhase(project.phase)} />
           )}
           {project.partners && project.partners.length > 0 && (
             <InfoCard
               icon={FaHandshake}
-              label="Partners"
-              value={`${project.partners.length} partner${project.partners.length > 1 ? 's' : ''}`}
+              label={t("partners")}
+              value={project.partners.length === 1 
+                ? t("partnerCount", { count: project.partners.length })
+                : t("partnerCountPlural", { count: project.partners.length })
+              }
             />
           )}
         </motion.div>
@@ -430,7 +484,7 @@ export default function ProjectDetails({ project }) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 <FaExternalLinkAlt className="w-4 h-4" />
-                <span>Official Website</span>
+                <span>{t("officialWebsite")}</span>
               </a>
             )}
             {project.docUrl && (
@@ -441,7 +495,7 @@ export default function ProjectDetails({ project }) {
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
               >
                 <FaFileAlt className="w-4 h-4" />
-                <span>Documentation</span>
+                <span>{t("documentation")}</span>
               </a>
             )}
           </motion.div>
@@ -483,7 +537,7 @@ export default function ProjectDetails({ project }) {
                 >
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <FaLightbulb className="text-yellow-500" />
-                    Abstract
+                    {t("abstract")}
                   </h2>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {project.abstract}
@@ -530,7 +584,7 @@ export default function ProjectDetails({ project }) {
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
                 >
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                    Research Domains
+                    {t("researchDomains")}
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {project.domains.map(domain => (
@@ -550,17 +604,26 @@ export default function ProjectDetails({ project }) {
               {partners && partners.length > 0 && (
                 <motion.div
                   variants={itemVariants}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
+                  className="rounded-3xl border border-gray-100 dark:border-gray-800 bg-white/60 dark:bg-gray-900/40 backdrop-blur-sm p-6 md:p-10 shadow-sm mt-8"
                 >
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                    <FaHandshake className="text-blue-600" />
-                    Partners
-                  </h2>
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400 rounded-xl">
+                      <FaHandshake className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {t("partners")}
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Collaborating organizations on this project.
+                      </p>
+                    </div>
+                  </div>
                   <motion.div
                     initial="hidden"
                     animate="visible"
                     variants={containerVariants}
-                    className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5"
                   >
                     {partners.map(partner => (
                       <PartnerCard key={partner.slug || partner.name} partner={partner} />
@@ -580,7 +643,7 @@ export default function ProjectDetails({ project }) {
                     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                       <FaUsers className="w-4 h-4" />
                     </div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Teams</h2>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("teams")}</h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {teams.length}
                     </span>
@@ -606,7 +669,7 @@ export default function ProjectDetails({ project }) {
                             <div key={m.person?.slug || i} className="relative">
                               {m.isLead && (
                                 <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                                  Lead
+                                  {t("lead")}
                                 </span>
                               )}
                               <PersonCard person={m.person} role={m.role} />
@@ -614,7 +677,7 @@ export default function ProjectDetails({ project }) {
                           ))}
                         </motion.div>
                       ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">No members listed for this team.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("noTeamMembers")}</p>
                       )}
                     </div>
                   ))}
@@ -629,7 +692,7 @@ export default function ProjectDetails({ project }) {
                       <FaUserTie className="w-4 h-4" />
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {teams.length > 0 ? 'Individual Contributors' : 'Contributors'}
+                      {teams.length > 0 ? t("individualContributors") : t("contributors")}
                     </h2>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
                       {contributors.length}
@@ -673,7 +736,7 @@ export default function ProjectDetails({ project }) {
                 <div className="text-center py-12">
                   <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No people assigned to this project.
+                    {t("noPeople")}
                   </p>
                 </div>
               )}
@@ -690,14 +753,14 @@ export default function ProjectDetails({ project }) {
                   className="grid gap-4 md:grid-cols-2"
                 >
                   {project.resources.map((resource, index) => (
-                    <ResourceCard key={resource.slug || index} resource={resource} />
+                    <ResourceCard key={resource.slug || index} resource={resource} t={t} />
                   ))}
                 </motion.div>
               ) : (
                 <div className="text-center py-12">
                   <FaDatabase className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No resources available for this project.
+                    {t("noResources")}
                   </p>
                 </div>
               )}
@@ -726,7 +789,10 @@ export default function ProjectDetails({ project }) {
                           </h3>
                           <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
                           <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                            {pubs.length} publication{pubs.length !== 1 ? 's' : ''}
+                            {pubs.length === 1 
+                              ? t("publicationCount", { count: pubs.length })
+                              : t("publicationCountPlural", { count: pubs.length })
+                            }
                           </span>
                         </div>
                         <motion.div
@@ -736,7 +802,7 @@ export default function ProjectDetails({ project }) {
                           className="grid gap-4"
                         >
                           {pubs.map((pub, index) => (
-                            <PublicationCard key={pub.slug || pub.id || index} publication={pub} />
+                            <PublicationCard key={pub.slug || pub.id || index} publication={pub} t={t} />
                           ))}
                         </motion.div>
                       </div>
@@ -747,7 +813,7 @@ export default function ProjectDetails({ project }) {
                 <div className="text-center py-12">
                   <FaBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-gray-500 dark:text-gray-400">
-                    No publications available for this project.
+                    {t("noPublications")}
                   </p>
                 </div>
               )}

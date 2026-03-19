@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaFlask, FaBook, FaArrowRight } from "react-icons/fa";
 import { containerVariants, itemVariants } from "@/lib/animations";
+import { useTranslations } from "next-intl";
 
 // Default colors for themes without a specified color
 const DEFAULT_COLORS = [
@@ -20,6 +21,7 @@ const DEFAULT_COLORS = [
 
 export default function ThemesClient({ themes = [] }) {
   const [hoveredTheme, setHoveredTheme] = useState(null);
+  const t = useTranslations("research.themes");
 
   const normalizedThemes = useMemo(() => {
     const map = new Map();
@@ -45,13 +47,13 @@ export default function ThemesClient({ themes = [] }) {
   }, [themes]);
 
   return (
-    <main className="page-container">
+    <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">Research Themes</h1>
+            <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
-              Explore our key research areas and discover related projects and publications.
+              {t("subtitle")}
             </p>
           </motion.div>
 
@@ -96,7 +98,7 @@ export default function ThemesClient({ themes = [] }) {
                         className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-accent-400 transition-all"
                       >
                         <FaFlask className="text-xs" />
-                        View Projects
+                        {t("viewProjects")}
                         <FaArrowRight className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                       <Link
@@ -104,7 +106,7 @@ export default function ThemesClient({ themes = [] }) {
                         className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-accent-400 transition-all"
                       >
                         <FaBook className="text-xs" />
-                        View Publications
+                        {t("viewPublications")}
                         <FaArrowRight className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     </div>
@@ -123,11 +125,11 @@ export default function ThemesClient({ themes = [] }) {
             </div>
           ) : (
             <div className="empty-state">
-              <p>No themes found.</p>
+              <p>{t("noThemes")}</p>
             </div>
           )}
         </motion.div>
       </div>
-    </main>
+    </div>
   );
 }

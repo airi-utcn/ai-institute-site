@@ -1,43 +1,55 @@
 "use client";
+
 import { VerticalTimeline, VerticalTimelineElement } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { FaBuilding, FaFirefox, FaUserTie } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 export default function TimelineClient() {
-    const today = new Date().toISOString().split('T')[0];
+    const t = useTranslations("timeline");
+    const locale = useLocale();
+
+    // Dynamically localized "today"
+    const today = new Date().toLocaleDateString(locale, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+
     const events = [
         {
-            date: "2023-01-15",
-            title: "Announcement of AI Institute at UTCN",
-            description: "The Technical University of Cluj-Napoca announced plans to establish a dedicated Artificial Intelligence Institute to foster research and innovation in AI technologies.",
+            date: t("events.event1.date"),
+            title: t("events.event1.title"),
+            description: t("events.event1.description"),
             icon: <FaBuilding />,
         },
         {
-            date: "2023-06-10",
-            title: "Groundbreaking Ceremony",
-            description: "Official groundbreaking ceremony for the construction of the AI Institute building, attended by university officials and local dignitaries.",
+            date: t("events.event2.date"),
+            title: t("events.event2.title"),
+            description: t("events.event2.description"),
             icon: <FaUserTie />,
         },
         {
-            date: "2024-09-01",
-            title: "Completion of Construction",
-            description: "The construction of the AI Institute's state-of-the-art facility was completed, featuring modern laboratories and collaborative spaces.",
+            date: t("events.event3.date"),
+            title: t("events.event3.title"),
+            description: t("events.event3.description"),
             icon: <FaBuilding />,
         },
         {
-            date: "2024-10-15",
-            title: "Inaugural AI Symposium",
-            description: "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in artificial intelligence.",
+            date: t("events.event4.date"),
+            title: t("events.event4.title"),
+            description: t("events.event4.description"),
             icon: <FaFirefox />,
         },
         {
             date: today,
-            title: "Current Building Progress",
+            title: t("events.event5.title"),
             description: (
                 <>
-                    Stay updated with the current building progress of the AI Institute.<br></br> Watch live through our webcam:{" "} <br></br>
+                    {t("events.event5.descriptionPart1")}<br />
+                    {t("events.event5.descriptionPart2")}<br />
                     <a href="http://webcam.obs.utcluj.ro/" target="_blank" rel="noopener noreferrer" className="link-accent">
                         http://webcam.obs.utcluj.ro/
                     </a>
@@ -60,7 +72,7 @@ export default function TimelineClient() {
     }, []);
 
     return (
-        <main className="page-container">
+        <div className="page-container">
             <div className="content-wrapper content-padding">
                 <div className="card p-6 md:p-10">
                     <motion.h1
@@ -69,7 +81,7 @@ export default function TimelineClient() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1 }}
                     >
-                        📅 AIRI Timeline
+                        {t("title")}
                     </motion.h1>
                     <VerticalTimeline>
                         {events.map((event, index) => (
@@ -103,6 +115,6 @@ export default function TimelineClient() {
                     </VerticalTimeline>
                 </div>
             </div>
-        </main>
+        </div>
     );
 }

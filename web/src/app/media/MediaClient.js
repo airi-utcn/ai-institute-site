@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Head from "next/head";
+import { useTranslations } from "next-intl";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -69,6 +70,7 @@ const itemVariants = {
 };
 
 export default function MediaClient() {
+  const t = useTranslations("media");
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   // If the code is running in the browser (window is defined), it uses the current page URL (window.location.href).
@@ -83,7 +85,7 @@ export default function MediaClient() {
       <Head>
         <title>ICIA - Media</title>
       </Head>
-      <main className="page-container">
+      <div className="page-container">
         <motion.div
           className="content-wrapper content-padding"
           variants={containerVariants}
@@ -91,10 +93,9 @@ export default function MediaClient() {
           animate="visible"
         >
           <motion.div className="page-header" variants={itemVariants}>
-            <h1 className="page-header-title">Media Gallery</h1>
+            <h1 className="page-header-title"> {t("header-title")} </h1>
             <p className="page-header-subtitle">
-              Explore images and videos showcasing the progress of the AIRI
-              Institute.
+              {t("header-subtitle")}
             </p>
           </motion.div>
 
@@ -246,7 +247,7 @@ export default function MediaClient() {
             </motion.div>
           )}
         </AnimatePresence>
-      </main>
+      </div>
     </>
   );
 }

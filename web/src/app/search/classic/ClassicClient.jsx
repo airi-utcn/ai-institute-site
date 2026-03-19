@@ -3,6 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
+
+const container = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.12 } },
+};
+const item = {
+  hidden: { y: 16, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
+};
 
 const strip = (s) =>
   (s || "")
@@ -96,6 +107,7 @@ function isExternalRoute(route) {
 export default function ClassicClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  const t = useTranslations("search.classic");
 
   const [idx, setIdx] = useState([]);
   const [q, setQ] = useState(initialQuery);
@@ -166,29 +178,32 @@ export default function ClassicClient() {
   }, [q, idx]);
 
   return (
-    <div className="space-y-6 text-gray-900 dark:text-gray-100">
-      <div className="page-header mb-0">
-        <h1 className="page-header-title">Search</h1>
-        <p className="page-header-subtitle">
-          Search across pages, people, projects, publications, news, events, and resources.
-        </p>
-      </div>
+    <motion.div variants={container} initial="hidden" animate="visible">
+      <motion.h1
+        className="text-2xl md:text-3xl font-extrabold mb-6 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
+        variants={item}
+      >
+        {t("title")}
+      </motion.h1>
 
       <div className="card p-4 md:p-5">
         <input
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Type to search pages…"
-          className="input"
+          placeholder={t("placeholder")}
+          className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
       </div>
 
       {ready && q.trim() && (
         <>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            {results.length} result{results.length === 1 ? "" : "s"} for <strong>“{q.trim()}”</strong>
-          </div>
+          <motion.div className="text-sm text-slate-500 mb-3" variants={item}>
+            {results.length === 1 
+              ? t("resultsSingular", { count: results.length }) 
+              : t("resultsPlural", { count: results.length })
+            } <strong>“{q.trim()}”</strong>
+          </motion.div>
 
           <ul className="space-y-3">
             {results.map((r) => (
@@ -233,17 +248,17 @@ export default function ClassicClient() {
           </ul>
 
           {results.length === 0 && (
-            <div className="empty-state py-6">
-              No matches! Try different keywords or check your spelling!
-            </div>
+            <motion.div className="text-slate-600 dark:text-slate-300" variants={item}>
+              {t("noMatches")}
+            </motion.div>
           )}
         </>
       )}
       {ready && !q.trim() && (
-        <div className="empty-state py-6">
+        <motion.div className="empty-state py-6" variants={item}>
           Start typing to search the site.
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -17,6 +17,7 @@ import {
   FaExternalLinkAlt,
   FaStar
 } from "react-icons/fa";
+import { useTranslations } from "next-intl";
 
 /* Icon map based on schema enums */
 const iconMap = {
@@ -30,19 +31,6 @@ const iconMap = {
   cloud: FaCloud,
   ai: FaBrain,
   link: FaLink,
-};
-
-/* Category labels for display */
-const categoryLabels = {
-  resource: "Resource",
-  tool: "Tool",
-  software: "Software",
-  documentation: "Documentation",
-  api: "API",
-  library: "Library",
-  framework: "Framework",
-  learning: "Learning",
-  other: "Other",
 };
 
 /* Category colors */
@@ -75,10 +63,26 @@ const itemVariants = {
   visible: { y: 0, opacity: 1 } 
 };
 
-function ResourceCard({ resource }) {
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
+function ResourceCard({ resource, t }) {
   const IconComponent = iconMap[resource.icon] || FaLink;
   const categoryColor = categoryColors[resource.category] || categoryColors.other;
-  const categoryLabel = categoryLabels[resource.category] || "Other";
+  
+  // Use translation hook to get category label, defaulting to "Other"
+  const categoryLabel = t.has(`categories.${resource.category}`) 
+    ? t(`categories.${resource.category}`) 
+    : t("categories.other");
 
   return (
     <motion.a
@@ -154,7 +158,7 @@ function ResourceCard({ resource }) {
           <span />
         )}
         <span className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-1 transition-transform">
-          Visit Resource <FaExternalLinkAlt className="w-3 h-3" />
+          {t("visitResource")} <FaExternalLinkAlt className="w-3 h-3" />
         </span>
       </div>
     </motion.a>
@@ -164,6 +168,7 @@ function ResourceCard({ resource }) {
 export default function ResourcesClient({ resources = [] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const t = useTranslations("resources");
 
   /* Derive filter options from data */
   const filterOptions = useMemo(() => {
@@ -180,14 +185,15 @@ export default function ResourcesClient({ resources = [] }) {
 
   /* Filter resources */
   const filteredResources = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const terms = parseSearchTerms(searchQuery);
 
     return resources.filter((r) => {
+      const searchable = normalizeSearchText(
+        [r.title, r.description, ...(r.tags || [])].filter(Boolean).join(" ")
+      );
+
       const matchesSearch =
-        !query ||
-        r.title.toLowerCase().includes(query) ||
-        r.description.toLowerCase().includes(query) ||
-        (r.tags || []).some(tag => tag.toLowerCase().includes(query));
+        !terms.length || terms.every((term) => searchable.includes(term));
       const matchesCategory = !categoryFilter || r.category === categoryFilter;
 
       return matchesSearch && matchesCategory;
@@ -209,7 +215,7 @@ export default function ResourcesClient({ resources = [] }) {
   const hasActiveFilters = searchQuery || categoryFilter;
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -218,11 +224,10 @@ export default function ResourcesClient({ resources = [] }) {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-extrabold text-blue-600 dark:text-yellow-400 mb-4">
-            Resources
+            {t("title")}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Explore our curated collection of tools, resources, APIs, and learning materials 
-            to support your AI research and development.
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -240,7 +245,7 @@ export default function ResourcesClient({ resources = [] }) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search resources..."
+                placeholder={t("searchPlaceholder")}
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -251,10 +256,10 @@ export default function ResourcesClient({ resources = [] }) {
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-base min-w-[180px]"
             >
-              <option value="">All categories</option>
+              <option value="">{t("allCategories")}</option>
               {filterOptions.categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {categoryLabels[cat] || cat}
+                  {t.has(`categories.${cat}`) ? t(`categories.${cat}`) : cat}
                 </option>
               ))}
             </select>
@@ -265,7 +270,7 @@ export default function ResourcesClient({ resources = [] }) {
                 onClick={clearFilters}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:underline px-2 whitespace-nowrap"
               >
-                Clear filters
+                {t("clearFilters")}
               </button>
             )}
           </div>
@@ -278,8 +283,8 @@ export default function ResourcesClient({ resources = [] }) {
           transition={{ delay: 0.2 }}
           className="mb-8 text-sm text-gray-500 dark:text-gray-400 font-medium"
         >
-          Showing {filteredResources.length} of {resources.length} resources
-          {hasActiveFilters && " (filtered)"}
+          {t("showing", { filtered: filteredResources.length, total: resources.length })}
+          {hasActiveFilters && t("filtered")}
         </motion.div>
 
         {/* Featured Resources Section */}
@@ -294,11 +299,11 @@ export default function ResourcesClient({ resources = [] }) {
               <div className="bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded-lg">
                 <FaStar className="text-yellow-500 w-5 h-5" />
               </div>
-              Featured Resources
+              {t("featuredResources")}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {featuredResources.map((resource) => (
-                <ResourceCard key={resource.id || resource.slug} resource={resource} />
+                <ResourceCard key={resource.id || resource.slug} resource={resource} t={t} />
               ))}
             </div>
           </motion.section>
@@ -313,12 +318,12 @@ export default function ResourcesClient({ resources = [] }) {
           >
             {featuredResources.length > 0 && (
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-                All Resources
+                {t("allResources")}
               </h2>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {regularResources.map((resource) => (
-                <ResourceCard key={resource.id || resource.slug} resource={resource} />
+                <ResourceCard key={resource.id || resource.slug} resource={resource} t={t} />
               ))}
             </div>
           </motion.section>
@@ -333,25 +338,25 @@ export default function ResourcesClient({ resources = [] }) {
                 <FaDatabase className="w-10 h-10" />
               </div>
               <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                No resources found
+                {t("noResourcesFound")}
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
                 {hasActiveFilters
-                  ? "We couldn't find any resources matching your current filters. Try adjusting your search criteria."
-                  : "Resources will appear here once they're added to the system."}
+                  ? t("noResourcesFilterMatch")
+                  : t("noResourcesYet")}
               </p>
               {hasActiveFilters && (
                 <button
                   onClick={clearFilters}
                   className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
                 >
-                  Clear all filters
+                  {t("clearAllFilters")}
                 </button>
               )}
             </motion.div>
           )
         )}
       </div>
-    </main>
+    </div>
   );
 }

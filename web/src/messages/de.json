@@ -1,0 +1,1112 @@
+{
+  "footer": {
+    "contact": {
+      "title": "Kontakt",
+      "addressLine1": "Observatorului Straße 2,",
+      "addressLine2": "Cluj-Napoca 400347,",
+      "addressLine3": "Rumänien"
+    },
+    "quickLinks": {
+      "title": "Schnelle Links",
+      "projects": "Projekte",
+      "sitemap": "Seitenverzeichnis",
+      "rooms": "Räume",
+      "dissemination": "Verbreitung",
+      "contactUs": "Kontakt"
+    },
+    "copyright": "© {year} Technische Universität Cluj-Napoca. Alle Rechte vorbehalten."
+  },
+  "navbar": {
+    "navLinks": {
+      "research": "Forschung",
+      "engagement": "Engagement",
+      "people": "Team",
+      "news": "News & Events",
+      "about": "Über uns"
+    },
+    "researchMenu": {
+      "departments": "Abteilungen",
+      "themes": "Themen",
+      "projects": "Projekte",
+      "publications": "Publikationen",
+      "thesis": "Abschlussarbeiten",
+      "resources": "Ressourcen",
+      "paperGraph": "Paper Graph"
+    },
+    "newsMenu": {
+      "news": "Neuigkeiten",
+      "events": "Events",
+      "seminars": "Seminare",
+      "calls": "Projektaufrufe",
+      "awards": "Auszeichnungen",
+      "careers": "Karriere"
+    },
+    "aboutMenu": {
+      "mission": "Mission",
+      "organigram": "Organigramm",
+      "sitemap": "Seitenverzeichnis",
+      "reports": "Berichte",
+      "regulations": "Vorschriften",
+      "guidelines": "Richtlinien",
+      "tour": "Virtueller Rundgang",
+      "rooms": "Räume & Kalender",
+      "contact": "Kontakt"
+    },
+    "search": {
+      "placeholder": "Suchen...",
+      "mobilePlaceholder": "Seite durchsuchen...",
+      "button": "Suchen",
+      "chatbot": "AIRi Chatbot",
+      "knowledgeGraph": "Wissensgraphen"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Startseite",
+      "description": "Förderung von Forschung, Innovation und Erkundung in der Künstlichen Intelligenz an der Technischen Universität Cluj-Napoca - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Forschungsinstitut für Künstliche Intelligenz",
+      "subtitle": "Förderung von Forschung, Innovation und Erkundung im Bereich der KI an der TU Cluj-Napoca.",
+      "learnMore": "Mehr erfahren",
+      "altHero": "KI-Forschung",
+      "altQr": "QR-Code zur Anmeldung"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN befindet sich im Aufbau. Folgen Sie unseren Kanälen für Updates."
+    },
+    "About": {
+      "title": "Über uns",
+      "description": "Das AIRi ist ein Knotenpunkt für kollaborative Forschung an der TU Cluj-Napoca und fördert Exzellenz in KI-Theorie und -Praxis."
+    },
+    "Cards": {
+      "research": {
+        "title": "Forschung",
+        "description": "Entdecken Sie unsere Forschungseinheiten und Projekte."
+      },
+      "people": {
+        "title": "Team",
+        "description": "Lernen Sie unsere Forscher und Mitarbeiter kennen."
+      },
+      "resources": {
+        "title": "Ressourcen",
+        "description": "Werkzeuge, Ressourcen und Lernmaterialien."
+      }
+    },
+    "LatestNews": {
+      "title": "Neueste Nachrichten",
+      "viewAll": "Alle ansehen →",
+      "emptyState": "Nachrichten werden hier nach der Veröffentlichung angezeigt.",
+      "visitNews": "Zu News & Events →"
+    },
+    "Social": {
+      "title": "Folgen Sie uns auf LinkedIn",
+      "visit": "LinkedIn besuchen →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Kontaktieren Sie uns",
+      "subtitle": "Wir freuen uns, von Ihnen zu hören! Unser Team steht bereit, Ihre Fragen zu beantworten."
+    },
+    "Social": {
+      "title": "Verbinden Sie sich mit uns"
+    },
+    "Form": {
+      "title": "Kontaktformular",
+      "iframeTitle": "Kontaktformular"
+    },
+    "Location": {
+      "title": "Unser Standort",
+      "address": "📍 Observatorului Str. 2, Cluj-Napoca 400347, Rumänien",
+      "iframeTitle": "Standortkarte"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Akademisches Engagement",
+      "description": "Kooperationen mit Universitäten: Mitbetreuung, gemeinsame Kurse, Workshops, Mobilität.",
+      "contactButton": "Akademisches Team kontaktieren",
+      "selectTopic": "Wählen Sie ein Thema.",
+      "Tabs": {
+        "Overview": {
+          "label": "Übersicht",
+          "subtabs": {
+            "partnerships": "Partnerschaften",
+            "teaching": "Lehre",
+            "mobility": "Mobilität"
+          }
+        },
+        "Initiatives": {
+          "label": "Initiativen",
+          "subtabs": {
+            "schools": "Sommerschulen",
+            "seminars": "Seminare",
+            "visits": "Forschungsaufenthalte"
+          }
+        },
+        "Courses": {
+          "label": "Kurse",
+          "subtabs": {
+            "ml": "Maschinelles Lernen",
+            "robotics": "Robotik",
+            "hpc": "HPC für KI",
+            "ethics": "KI-Ethik"
+          }
+        },
+        "Mobility": {
+          "label": "Mobilität",
+          "subtabs": {
+            "phd": "Mitbetreuung",
+            "grants": "Mobilitätsstipendien",
+            "placements": "Austauschprogramme"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": {
+            "title": "Akademische Partnerschaften",
+            "desc": "Ein Netzwerk von Kooperationen."
+          },
+          "teaching": {
+            "title": "Lehre & Training",
+            "desc": "Kurse und Workshops."
+          },
+          "mobility": {
+            "title": "Mobilität",
+            "desc": "Forschungsbesuche und Austausch."
+          }
+        },
+        "Initiatives": {
+          "schools": {
+            "title": "Sommerschulen",
+            "desc": "Programme für Studenten."
+          },
+          "seminars": {
+            "title": "Seminare",
+            "desc": "Gemeinsame Vorträge."
+          },
+          "visits": {
+            "title": "Forschungsaufenthalte",
+            "desc": "Kurz- und langfristige Aufenthalte."
+          }
+        },
+        "Courses": {
+          "ml": {
+            "title": "Maschinelles Lernen",
+            "desc": "Angewandte Module und Kurse."
+          },
+          "robotics": {
+            "title": "Robotik",
+            "desc": "Labore und Automatisierung."
+          },
+          "hpc": {
+            "title": "HPC für KI",
+            "desc": "GPU-Programmierung."
+          },
+          "ethics": {
+            "title": "KI-Ethik",
+            "desc": "Fairness und Governance in KI."
+          }
+        },
+        "Mobility": {
+          "phd": {
+            "title": "Mitbetreuung",
+            "desc": "Gemeinsame PhD-Betreuung."
+          },
+          "grants": {
+            "title": "Stipendien",
+            "desc": "Finanzierung von Aufenthalten."
+          },
+          "placements": {
+            "title": "Austausch",
+            "desc": "Austausch von Mitarbeitern."
+          }
+        }
+      },
+      "Event": {
+        "title": "Forum 2025 „Fortschritt und Innovation in der Augenheilkunde“",
+        "desc1": "Die Veranstaltung bringt Kliniker, Forscher und Branchenexperten zusammen, um zu untersuchen, wie KI die ophthalmologische Versorgung verändert.",
+        "moderators": "Moderatoren:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Rekonstruktion kompakter 3D-OCT-Volumina",
+        "paper1Authors": "Adrian POP",
+        "paper2Title": "3D-Rekonstruktion basierend auf AROI",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU",
+        "paper3Title": "Anpassung von Vision Foundation-Modellen",
+        "paper3Authors": "Anca MĂRGINEAN",
+        "paper4Title": "Segmentierung des retinalen Gefäßnetzwerks",
+        "paper4Authors": "Darius STAN, Raluca BREHAR",
+        "linkText": "Details anzeigen →"
+      }
+    },
+    "high-school": {
+      "title": "Engagement an Schulen",
+      "description": "Wettbewerbe und KI-Ressourcen für Schüler.",
+      "features": {
+        "competitions": {
+          "title": "Wettbewerbe",
+          "desc": "KI-Herausforderungen für Schüler."
+        },
+        "events": {
+          "title": "Veranstaltungen",
+          "desc": "Laborführungen und Workshops."
+        },
+        "resources": {
+          "title": "Ressourcen",
+          "desc": "Materialien für Lehrer."
+        }
+      },
+      "linkText": "AILIT Framework ansehen"
+    },
+    "industrial-phd": {
+      "title": "Industrielle Promotion",
+      "p1": "Eine industrielle Promotion ist ein universitäres Ausbildungsprogramm in Zusammenarbeit mit einem Unternehmen.",
+      "p2": "Kontaktieren Sie uns per E-Mail, wenn Sie als Unternehmen interessiert sind.",
+      "p3": "Kontaktieren Sie uns, um eine industrielle Promotion bei uns durchzuführen."
+    },
+    "industry": {
+      "title": "Zusammenarbeit mit der Industrie",
+      "description": "Arbeiten Sie mit AIRi in der angewandten Forschung zusammen.",
+      "Tabs": {
+        "Overview": "Übersicht",
+        "Projects": "Projekte",
+        "Engagement": "Wie wir arbeiten"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Projekte suchen...",
+        "allDomains": "Alle Bereiche",
+        "noProjects": "Keine Projekte gefunden.",
+        "cardLead": "Leitung",
+        "cardDetails": "Details",
+        "cardSite": "Website",
+        "cardDocs": "Doku"
+      },
+      "EngagementTab": {
+        "title": "Kooperationsmodell",
+        "listItem1": "Gemeinsame angewandte Forschung",
+        "listItem2": "Prototyping und Validierung",
+        "listItem3": "Wissenstransfer"
+      },
+      "OverviewTab": {
+        "feature1Title": "Angewandte Forschung",
+        "feature1Desc": "Industrielle Kooperationen für den Praxiseinsatz.",
+        "feature2Title": "Co-Entwicklung",
+        "feature2Desc": "Gemeinsame Fahrpläne und Prototyping.",
+        "feature3Title": "Wissenstransfer",
+        "feature3Desc": "Forschungsergebnisse für Produktionsteams.",
+        "statsProjects": "Aktive Projekte",
+        "statsDomains": "Beteiligte Bereiche",
+        "statsPartners": "Partner"
+      },
+      "Buttons": {
+        "contact": "Industrie-Team kontaktieren",
+        "explore": "Alle Projekte erkunden"
+      }
+    },
+    "partners": {
+      "title": "Partner",
+      "mapTitle": "Partnerkarte"
+    },
+    "main": {
+      "Hero": {
+        "title": "Engagement",
+        "subtitle": "Verbindung von AIRi mit der Öffentlichkeit, Wissenschaft und Industrie."
+      },
+      "Tabs": {
+        "public": "Öffentlichkeit",
+        "academic": "Wissenschaft",
+        "industry": "Industrie",
+        "high-school": "Schulen",
+        "partners": "Partner",
+        "phd": "Industrielle Promotion"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Partnerschaften",
+          "teaching": "Lehre",
+          "courses": "Kurse",
+          "mobility": "Mobilität"
+        },
+        "industry": {
+          "overview": "Übersicht",
+          "projects": "Projekte",
+          "engagement": "Wie wir arbeiten"
+        }
+      },
+      "Public": {
+        "title": "Öffentliches Engagement",
+        "desc": "Wir machen KI zugänglich durch Ressourcen, Medienpräsenz und Outreach-Programme.",
+        "btnMedia": "Medien & Presse",
+        "btnNews": "News & Events",
+        "f1Title": "Outreach-Programme",
+        "f1Desc": "Öffentliche Vorträge und Initiativen.",
+        "f2Title": "Bildungsressourcen",
+        "f2Desc": "Open-Access-Materialien zur Erklärung von KI.",
+        "f3Title": "Medienpräsenz",
+        "f3Desc": "Interviews und Medienberichte über unsere Forschung."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Akademische Partnerschaften",
+          "desc": "Ein Netzwerk internationaler Kooperationen.",
+          "f1Title": "Universitätskooperationen",
+          "f1Desc": "Forschungsprogramme mit führenden Universitäten.",
+          "f2Title": "Forschungsnetzwerke",
+          "f2Desc": "Teilnahme an CLAIRE, ELLIS und anderen."
+        },
+        "Teaching": {
+          "title": "Lehre & Training",
+          "desc": "Kurse und Workshops für Studenten und Forscher.",
+          "f1Title": "Sommerschulen",
+          "f1Desc": "Internationale Sommerprogramme in KI.",
+          "f2Title": "Workshops",
+          "f2Desc": "Praktische Workshops und Schulungen."
+        },
+        "Courses": {
+          "title": "Kurse & Workshops",
+          "desc": "Spezialisierte Kurse für KI, HPC und Robotik.",
+          "f1Title": "Maschinelles Lernen",
+          "f1Desc": "Angewandte ML-Module und Kurse.",
+          "f2Title": "Robotik & Vision",
+          "f2Desc": "Praxislabore in Automatisierung.",
+          "f3Title": "HPC für KI",
+          "f3Desc": "GPU-Programmierung und KI-Training.",
+          "f4Title": "KI-Ethik & Sicherheit",
+          "f4Desc": "Fairness und Governance in KI-Systemen."
+        },
+        "Mobility": {
+          "title": "Mobilität",
+          "desc": "Austauschprogramme und gemeinsame Promotionen.",
+          "f1Title": "Mitbetreuung",
+          "f1Desc": "Gemeinsame PhD-Betreuung.",
+          "f2Title": "Mobilitätsstipendien",
+          "f2Desc": "Finanzierung von Forschungsaufenthalten.",
+          "f3Title": "Austausch",
+          "f3Desc": "Programme für Studenten und Forscher."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Projekte",
+          "domains": "Bereiche",
+          "partners": "Partner"
+        },
+        "Collaboration": {
+          "title": "Zusammenarbeit mit der Industrie",
+          "desc": "Wir arbeiten mit Branchenführern zusammen, um KI-Innovationen auf den Markt zu bringen."
+        },
+        "Projects": {
+          "searchPlaceholder": "Projekte suchen...",
+          "allDomains": "Alle Bereiche",
+          "clear": "Löschen",
+          "lead": "Leitung:",
+          "noProjects": "Keine Projekte gefunden."
+        },
+        "HowWeWork": {
+          "title": "Wie wir mit der Industrie arbeiten",
+          "desc": "Flexible Modelle für industrielle Anforderungen.",
+          "f1Title": "Gemeinsame F&E",
+          "f1Desc": "Kollaborative Forschungsprojekte.",
+          "f2Title": "Beratung",
+          "f2Desc": "Expertenberatung zu KI-Strategien.",
+          "f3Title": "Schulung",
+          "f3Desc": "KI-Trainings für Industrieteams.",
+          "f4Title": "Technologietransfer",
+          "f4Desc": "Lizenzierung von Forschungsergebnissen."
+        }
+      },
+      "HighSchool": {
+        "title": "Engagement an Schulen",
+        "desc": "Ressourcen und Wettbewerbe für Schüler und Lehrer.",
+        "f1Title": "Wettbewerbe",
+        "f1Desc": "KI-Herausforderungen für Schüler.",
+        "f2Title": "Veranstaltungen",
+        "f2Desc": "Laborführungen und Workshops.",
+        "f3Title": "Ressourcen",
+        "f3Desc": "Materialien für die KI-Bildung.",
+        "btnFramework": "AILIT Framework ansehen"
+      },
+      "Partners": {
+        "title": "Unsere Partner",
+        "desc": "Zusammenarbeit mit führenden Organisationen in der KI-Forschung.",
+        "mapTitle": "Partnerkarte"
+      },
+      "PhD": {
+        "title": "Industrielles Promotionsprogramm",
+        "p1": "Überbrückung der Kluft zwischen akademischer Forschung und industrieller Anwendung.",
+        "p2": "Unser Programm ermöglicht es Kandidaten, reale Herausforderungen in Unternehmen zu lösen.",
+        "f1Title": "Für Unternehmen",
+        "f1Desc": "Sponsern Sie einen Forscher für Ihre Herausforderungen.",
+        "f2Title": "Für Kandidaten",
+        "f2Desc": "Promotion kombiniert mit Branchenerfahrung.",
+        "f3Title": "Gemeinsame Betreuung",
+        "f3Desc": "Betreuung durch Industrie und Wissenschaft.",
+        "btnContact": "Kontaktieren Sie uns"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Engagement",
+        "subtitle": "Verbindung von AIRi mit der Öffentlichkeit, Wissenschaft und Industrie"
+      },
+      "Tabs": {
+        "public": "Öffentlichkeit",
+        "academic": "Wissenschaft",
+        "industry": "Industrie",
+        "highSchool": "Schulen",
+        "partners": "Partner",
+        "phd": "Industrielle Promotion"
+      },
+      "SubTabs": {
+        "partnerships": "Partnerschaften",
+        "teaching": "Lehre",
+        "courses": "Kurse",
+        "mobility": "Mobilität",
+        "overview": "Übersicht",
+        "projects": "Projekte",
+        "engagement": "Wie wir arbeiten"
+      },
+      "PublicContent": {
+        "title": "Öffentliches Engagement",
+        "desc": "Wir fördern das KI-Verständnis in der Gesellschaft.",
+        "btnMedia": "Medienpräsenz",
+        "btnNews": "Neuigkeiten & Events",
+        "outreachTitle": "Outreach-Programme",
+        "outreachDesc": "Öffentliche Vorträge und Initiativen.",
+        "eduTitle": "Bildung",
+        "eduDesc": "Open-Access-Materialien.",
+        "mediaTitle": "Presse",
+        "mediaDesc": "Interviews und Berichte."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Akademische Partnerschaften",
+        "partnerDesc": "Beziehungen zu Universitäten weltweit.",
+        "uniTitle": "Universitätskooperationen",
+        "uniDesc": "Gemeinsame Forschung.",
+        "netTitle": "Netzwerke",
+        "netDesc": "Teilnahme an KI-Netzwerken.",
+        "teachTitle": "Lehre",
+        "teachDesc": "Lehraktivitäten.",
+        "summerTitle": "Sommerschulen",
+        "summerDesc": "Internationale Sommerprogramme.",
+        "workTitle": "Workshops",
+        "workDesc": "Regelmäßige akademische Seminare.",
+        "courseTitle": "Kurse",
+        "courseDesc": "Spezialisierte KI-Kurse.",
+        "mlTitle": "Machine Learning",
+        "mlDesc": "Grundlegende und fortgeschrittene Kurse.",
+        "robotTitle": "Robotik",
+        "robotDesc": "Praxislabore.",
+        "hpcTitle": "HPC",
+        "hpcDesc": "GPU-Programmierung.",
+        "ethicsTitle": "Ethik",
+        "ethicsDesc": "KI-Ethik und Fairness.",
+        "mobTitle": "Mobilität",
+        "mobDesc": "Internationaler Austausch.",
+        "supTitle": "PhD-Betreuung",
+        "supDesc": "Gemeinsame Doktorandenbetreuung.",
+        "grantTitle": "Stipendien",
+        "grantDesc": "Finanzierung von Aufenthalten.",
+        "exTitle": "Austausch",
+        "exDesc": "Programme für Forscher."
+      },
+      "IndustryContent": {
+        "statProjects": "Projekte",
+        "statDomains": "Bereiche",
+        "statPartners": "Partner",
+        "collabTitle": "Zusammenarbeit",
+        "collabDesc": "Praxisnahe KI-Forschung.",
+        "searchPlaceholder": "Suchen...",
+        "allDomains": "Alle",
+        "clear": "Löschen",
+        "noProjects": "Keine Projekte gefunden.",
+        "leadLabel": "Leitung:",
+        "workTitle": "Wie wir arbeiten",
+        "workDesc": "Flexible Kooperationsmodelle.",
+        "rdTitle": "F&E",
+        "rdDesc": "Forschungsprojekte.",
+        "consTitle": "Beratung",
+        "consDesc": "KI-Strategien.",
+        "trainTitle": "Schulungen",
+        "trainDesc": "Firmenschulungen.",
+        "techTitle": "Transfer",
+        "techDesc": "Technologietransfer."
+      },
+      "HighSchoolContent": {
+        "title": "Schulen",
+        "desc": "Die nächste Generation von Forschern inspirieren.",
+        "compTitle": "Wettbewerbe",
+        "compDesc": "Programmier-Herausforderungen.",
+        "eventTitle": "Veranstaltungen",
+        "eventDesc": "Laborbesuche.",
+        "eduTitle": "Ressourcen",
+        "eduDesc": "Bildungsmaterialien.",
+        "btnLabel": "AILIT Framework ansehen"
+      },
+      "PartnersContent": {
+        "title": "Partner",
+        "desc": "Zusammenarbeit mit führenden Organisationen.",
+        "mapTitle": "Partnerkarte",
+        "eyebrow": "Strategisches Netzwerk",
+        "stats": {
+          "partners": "Partner",
+          "countries": "Länder",
+          "projects": "Projekte"
+        },
+        "filters": {
+          "searchPlaceholder": "Suche nach Partner, Land, Projekt",
+          "allCountries": "Alle Länder",
+          "clear": "Zurücksetzen"
+        },
+        "activeProjects": "Aktive Projekte",
+        "actions": {
+          "exploreProfile": "Profil ansehen",
+          "visitWebsite": "Website besuchen"
+        },
+        "empty": {
+          "filtered": "Kein Partner entspricht Ihren Filtern."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Partner",
+        "visitOfficialWebsite": "Offizielle Website besuchen",
+        "collaborativeProjects": "Kollaborative Projekte",
+        "collaborativeProjectsSubtitle": "Forschung und Initiativen mit {partnerName}.",
+        "noLinkedProjects": "Noch keine verknüpften Projekte verfügbar."
+      },
+      "PhDContent": {
+        "title": "Industrielle Promotion",
+        "p1": "Praxisnahe Forschung.",
+        "p2": "Lösen Sie reale Probleme.",
+        "compTitle": "Für Unternehmen",
+        "compDesc": "Sponsern Sie Forschung.",
+        "candTitle": "Für Kandidaten",
+        "candDesc": "Promotion in der Industrie.",
+        "collabTitle": "Betreuung",
+        "collabDesc": "Gemeinsame Betreuung.",
+        "btnContact": "Kontakt"
+      }
+    }
+  },
+  "about": {
+    "mission": {
+      "title": "Mission",
+      "text": "Das Forschungsinstitut für Künstliche Intelligenz (AIRi) ist ein Knotenpunkt für kollaborative Forschung an der TU Cluj-Napoca. AIRi fördert Exzellenz in Theorie und Praxis der KI..."
+    },
+    "history": {
+      "title": "AIRI-Zeitachse",
+      "event1": {
+        "date": "15. Jan. 2023",
+        "title": "Ankündigung des KI-Instituts",
+        "description": "Die Universität gab Pläne zur Gründung eines eigenen KI-Instituts bekannt."
+      },
+      "event2": {
+        "date": "10. Juni 2023",
+        "title": "Spatenstich",
+        "description": "Offizielle Zeremonie für den Bau des Institutsgebäudes."
+      },
+      "event3": {
+        "date": "1. Sept. 2024",
+        "title": "Fertigstellung des Baus",
+        "description": "Der Bau der hochmodernen Einrichtung des KI-Instituts wurde abgeschlossen."
+      },
+      "event4": {
+        "date": "15. Okt. 2024",
+        "title": "Erstes KI-Symposium",
+        "description": "Das Institut veranstaltete sein erstes Symposium."
+      },
+      "event5": {
+        "date": "20. Aug. 2025",
+        "title": "Aktueller Baufortschritt",
+        "descriptionPart1": "Bleiben Sie auf dem Laufenden über den Baufortschritt.",
+        "descriptionPart2": "Sehen Sie live über unsere Webcam zu:"
+      }
+    },
+    "guidelines": {
+      "students": "Studenten",
+      "faculty": "Fakultät",
+      "researchers": "Forscher",
+      "staff": "Personal",
+      "title": "Nur für dich"
+    },
+    "organigram": {
+      "title": "Organigramm",
+      "description": "Beschreibung des <strong>Direktorenkomitees</strong> und des <strong>Wissenschaftlichen Komitees</strong>",
+      "directorCommittee": "Direktorenkomitee",
+      "viewDirectorStructure": "Struktur des Direktorenkomitees anzeigen:",
+      "scientificCommittee": "Wissenschaftliches Komitee",
+      "viewScientificStructure": "Struktur des Wissenschaftlichen Komitees anzeigen:",
+      "downloadPdf": "PDF herunterladen",
+      "viewPng": "PNG anzeigen"
+    },
+    "regulations": {
+      "title": "Vorschriften",
+      "comingSoon": "Inhalte folgen in Kürze."
+    },
+    "reports": {
+      "title": "Berichte",
+      "comingSoon": "Inhalte folgen in Kürze."
+    },
+    "roomsCalendar": {
+      "title": "Räume & Kalender",
+      "comingSoon": "Inhalte folgen in Kürze."
+    },
+    "sitemap": {
+      "title": "Seitenverzeichnis",
+      "filterPlaceholder": "Seiten filtern...",
+      "clear": "Löschen",
+      "noResults": "Keine Ergebnisse für „{query}“.",
+      "sections": {
+        "research": {
+          "title": "Forschung",
+          "links": {
+            "departments": "Abteilungen",
+            "themes": "Themen",
+            "projects": "Projekte",
+            "publications": "Publikationen",
+            "thesis": "Abschlussarbeiten",
+            "tools": "Werkzeuge",
+            "resources": "Ressourcen"
+          }
+        },
+        "engagement": {
+          "title": "Engagement",
+          "links": {
+            "public": "Öffentliches Engagement",
+            "academic": "Akademisches Engagement",
+            "industry": "Industrie-Engagement",
+            "highSchool": "Schul-Engagement",
+            "partners": "Partner",
+            "industrialPhd": "Industrielle Promotion"
+          }
+        },
+        "people": {
+          "title": "Team",
+          "links": {
+            "researchers": "Forscher",
+            "staff": "Mitarbeiter",
+            "alumni": "Alumni",
+            "visiting": "Gastforscher"
+          }
+        },
+        "newsEvents": {
+          "title": "News & Events",
+          "links": {
+            "news": "Neuigkeiten",
+            "events": "Events",
+            "seminars": "Seminare",
+            "openCalls": "Projektaufrufe",
+            "awards": "Auszeichnungen",
+            "careers": "Karriere"
+          }
+        },
+        "about": {
+          "title": "Über uns",
+          "links": {
+            "missionHistory": "Mission & Geschichte",
+            "organigram": "Organigramm",
+            "sitemap": "Seitenverzeichnis",
+            "reports": "Berichte",
+            "regulations": "Vorschriften",
+            "guidelines": "Richtlinien",
+            "virtualTour": "Virtueller Rundgang",
+            "roomsCalendar": "Räume & Kalender",
+            "contact": "Kontakt"
+          }
+        },
+        "search": {
+          "title": "Suche",
+          "links": {
+            "classic": "Klassische Suche",
+            "chatbot": "AIRi Chatbot (LLM-basiert)",
+            "knowledgeGraph": "Wissensgraphen-Navigator"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Virtueller Rundgang",
+      "comingSoon": "Inhalte folgen in Kürze."
+    }
+  },
+  "media": {
+    "header-title": "Mediengalerie",
+    "header-subtitle": "Entdecken Sie Bilder und Videos zum Fortschritt des AIRI."
+  },
+  "news&events": {
+    "awards": {
+      "title": "Auszeichnungen",
+      "subtitle": "Anerkennungen für AIRI und Partner.",
+      "coming-soon": "Weitere Informationen folgen in Kürze."
+    },
+    "careers": {
+      "title": "Karriere",
+      "subtitle": "Entdecken Sie Möglichkeiten, mit AIRI zu arbeiten.",
+      "coming-soon": "Weitere Informationen folgen in Kürze.",
+      "undergraduate": "Als Bachelorstudent",
+      "postgraduate": "Als Masterstudent/Doktorand",
+      "postdoctoral": "Als Postdoc",
+      "visiting-researcher": "Als Gastforscher",
+      "software-engineer": "Als Softwareentwickler"
+    },
+    "events": {
+      "title": "Veranstaltungen",
+      "subtitle": "Höhepunkte von AIRI.",
+      "calendar-title": "Instituts-Kalender",
+      "no-events": "Derzeit keine Veranstaltungen."
+    },
+    "news": {
+      "title": "Neuigkeiten & Events",
+      "latest": "Das Neueste von AIRI",
+      "subtitle": "Aktuelle Geschichten und Meilensteine.",
+      "quickFilters": "Schnellfilter",
+      "searchLabel": "Nachrichten suchen",
+      "searchPlaceholder": "Titel, Schlagwörter suchen",
+      "stories": "Artikel",
+      "readStory": "Artikel lesen",
+      "spotlight": "Im Fokus",
+      "noSummary": "Noch keine Zusammenfassung vorhanden.",
+      "openArticle": "Artikel öffnen",
+      "emptyState": "Derzeit keine Nachrichten verfügbar.",
+      "noImage": "Kein Bild",
+      "readMore": "Weiterlesen",
+      "categories": {
+        "all": "Alle",
+        "announcement": "Ankündigungen",
+        "construction": "Bau",
+        "collaboration": "Kooperationen",
+        "award": "Auszeichnungen",
+        "press": "Presse",
+        "other": "Sonstige"
+      }
+    },
+    "open-project-calls": {
+      "title": "Projektaufrufe",
+      "subtitle": "Aufrufe für Vorschläge.",
+      "coming-soon": "Weitere Updates folgen in Kürze."
+    },
+    "seminars": {
+      "title": "Seminare",
+      "subtitle": "Akademische Seminare von AIRI.",
+      "emptyState": "Derzeit keine Seminare verfügbar.",
+      "whatYouWillLearn": "Was Sie lernen werden",
+      "modules": "Module"
+    }
+  },
+  "people": {
+    "title": "Team",
+    "subtitle": "Lernen Sie das Team von AIRi kennen",
+    "searchPlaceholder": "Nach Name, Titel oder Abteilung suchen...",
+    "clearSearch": "Suche löschen",
+    "tabs": {
+      "researchers": "Forscher",
+      "staff": "Mitarbeiter",
+      "visiting": "Gastforscher",
+      "alumni": "Alumni"
+    },
+    "results": "{count} Ergebnis gefunden für \"{query}\"",
+    "resultsPlural": "{count} Ergebnisse gefunden für \"{query}\"",
+    "emptySearch": "Keine Personen gefunden.",
+    "emptyTab": "Derzeit keine {tabName} verfügbar.",
+    "details": {
+      "publications": "Publikationen",
+      "teams": "Teams",
+      "searchPubs": "Publikationen suchen...",
+      "allYears": "Alle Jahre",
+      "allTypes": "Alle Typen",
+      "allDomains": "Alle Bereiche",
+      "clear": "Löschen",
+      "viewDetails": "Details anzeigen",
+      "pdf": "PDF",
+      "lead": "Leitung",
+      "projects": "Projekte",
+      "noPubs": "Keine Publikationen verfügbar.",
+      "noPubsMatch": "Keine Publikationen entsprechen Ihren Filtern.",
+      "noTeams": "Derzeit keinen Teams zugewiesen."
+    },
+    "projectDetails": {
+      "backToProfile": "← Zurück zum Profil",
+      "backToStaffProfile": "← Zurück zum Mitarbeiterprofil",
+      "projectDetails": "Projektdetails",
+      "visitWebsite": "Website besuchen",
+      "documentation": "Dokumentation",
+      "projectTimeline": "Projekt-Zeitachse",
+      "resources": "Ressourcen",
+      "relatedPublications": "Verwandte Publikationen",
+      "details": "Details",
+      "visitProjectWebsite": "Projekt-Website besuchen",
+      "viewDocumentation": "Dokumentation ansehen",
+      "projectTeam": "Projektteam",
+      "lead": "Leitung",
+      "members": "Mitglieder",
+      "partners": "Partner",
+      "themes": "Themen",
+      "researchAreas": "Forschungsbereiche",
+      "phases": {
+        "completed": "Abgeschlossen",
+        "planned": "Geplant",
+        "ongoing": "Laufend"
+      }
+    }
+  },
+  "research": {
+    "departments": {
+      "title": "Abteilungen",
+      "subtitle": "Entdecken Sie unsere Forschungsabteilungen.",
+      "members": "{count} Mitglieder",
+      "projects": "{count} Projekte",
+      "types": {
+        "research": "Forschungsabteilungen",
+        "research_networks": "Forschungsnetzwerke",
+        "support": "Support-Abteilungen",
+        "other": "Abteilungen"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Zurück zu den Abteilungen",
+        "notFound": "Abteilung nicht gefunden.",
+        "membersCount": "Mitglieder",
+        "projectsCount": "Projekte",
+        "publicationsCount": "Publikationen",
+        "tabs": {
+          "overview": "Übersicht",
+          "members": "Personen & Teams",
+          "projects": "Projekte",
+          "publications": "Publikationen"
+        },
+        "overview": {
+          "about": "Über",
+          "coordinator": "Koordinator",
+          "contact": "Kontakt"
+        },
+        "members": {
+          "teams": "Teams",
+          "member": "Mitglied",
+          "membersPlural": "Mitglieder",
+          "independentResearchers": "Unabhängige Forscher",
+          "noMembers": "Keine Mitglieder für diese Abteilung gefunden.",
+          "projects": "Projekte"
+        },
+        "projects": {
+          "lead": "Leitung:",
+          "noProjects": "Keine Projekte gefunden."
+        },
+        "publications": {
+          "noPublications": "Keine Publikationen gefunden."
+        },
+        "phases": {
+          "completed": "Abgeschlossen",
+          "planned": "Geplant",
+          "ongoing": "Laufend",
+          "archived": "Archiviert"
+        }
+      }
+    },
+    "projects": {
+      "title": "Projekte",
+      "subtitle": "Entdecken Sie unsere Forschungsprojekte",
+      "searchPlaceholder": "Projekte suchen...",
+      "filters": "Filter",
+      "allRegions": "Alle Regionen",
+      "allDepartments": "Alle Abteilungen",
+      "allLeads": "Alle Leiter",
+      "allMembers": "Alle Mitglieder",
+      "filterByTheme": "Nach Thema filtern...",
+      "region": "Region",
+      "department": "Abteilung",
+      "dept": "Abt:",
+      "lead": "Leitung",
+      "leadLabel": "Leitung:",
+      "member": "Mitglied",
+      "theme": "Thema",
+      "projectsFound": "{count} Projekt gefunden",
+      "projectsFoundPlural": "{count} Projekte gefunden",
+      "clearAllFilters": "Alle Filter löschen",
+      "clearFilters": "Filter löschen",
+      "noProjects": "Keine Projekte gefunden."
+    },
+    "projectDetails": {
+      "notFound": "Projekt nicht gefunden",
+      "backToProjects": "Zurück zu Projekten",
+      "region": "Region",
+      "phase": "Phase",
+      "partners": "Partner",
+      "partnerCount": "{count} Partner",
+      "partnerCountPlural": "{count} Partner",
+      "officialWebsite": "Offizielle Website",
+      "documentation": "Dokumentation",
+      "tabs": {
+        "overview": "Übersicht",
+        "people": "Team",
+        "resources": "Ressourcen",
+        "publications": "Publikationen"
+      },
+      "abstract": "Zusammenfassung",
+      "researchDomains": "Forschungsbereiche",
+      "teams": "Teams",
+      "memberCount": "{count} Mitglied",
+      "memberCountPlural": "{count} Mitglieder",
+      "lead": "Leitung",
+      "noTeamMembers": "Keine Mitglieder gelistet.",
+      "individualContributors": "Einzelne Mitwirkende",
+      "contributors": "Mitwirkende",
+      "noPeople": "Keine Personen zugewiesen.",
+      "platform": "Plattform:",
+      "noResources": "Keine Ressourcen verfügbar.",
+      "publicationCount": "{count} Publikation",
+      "publicationCountPlural": "{count} Publikationen",
+      "noPublications": "Keine Publikationen verfügbar.",
+      "authors": "Autoren:",
+      "viewDetails": "Details ansehen",
+      "pdf": "PDF",
+      "teamProjects": "Projekte",
+      "phases": {
+        "ongoing": "Laufend",
+        "planned": "Geplant",
+        "completed": "Abgeschlossen",
+        "archived": "Archiviert"
+      }
+    },
+    "publications": {
+      "title": "Publikationen",
+      "subtitle": "Forschungsarbeiten und akademische Publikationen unseres Teams",
+      "searchPlaceholder": "Publikationen suchen...",
+      "filters": "Filter",
+      "year": "Jahr",
+      "allYears": "Alle Jahre",
+      "author": "Autor",
+      "allAuthors": "Alle Autoren",
+      "department": "Abteilung",
+      "allDepartments": "Alle Abteilungen",
+      "type": "Typ",
+      "allTypes": "Alle Typen",
+      "theme": "Thema",
+      "filterByTheme": "Nach Thema filtern...",
+      "publicationsFound": "{count} Publikation gefunden",
+      "publicationsFoundPlural": "{count} Publikationen gefunden",
+      "clearAllFilters": "Alle Filter löschen",
+      "clearFilters": "Filter löschen",
+      "authorsLabel": "Autoren:",
+      "viewDetails": "Details ansehen",
+      "openPdf": "PDF öffnen",
+      "noPublications": "Keine Publikationen gefunden."
+    },
+    "publicationDetails": {
+      "notFound": "Publikation nicht gefunden.",
+      "backToPublications": "← Zurück zu Publikationen",
+      "openPdf": "PDF öffnen",
+      "downloadBibtex": "BibTeX herunterladen",
+      "authors": "Autoren",
+      "noAuthors": "Keine Autoren gelistet.",
+      "relatedProjects": "Verwandte Projekte",
+      "noProjects": "Keine Projekte verlinkt.",
+      "themes": "Themen",
+      "noThemes": "Keine Themen verlinkt.",
+      "resources": "Ressourcen",
+      "noResources": "Keine Ressourcen verlinkt.",
+      "viewResource": "Ressource ansehen",
+      "attachments": "Anhänge",
+      "noAttachments": "Noch keine Anhänge.",
+      "images": "Bilder",
+      "files": "Dateien",
+      "download": "Herunterladen"
+    },
+    "themes": {
+      "title": "Forschungsthemen",
+      "subtitle": "Erkunden Sie unsere Hauptforschungsbereiche.",
+      "viewProjects": "Projekte ansehen",
+      "viewPublications": "Publikationen ansehen",
+      "noThemes": "Keine Themen gefunden."
+    },
+    "thesis": {
+      "title": "Abschlussarbeiten",
+      "tabs": {
+        "phd": "Promotion",
+        "master": "Master",
+        "bachelor": "Bachelor"
+      },
+      "messages": {
+        "phd": "Weitere Updates folgen.",
+        "master": "Weitere Updates folgen.",
+        "bachelor": "Weitere Updates folgen."
+      }
+    }
+  },
+  "resources": {
+    "title": "Ressourcen",
+    "subtitle": "Entdecken Sie unsere Sammlung von Tools und Materialien.",
+    "searchPlaceholder": "Ressourcen suchen...",
+    "allCategories": "Alle Kategorien",
+    "clearFilters": "Filter löschen",
+    "clearAllFilters": "Alle Filter löschen",
+    "showing": "Zeige {filtered} von {total} Ressourcen",
+    "filtered": " (gefiltert)",
+    "featuredResources": "Empfohlene Ressourcen",
+    "allResources": "Alle Ressourcen",
+    "noResourcesFound": "Keine Ressourcen gefunden",
+    "noResourcesFilterMatch": "Keine Übereinstimmungen.",
+    "noResourcesYet": "Ressourcen erscheinen hier bald.",
+    "visitResource": "Ressource ansehen",
+    "categories": {
+      "resource": "Ressource",
+      "tool": "Werkzeug",
+      "software": "Software",
+      "documentation": "Dokumentation",
+      "api": "API",
+      "library": "Bibliothek",
+      "framework": "Framework",
+      "learning": "Lernen",
+      "other": "Sonstiges"
+    }
+  },
+  "search": {
+    "chatbot": {
+      "title": "AIRi Chatbot",
+      "cardTitle": "AIRi Chatbot",
+      "comingSoon": "Demnächst — LLM-basierter Chatbot."
+    },
+    "classic": {
+      "title": "🔎 Suche",
+      "placeholder": "Tippen zum Suchen...",
+      "resultsSingular": "{count} Ergebnis für",
+      "resultsPlural": "{count} Ergebnisse für",
+      "noMatches": "Keine Treffer!"
+    },
+    "knowledgeGraph": {
+      "title": "Wissensgraphen-Navigator",
+      "cardTitle": "AIRi Wissensgraphen",
+      "comingSoon": "Demnächst — interaktiver Navigator."
+    }
+  },
+  "timeline": {
+    "title": "📅 AIRI Zeitachse",
+    "events": {
+      "event1": {
+        "date": "15. Jan. 2023",
+        "title": "Ankündigung",
+        "description": "Die Universität gab Pläne zur Gründung eines KI-Instituts bekannt."
+      },
+      "event2": {
+        "date": "10. Juni 2023",
+        "title": "Spatenstich",
+        "description": "Offizielle Zeremonie für den Bau."
+      },
+      "event3": {
+        "date": "1. Sept. 2024",
+        "title": "Fertigstellung",
+        "description": "Der Bau der hochmodernen Einrichtung wurde abgeschlossen."
+      },
+      "event4": {
+        "date": "15. Okt. 2024",
+        "title": "Erstes KI-Symposium",
+        "description": "Das Institut veranstaltete sein erstes Symposium."
+      },
+      "event5": {
+        "title": "Baufortschritt",
+        "descriptionPart1": "Bleiben Sie auf dem Laufenden.",
+        "descriptionPart2": "Sehen Sie live über unsere Webcam zu:"
+      }
+    }
+  }
+}

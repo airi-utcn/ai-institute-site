@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Awards",
+  title: "Awards",
+  description: "Awards and recognitions received by AIRi researchers and teams at UTCN.",
 };
 
 import AwardsClient from "./awardsClient";

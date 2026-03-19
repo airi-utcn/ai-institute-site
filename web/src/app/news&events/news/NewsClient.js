@@ -2,34 +2,49 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-
-const categoryLabels = {
-  announcement: "Announcements",
-  construction: "Construction",
-  collaboration: "Collaborations",
-  award: "Awards",
-  press: "Press",
-  other: "Other",
-};
-
-const formatDate = (value) => {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};
+import { useTranslations, useLocale } from "next-intl";
 
 const motionCard = {
   hidden: { y: 10, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { duration: 0.35 } },
 };
 
-const getCategoryLabel = (value) => categoryLabels[value] || "Other";
+const normalizeSearchText = (value) =>
+  (value || "")
+    .toString()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const parseSearchTerms = (query) =>
+  normalizeSearchText(query)
+    .split(/\s+/)
+    .filter(Boolean);
+
+const hasNewsLink = (value) => typeof value === "string" && value.trim().length > 0;
 
 export default function NewsClient({ newsItems = [] }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
+
+  const t = useTranslations("news&events.news");
+  const locale = useLocale();
+
+  // Moved inside the component to access the current locale dynamically
+  const formatDate = (value) => {
+    if (!value) return "";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  // Replaces the static object to pull from translations
+  const getCategoryLabel = (value) => {
+    const knownKeys = ["announcement", "construction", "collaboration", "award", "press", "other"];
+    const key = knownKeys.includes(value) ? value : "other";
+    return t(`categories.${key}`);
+  };
 
   const categories = useMemo(() => {
     const unique = new Set(items.map((it) => it.category || "other"));
@@ -37,11 +52,11 @@ export default function NewsClient({ newsItems = [] }) {
   }, [items]);
 
   const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase();
+    const terms = parseSearchTerms(query);
     return items.filter((it) => {
       const matchesCategory = category === "all" || (it.category || "other") === category;
-      const text = `${it.title} ${it.summary}`.toLowerCase();
-      const matchesQuery = !term || text.includes(term);
+      const text = normalizeSearchText(`${it.title} ${it.summary}`);
+      const matchesQuery = !terms.length || terms.every((term) => text.includes(term));
       return matchesCategory && matchesQuery;
     });
   }, [items, category, query]);
@@ -60,14 +75,14 @@ export default function NewsClient({ newsItems = [] }) {
       >
         <div className="flex flex-col lg:flex-row gap-8 items-center">
           <div className="flex-1 space-y-3">
-            <p className="text-sm uppercase tracking-[0.25em] text-blue-200">Latest from AIRI</p>
-            <h1 className="text-3xl sm:text-4xl font-bold leading-tight">News & Events</h1>
+            <p className="text-sm uppercase tracking-[0.25em] text-blue-200">{t("latest")}</p>
+            <h1 className="text-3xl sm:text-4xl font-bold leading-tight">{t("title")}</h1>
             <p className="text-blue-100 max-w-2xl">
-              Fresh stories, research milestones, and press moments curated straight from the Strapi-powered newsroom.
+              {t("subtitle")}
             </p>
           </div>
           <div className="w-full max-w-md bg-white/10 border border-white/15 rounded-2xl p-4 backdrop-blur">
-            <div className="text-xs uppercase tracking-[0.2em] text-blue-200 mb-2">Quick filters</div>
+            <div className="text-xs uppercase tracking-[0.2em] text-blue-200 mb-2">{t("quickFilters")}</div>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => {
                 const active = category === cat;
@@ -82,7 +97,7 @@ export default function NewsClient({ newsItems = [] }) {
                         : "border-white/25 text-white hover:bg-white/10"
                     }`}
                   >
-                    {cat === "all" ? "All" : getCategoryLabel(cat)}
+                    {cat === "all" ? t("categories.all") : getCategoryLabel(cat)}
                   </button>
                 );
               })}
@@ -96,7 +111,7 @@ export default function NewsClient({ newsItems = [] }) {
           <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-8">
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2" htmlFor="news-search">
-                Search news
+                {t("searchLabel")}
               </label>
               <div className="relative">
                 <input
@@ -104,7 +119,7 @@ export default function NewsClient({ newsItems = [] }) {
                   type="search"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search titles, keywords, or summaries"
+                  placeholder={t("searchPlaceholder")}
                   className="w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 pl-11 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
                 <svg className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" viewBox="0 0 24 24" aria-hidden="true">
@@ -120,7 +135,7 @@ export default function NewsClient({ newsItems = [] }) {
               <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-200 font-semibold">
                 {filtered.length}
               </span>
-              <span>stories</span>
+              <span>{t("stories")}</span>
             </div>
           </div>
 
@@ -156,27 +171,33 @@ export default function NewsClient({ newsItems = [] }) {
                       ))}
                   </div>
                   <div className="pt-2">
-                    <a
-                      href={hero.linkUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200"
-                    >
-                      Read story
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
+                    {hasNewsLink(hero.linkUrl) ? (
+                      <a
+                        href={hero.linkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200"
+                      >
+                        {t("readStory")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-white/70">
+                        {t("readStory")}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               <div className="lg:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Spotlight</h3>
+                  <h3 className="text-lg font-semibold">{t("spotlight")}</h3>
                   {hero.date && <span className="text-sm text-gray-500 dark:text-gray-400">{formatDate(hero.date)}</span>}
                 </div>
-                <p className="text-gray-700 dark:text-gray-200 leading-relaxed line-clamp-5">{hero.summary || "No summary provided yet."}</p>
+                <p className="text-gray-700 dark:text-gray-200 leading-relaxed line-clamp-5">{hero.summary || t("noSummary")}</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 text-xs font-semibold">
                     {getCategoryLabel(hero.category)}
@@ -188,22 +209,28 @@ export default function NewsClient({ newsItems = [] }) {
                   ))}
                 </div>
                 <div className="pt-2">
-                  <a
-                    href={hero.linkUrl || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
-                  >
-                    Open article
-                    <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                      <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                    </svg>
-                  </a>
+                  {hasNewsLink(hero.linkUrl) ? (
+                    <a
+                      href={hero.linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
+                    >
+                      {t("openArticle")}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                      </svg>
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+                      {t("openArticle")}
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>
           ) : (
-            <p className="text-center text-gray-600 dark:text-gray-400 py-10">No news available at the moment.</p>
+            <p className="text-center text-gray-600 dark:text-gray-400 py-10">{t("emptyState")}</p>
           )}
 
           {gridItems.length > 0 && (
@@ -220,7 +247,7 @@ export default function NewsClient({ newsItems = [] }) {
                     {item.image ? (
                       <img src={item.image} alt={item.title} className="w-full h-48 object-cover" loading="lazy" />
                     ) : (
-                      <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">No image</div>
+                      <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">{t("noImage")}</div>
                     )}
                     <div className="absolute top-3 left-3">
                       <span className="badge bg-white/95 text-gray-800 border border-gray-200">
@@ -243,17 +270,23 @@ export default function NewsClient({ newsItems = [] }) {
                   </div>
 
                   <div className="px-5 pb-5">
-                    <a
-                      href={item.linkUrl || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
-                    >
-                      Read more
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
+                    {hasNewsLink(item.linkUrl) ? (
+                      <a
+                        href={item.linkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
+                      >
+                        {t("readMore")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
+                        {t("readMore")}
+                      </span>
+                    )}
                   </div>
                 </motion.article>
               ))}

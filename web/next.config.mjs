@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
+import createNextIntlPlugin from 'next-intl/plugin';
 
+const withNextIntl = createNextIntlPlugin('./src/i18n.js');
 const envStrapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.PUBLIC_STRAPI_URL || '';
 
 const toRemotePattern = (rawUrl) => {
@@ -54,6 +56,20 @@ const nextConfig = {
     remotePatterns,
     ...(isStaticBuild || isLocalHost ? { unoptimized: true } : {}),
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+        ],
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -13,76 +14,77 @@ const item = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
-const SECTIONS = [
-  {
-    title: "Research",
-    links: [
-      { label: "Departments", href: "/research/departments" },
-      { label: "Themes", href: "/research/themes" },
-      { label: "Projects", href: "/research/projects" },
-      { label: "Publications", href: "/research/publications" },
-      { label: "Thesis", href: "/research/thesis" },
-      { label: "Tools", href: "/research/tools" },
-      { label: "Resources", href: "/resources" },
-    ],
-  },
-  {
-    title: "Engagement",
-    links: [
-      { label: "Public engagement", href: "/engagement/public" },
-      { label: "Academic engagement", href: "/engagement/academic" },
-      { label: "Industry engagement", href: "/engagement/industry" },
-      { label: "High-school engagement", href: "/engagement/high-school" },
-      { label: "Partners", href: "/engagement/partners" },
-      { label: "Industrial PhD", href: "/engagement/industrial-phd" },
-    ],
-  },
-  {
-    title: "People",
-    links: [
-      { label: "Researchers", href: "/people" },
-      { label: "Staff", href: "/people" },
-      { label: "Alumni", href: "/people" },
-      { label: "Visiting researchers", href: "/people" },
-    ],
-  },
-  {
-    title: "News & Events",
-    links: [
-      { label: "News", href: "/news&events/news" },
-      { label: "Events", href: "/news&events/events" },
-      { label: "Seminars", href: "/news&events/seminars" },
-      { label: "Open Project calls", href: "/news&events/open-project-calls" },
-      { label: "Awards", href: "/news&events/awards" },
-      { label: "Career/Job Opportunities", href: "/news&events/careers" },
-    ],
-  },
-  {
-    title: "About",
-    links: [
-      { label: "Mission, History(timeline)", href: "/about#mission" },
-      { label: "Organigram", href: "/about/organigram" },
-      { label: "Sitemap", href: "/about/sitemap" },
-      { label: "Reports Self-assessment reports", href: "/about/reports" },
-      { label: "Procedures & Regulations", href: "/about/procedures-regulations" },
-      { label: "Guidelines", href: "/about/guidelines" },
-      { label: "Virtual Tour", href: "/about/virtual-tour" },
-      { label: "Rooms & calendar", href: "/about/rooms-calendar" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    title: "Search",
-    links: [
-      { label: "Classic search", href: "/search" },
-      { label: "AIRi chatbot (LLM-based)", href: "/search/chatbot" },
-      { label: "AIRi Knowledge graphs navigator", href: "/search/knowledge-graph" },
-    ],
-  },
-];
-
 export default function Client() {
+  const t = useTranslations("about.sitemap");
   const [q, setQ] = useState("");
+
+  const SECTIONS = useMemo(() => [
+    {
+      title: t("sections.research.title"),
+      links: [
+        { label: t("sections.research.links.departments"), href: "/research/departments" },
+        { label: t("sections.research.links.themes"), href: "/research/themes" },
+        { label: t("sections.research.links.projects"), href: "/research/projects" },
+        { label: t("sections.research.links.publications"), href: "/research/publications" },
+        { label: t("sections.research.links.thesis"), href: "/research/thesis" },
+        { label: t("sections.research.links.tools"), href: "/research/tools" },
+        { label: t("sections.research.links.resources"), href: "/resources" },
+      ],
+    },
+    {
+      title: t("sections.engagement.title"),
+      links: [
+        { label: t("sections.engagement.links.public"), href: "/engagement/public" },
+        { label: t("sections.engagement.links.academic"), href: "/engagement/academic" },
+        { label: t("sections.engagement.links.industry"), href: "/engagement/industry" },
+        { label: t("sections.engagement.links.highSchool"), href: "/engagement/high-school" },
+        { label: t("sections.engagement.links.partners"), href: "/engagement/partners" },
+        { label: t("sections.engagement.links.industrialPhd"), href: "/engagement/industrial-phd" },
+      ],
+    },
+    {
+      title: t("sections.people.title"),
+      links: [
+        { label: t("sections.people.links.researchers"), href: "/people" },
+        { label: t("sections.people.links.staff"), href: "/people" },
+        { label: t("sections.people.links.alumni"), href: "/people" },
+        { label: t("sections.people.links.visiting"), href: "/people" },
+      ],
+    },
+    {
+      title: t("sections.newsEvents.title"),
+      links: [
+        { label: t("sections.newsEvents.links.news"), href: "/news&events/news" },
+        { label: t("sections.newsEvents.links.events"), href: "/news&events/events" },
+        { label: t("sections.newsEvents.links.seminars"), href: "/news&events/seminars" },
+        { label: t("sections.newsEvents.links.openCalls"), href: "/news&events/open-project-calls" },
+        { label: t("sections.newsEvents.links.awards"), href: "/news&events/awards" },
+        { label: t("sections.newsEvents.links.careers"), href: "/news&events/careers" },
+      ],
+    },
+    {
+      title: t("sections.about.title"),
+      links: [
+        { label: t("sections.about.links.missionHistory"), href: "/about#mission" },
+        { label: t("sections.about.links.organigram"), href: "/about/organigram" },
+        { label: t("sections.about.links.sitemap"), href: "/about/sitemap" },
+        { label: t("sections.about.links.reports"), href: "/about/reports" },
+        { label: t("sections.about.links.regulations"), href: "/about/procedures-regulations" },
+        { label: t("sections.about.links.guidelines"), href: "/about/guidelines" },
+        { label: t("sections.about.links.virtualTour"), href: "/about/virtual-tour" },
+        { label: t("sections.about.links.roomsCalendar"), href: "/about/rooms-calendar" },
+        { label: t("sections.about.links.contact"), href: "/contact" },
+      ],
+    },
+    {
+      title: t("sections.search.title"),
+      links: [
+        { label: t("sections.search.links.classic"), href: "/search" },
+        { label: t("sections.search.links.chatbot"), href: "/search/chatbot" },
+        { label: t("sections.search.links.knowledgeGraph"), href: "/search/knowledge-graph" },
+      ],
+    },
+  ], [t]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -94,10 +96,10 @@ export default function Client() {
         l.label.toLowerCase().includes(term)
       ),
     })).filter(s => s.links.length > 0);
-  }, [q]);
+  }, [q, SECTIONS]);
 
   return (
-    <main className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <motion.div
         className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-8"
         variants={container}
@@ -108,7 +110,7 @@ export default function Client() {
           className="text-2xl md:text-3xl font-extrabold mb-4 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
           variants={item}
         >
-          Sitemap
+          {t("title")}
         </motion.h1>
 
         <motion.div className="mb-6 flex items-center gap-3 justify-center" variants={item}>
@@ -116,7 +118,7 @@ export default function Client() {
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Filter pages…"
+            placeholder={t("filterPlaceholder")}
             className="w-full md:w-1/2 rounded-xl border border-gray-300 dark:border-white/10 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             aria-label="Filter sitemap"
           />
@@ -125,7 +127,7 @@ export default function Client() {
               onClick={() => setQ("")}
               className="rounded-xl px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
             >
-              Clear
+              {t("clear")}
             </button>
           )}
         </motion.div>
@@ -172,10 +174,10 @@ export default function Client() {
 
         {filtered.length === 0 && (
           <motion.p className="mt-6 text-gray-600 dark:text-gray-300 text-center" variants={item}>
-            No results for “{q}”.
+            {t("noResults", { query: q })}
           </motion.p>
         )}
       </motion.div>
-    </main>
+    </div>
   );
 }

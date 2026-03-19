@@ -46,6 +46,16 @@ const stripHtml = (value) =>
         .trim()
     : '';
 
+const normalizeExternalUrl = (value) => {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw) return '';
+
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^www\./i.test(raw) || /\.[a-z]{2,}(\/|$)/i.test(raw)) return `https://${raw}`;
+
+  return '';
+};
+
 const resolveMediaUrl = (media) => {
   if (!media) return '';
 
@@ -192,7 +202,7 @@ const PROJECT_POPULATE = {
       fields: ['name', 'slug'],
     },
     partners: {
-      fields: ['name', 'slug'],
+      fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
       populate: {
         logo: {
           fields: ['url', 'formats', 'alternativeText'],
@@ -234,8 +244,8 @@ const normalizeDepartmentType = (value) => {
     research: 'research',
     'research department': 'research',
     'research departments': 'research',
-    academic: 'academic',
-    'academic department': 'academic',
+    research_networks: 'research_networks',
+    'research networks': 'research_networks',
     support: 'support',
     'support department': 'support',
     'support departments': 'support',
@@ -403,7 +413,7 @@ export async function getStaffMember(slug) {
         socialLinks: {
           fields: ['label', 'url', 'icon'],
         },
-        publications: { fields: ['title', 'slug', 'year', 'sourceKind', 'openAlexId', 'kind', 'description'] },
+        publications: { fields: ['title', 'slug', 'year'] },
       },
     });
 
@@ -586,10 +596,16 @@ export async function getProjectBySlug(slug) {
  */
 export async function getPartners() {
   const PARTNER_POPULATE = {
-    fields: ['name', 'slug', 'website', 'country', 'description'], 
+    fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
     populate: {
       logo: {
         fields: ['url', 'formats', 'alternativeText'],
+      },
+      heroImage: {
+        fields: ['url', 'formats', 'alternativeText'],
+      },
+      projects: {
+        fields: ['title', 'slug', 'featured', 'isIndustryEngagement'],
       },
     },
   };
@@ -607,12 +623,236 @@ export async function getPartners() {
 }
 
 /**
+ * Get one partner by slug, including related projects.
+ * @param {string} slug - Partner slug
+ * @returns {Promise<Object|null>} Partner entry or null
+ */
+export async function getPartnerBySlug(slug) {
+  try {
+    if (!slug) return null;
+
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { slug: { $eq: slug } },
+      fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
+      populate: {
+        logo: {
+          fields: ['url', 'formats', 'alternativeText'],
+        },
+        heroImage: {
+          fields: ['url', 'formats', 'alternativeText'],
+        },
+        projects: {
+          fields: ['title', 'slug', 'abstract', 'phase', 'featured', 'isIndustryEngagement'],
+          populate: {
+            heroImage: {
+              fields: ['url', 'formats', 'alternativeText'],
+            },
+            domains: DEPARTMENT_POPULATE,
+          },
+        },
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.media': {
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.slider': {
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+          },
+        },
+      },
+    });
+
+    const data = await fetchAPI(`/partners?${params.toString()}`);
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch partner by slug:', error);
+    return null;
+  }
+}
+
+/**
+ * Get graph-eligible publications for the paper graph views.
+ * @param {Object} options
+ * @param {number} options.community - Optional community id filter
+ * @returns {Promise<Array>}
+ */
+export async function getPapers(options = {}) {
+  try {
+    const { community } = options;
+    const filters = {
+      graphEligible: { $eq: true },
+    };
+
+    if (typeof community === 'number' && Number.isFinite(community)) {
+      filters.community = { $eq: community };
+    }
+
+    const params = createParams({
+      sort: ['cited_by:desc', 'year:desc'],
+      filters,
+      fields: [
+        'openAlexId',
+        'title',
+        'doi',
+        'year',
+        'cited_by',
+        'abstract',
+        'description',
+        'topics',
+        'community',
+        'communityLabel',
+      ],
+      populate: {
+        authors: PERSON_FLAT_POPULATE,
+        pdfFile: { fields: ['url'] },
+      },
+    });
+
+    const data = await fetchAPI(`/publications?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch graph papers:', error);
+    return [];
+  }
+}
+
+/**
+ * Get graph-eligible papers scoped to one community.
+ * @param {number} communityId
+ * @returns {Promise<Array>}
+ */
+export async function getPapersByCommunity(communityId) {
+  if (typeof communityId !== 'number' || !Number.isFinite(communityId)) return [];
+  return getPapers({ community: communityId });
+}
+
+/**
+ * Get relation edges between publications used by the paper graph.
+ * @returns {Promise<Array>}
+ */
+export async function getGraphLinks() {
+  try {
+    const params = createParams({
+      fields: ['isCrossCluster', 'score'],
+      populate: {
+        source: { fields: ['openAlexId'] },
+        target: { fields: ['openAlexId'] },
+      },
+    });
+
+    const data = await fetchAPI(`/graph-links?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch graph links:', error);
+    return [];
+  }
+}
+
+/**
+ * Transform graph paper records into a frontend-friendly shape.
+ * @param {Array|Object} strapiPapers
+ * @returns {Array}
+ */
+export function transformPaperData(strapiPapers) {
+  const list = Array.isArray(strapiPapers) ? strapiPapers : strapiPapers ? [strapiPapers] : [];
+
+  return list
+    .map((paper) => {
+      const attributes = paper?.attributes ?? paper ?? {};
+      const abstractText = stripHtml(attributes.abstract || attributes.description || '');
+
+      const topics = Array.isArray(attributes.topics)
+        ? attributes.topics.filter(Boolean).map((value) => String(value))
+        : [];
+
+      const authorEntries = toArray(attributes.authors?.data ?? attributes.authors);
+      const authors = authorEntries
+        .map((author) => {
+          const authorData = author?.attributes ?? author ?? {};
+          return authorData.fullName || authorData.name || '';
+        })
+        .filter(Boolean);
+
+      const pdfUrl = resolveMediaUrl(attributes.pdfFile) || normalizeExternalUrl(attributes.pdf_url);
+
+      return {
+        id: paper?.id ?? null,
+        openAlexId: attributes.openAlexId || '',
+        title: attributes.title || '',
+        doi: attributes.doi || '',
+        year: typeof attributes.year === 'number' ? attributes.year : null,
+        cited_by: typeof attributes.cited_by === 'number' ? attributes.cited_by : 0,
+        abstract: abstractText,
+        topics,
+        authors,
+        pdf_url: pdfUrl,
+        community: typeof attributes.community === 'number' ? attributes.community : null,
+        communityLabel: attributes.communityLabel || '',
+        _strapi: paper,
+      };
+    })
+    .filter((paper) => paper.id !== null && paper.title);
+}
+
+/**
+ * Transform graph links into source/target paper ids.
+ * @param {Array|Object} strapiLinks
+ * @param {Object} oaToIdMap - Mapping of OpenAlex ids to visible paper ids
+ * @returns {Array}
+ */
+export function transformGraphLinkData(strapiLinks, oaToIdMap = {}) {
+  const list = Array.isArray(strapiLinks) ? strapiLinks : strapiLinks ? [strapiLinks] : [];
+
+  return list
+    .map((link) => {
+      const attributes = link?.attributes ?? link ?? {};
+      const sourceEntry = attributes.source?.data ?? attributes.source;
+      const targetEntry = attributes.target?.data ?? attributes.target;
+
+      const sourceData = sourceEntry?.attributes ?? sourceEntry ?? {};
+      const targetData = targetEntry?.attributes ?? targetEntry ?? {};
+
+      const sourceOpenAlexId = sourceData.openAlexId || '';
+      const targetOpenAlexId = targetData.openAlexId || '';
+
+      const sourceId = oaToIdMap[sourceOpenAlexId] ?? null;
+      const targetId = oaToIdMap[targetOpenAlexId] ?? null;
+
+      const scoreValue = Number(attributes.score);
+      const score = Number.isFinite(scoreValue) ? scoreValue : 0;
+
+      return {
+        id: link?.id ?? `${sourceOpenAlexId}->${targetOpenAlexId}`,
+        sourceId,
+        targetId,
+        sourceOpenAlexId,
+        targetOpenAlexId,
+        isCrossCluster: !!attributes.isCrossCluster,
+        score,
+      };
+    })
+    .filter((link) => link.sourceId !== null && link.targetId !== null && link.sourceId !== link.targetId);
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
 export async function getPublications(options = {}) {
   try {
-    const { domainSlug, graphEligibleOnly = false, sourceKind } = options;
+    const {
+      domainSlug,
+      includeUnlisted = false,
+      graphEligibleOnly = false,
+      sourceKind,
+    } = options;
     const filters = {};
 
     if (domainSlug) {
@@ -626,20 +866,21 @@ export async function getPublications(options = {}) {
     if (sourceKind) {
       filters.sourceKind = { $eq: sourceKind };
     }
-
     const params = createParams({
       sort: 'year:desc',
-      filters,
-      populate: {
-        authors: PERSON_FLAT_POPULATE,
-        projects: { fields: ['title', 'slug'] },
-        domain: DEPARTMENT_POPULATE,
-        pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
-        bibFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
-        attachments: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
-      },
+      filters: Object.keys(filters).length ? filters : null,
     });
 
+    // Kept for API compatibility with existing callers.
+    void includeUnlisted;
+
+    setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
+    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
+    setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
+    setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
+    setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -709,23 +950,18 @@ export async function getNewsArticles(options = {}) {
 /**
  * Get publications by author slug
  * @param {string} authorSlug - The author's slug
- * @param {Object} [options] - Optional publication filters
- * @param {string} [options.sourceKind] - Source filter (`manual` or `openAlexAutomated`)
  * @returns {Promise<Array>} Array of publications by the author
  */
-export async function getPublicationsByAuthor(authorSlug, options = {}) {
+export async function getPublicationsByAuthor(authorSlug) {
   try {
     if (!authorSlug) return [];
-    const { sourceKind } = options;
     const params = new URLSearchParams();
     params.set('filters[authors][slug][$eq]', authorSlug);
-    if (sourceKind) {
-      params.set('filters[sourceKind][$eq]', sourceKind);
-    }
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
     const data = await fetchAPI(`/publications?${params.toString()}`);
     return data.data || [];
   } catch (error) {
@@ -1056,27 +1292,14 @@ export function transformPublicationData(strapiPubs) {
     const domainData = domainEntry?.attributes ?? domainEntry ?? {};
     const domain = domainData.name || (typeof attributes.domain === 'string' ? attributes.domain : '');
 
-    const sourceKind = (() => {
-      const raw = String(attributes.sourceKind || '').trim();
-      if (raw === 'openalex' || raw === 'merged') return 'openAlexAutomated';
-      if (raw === 'manual' || raw === 'openAlexAutomated') return raw;
-      return attributes.openAlexId ? 'openAlexAutomated' : 'manual';
-    })();
-
     return {
       id: pub?.id ?? null,
       slug: attributes.slug || toPublicationSlug({ title: attributes.title, year: attributes.year }),
       title: attributes.title || '',
       year: attributes.year ?? null,
-      sourceKind,
       domain,
       kind: attributes.kind || '',
       description: stripHtml(attributes.description) || '',
-      openAlexId: attributes.openAlexId || null,
-      doi: attributes.doi || null,
-      cited_by: attributes.cited_by ?? null,
-      abstract: attributes.abstract || null,
-      topics: Array.isArray(attributes.topics) ? attributes.topics : [],
       authors,
       pdfFile,
       bibFile,
@@ -1110,7 +1333,7 @@ export function transformNewsData(strapiNews) {
         summary: attributes.summary || '',
         category: attributes.category || 'other',
         date: normalizeDate(attributes.publishedDate),
-        linkUrl: attributes.linkUrl || '',
+        linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
         tags,
         _strapi: item,
@@ -1210,11 +1433,25 @@ export function transformProjectData(strapiProjects) {
 
     const partners = toArray(attributes.partners?.data ?? attributes.partners).map((partner) => {
       const partnerData = partner?.attributes ?? partner ?? {};
+      const partnerProjects = toArray(partnerData.projects?.data ?? partnerData.projects).map((linkedProject) => {
+        const linkedProjectData = linkedProject?.attributes ?? linkedProject ?? {};
+        return {
+          id: linkedProject?.id ?? null,
+          slug: linkedProjectData.slug || '',
+          title: linkedProjectData.title || '',
+        };
+      }).filter((linkedProject) => linkedProject.slug || linkedProject.title);
+
       return {
         id: partner?.id ?? null,
         slug: partnerData.slug || '',
         name: partnerData.name || '',
+        country: partnerData.country || '',
+        description: stripHtml(partnerData.description || ''),
+        descriptionMarkdown: typeof partnerData.description === 'string' ? partnerData.description : '',
+        url: normalizeExternalUrl(partnerData.website),
         logo: resolveMediaUrl(partnerData.logo),
+        projects: partnerProjects,
       };
     });
 
@@ -1544,140 +1781,93 @@ export function transformResourceData(strapiResources) {
 }
 
 /**
- * Fetch all Research Papers for the Graph
- * (Now reads from the unified Publication content type)
- */
-export async function getPapers() {
-  try {
-    return await fetchAllEntries('/publications', {
-      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
-      filters: {
-        openAlexId: { $notNull: true },
-        graphEligible: { $eq: true },
-      },
-    });
-  } catch (error) {
-    console.error('Failed to fetch papers:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch papers belonging to a specific community cluster.
- */
-export async function getPapersByCommunity(communityId) {
-  try {
-    return await fetchAllEntries('/publications', {
-      fields: ['title', 'openAlexId', 'year', 'abstract', 'topics', 'cited_by', 'community', 'communityLabel'],
-      filters: {
-        openAlexId: { $notNull: true },
-        graphEligible: { $eq: true },
-        community: { $eq: communityId },
-      },
-    });
-  } catch (error) {
-    console.error('Failed to fetch papers by community:', error);
-    return [];
-  }
-}
-
-/**
- * Fetch all Graph Links for the Graph
- * (source/target now point at publications)
- */
-export async function getGraphLinks() {
-  try {
-    const populate = {
-      source: { fields: ['openAlexId'] },
-      target: { fields: ['openAlexId'] },
-    };
-    return await fetchAllEntries('/graph-links', {
-      fields: ['score', 'isCrossCluster'],
-      populate,
-    });
-  } catch (error) {
-    console.error('Failed to fetch graph links:', error);
-    return [];
-  }
-}
-
-/**
- * Transform papers for the graph visualization
- */
-export function transformPaperData(strapiPapers) {
-  const list = Array.isArray(strapiPapers) ? strapiPapers : strapiPapers ? [strapiPapers] : [];
-  return list.map((p) => {
-    const attr = p.attributes ?? p ?? {};
-    return {
-      id: String(p.documentId ?? p.id),
-      title: attr.title ?? "(No title)",
-      openAlexId: attr.openAlexId ?? null,
-      year: attr.year ?? null,
-      topics: Array.isArray(attr.topics) ? attr.topics : [],
-      cited_by: attr.cited_by ?? null,
-      abstract: attr.abstract ?? null,
-      community: attr.community ?? null,
-      communityLabel: attr.communityLabel ?? null,
-    };
-  });
-}
-
-/**
- * Transform links for the graph visualization
- * Requires a map of openAlexId -> numerical ID (or whatever ID the frontend uses)
- * to resolve the source/target references.
- */
-export function transformGraphLinkData(strapiLinks, oaToIdMap) {
-  const list = Array.isArray(strapiLinks) ? strapiLinks : strapiLinks ? [strapiLinks] : [];
-  
-  return list
-    .map((l) => {
-      const attr = l.attributes ?? l ?? {};
-      const srcAttr = attr.source?.data?.attributes ?? attr.source ?? {};
-      const tgtAttr = attr.target?.data?.attributes ?? attr.target ?? {};
-      
-      const sourceOa = srcAttr.openAlexId ?? null;
-      const targetOa = tgtAttr.openAlexId ?? null;
-      
-      const sourceId = sourceOa ? oaToIdMap[sourceOa] : null;
-      const targetId = targetOa ? oaToIdMap[targetOa] : null;
-
-      if (!sourceId || !targetId || sourceId === targetId) return null;
-      
-      return {
-        id: String(l.documentId ?? l.id),
-        sourceId,
-        targetId,
-        score: parseFloat(attr.score) || 0.5,
-        isCrossCluster: !!attr.isCrossCluster,
-      };
-    })
-    .filter(Boolean);
-}
-
-
-/**
  * Helper function to transform partner data for the frontend
  */
 export function transformPartnerData(strapiPartners) {
   const list = Array.isArray(strapiPartners) ? strapiPartners : strapiPartners ? [strapiPartners] : [];
 
+  const normalizePartnerStatus = (rawStatus) => {
+    const value = (rawStatus || '').toString().trim().toLowerCase();
+    if (value === 'former') return 'former';
+    return 'current';
+  };
+
+  const normalizeBodyBlocks = (blocks) =>
+    toArray(blocks)
+      .map((block) => {
+        if (!block || typeof block !== 'object') return null;
+        switch (block.__component) {
+          case 'shared.media':
+            return {
+              ...block,
+              file: resolveMediaUrl(block.file),
+            };
+          case 'shared.section':
+            return {
+              ...block,
+              media: resolveMediaUrl(block.media),
+            };
+          case 'shared.slider':
+            return {
+              ...block,
+              files: toArray(block.files).map(resolveMediaUrl).filter(Boolean),
+            };
+          default:
+            return block;
+        }
+      })
+      .filter(Boolean);
+
   return list.map((partner) => {
     const attributes = partner?.attributes ?? partner ?? {};
-    
-    let normalizedWebsite = attributes.website || '';
-    if (normalizedWebsite && !/^https?:\/\//i.test(normalizedWebsite)) {
-      normalizedWebsite = `https://${normalizedWebsite}`;
-    }
+
+    const partnerProjects = toArray(attributes.projects?.data ?? attributes.projects)
+      .map((project) => {
+        const projectData = project?.attributes ?? project ?? {};
+        return {
+          id: project?.id ?? null,
+          title: projectData.title || '',
+          slug: projectData.slug || '',
+          abstract: projectData.abstract || '',
+          featured: !!projectData.featured,
+          isIndustryEngagement: !!projectData.isIndustryEngagement,
+          heroImage: resolveMediaUrl(projectData.heroImage),
+          domains: toArray(projectData.domains?.data ?? projectData.domains)
+            .map((domain) => {
+              const domainData = domain?.attributes ?? domain ?? {};
+              return {
+                id: domain?.id ?? null,
+                name: domainData.name || '',
+                slug: domainData.slug || '',
+              };
+            })
+            .filter((domain) => domain.name || domain.slug),
+        };
+      })
+      .filter((project) => project.title || project.slug);
+
+    const website = normalizeExternalUrl(attributes.website);
+    const markdownDescription = typeof attributes.description === 'string' ? attributes.description : '';
+    const plainDescription = stripHtml(markdownDescription);
+    const blurb = plainDescription;
+    const status = normalizePartnerStatus(attributes.partnershipStatus);
     
     return {
       id: partner?.id ?? null,
       name: attributes.name || '',
       slug: attributes.slug || '',
       country: attributes.country || '',
-      description: attributes.description ? stripHtml(attributes.description) : '',
-      url: normalizedWebsite, 
-      logo: resolveMediaUrl(attributes.logo), 
+      description: plainDescription,
+      descriptionMarkdown: markdownDescription,
+      blurb,
+      url: website,
+      website,
+      logo: resolveMediaUrl(attributes.logo),
+      heroImage: resolveMediaUrl(attributes.heroImage),
+      body: normalizeBodyBlocks(attributes.body),
+      projects: partnerProjects,
+      partnerStatus: status,
+      isCurrentPartner: status === 'current',
       _strapi: partner,
     };
   });

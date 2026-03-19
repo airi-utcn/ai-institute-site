@@ -1,0 +1,1112 @@
+{
+  "footer": {
+    "contact": {
+      "title": "Contacto",
+      "addressLine1": "Calle Observatorului 2,",
+      "addressLine2": "Cluj-Napoca 400347,",
+      "addressLine3": "Rumanía"
+    },
+    "quickLinks": {
+      "title": "Enlaces rápidos",
+      "projects": "Proyectos",
+      "sitemap": "Mapa del sitio",
+      "rooms": "Salas",
+      "dissemination": "Difusión",
+      "contactUs": "Contáctenos"
+    },
+    "copyright": "© {year} Universidad Técnica de Cluj-Napoca. Todos los derechos reservados."
+  },
+  "navbar": {
+    "navLinks": {
+      "research": "Investigación",
+      "engagement": "Colaboración",
+      "people": "Equipo",
+      "news": "Noticias y Eventos",
+      "about": "Acerca de"
+    },
+    "researchMenu": {
+      "departments": "Departamentos",
+      "themes": "Temas",
+      "projects": "Proyectos",
+      "publications": "Publicaciones",
+      "thesis": "Tesis",
+      "resources": "Recursos",
+      "paperGraph": "Paper Graph"
+    },
+    "newsMenu": {
+      "news": "Noticias",
+      "events": "Eventos",
+      "seminars": "Seminarios",
+      "calls": "Convocatorias de Proyectos",
+      "awards": "Premios",
+      "careers": "Oportunidades de Carrera"
+    },
+    "aboutMenu": {
+      "mission": "Misión",
+      "organigram": "Organigrama",
+      "sitemap": "Mapa del sitio",
+      "reports": "Informes",
+      "regulations": "Reglamentos",
+      "guidelines": "Directrices",
+      "tour": "Recorrido Virtual",
+      "rooms": "Salas y calendario",
+      "contact": "Contacto"
+    },
+    "search": {
+      "placeholder": "Buscar...",
+      "mobilePlaceholder": "Buscar en el sitio...",
+      "button": "Buscar",
+      "chatbot": "Chatbot AIRi",
+      "knowledgeGraph": "Grafos de conocimiento"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Inicio",
+      "description": "Avanzando en la investigación, innovación y exploración en inteligencia artificial en la Universidad Técnica de Cluj-Napoca - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Instituto de Investigación en Inteligencia Artificial",
+      "subtitle": "Avanzando en la investigación, innovación y exploración en el campo de la inteligencia artificial en la Universidad Técnica de Cluj-Napoca.",
+      "learnMore": "Saber Más",
+      "altHero": "Héroe de la investigación en IA",
+      "altQr": "Código QR para registrarse"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN se encuentra actualmente en construcción. Síganos en nuestros canales para recibir actualizaciones."
+    },
+    "About": {
+      "title": "Acerca de Nosotros",
+      "description": "El Instituto de Investigación en Inteligencia Artificial (AIRi) es un nexo para la investigación colaborativa en la Universidad Técnica de Cluj-Napoca. AIRi@UTCN promueve la excelencia en la teoría y práctica de la IA, reuniendo a investigadores de toda la UTCN en torno a una visión de colaboración abierta. Nuestro trabajo abarca la investigación interdisciplinaria, la alfabetización en IA en diversas disciplinas y el impacto a través de asociaciones de cocreación pública y empresarial."
+    },
+    "Cards": {
+      "research": {
+        "title": "Investigación",
+        "description": "Explore nuestras unidades y proyectos de investigación."
+      },
+      "people": {
+        "title": "Equipo",
+        "description": "Conozca a nuestros investigadores y personal."
+      },
+      "resources": {
+        "title": "Recursos",
+        "description": "Herramientas, recursos y materiales de aprendizaje."
+      }
+    },
+    "LatestNews": {
+      "title": "Últimas Noticias",
+      "viewAll": "Ver Todas las Noticias →",
+      "emptyState": "Los artículos de noticias aparecerán aquí una vez publicados.",
+      "visitNews": "Visitar Noticias y Eventos →"
+    },
+    "Social": {
+      "title": "Síganos en LinkedIn",
+      "visit": "Visitar LinkedIn →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Contáctenos",
+      "subtitle": "¡Nos encantaría saber de usted! Ya sea que tenga una pregunta sobre nuestra investigación, eventos o cualquier otra cosa, nuestro equipo está listo para responder a todas sus preguntas."
+    },
+    "Social": {
+      "title": "Conéctese Con Nosotros"
+    },
+    "Form": {
+      "title": "Formulario de Contacto",
+      "iframeTitle": "Formulario de Contáctenos"
+    },
+    "Location": {
+      "title": "Nuestra Ubicación",
+      "address": "📍 Strada Observatorului 2, Cluj-Napoca 400347, Rumanía",
+      "iframeTitle": "Mapa de Ubicación"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Colaboración académica",
+      "description": "Colaboraciones con universidades e institutos: cotutoría, cursos conjuntos, talleres, visitas de investigación, movilidad.",
+      "contactButton": "Contactar al equipo académico",
+      "selectTopic": "Seleccione un tema del menú izquierdo.",
+      "Tabs": {
+        "Overview": {
+          "label": "Visión general",
+          "subtabs": {
+            "partnerships": "Asociaciones académicas",
+            "teaching": "Enseñanza y formación",
+            "mobility": "Movilidad"
+          }
+        },
+        "Initiatives": {
+          "label": "Iniciativas",
+          "subtabs": {
+            "schools": "Escuelas de verano y talleres",
+            "seminars": "Seminarios conjuntos",
+            "visits": "Visitas de investigación"
+          }
+        },
+        "Courses": {
+          "label": "Cursos y Talleres",
+          "subtabs": {
+            "ml": "Machine Learning",
+            "robotics": "Robótica y Visión",
+            "hpc": "HPC para IA",
+            "ethics": "Ética y Seguridad en IA"
+          }
+        },
+        "Mobility": {
+          "label": "Cotutoría y Movilidad",
+          "subtabs": {
+            "phd": "Co-supervisión",
+            "grants": "Becas de movilidad",
+            "placements": "Prácticas e intercambios"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": {
+            "title": "Asociaciones académicas",
+            "desc": "Una red de colaboraciones y actividades conjuntas."
+          },
+          "teaching": {
+            "title": "Enseñanza y formación",
+            "desc": "Cursos, escuelas de verano y talleres."
+          },
+          "mobility": {
+            "title": "Movilidad",
+            "desc": "Cotutorías, visitas, pasantías, intercambios."
+          }
+        },
+        "Initiatives": {
+          "schools": {
+            "title": "Escuelas de verano y talleres",
+            "desc": "Eventos locales e internacionales para estudiantes e investigadores."
+          },
+          "seminars": {
+            "title": "Seminarios conjuntos",
+            "desc": "Charlas colaborativas y ponentes invitados."
+          },
+          "visits": {
+            "title": "Visitas de investigación",
+            "desc": "Estancias de investigación a corto y largo plazo."
+          }
+        },
+        "Courses": {
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Cursos conjuntos, módulos aplicados, proyectos."
+          },
+          "robotics": {
+            "title": "Robótica y Visión",
+            "desc": "Laboratorios prácticos, automatización y sistemas de visión."
+          },
+          "hpc": {
+            "title": "HPC para IA",
+            "desc": "Programación GPU y entrenamiento de IA a gran escala."
+          },
+          "ethics": {
+            "title": "Ética y Seguridad en IA",
+            "desc": "Equidad, explicabilidad y gobernanza en la IA."
+          }
+        },
+        "Mobility": {
+          "phd": {
+            "title": "Co-supervisión",
+            "desc": "Supervisión conjunta de doctorados con socios internacionales."
+          },
+          "grants": {
+            "title": "Becas de movilidad",
+            "desc": "Financiación para intercambios y estancias de investigación."
+          },
+          "placements": {
+            "title": "Prácticas e intercambios",
+            "desc": "Pasantías, visitas e intercambio de personal."
+          }
+        }
+      },
+      "Event": {
+        "title": "Foro “Progreso e Innovación en Oftalmología” 2025",
+        "desc1": "La 3.ª edición del taller “Eye and AI” está organizada conjuntamente por el Departamento de Oftalmología, la Universidad de Medicina y Farmacia “Iuliu Hațieganu”, el Hospital Clínico de Emergencia del Condado de Cluj y el Instituto de Investigación en Inteligencia Artificial (AIRi@UTCN), de la Universidad Técnica de Cluj-Napoca, Rumanía. Reuniendo a clínicos, investigadores y profesionales de la industria, el evento explora cómo la inteligencia artificial está transformando la atención oftálmica, desde la obtención de imágenes y la detección hasta el apoyo en la toma de decisiones y la optimización del flujo de trabajo.",
+        "moderators": "Moderadores:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "Reconstrucción de volúmenes OCT 3D compactos a partir de B-scans: un estudio comparativo de arquitecturas U-Net",
+        "paper1Authors": "Adrian POP — Universidad Técnica, Cluj-Napoca",
+        "paper2Title": "Reconstrucción 3D basada en el conjunto AROI",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Universidad Técnica, Cluj-Napoca",
+        "paper3Title": "Adaptación de modelos de base de visión para OCT y fondo de ojo",
+        "paper3Authors": "Anca MĂRGINEAN — Universidad Técnica, Cluj-Napoca",
+        "paper4Title": "Segmentación de la red vascular retiniana y cuantificación de biomarcadores en imágenes OCTA",
+        "paper4Authors": "Darius STAN, Raluca BREHAR — Universidad Técnica, Cluj-Napoca",
+        "linkText": "Ver los detalles completos del evento →"
+      }
+    },
+    "high-school": {
+      "title": "Colaboración con escuelas secundarias",
+      "description": "Competiciones, eventos y recursos de alfabetización en IA para estudiantes y profesores.",
+      "features": {
+        "competitions": {
+          "title": "Competiciones",
+          "desc": "Competiciones de IA y programación para estudiantes de secundaria."
+        },
+        "events": {
+          "title": "Eventos",
+          "desc": "Talleres, visitas a laboratorios y sesiones con expertos."
+        },
+        "resources": {
+          "title": "Recursos educativos",
+          "desc": "Guías y materiales para la alfabetización en IA."
+        }
+      },
+      "linkText": "Marco AILIT – Recursos"
+    },
+    "industrial-phd": {
+      "title": "Doctorado Industrial",
+      "p1": "Un Doctorado Industrial se conoce como un programa de formación universitaria que califica para la obtención de un doctorado a través de un proyecto de investigación industrial o desarrollo experimental, que fue creado de manera colaborativa entre una empresa y un entorno académico, el cual se convertirá en el tema de una tesis doctoral por parte de un estudiante de doctorado.",
+      "p2": "Si es una empresa y está interesada en llevar a cabo un doctorado industrial, contáctenos por correo electrónico.",
+      "p3": "Si desea venir y realizar un Doctorado Industrial en Inteligencia Artificial con nosotros en cualquiera de los temas propuestos, póngase en contacto por correo electrónico."
+    },
+    "industry": {
+      "title": "Colaboración con la industria",
+      "description": "Asóciese con AIRi en la investigación aplicada y la transferencia de tecnología, desde el descubrimiento hasta la implementación.",
+      "Tabs": {
+        "Overview": "Visión general",
+        "Projects": "Proyectos",
+        "Engagement": "Cómo trabajamos"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Buscar por proyecto, líder, socio...",
+        "allDomains": "Todos los dominios",
+        "noProjects": "Ningún proyecto coincide con sus filtros todavía.",
+        "cardLead": "Líder",
+        "cardDetails": "Detalles",
+        "cardSite": "Sitio",
+        "cardDocs": "Documentos"
+      },
+      "EngagementTab": {
+        "title": "Modelo de colaboración",
+        "listItem1": "Investigación aplicada conjunta con resultados medibles",
+        "listItem2": "Prototipado y validación con sus equipos",
+        "listItem3": "Transferencia de conocimiento y colaboración a largo plazo"
+      },
+      "OverviewTab": {
+        "feature1Title": "Investigación aplicada",
+        "feature1Desc": "Colaboraciones industriales orientadas a la implementación en el mundo real.",
+        "feature2Title": "Co-desarrollo",
+        "feature2Desc": "Hojas de ruta compartidas, creación rápida de prototipos y ciclos de validación.",
+        "feature3Title": "Transferencia de conocimiento",
+        "feature3Desc": "Integración de los resultados de investigación en los equipos de producción.",
+        "statsProjects": "Proyectos activos",
+        "statsDomains": "Dominios involucrados",
+        "statsPartners": "Socios"
+      },
+      "Buttons": {
+        "contact": "Contactar al equipo de la industria",
+        "explore": "Explorar todos los proyectos"
+      }
+    },
+    "partners": {
+      "title": "Socios",
+      "mapTitle": "Mapa de socios"
+    },
+    "main": {
+      "Hero": {
+        "title": "Colaboración",
+        "subtitle": "Conectando a AIRi @ UTCN con el público, la academia y la industria."
+      },
+      "Tabs": {
+        "public": "Público",
+        "academic": "Académico",
+        "industry": "Industria",
+        "high-school": "Secundaria",
+        "partners": "Socios",
+        "phd": "Doctorado Industrial"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Asociaciones",
+          "teaching": "Enseñanza",
+          "courses": "Cursos",
+          "mobility": "Movilidad"
+        },
+        "industry": {
+          "overview": "Visión general",
+          "projects": "Proyectos",
+          "engagement": "Cómo trabajamos"
+        }
+      },
+      "Public": {
+        "title": "Colaboración Pública",
+        "desc": "Conectando a la comunidad de investigación en IA con el público en general a través de recursos accesibles, apariciones en los medios y programas de divulgación.",
+        "btnMedia": "Ver Medios y Prensa",
+        "btnNews": "Noticias y Eventos",
+        "f1Title": "Programas de divulgación",
+        "f1Desc": "Charlas públicas, demostraciones e iniciativas de participación comunitaria.",
+        "f2Title": "Recursos educativos",
+        "f2Desc": "Materiales de acceso abierto que explican conceptos de IA al público en general.",
+        "f3Title": "Apariciones en los medios",
+        "f3Desc": "Entrevistas, artículos y cobertura mediática de nuestra investigación."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Asociaciones Académicas",
+          "desc": "Una red de colaboraciones académicas internacionales, programas de investigación conjuntos y asociaciones institucionales que avanzan la investigación y la educación en IA.",
+          "f1Title": "Colaboraciones Universitarias",
+          "f1Desc": "Programas de investigación conjuntos con universidades líderes en todo el mundo.",
+          "f2Title": "Redes de Investigación",
+          "f2Desc": "Participación en CLAIRE, ELLIS y otras redes europeas de IA."
+        },
+        "Teaching": {
+          "title": "Enseñanza y Formación",
+          "desc": "Cursos, escuelas de verano y talleres para estudiantes e investigadores de todos los niveles.",
+          "f1Title": "Escuelas de Verano",
+          "f1Desc": "Programas internacionales de verano en IA y machine learning.",
+          "f2Title": "Talleres",
+          "f2Desc": "Talleres prácticos y sesiones de formación."
+        },
+        "Courses": {
+          "title": "Cursos y Talleres",
+          "desc": "Cursos especializados que cubren machine learning, robótica, HPC para IA y ética de la IA.",
+          "f1Title": "Machine Learning",
+          "f1Desc": "Módulos aplicados de ML, proyectos y cursos orientados a la investigación.",
+          "f2Title": "Robótica y Visión",
+          "f2Desc": "Laboratorios prácticos en automatización y sistemas de visión.",
+          "f3Title": "HPC para IA",
+          "f3Desc": "Programación de GPU y entrenamiento de IA a gran escala.",
+          "f4Title": "Ética y Seguridad en IA",
+          "f4Desc": "Equidad, explicabilidad y gobernanza en los sistemas de IA."
+        },
+        "Mobility": {
+          "title": "Cotutoría y Movilidad",
+          "desc": "Programas de intercambio internacional, supervisión conjunta de doctorados y oportunidades de visitas de investigación.",
+          "f1Title": "Co-supervisión",
+          "f1Desc": "Supervisión conjunta de doctorados con socios internacionales.",
+          "f2Title": "Becas de Movilidad",
+          "f2Desc": "Financiación para estancias de investigación e intercambios.",
+          "f3Title": "Intercambios",
+          "f3Desc": "Programas de intercambio de estudiantes e investigadores."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Proyectos",
+          "domains": "Dominios",
+          "partners": "Socios"
+        },
+        "Collaboration": {
+          "title": "Colaboración con la Industria",
+          "desc": "Nos asociamos con líderes de la industria para avanzar en la investigación de la IA y llevar innovaciones al mercado. Nuestras colaboraciones abarcan consultoría, proyectos conjuntos de I+D y transferencia de tecnología."
+        },
+        "Projects": {
+          "searchPlaceholder": "Buscar proyectos...",
+          "allDomains": "Todos los Dominios",
+          "clear": "Limpiar",
+          "lead": "Líder:",
+          "noProjects": "Ningún proyecto coincide con sus filtros."
+        },
+        "HowWeWork": {
+          "title": "Cómo Trabajamos Con La Industria",
+          "desc": "Ofrecemos varios modelos de colaboración para adaptarnos a las diferentes necesidades de la industria y las profundidades de colaboración.",
+          "f1Title": "Proyectos conjuntos de I+D",
+          "f1Desc": "Proyectos de investigación colaborativos con propiedad intelectual y resultados compartidos.",
+          "f2Title": "Servicios de Consultoría",
+          "f2Desc": "Asesoramiento experto en estrategia de IA, implementación y mejores prácticas.",
+          "f3Title": "Programas de Formación",
+          "f3Desc": "Formación personalizada para equipos de la industria en tecnologías de IA.",
+          "f4Title": "Transferencia de Tecnología",
+          "f4Desc": "Licencias y comercialización de los resultados de la investigación."
+        }
+      },
+      "HighSchool": {
+        "title": "Colaboración con Escuelas Secundarias",
+        "desc": "Competiciones, eventos y recursos de alfabetización en IA para estudiantes y profesores, fomentando a la próxima generación de investigadores en IA.",
+        "f1Title": "Competiciones",
+        "f1Desc": "Competiciones de IA y programación para estudiantes de secundaria.",
+        "f2Title": "Eventos",
+        "f2Desc": "Talleres, visitas a laboratorios y sesiones con expertos.",
+        "f3Title": "Recursos Educativos",
+        "f3Desc": "Guías y materiales para la alfabetización en IA.",
+        "btnFramework": "Marco AILIT – Recursos"
+      },
+      "Partners": {
+        "title": "Nuestros Socios",
+        "desc": "Colaboramos con organizaciones líderes en la investigación y desarrollo de la IA, incluidas CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe y BDVA.",
+        "mapTitle": "Mapa de Socios"
+      },
+      "PhD": {
+        "title": "Programa de Doctorado Industrial",
+        "p1": "Un Doctorado Industrial es un programa de formación universitaria que califica para la obtención de un doctorado a través de un proyecto de investigación industrial o desarrollo experimental, creado de manera colaborativa entre una empresa y un entorno académico.",
+        "p2": "Si es una empresa interesada en llevar a cabo un doctorado industrial, o si desea realizar un Doctorado Industrial en Inteligencia Artificial con nosotros, póngase en contacto por correo electrónico.",
+        "f1Title": "Para Empresas",
+        "f1Desc": "Asóciese con nosotros para la investigación aplicada en IA que resuelva desafíos comerciales reales.",
+        "f2Title": "Para Candidatos",
+        "f2Desc": "Combine la investigación académica con la experiencia práctica en la industria.",
+        "f3Title": "Modelo de Colaboración",
+        "f3Desc": "Supervisión conjunta entre mentores de la industria y asesores académicos.",
+        "btnContact": "Contáctenos"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "Colaboración",
+        "subtitle": "Conectando a AIRi con el público, la academia y la industria"
+      },
+      "Tabs": {
+        "public": "Público",
+        "academic": "Académico",
+        "industry": "Industria",
+        "highSchool": "Secundaria",
+        "partners": "Socios",
+        "phd": "Doctorado Industrial"
+      },
+      "SubTabs": {
+        "partnerships": "Asociaciones",
+        "teaching": "Enseñanza",
+        "courses": "Cursos",
+        "mobility": "Movilidad",
+        "overview": "Visión general",
+        "projects": "Proyectos",
+        "engagement": "Cómo Trabajamos"
+      },
+      "PublicContent": {
+        "title": "Colaboración Pública",
+        "desc": "Nos involucramos activamente con el público para desmitificar la IA y compartir nuestros hallazgos.",
+        "btnMedia": "Apariciones en los Medios",
+        "btnNews": "Noticias y Eventos",
+        "outreachTitle": "Alcance Comunitario",
+        "outreachDesc": "Organizamos jornadas de puertas abiertas, charlas públicas y demostraciones interactivas para acercar la IA a la comunidad.",
+        "eduTitle": "Contenido Educativo",
+        "eduDesc": "Creamos materiales accesibles, blogs y videos explicando conceptos complejos de IA para una audiencia general.",
+        "mediaTitle": "Medios y Prensa",
+        "mediaDesc": "Contribuciones periódicas a los medios de comunicación, comentarios de expertos sobre las tendencias de la IA y comunicados de prensa sobre nuestros principales descubrimientos."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Asociaciones Académicas",
+        "partnerDesc": "Construyendo relaciones sólidas con universidades y centros de investigación de todo el mundo.",
+        "uniTitle": "Colaboraciones Universitarias",
+        "uniDesc": "Proyectos de investigación conjuntos y recursos compartidos con las principales instituciones académicas.",
+        "netTitle": "Redes de Investigación",
+        "netDesc": "Participación activa en consorcios internacionales de investigación en IA.",
+        "teachTitle": "Enseñanza y Seminarios",
+        "teachDesc": "Contribuyendo a la comunidad académica a través de actividades docentes dedicadas.",
+        "summerTitle": "Escuelas de Verano",
+        "summerDesc": "Programas intensivos para estudiantes e investigadores en el inicio de su carrera.",
+        "workTitle": "Talleres y Seminarios",
+        "workDesc": "Seminarios académicos regulares que presentan investigación de vanguardia en IA.",
+        "courseTitle": "Cursos Universitarios",
+        "courseDesc": "Diseñamos y ofrecemos cursos especializados en IA a varios niveles académicos.",
+        "mlTitle": "Machine Learning",
+        "mlDesc": "Cursos fundamentales y avanzados en algoritmos y aplicaciones de ML.",
+        "robotTitle": "Robótica y Visión",
+        "robotDesc": "Módulos especializados centrados en la visión artificial y la robótica inteligente.",
+        "hpcTitle": "Computación de Alto Rendimiento (HPC)",
+        "hpcDesc": "Formación en la utilización de clústeres de supercomputación para la IA.",
+        "ethicsTitle": "Ética en la IA",
+        "ethicsDesc": "Cursos dedicados al desarrollo e implementación responsable de la IA.",
+        "mobTitle": "Movilidad e Intercambio",
+        "mobDesc": "Fomentando el intercambio académico internacional y la movilidad de los investigadores.",
+        "supTitle": "Supervisión de Doctorado",
+        "supDesc": "Co-supervisión de candidatos de doctorado en instituciones internacionales.",
+        "grantTitle": "Becas de Movilidad",
+        "grantDesc": "Apoyo para visitas de investigación a corto y largo plazo.",
+        "exTitle": "Programas de Intercambio",
+        "exDesc": "Facilitando el intercambio de investigadores y estudiantes con universidades asociadas."
+      },
+      "IndustryContent": {
+        "statProjects": "Proyectos Industriales",
+        "statDomains": "Dominios de Investigación",
+        "statPartners": "Socios Industriales",
+        "collabTitle": "Colaboración con la Industria",
+        "collabDesc": "AIRi se asocia con empresas líderes para trasladar la investigación de vanguardia en IA a aplicaciones del mundo real.",
+        "searchPlaceholder": "Buscar proyectos de la industria...",
+        "allDomains": "Todos los dominios",
+        "clear": "Limpiar filtros",
+        "noProjects": "No se encontraron proyectos de la industria.",
+        "leadLabel": "Líder:",
+        "workTitle": "Cómo Trabajamos Con La Industria",
+        "workDesc": "Ofrecemos modelos de participación flexibles adaptados a las necesidades de la industria.",
+        "rdTitle": "I+D Conjunta",
+        "rdDesc": "Proyectos de investigación colaborativos que resuelven complejos desafíos industriales.",
+        "consTitle": "Consultoría",
+        "consDesc": "Servicios de asesoramiento experto sobre la estrategia e implementación de la IA.",
+        "trainTitle": "Formación Corporativa",
+        "trainDesc": "Programas de formación en IA personalizados para profesionales de la industria.",
+        "techTitle": "Transferencia de Tecnología",
+        "techDesc": "Licencias y creación de empresas derivadas (spin-offs) a partir de los resultados de nuestra investigación."
+      },
+      "HighSchoolContent": {
+        "title": "Colaboración con Escuelas Secundarias",
+        "desc": "Inspirando a la próxima generación de investigadores e ingenieros de IA.",
+        "compTitle": "Competiciones",
+        "compDesc": "Organizamos desafíos de IA y programación para estudiantes de secundaria.",
+        "eventTitle": "Eventos Abiertos",
+        "eventDesc": "Realizamos visitas a laboratorios y talleres interactivos para escuelas.",
+        "eduTitle": "Recursos Educativos",
+        "eduDesc": "Proporcionamos materiales para que los profesores introduzcan la IA en las aulas.",
+        "btnLabel": "Ver el Marco de Alfabetización en IA"
+      },
+      "PartnersContent": {
+        "title": "Nuestros Socios",
+        "desc": "Estamos orgullosos de colaborar con organizaciones líderes en la academia y la industria.",
+        "mapTitle": "Mapa de Socios",
+        "eyebrow": "Red estratégica",
+        "stats": {
+          "partners": "Socios",
+          "countries": "Países",
+          "projects": "Proyectos"
+        },
+        "filters": {
+          "searchPlaceholder": "Buscar por socio, país, proyecto",
+          "allCountries": "Todos los países",
+          "clear": "Limpiar"
+        },
+        "activeProjects": "Proyectos activos",
+        "actions": {
+          "exploreProfile": "Explorar perfil",
+          "visitWebsite": "Visitar sitio web"
+        },
+        "empty": {
+          "filtered": "Ningún socio coincide con tus filtros."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Socios",
+        "visitOfficialWebsite": "Visitar sitio web oficial",
+        "collaborativeProjects": "Proyectos colaborativos",
+        "collaborativeProjectsSubtitle": "Investigaciones e iniciativas con {partnerName}.",
+        "noLinkedProjects": "No hay proyectos vinculados por ahora."
+      },
+      "PhDContent": {
+        "title": "Programa de Doctorado Industrial",
+        "p1": "Cerrando la brecha entre la investigación académica y la aplicación industrial.",
+        "p2": "Nuestro programa de Doctorado Industrial permite a los candidatos llevar a cabo investigaciones académicas rigurosas al mismo tiempo que resuelven desafíos del mundo real dentro de una empresa asociada.",
+        "compTitle": "Para Empresas",
+        "compDesc": "Impulse la innovación patrocinando a un investigador dedicado para abordar sus desafíos específicos.",
+        "candTitle": "Para Candidatos",
+        "candDesc": "Obtenga su doctorado mientras adquiere una valiosa experiencia en la industria y un salario competitivo.",
+        "collabTitle": "Supervisión Conjunta",
+        "collabDesc": "Benefíciese de la experiencia combinada de supervisores académicos y mentores de la industria.",
+        "btnContact": "Contáctenos Sobre los Doctorados Industriales"
+      }
+    }
+  },
+  "about": {
+    "mission": {
+      "title": "Misión",
+      "text": "El Instituto de Investigación en Inteligencia Artificial (AIRi) es un nexo para la investigación colaborativa en la Universidad Técnica de Cluj-Napoca. AIRi@UTCN promueve la excelencia en la teoría y práctica de la IA, reuniendo a investigadores de toda la UTCN en torno a una visión de colaboración abierta. Nuestro trabajo abarca la investigación interdisciplinaria, la alfabetización en IA en diversas disciplinas y el impacto a través de asociaciones de cocreación pública y empresarial."
+    },
+    "history": {
+      "title": "Cronología de AIRI",
+      "event1": {
+        "date": "15 Ene 2023",
+        "title": "Anuncio del Instituto de IA en UTCN",
+        "description": "La Universidad Técnica de Cluj-Napoca anunció planes para establecer un Instituto de Inteligencia Artificial dedicado a fomentar la investigación y la innovación en tecnologías de IA."
+      },
+      "event2": {
+        "date": "10 Jun 2023",
+        "title": "Ceremonia de inauguración",
+        "description": "Ceremonia oficial de inicio de obras para la construcción del edificio del Instituto de IA, con la asistencia de funcionarios de la universidad y dignatarios locales."
+      },
+      "event3": {
+        "date": "1 Sep 2024",
+        "title": "Finalización de la Construcción",
+        "description": "Se completó la construcción de las instalaciones de vanguardia del Instituto de IA, que cuentan con laboratorios modernos y espacios colaborativos."
+      },
+      "event4": {
+        "date": "15 Oct 2024",
+        "title": "Simposio Inaugural de IA",
+        "description": "El instituto organizó su primer simposio, reuniendo a investigadores de IA, expertos de la industria y estudiantes para discutir los últimos avances en inteligencia artificial."
+      },
+      "event5": {
+        "date": "20 Ago 2025",
+        "title": "Progreso Actual de la Construcción",
+        "descriptionPart1": "Manténgase actualizado con el progreso actual de la construcción del Instituto de IA.",
+        "descriptionPart2": "Véalo en vivo a través de nuestra cámara web:"
+      }
+    },
+    "guidelines": {
+      "students": "Estudiantes",
+      "faculty": "Facultad",
+      "researchers": "Investigadores",
+      "staff": "Personal",
+      "title": "Solo para ti"
+    },
+    "organigram": {
+      "title": "Organigrama",
+      "description": "Descripción del <strong>Comité Directivo</strong> y el <strong>Comité Científico</strong>",
+      "directorCommittee": "Comité Directivo",
+      "viewDirectorStructure": "Ver la estructura del Comité Directivo:",
+      "scientificCommittee": "Comité Científico",
+      "viewScientificStructure": "Ver la estructura del Comité Científico:",
+      "downloadPdf": "Descargar PDF",
+      "viewPng": "Ver PNG"
+    },
+    "regulations": {
+      "title": "Reglamentos",
+      "comingSoon": "El contenido estará disponible próximamente."
+    },
+    "reports": {
+      "title": "Informes",
+      "comingSoon": "El contenido estará disponible próximamente."
+    },
+    "roomsCalendar": {
+      "title": "Salas y calendario",
+      "comingSoon": "El contenido estará disponible próximamente."
+    },
+    "sitemap": {
+      "title": "Mapa del sitio",
+      "filterPlaceholder": "Filtrar páginas…",
+      "clear": "Limpiar",
+      "noResults": "No hay resultados para “{query}”.",
+      "sections": {
+        "research": {
+          "title": "Investigación",
+          "links": {
+            "departments": "Departamentos",
+            "themes": "Temas",
+            "projects": "Proyectos",
+            "publications": "Publicaciones",
+            "thesis": "Tesis",
+            "tools": "Herramientas",
+            "resources": "Recursos"
+          }
+        },
+        "engagement": {
+          "title": "Colaboración",
+          "links": {
+            "public": "Colaboración pública",
+            "academic": "Colaboración académica",
+            "industry": "Colaboración industrial",
+            "highSchool": "Colaboración con escuelas secundarias",
+            "partners": "Socios",
+            "industrialPhd": "Doctorado Industrial"
+          }
+        },
+        "people": {
+          "title": "Equipo",
+          "links": {
+            "researchers": "Investigadores",
+            "staff": "Personal",
+            "alumni": "Antiguos alumnos",
+            "visiting": "Investigadores visitantes"
+          }
+        },
+        "newsEvents": {
+          "title": "Noticias y Eventos",
+          "links": {
+            "news": "Noticias",
+            "events": "Eventos",
+            "seminars": "Seminarios",
+            "openCalls": "Convocatorias de Proyectos Abiertas",
+            "awards": "Premios",
+            "careers": "Oportunidades de Carrera/Trabajo"
+          }
+        },
+        "about": {
+          "title": "Acerca de",
+          "links": {
+            "missionHistory": "Misión, Historia (cronología)",
+            "organigram": "Organigrama",
+            "sitemap": "Mapa del sitio",
+            "reports": "Informes de autoevaluación",
+            "regulations": "Procedimientos y Reglamentos",
+            "guidelines": "Directrices",
+            "virtualTour": "Recorrido Virtual",
+            "roomsCalendar": "Salas y calendario",
+            "contact": "Contacto"
+          }
+        },
+        "search": {
+          "title": "Buscar",
+          "links": {
+            "classic": "Búsqueda clásica",
+            "chatbot": "Chatbot AIRi (basado en LLM)",
+            "knowledgeGraph": "Navegador de grafos de conocimiento AIRi"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Recorrido Virtual",
+      "comingSoon": "El contenido estará disponible próximamente."
+    }
+  },
+  "media": {
+    "header-title": "Galería Multimedia",
+    "header-subtitle": "Explore imágenes y videos que muestran el progreso del Instituto AIRI."
+  },
+  "news&events": {
+    "awards": {
+      "title": "Premios",
+      "subtitle": "Reconocimientos y distinciones obtenidos por AIRI y sus colaboradores.",
+      "coming-soon": "Más información próximamente."
+    },
+    "careers": {
+      "title": "Oportunidades de Carrera",
+      "subtitle": "Explore formas de trabajar con AIRI en todos los niveles de estudio y roles.",
+      "coming-soon": "Más información próximamente.",
+      "undergraduate": "Como estudiante de grado",
+      "postgraduate": "Como estudiante de posgrado",
+      "postdoctoral": "Como investigador postdoctoral",
+      "visiting-researcher": "Como investigador visitante",
+      "software-engineer": "Como ingeniero de software"
+    },
+    "events": {
+      "title": "Eventos",
+      "subtitle": "Destacados y momentos memorables de AIRI.",
+      "calendar-title": "Calendario del Instituto",
+      "no-events": "No hay eventos disponibles en este momento."
+    },
+    "news": {
+      "title": "Noticias y Eventos",
+      "latest": "Lo último de AIRI",
+      "subtitle": "Historias recientes, hitos de investigación y momentos de prensa seleccionados directamente desde la sala de redacción impulsada por Strapi.",
+      "quickFilters": "Filtros rápidos",
+      "searchLabel": "Buscar noticias",
+      "searchPlaceholder": "Buscar títulos, palabras clave o resúmenes",
+      "stories": "historias",
+      "readStory": "Leer historia",
+      "spotlight": "Destacado",
+      "noSummary": "Aún no se ha proporcionado un resumen.",
+      "openArticle": "Abrir artículo",
+      "emptyState": "No hay noticias disponibles en este momento.",
+      "noImage": "Sin imagen",
+      "readMore": "Leer más",
+      "categories": {
+        "all": "Todas",
+        "announcement": "Anuncios",
+        "construction": "Construcción",
+        "collaboration": "Colaboraciones",
+        "award": "Premios",
+        "press": "Prensa",
+        "other": "Otros"
+      }
+    },
+    "open-project-calls": {
+      "title": "Convocatorias de Proyectos",
+      "subtitle": "Convocatorias de propuestas y oportunidades de colaboración.",
+      "coming-soon": "Más actualizaciones en esta sección próximamente."
+    },
+    "seminars": {
+      "title": "Seminarios",
+      "subtitle": "Seminarios académicos organizados por AIRI e invitados.",
+      "emptyState": "No hay seminarios disponibles en este momento.",
+      "whatYouWillLearn": "Lo que aprenderá",
+      "modules": "Módulos"
+    }
+  },
+  "people": {
+    "title": "Equipo",
+    "subtitle": "Conozca al equipo detrás de AIRi @ UTCN",
+    "searchPlaceholder": "Buscar por nombre, título o departamento...",
+    "clearSearch": "Limpiar búsqueda",
+    "tabs": {
+      "researchers": "Investigadores",
+      "staff": "Personal",
+      "visiting": "Investigadores Visitantes",
+      "alumni": "Antiguos Alumnos"
+    },
+    "results": "Se encontró {count} resultado para \"{query}\"",
+    "resultsPlural": "Se encontraron {count} resultados para \"{query}\"",
+    "emptySearch": "Ninguna persona coincide con su búsqueda.",
+    "emptyTab": "No hay {tabName} disponibles todavía.",
+    "details": {
+      "publications": "Publicaciones",
+      "teams": "Equipos",
+      "searchPubs": "Buscar publicaciones...",
+      "allYears": "Todos los Años",
+      "allTypes": "Todos los Tipos",
+      "allDomains": "Todos los Dominios",
+      "clear": "Limpiar",
+      "viewDetails": "Ver Detalles",
+      "pdf": "PDF",
+      "lead": "Líder",
+      "projects": "Proyectos",
+      "noPubs": "No hay publicaciones disponibles.",
+      "noPubsMatch": "Ninguna publicación coincide con sus filtros.",
+      "noTeams": "No está asignado actualmente a ningún equipo."
+    },
+    "projectDetails": {
+      "backToProfile": "← Volver al Perfil",
+      "backToStaffProfile": "← Volver al Perfil del Personal",
+      "projectDetails": "Detalles del Proyecto",
+      "visitWebsite": "Visitar el Sitio Web",
+      "documentation": "Documentación",
+      "projectTimeline": "Cronograma del Proyecto",
+      "resources": "Recursos",
+      "relatedPublications": "Publicaciones Relacionadas",
+      "details": "Detalles",
+      "visitProjectWebsite": "Visitar el Sitio Web del Proyecto",
+      "viewDocumentation": "Ver Documentación",
+      "projectTeam": "Equipo del Proyecto",
+      "lead": "Líder",
+      "members": "Miembros",
+      "partners": "Socios",
+      "themes": "Temas",
+      "researchAreas": "Áreas de Investigación",
+      "phases": {
+        "completed": "Completado",
+        "planned": "Planificado",
+        "ongoing": "En curso"
+      }
+    }
+  },
+  "research": {
+    "departments": {
+      "title": "Departamentos",
+      "subtitle": "Explore nuestros departamentos de investigación y apoyo en AIRi @ UTCN",
+      "members": "{count} miembros",
+      "projects": "{count} proyectos",
+      "types": {
+        "research": "Departamentos de Investigación",
+        "research_networks": "Redes de Investigación",
+        "support": "Departamentos de Apoyo",
+        "other": "Departamentos"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Volver a Departamentos",
+        "notFound": "Departamento no encontrado.",
+        "membersCount": "Miembros",
+        "projectsCount": "Proyectos",
+        "publicationsCount": "Publicaciones",
+        "tabs": {
+          "overview": "Visión general",
+          "members": "Personas y Equipos",
+          "projects": "Proyectos",
+          "publications": "Publicaciones"
+        },
+        "overview": {
+          "about": "Acerca de",
+          "coordinator": "Coordinador",
+          "contact": "Contacto"
+        },
+        "members": {
+          "teams": "Equipos",
+          "member": "miembro",
+          "membersPlural": "miembros",
+          "independentResearchers": "Investigadores Independientes",
+          "noMembers": "No se encontraron miembros para este departamento.",
+          "projects": "Proyectos"
+        },
+        "projects": {
+          "lead": "Líder:",
+          "noProjects": "No se encontraron proyectos para este departamento."
+        },
+        "publications": {
+          "noPublications": "No se encontraron publicaciones para este departamento."
+        },
+        "phases": {
+          "completed": "Completado",
+          "planned": "Planificado",
+          "ongoing": "En curso",
+          "archived": "Archivado"
+        }
+      }
+    },
+    "projects": {
+      "title": "Proyectos",
+      "subtitle": "Explore nuestros proyectos de investigación en diversos dominios",
+      "searchPlaceholder": "Buscar proyectos por título, líder, departamento...",
+      "filters": "Filtros",
+      "allRegions": "Todas las regiones",
+      "allDepartments": "Todos los departamentos",
+      "allLeads": "Todos los líderes",
+      "allMembers": "Todos los miembros",
+      "filterByTheme": "Filtrar por tema...",
+      "region": "Región",
+      "department": "Departamento",
+      "dept": "Dep:",
+      "lead": "Líder",
+      "leadLabel": "Líder:",
+      "member": "Miembro",
+      "theme": "Tema",
+      "projectsFound": "Se encontró {count} proyecto",
+      "projectsFoundPlural": "Se encontraron {count} proyectos",
+      "clearAllFilters": "Limpiar todos los filtros",
+      "clearFilters": "Limpiar filtros",
+      "noProjects": "No se encontraron proyectos que coincidan con sus criterios."
+    },
+    "projectDetails": {
+      "notFound": "Proyecto no encontrado",
+      "backToProjects": "Volver a Proyectos",
+      "region": "Región",
+      "phase": "Fase",
+      "partners": "Socios",
+      "partnerCount": "{count} socio",
+      "partnerCountPlural": "{count} socios",
+      "officialWebsite": "Sitio Web Oficial",
+      "documentation": "Documentación",
+      "tabs": {
+        "overview": "Visión general",
+        "people": "Personas",
+        "resources": "Recursos",
+        "publications": "Publicaciones"
+      },
+      "abstract": "Resumen",
+      "researchDomains": "Dominios de Investigación",
+      "teams": "Equipos",
+      "memberCount": "{count} miembro",
+      "memberCountPlural": "{count} miembros",
+      "lead": "Líder",
+      "noTeamMembers": "No hay miembros listados para este equipo.",
+      "individualContributors": "Colaboradores Individuales",
+      "contributors": "Colaboradores",
+      "noPeople": "No hay personas asignadas a este proyecto.",
+      "platform": "Plataforma:",
+      "noResources": "No hay recursos disponibles para este proyecto.",
+      "publicationCount": "{count} publicación",
+      "publicationCountPlural": "{count} publicaciones",
+      "noPublications": "No hay publicaciones disponibles para este proyecto.",
+      "authors": "Autores:",
+      "viewDetails": "Ver detalles",
+      "pdf": "PDF",
+      "teamProjects": "Proyectos",
+      "phases": {
+        "ongoing": "En curso",
+        "planned": "Planificado",
+        "completed": "Completado",
+        "archived": "Archivado"
+      }
+    },
+    "publications": {
+      "title": "Publicaciones",
+      "subtitle": "Artículos de investigación, publicaciones y artículos académicos de nuestro equipo",
+      "searchPlaceholder": "Buscar publicaciones por título, autor, tipo...",
+      "filters": "Filtros",
+      "year": "Año",
+      "allYears": "Todos los años",
+      "author": "Autor",
+      "allAuthors": "Todos los autores",
+      "department": "Departamento",
+      "allDepartments": "Todos los departamentos",
+      "type": "Tipo",
+      "allTypes": "Todos los tipos",
+      "theme": "Tema",
+      "filterByTheme": "Filtrar por tema...",
+      "publicationsFound": "Se encontró {count} publicación",
+      "publicationsFoundPlural": "Se encontraron {count} publicaciones",
+      "clearAllFilters": "Limpiar todos los filtros",
+      "clearFilters": "Limpiar filtros",
+      "authorsLabel": "Autores:",
+      "viewDetails": "Ver detalles",
+      "openPdf": "Abrir PDF",
+      "noPublications": "No se encontraron publicaciones que coincidan con sus criterios."
+    },
+    "publicationDetails": {
+      "notFound": "Publicación no encontrada.",
+      "backToPublications": "← Volver a publicaciones",
+      "openPdf": "Abrir PDF",
+      "downloadBibtex": "Descargar BibTeX",
+      "authors": "Autores",
+      "noAuthors": "No hay autores listados.",
+      "relatedProjects": "Proyectos relacionados",
+      "noProjects": "No hay proyectos enlazados.",
+      "themes": "Temas",
+      "noThemes": "No hay temas enlazados.",
+      "resources": "Recursos",
+      "noResources": "No hay recursos enlazados.",
+      "viewResource": "Ver recurso",
+      "attachments": "Archivos adjuntos",
+      "noAttachments": "Todavía no hay archivos adjuntos.",
+      "images": "Imágenes",
+      "files": "Archivos",
+      "download": "Descargar"
+    },
+    "themes": {
+      "title": "Temas de Investigación",
+      "subtitle": "Explore nuestras áreas clave de investigación y descubra proyectos y publicaciones relacionadas.",
+      "viewProjects": "Ver Proyectos",
+      "viewPublications": "Ver Publicaciones",
+      "noThemes": "No se encontraron temas."
+    },
+    "thesis": {
+      "title": "Tesis",
+      "tabs": {
+        "phd": "Doctorado",
+        "master": "Máster",
+        "bachelor": "Grado"
+      },
+      "messages": {
+        "phd": "Próximamente habrá más actualizaciones para la sección de Doctorado.",
+        "master": "Próximamente habrá más actualizaciones para la sección de Máster.",
+        "bachelor": "Próximamente habrá más actualizaciones para la sección de Grado."
+      }
+    }
+  },
+  "resources": {
+    "title": "Recursos",
+    "subtitle": "Explore nuestra colección curada de herramientas, recursos, API y materiales de aprendizaje para apoyar su investigación y desarrollo en IA.",
+    "searchPlaceholder": "Buscar recursos...",
+    "allCategories": "Todas las categorías",
+    "clearFilters": "Limpiar filtros",
+    "clearAllFilters": "Limpiar todos los filtros",
+    "showing": "Mostrando {filtered} de {total} recursos",
+    "filtered": " (filtrados)",
+    "featuredResources": "Recursos Destacados",
+    "allResources": "Todos los Recursos",
+    "noResourcesFound": "No se encontraron recursos",
+    "noResourcesFilterMatch": "No pudimos encontrar ningún recurso que coincida con sus filtros actuales. Intente ajustar sus criterios de búsqueda.",
+    "noResourcesYet": "Los recursos aparecerán aquí una vez que se añadan al sistema.",
+    "visitResource": "Visitar Recurso",
+    "categories": {
+      "resource": "Recurso",
+      "tool": "Herramienta",
+      "software": "Software",
+      "documentation": "Documentación",
+      "api": "API",
+      "library": "Biblioteca",
+      "framework": "Framework",
+      "learning": "Aprendizaje",
+      "other": "Otro"
+    }
+  },
+  "search": {
+    "chatbot": {
+      "title": "Chatbot AIRi",
+      "cardTitle": "Chatbot AIRi",
+      "comingSoon": "Próximamente — chatbot basado en LLM para el conocimiento de AIRi y el contenido del sitio."
+    },
+    "classic": {
+      "title": "🔎 Búsqueda",
+      "placeholder": "Escriba para buscar páginas…",
+      "resultsSingular": "{count} resultado para",
+      "resultsPlural": "{count} resultados para",
+      "noMatches": "¡No hay coincidencias! ¡Intente con palabras clave diferentes o verifique su ortografía!"
+    },
+    "knowledgeGraph": {
+      "title": "Navegador de Grafos de Conocimiento",
+      "cardTitle": "Grafos de Conocimiento AIRi",
+      "comingSoon": "Próximamente — navegador interactivo para los grafos de conocimiento AIRi."
+    }
+  },
+  "timeline": {
+    "title": "📅 Cronología de AIRI",
+    "events": {
+      "event1": {
+        "date": "15 Ene 2023",
+        "title": "Anuncio del Instituto de IA en UTCN",
+        "description": "La Universidad Técnica de Cluj-Napoca anunció planes para establecer un Instituto de Inteligencia Artificial dedicado a fomentar la investigación y la innovación en tecnologías de IA."
+      },
+      "event2": {
+        "date": "10 Jun 2023",
+        "title": "Ceremonia de inauguración",
+        "description": "Ceremonia oficial de inicio de obras para la construcción del edificio del Instituto de IA, con la asistencia de funcionarios de la universidad y dignatarios locales."
+      },
+      "event3": {
+        "date": "1 Sep 2024",
+        "title": "Finalización de la Construcción",
+        "description": "Se completó la construcción de las instalaciones de vanguardia del Instituto de IA, que cuentan con laboratorios modernos y espacios colaborativos."
+      },
+      "event4": {
+        "date": "15 Oct 2024",
+        "title": "Simposio Inaugural de IA",
+        "description": "El instituto organizó su primer simposio, reuniendo a investigadores de IA, expertos de la industria y estudiantes para discutir los últimos avances en inteligencia artificial."
+      },
+      "event5": {
+        "title": "Progreso Actual de la Construcción",
+        "descriptionPart1": "Manténgase actualizado con el progreso actual de la construcción del Instituto de IA.",
+        "descriptionPart2": "Véalo en vivo a través de nuestra cámara web:"
+      }
+    }
+  }
+}

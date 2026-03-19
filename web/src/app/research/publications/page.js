@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Publications",
+  title: "Publications",
+  description: "Scientific publications, journal articles, and conference papers from AIRi researchers.",
 };
 
 import { getPublications, getStaff, transformPublicationData, transformStaffData } from "@/lib/strapi";

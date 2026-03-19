@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "ICIA - Events",
+  title: "Events",
+  description: "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.",
 };
 
 import EventsClient from "./eventsClient";

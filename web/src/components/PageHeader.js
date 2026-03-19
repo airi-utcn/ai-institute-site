@@ -1,7 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
-
 /**
  * Reusable page header component for consistent styling across pages.
  * 
@@ -16,48 +12,27 @@ export default function PageHeader({
   animate = true,
   className = "" 
 }) {
-  const headerContent = (
-    <>
-      <h1 className="page-header-title">{title}</h1>
-      {subtitle && (
-        <p className="page-header-subtitle">{subtitle}</p>
-      )}
-    </>
-  );
-
   if (!animate) {
     return (
       <header className={`page-header ${className}`}>
-        {headerContent}
+        <h1 className="page-header-title">{title}</h1>
+        {subtitle && (
+          <p className="page-header-subtitle">{subtitle}</p>
+        )}
       </header>
     );
   }
 
   return (
-    <motion.header 
-      className={`page-header ${className}`}
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <motion.h1 
-        className="page-header-title"
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
+    <header className={`page-header animate-slide-down ${className}`}>
+      <h1 className="page-header-title animate-slide-down">
         {title}
-      </motion.h1>
+      </h1>
       {subtitle && (
-        <motion.p 
-          className="page-header-subtitle"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
+        <p className="page-header-subtitle animate-fade-in animate-delay-2">
           {subtitle}
-        </motion.p>
+        </p>
       )}
-    </motion.header>
+    </header>
   );
 }

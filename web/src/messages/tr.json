@@ -1,0 +1,1112 @@
+{
+  "footer": {
+    "contact": {
+      "title": "İletişim",
+      "addressLine1": "Observatorului Caddesi 2,",
+      "addressLine2": "Cluj-Napoca 400347,",
+      "addressLine3": "Romanya"
+    },
+    "quickLinks": {
+      "title": "Hızlı Bağlantılar",
+      "projects": "Projeler",
+      "sitemap": "Site Haritası",
+      "rooms": "Odalar",
+      "dissemination": "Yaygınlaştırma",
+      "contactUs": "Bize Ulaşın"
+    },
+    "copyright": "© {year} Cluj-Napoca Teknik Üniversitesi. Tüm hakları saklıdır."
+  },
+  "navbar": {
+    "navLinks": {
+      "research": "Araştırma",
+      "engagement": "İşbirlikleri",
+      "people": "Kişiler",
+      "news": "Haberler ve Etkinlikler",
+      "about": "Hakkımızda"
+    },
+    "researchMenu": {
+      "departments": "Departmanlar",
+      "themes": "Temalar",
+      "projects": "Projeler",
+      "publications": "Yayınlar",
+      "thesis": "Tezler",
+      "resources": "Kaynaklar",
+      "paperGraph": "Paper Graph"
+    },
+    "newsMenu": {
+      "news": "Haberler",
+      "events": "Etkinlikler",
+      "seminars": "Seminerler",
+      "calls": "Proje Çağrıları",
+      "awards": "Ödüller",
+      "careers": "Kariyer Fırsatları"
+    },
+    "aboutMenu": {
+      "mission": "Misyon",
+      "organigram": "Organizasyon Şeması",
+      "sitemap": "Site Haritası",
+      "reports": "Raporlar",
+      "regulations": "Yönetmelikler",
+      "guidelines": "Kılavuzlar",
+      "tour": "Sanal Tur",
+      "rooms": "Odalar ve takvim",
+      "contact": "İletişim"
+    },
+    "search": {
+      "placeholder": "Ara...",
+      "mobilePlaceholder": "Sitede ara...",
+      "button": "Ara",
+      "chatbot": "AIRi chatbot",
+      "knowledgeGraph": "Bilgi grafikleri"
+    }
+  },
+  "home": {
+    "metadata": {
+      "title": "AIRI - Ana Sayfa",
+      "description": "Cluj-Napoca Teknik Üniversitesi'nde yapay zeka alanında araştırma, inovasyon ve keşfi ilerletmek - AIRi@UTCN"
+    },
+    "Hero": {
+      "title": "Yapay Zeka Araştırma Enstitüsü",
+      "subtitle": "Cluj-Napoca Teknik Üniversitesi'nde yapay zeka alanında araştırma, inovasyon ve keşfi ilerletmek.",
+      "learnMore": "Daha Fazla Bilgi",
+      "altHero": "Yapay Zeka Araştırma Kahramanı",
+      "altQr": "Kayıt QR kodu"
+    },
+    "Notice": {
+      "text": "AIRi@UTCN şu anda yapım aşamasındadır. Güncellemeler için kanallarımızı takip edin."
+    },
+    "About": {
+      "title": "Hakkımızda",
+      "description": "Yapay Zeka Araştırma Enstitüsü (AIRi), Cluj-Napoca Teknik Üniversitesi'nde işbirlikçi araştırma için bir merkezdir. AIRi@UTCN, UTCN genelindeki araştırmacıları açık işbirliği vizyonu etrafında bir araya getirerek yapay zeka teorisi ve pratiğinde mükemmelliği teşvik eder. Çalışmalarımız, disiplinler arası araştırmaları, disiplinler arası yapay zeka okuryazarlığını ve iş dünyası ile kamusal ortak yaratım ortaklıkları yoluyla etki yaratmayı kapsamaktadır."
+    },
+    "Cards": {
+      "research": {
+        "title": "Araştırma",
+        "description": "Araştırma birimlerimizi ve projelerimizi keşfedin."
+      },
+      "people": {
+        "title": "Kişiler",
+        "description": "Araştırmacılarımız ve personelimizle tanışın."
+      },
+      "resources": {
+        "title": "Kaynaklar",
+        "description": "Araçlar, kaynaklar ve öğrenim materyalleri."
+      }
+    },
+    "LatestNews": {
+      "title": "En Son Haberler",
+      "viewAll": "Tüm Haberleri Gör →",
+      "emptyState": "Haber makaleleri yayınlandıklarında burada görünecektir.",
+      "visitNews": "Haberler ve Etkinlikleri Ziyaret Et →"
+    },
+    "Social": {
+      "title": "Bizi LinkedIn'de Takip Edin",
+      "visit": "LinkedIn'i Ziyaret Et →"
+    }
+  },
+  "contact": {
+    "PageHeader": {
+      "title": "Bize Ulaşın",
+      "subtitle": "Sizden haber almaktan mutluluk duyarız! Araştırmalarımız, etkinliklerimiz veya başka herhangi bir şey hakkında sorunuz olsun, ekibimiz tüm sorularınızı yanıtlamaya hazırdır."
+    },
+    "Social": {
+      "title": "Bizimle Bağlantı Kurun"
+    },
+    "Form": {
+      "title": "İletişim Formu",
+      "iframeTitle": "Bize Ulaşın Formu"
+    },
+    "Location": {
+      "title": "Konumumuz",
+      "address": "📍 Strada Observatorului 2, Cluj-Napoca 400347, Romanya",
+      "iframeTitle": "Konum Haritası"
+    }
+  },
+  "engagement": {
+    "academic": {
+      "title": "Akademik İşbirliği",
+      "description": "Üniversiteler ve enstitülerle işbirlikleri: ortak danışmanlık, ortak kurslar, atölye çalışmaları, araştırma ziyaretleri, hareketlilik.",
+      "contactButton": "Akademik ekiple iletişime geçin",
+      "selectTopic": "Sol menüden bir konu seçin.",
+      "Tabs": {
+        "Overview": {
+          "label": "Genel Bakış",
+          "subtabs": {
+            "partnerships": "Akademik ortaklıklar",
+            "teaching": "Öğretim ve eğitim",
+            "mobility": "Hareketlilik"
+          }
+        },
+        "Initiatives": {
+          "label": "Girişimler",
+          "subtabs": {
+            "schools": "Yaz okulları ve atölyeler",
+            "seminars": "Ortak seminerler",
+            "visits": "Araştırma ziyaretleri"
+          }
+        },
+        "Courses": {
+          "label": "Kurslar ve Atölyeler",
+          "subtabs": {
+            "ml": "Makine Öğrenimi",
+            "robotics": "Robotik ve Vizyon",
+            "hpc": "Yapay Zeka için HPC",
+            "ethics": "Yapay Zeka Etiği ve Güvenliği"
+          }
+        },
+        "Mobility": {
+          "label": "Ortak Danışmanlık ve Hareketlilik",
+          "subtabs": {
+            "phd": "Ortak danışmanlık",
+            "grants": "Hareketlilik hibeleri",
+            "placements": "Stajlar ve değişimler"
+          }
+        }
+      },
+      "Content": {
+        "Overview": {
+          "partnerships": {
+            "title": "Akademik ortaklıklar",
+            "desc": "Bir işbirliği ve ortak etkinlikler ağı."
+          },
+          "teaching": {
+            "title": "Öğretim ve eğitim",
+            "desc": "Kurslar, yaz okulları ve atölye çalışmaları."
+          },
+          "mobility": {
+            "title": "Hareketlilik",
+            "desc": "Ortak danışmanlık, ziyaretler, stajlar, değişimler."
+          }
+        },
+        "Initiatives": {
+          "schools": {
+            "title": "Yaz okulları ve atölyeler",
+            "desc": "Öğrenciler ve araştırmacılar için uluslararası ve yerel etkinlikler."
+          },
+          "seminars": {
+            "title": "Ortak seminerler",
+            "desc": "Ortak konuşmalar ve davetli konuşmacılar."
+          },
+          "visits": {
+            "title": "Araştırma ziyaretleri",
+            "desc": "Kısa ve uzun vadeli araştırma konaklamaları."
+          }
+        },
+        "Courses": {
+          "ml": {
+            "title": "Makine Öğrenimi",
+            "desc": "Ortak kurslar, uygulamalı modüller, projeler."
+          },
+          "robotics": {
+            "title": "Robotik ve Vizyon",
+            "desc": "Uygulamalı laboratuvarlar, otomasyon ve vizyon sistemleri."
+          },
+          "hpc": {
+            "title": "Yapay Zeka için HPC",
+            "desc": "GPU programlama ve büyük ölçekli yapay zeka eğitimi."
+          },
+          "ethics": {
+            "title": "Yapay Zeka Etiği ve Güvenliği",
+            "desc": "Yapay zekada adalet, açıklanabilirlik ve yönetişim."
+          }
+        },
+        "Mobility": {
+          "phd": {
+            "title": "Ortak danışmanlık",
+            "desc": "Uluslararası ortaklarla ortak doktora danışmanlığı."
+          },
+          "grants": {
+            "title": "Hareketlilik hibeleri",
+            "desc": "Değişimler ve araştırma konaklamaları için finansman."
+          },
+          "placements": {
+            "title": "Stajlar ve değişimler",
+            "desc": "Stajlar, ziyaretler ve personel değişimleri."
+          }
+        }
+      },
+      "Event": {
+        "title": "“Oftalmolojide İlerleme ve İnovasyon” Forumu 2025",
+        "desc1": "“Eye and AI” atölyesinin 3. baskısı, Oftalmoloji Departmanı, “Iuliu Hațieganu” Tıp ve Eczacılık Üniversitesi, Cluj İlçesi Acil Klinik Hastanesi ve Yapay Zeka Araştırma Enstitüsü (AIRi@UTCN), Cluj-Napoca Teknik Üniversitesi, Romanya tarafından ortaklaşa düzenlenmektedir. Klinisyenleri, araştırmacıları ve endüstri uygulayıcılarını bir araya getiren etkinlik, yapay zekanın görüntüleme ve taramadan karar destek ve iş akışı optimizasyonuna kadar oftalmik bakımı nasıl dönüştürdüğünü araştırıyor.",
+        "moderators": "Moderatörler:",
+        "moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+        "paper1Title": "B-taramalarından Kompakt 3D OCT Hacimlerinin Yeniden Oluşturulması: U-Net Mimarilerinin Karşılaştırmalı Bir Çalışması",
+        "paper1Authors": "Adrian POP — Teknik Üniversite, Cluj-Napoca",
+        "paper2Title": "AROI Setine Dayalı 3D Yeniden Yapılandırma",
+        "paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Teknik Üniversite, Cluj-Napoca",
+        "paper3Title": "Görüş Temel Modellerini OCT ve Göz Fundusuna Uyarlama",
+        "paper3Authors": "Anca MĂRGINEAN — Teknik Üniversite, Cluj-Napoca",
+        "paper4Title": "OCTA Görüntülemede Retinal Vasküler Ağın Segmentasyonu ve Biyobelirteç Kantifikasyonu",
+        "paper4Authors": "Darius STAN, Raluca BREHAR — Teknik Üniversite, Cluj-Napoca",
+        "linkText": "Tüm etkinlik ayrıntılarını görüntüle →"
+      }
+    },
+    "high-school": {
+      "title": "Liselerle İşbirliği",
+      "description": "Öğrenciler ve öğretmenler için yarışmalar, etkinlikler ve yapay zeka okuryazarlığı kaynakları.",
+      "features": {
+        "competitions": {
+          "title": "Yarışmalar",
+          "desc": "Lise öğrencileri için yapay zeka ve programlama yarışmaları."
+        },
+        "events": {
+          "title": "Etkinlikler",
+          "desc": "Atölye çalışmaları, laboratuvar ziyaretleri ve uzmanlarla oturumlar."
+        },
+        "resources": {
+          "title": "Eğitim kaynakları",
+          "desc": "Yapay zeka okuryazarlığı için kılavuzlar ve materyaller."
+        }
+      },
+      "linkText": "AILIT Çerçevesi – Kaynaklar"
+    },
+    "industrial-phd": {
+      "title": "Endüstriyel Doktora",
+      "p1": "Bir Endüstriyel Doktora, bir şirket ile akademik bir çevre arasında ortaklaşa oluşturulan endüstriyel bir araştırma veya deneysel geliştirme projesi aracılığıyla doktora derecesi verilmesine hak kazandıran ve bir doktora öğrencisi tarafından doktora tezinin konusu olacak bir üniversite eğitim programı olarak bilinir.",
+      "p2": "Eğer bir şirketseniz ve endüstriyel bir doktora yürütmekle ilgileniyorsanız, bizimle e-posta yoluyla iletişime geçin.",
+      "p3": "Önerilen konulardan herhangi birinde bizimle Yapay Zeka alanında Endüstriyel Doktora yapmak isterseniz, e-posta yoluyla iletişime geçin."
+    },
+    "industry": {
+      "title": "Endüstri İşbirliği",
+      "description": "Keşiften dağıtıma kadar uygulamalı araştırma ve teknoloji transferi konusunda AIRi ile ortak olun.",
+      "Tabs": {
+        "Overview": "Genel Bakış",
+        "Projects": "Projeler",
+        "Engagement": "Nasıl çalışıyoruz"
+      },
+      "ProjectsTab": {
+        "searchPlaceholder": "Proje, lider, ortağa göre ara...",
+        "allDomains": "Tüm alanlar",
+        "noProjects": "Filtrelerinizle eşleşen hiçbir proje yok henüz.",
+        "cardLead": "Lider",
+        "cardDetails": "Detaylar",
+        "cardSite": "Site",
+        "cardDocs": "Belgeler"
+      },
+      "EngagementTab": {
+        "title": "Etkileşim modeli",
+        "listItem1": "Ölçülebilir sonuçlarla ortak uygulamalı araştırma",
+        "listItem2": "Ekiplerinizle prototipleme ve doğrulama",
+        "listItem3": "Bilgi transferi ve uzun vadeli işbirliği"
+      },
+      "OverviewTab": {
+        "feature1Title": "Uygulamalı araştırma",
+        "feature1Desc": "Gerçek dünya dağıtımını hedefleyen endüstriyel işbirlikleri.",
+        "feature2Title": "Ortak geliştirme",
+        "feature2Desc": "Ortak yol haritaları, hızlı prototipleme ve doğrulama döngüleri.",
+        "feature3Title": "Bilgi transferi",
+        "feature3Desc": "Araştırma sonuçlarını üretim ekiplerine bağlamak.",
+        "statsProjects": "Aktif projeler",
+        "statsDomains": "İlgili alanlar",
+        "statsPartners": "Ortaklar"
+      },
+      "Buttons": {
+        "contact": "Endüstri ekibiyle iletişime geçin",
+        "explore": "Tüm projeleri keşfedin"
+      }
+    },
+    "partners": {
+      "title": "Ortaklar",
+      "mapTitle": "Ortaklar haritası"
+    },
+    "main": {
+      "Hero": {
+        "title": "İşbirlikleri",
+        "subtitle": "AIRi @ UTCN'yi kamu, akademi ve endüstri ile birbirine bağlamak."
+      },
+      "Tabs": {
+        "public": "Halk",
+        "academic": "Akademik",
+        "industry": "Endüstri",
+        "high-school": "Liseler",
+        "partners": "Ortaklar",
+        "phd": "Endüstriyel Doktora"
+      },
+      "SubTabs": {
+        "academic": {
+          "partnerships": "Ortaklıklar",
+          "teaching": "Öğretim",
+          "courses": "Kurslar",
+          "mobility": "Hareketlilik"
+        },
+        "industry": {
+          "overview": "Genel Bakış",
+          "projects": "Projeler",
+          "engagement": "Nasıl Çalışıyoruz"
+        }
+      },
+      "Public": {
+        "title": "Halkla Etkileşim",
+        "desc": "Yapay zeka araştırma topluluğunu erişilebilir kaynaklar, medya görünümleri ve sosyal yardım programları aracılığıyla daha geniş bir kitleyle buluşturuyoruz.",
+        "btnMedia": "Medya ve Basını Görüntüle",
+        "btnNews": "Haberler ve Etkinlikler",
+        "f1Title": "Sosyal Yardım Programları",
+        "f1Desc": "Halka açık konuşmalar, gösteriler ve topluluk katılımı girişimleri.",
+        "f2Title": "Eğitim Kaynakları",
+        "f2Desc": "Yapay zeka kavramlarını genel izleyicilere açıklayan açık erişim materyalleri.",
+        "f3Title": "Medya Görünümleri",
+        "f3Desc": "Araştırmalarımızın röportajları, makaleleri ve medya kapsamı."
+      },
+      "Academic": {
+        "Partnerships": {
+          "title": "Akademik Ortaklıklar",
+          "desc": "Yapay zeka araştırma ve eğitimini ilerleten uluslararası akademik işbirlikleri, ortak araştırma programları ve kurumsal ortaklıklar ağı.",
+          "f1Title": "Üniversite İşbirlikleri",
+          "f1Desc": "Dünya çapındaki önde gelen üniversitelerle ortak araştırma programları.",
+          "f2Title": "Araştırma Ağları",
+          "f2Desc": "CLAIRE, ELLIS ve diğer Avrupa yapay zeka ağlarına katılım."
+        },
+        "Teaching": {
+          "title": "Öğretim ve Eğitim",
+          "desc": "Her seviyeden öğrenci ve araştırmacılar için kurslar, yaz okulları ve atölye çalışmaları.",
+          "f1Title": "Yaz Okulları",
+          "f1Desc": "Yapay zeka ve makine öğrenimi alanında uluslararası yaz programları.",
+          "f2Title": "Atölyeler",
+          "f2Desc": "Uygulamalı atölyeler ve eğitim oturumları."
+        },
+        "Courses": {
+          "title": "Kurslar ve Atölyeler",
+          "desc": "Makine öğrenimi, robotik, yapay zeka için HPC ve yapay zeka etiğini kapsayan uzmanlaşmış kurslar.",
+          "f1Title": "Makine Öğrenimi",
+          "f1Desc": "Uygulamalı ML modülleri, projeler ve araştırma odaklı kurslar.",
+          "f2Title": "Robotik ve Vizyon",
+          "f2Desc": "Otomasyon ve vizyon sistemlerinde uygulamalı laboratuvarlar.",
+          "f3Title": "Yapay Zeka için HPC",
+          "f3Desc": "GPU programlama ve büyük ölçekli yapay zeka eğitimi.",
+          "f4Title": "Yapay Zeka Etiği ve Güvenliği",
+          "f4Desc": "Yapay zeka sistemlerinde adalet, açıklanabilirlik ve yönetişim."
+        },
+        "Mobility": {
+          "title": "Ortak Danışmanlık ve Hareketlilik",
+          "desc": "Uluslararası değişim programları, ortak doktora danışmanlığı ve araştırma ziyareti fırsatları.",
+          "f1Title": "Ortak Danışmanlık",
+          "f1Desc": "Uluslararası ortaklarla ortak doktora danışmanlığı.",
+          "f2Title": "Hareketlilik Hibeleri",
+          "f2Desc": "Araştırma konaklamaları ve değişimler için finansman.",
+          "f3Title": "Değişimler",
+          "f3Desc": "Öğrenci ve araştırmacı değişim programları."
+        }
+      },
+      "Industry": {
+        "Stats": {
+          "projects": "Projeler",
+          "domains": "Alanlar",
+          "partners": "Ortaklar"
+        },
+        "Collaboration": {
+          "title": "Endüstri İşbirliği",
+          "desc": "Yapay zeka araştırmalarını ilerletmek ve yenilikleri pazara sunmak için endüstri liderleriyle ortaklık yapıyoruz. İşbirliklerimiz danışmanlık, ortak Ar-Ge projeleri ve teknoloji transferini kapsar."
+        },
+        "Projects": {
+          "searchPlaceholder": "Projeleri ara...",
+          "allDomains": "Tüm Alanlar",
+          "clear": "Temizle",
+          "lead": "Lider:",
+          "noProjects": "Filtrelerinizle eşleşen proje bulunamadı."
+        },
+        "HowWeWork": {
+          "title": "Endüstri ile Nasıl Çalışıyoruz",
+          "desc": "Farklı endüstri ihtiyaçlarına ve işbirliği derinliklerine uygun çeşitli katılım modelleri sunuyoruz.",
+          "f1Title": "Ortak Ar-Ge Projeleri",
+          "f1Desc": "Paylaşılan fikri mülkiyet ve sonuçlarla işbirlikçi araştırma projeleri.",
+          "f2Title": "Danışmanlık Hizmetleri",
+          "f2Desc": "Yapay zeka stratejisi, uygulaması ve en iyi uygulamalar hakkında uzman tavsiyesi.",
+          "f3Title": "Eğitim Programları",
+          "f3Desc": "Endüstri ekipleri için yapay zeka teknolojileri üzerine özelleştirilmiş eğitim.",
+          "f4Title": "Teknoloji Transferi",
+          "f4Desc": "Araştırma çıktılarının lisanslanması ve ticarileştirilmesi."
+        }
+      },
+      "HighSchool": {
+        "title": "Liselerle İşbirliği",
+        "desc": "Gelecek nesil yapay zeka araştırmacılarını ve mühendislerini teşvik eden, öğrenciler ve öğretmenler için yarışmalar, etkinlikler ve yapay zeka okuryazarlığı kaynakları.",
+        "f1Title": "Yarışmalar",
+        "f1Desc": "Lise öğrencileri için yapay zeka ve programlama yarışmaları.",
+        "f2Title": "Etkinlikler",
+        "f2Desc": "Okullar için atölye çalışmaları, laboratuvar ziyaretleri ve uzmanlarla oturumlar.",
+        "f3Title": "Eğitim Kaynakları",
+        "f3Desc": "Yapay zeka okuryazarlığı için kılavuzlar ve materyaller.",
+        "btnFramework": "AILIT Çerçevesi – Kaynaklar"
+      },
+      "Partners": {
+        "title": "Ortaklarımız",
+        "desc": "CLAIRE, ELLIS, AIoD, euRobotics, ADRA, AI4Europe ve BDVA dahil olmak üzere yapay zeka araştırma ve geliştirmesindeki önde gelen kuruluşlarla işbirliği yapıyoruz.",
+        "mapTitle": "Ortaklar Haritası"
+      },
+      "PhD": {
+        "title": "Endüstriyel Doktora Programı",
+        "p1": "Akademik araştırma ile endüstriyel uygulama arasındaki boşluğu doldurmak.",
+        "p2": "Endüstriyel Doktora programımız, adayların ortak bir şirket içinde gerçek dünya zorluklarını çözerken titiz akademik araştırmalar yürütmelerine olanak tanır.",
+        "f1Title": "Şirketler İçin",
+        "f1Desc": "Gerçek iş zorluklarını çözen uygulamalı yapay zeka araştırması için bizimle ortak olun.",
+        "f2Title": "Adaylar İçin",
+        "f2Desc": "Pratik endüstri deneyimi ile akademik araştırmayı birleştirin.",
+        "f3Title": "İşbirliği Modeli",
+        "f3Desc": "Endüstri mentorları ve akademik danışmanlar arasında ortak denetim.",
+        "btnContact": "Bize Ulaşın"
+      }
+    },
+    "basic": {
+      "Hero": {
+        "title": "İşbirlikleri",
+        "subtitle": "AIRi'yi kamu, akademi ve endüstri ile birbirine bağlamak"
+      },
+      "Tabs": {
+        "public": "Halk",
+        "academic": "Akademik",
+        "industry": "Endüstri",
+        "highSchool": "Liseler",
+        "partners": "Ortaklar",
+        "phd": "Endüstriyel Doktora"
+      },
+      "SubTabs": {
+        "partnerships": "Ortaklıklar",
+        "teaching": "Öğretim",
+        "courses": "Kurslar",
+        "mobility": "Hareketlilik",
+        "overview": "Genel Bakış",
+        "projects": "Projeler",
+        "engagement": "Nasıl Çalışıyoruz"
+      },
+      "PublicContent": {
+        "title": "Halkla Etkileşim",
+        "desc": "Yapay zekayı açığa çıkarmak ve bulgularımızı paylaşmak için halkla aktif olarak etkileşim kuruyoruz.",
+        "btnMedia": "Medya Görünümleri",
+        "btnNews": "Haberler ve Etkinlikler",
+        "outreachTitle": "Toplum Sosyal Yardımı",
+        "outreachDesc": "Yapay zekayı topluma yakınlaştırmak için açık günler, halka açık konuşmalar ve etkileşimli gösteriler düzenlemek.",
+        "eduTitle": "Eğitim İçeriği",
+        "eduDesc": "Karmaşık yapay zeka kavramlarını genel bir kitleye açıklayan erişilebilir materyaller, bloglar ve videolar oluşturmak.",
+        "mediaTitle": "Medya ve Basın",
+        "mediaDesc": "Basın yayın organlarına düzenli katkılar, yapay zeka trendleri hakkında uzman yorumları ve önemli keşiflerimiz hakkında basın bültenleri."
+      },
+      "AcademicContent": {
+        "partnerTitle": "Akademik Ortaklıklar",
+        "partnerDesc": "Dünya çapındaki üniversiteler ve araştırma merkezleri ile güçlü ilişkiler kurmak.",
+        "uniTitle": "Üniversite İşbirlikleri",
+        "uniDesc": "Önde gelen akademik kurumlarla ortak araştırma projeleri ve paylaşılan kaynaklar.",
+        "netTitle": "Araştırma Ağları",
+        "netDesc": "Uluslararası yapay zeka araştırma konsorsiyumlarına aktif katılım.",
+        "teachTitle": "Öğretim ve Seminerler",
+        "teachDesc": "Özel öğretim faaliyetleriyle akademik topluluğa katkıda bulunmak.",
+        "summerTitle": "Yaz Okulları",
+        "summerDesc": "Öğrenciler ve kariyerinin başındaki araştırmacılar için yoğun programlar.",
+        "workTitle": "Atölyeler ve Seminerler",
+        "workDesc": "En son yapay zeka araştırmalarını sunan düzenli akademik seminerler.",
+        "courseTitle": "Üniversite Kursları",
+        "courseDesc": "Çeşitli akademik düzeylerde özel yapay zeka kursları tasarlıyor ve sunuyoruz.",
+        "mlTitle": "Makine Öğrenimi",
+        "mlDesc": "ML algoritmaları ve uygulamalarında temel ve ileri düzey kurslar.",
+        "robotTitle": "Robotik ve Vizyon",
+        "robotDesc": "Bilgisayarlı görme ve akıllı robotiğe odaklanan özel modüller.",
+        "hpcTitle": "Yüksek Performanslı Hesaplama (HPC)",
+        "hpcDesc": "Yapay zeka için süper hesaplama kümelerinden yararlanma konusunda eğitim.",
+        "ethicsTitle": "Yapay Zeka Etiği",
+        "ethicsDesc": "Sorumlu yapay zeka geliştirme ve dağıtımına ayrılmış kurslar.",
+        "mobTitle": "Hareketlilik ve Değişim",
+        "mobDesc": "Uluslararası akademik değişimi ve araştırmacı hareketliliğini teşvik etmek.",
+        "supTitle": "Doktora Danışmanlığı",
+        "supDesc": "Uluslararası kurumlarda doktora adaylarının ortak denetimi.",
+        "grantTitle": "Hareketlilik Hibeleri",
+        "grantDesc": "Kısa ve uzun vadeli araştırma ziyaretleri için destek.",
+        "exTitle": "Değişim Programları",
+        "exDesc": "Ortak üniversitelerle araştırmacı ve öğrenci değişimlerini kolaylaştırmak."
+      },
+      "IndustryContent": {
+        "statProjects": "Endüstri Projeleri",
+        "statDomains": "Araştırma Alanları",
+        "statPartners": "Endüstri Ortakları",
+        "collabTitle": "Endüstri İşbirliği",
+        "collabDesc": "AIRi, son teknoloji yapay zeka araştırmalarını gerçek dünya uygulamalarına çevirmek için önde gelen şirketlerle ortaklık kuruyor.",
+        "searchPlaceholder": "Endüstri projelerini ara...",
+        "allDomains": "Tüm alanlar",
+        "clear": "Filtreleri temizle",
+        "noProjects": "Endüstri projesi bulunamadı.",
+        "leadLabel": "Lider:",
+        "workTitle": "Endüstri İle Nasıl Çalışıyoruz",
+        "workDesc": "Endüstri ihtiyaçlarına göre uyarlanmış esnek katılım modelleri sunuyoruz.",
+        "rdTitle": "Ortak Ar-Ge",
+        "rdDesc": "Karmaşık endüstriyel zorlukları çözen işbirlikçi araştırma projeleri.",
+        "consTitle": "Danışmanlık",
+        "consDesc": "Yapay zeka stratejisi ve uygulaması konusunda uzman danışmanlık hizmetleri.",
+        "trainTitle": "Kurumsal Eğitim",
+        "trainDesc": "Endüstri profesyonelleri için özelleştirilmiş yapay zeka eğitim programları.",
+        "techTitle": "Teknoloji Transferi",
+        "techDesc": "Araştırma çıktılarımızdan lisanslama ve spin-off oluşturma."
+      },
+      "HighSchoolContent": {
+        "title": "Liselerle İşbirliği",
+        "desc": "Yeni nesil yapay zeka araştırmacılarına ve mühendislerine ilham vermek.",
+        "compTitle": "Yarışmalar",
+        "compDesc": "Lise öğrencileri için yapay zeka ve programlama zorlukları düzenlemek.",
+        "eventTitle": "Açık Etkinlikler",
+        "eventDesc": "Okullar için laboratuvar turları ve etkileşimli atölye çalışmalarına ev sahipliği yapmak.",
+        "eduTitle": "Eğitim Kaynakları",
+        "eduDesc": "Öğretmenlere sınıflarda yapay zekayı tanıtmaları için materyaller sağlamak.",
+        "btnLabel": "Yapay Zeka Okuryazarlığı Çerçevesini Görüntüle"
+      },
+      "PartnersContent": {
+        "title": "Ortaklarımız",
+        "desc": "Akademi ve endüstri genelinde önde gelen kuruluşlarla işbirliği yapmaktan gurur duyuyoruz.",
+        "mapTitle": "Ortak Haritası",
+        "eyebrow": "Stratejik Ağ",
+        "stats": {
+          "partners": "Ortaklar",
+          "countries": "Ülkeler",
+          "projects": "Projeler"
+        },
+        "filters": {
+          "searchPlaceholder": "Ortak, ülke, proje ara",
+          "allCountries": "Tüm ülkeler",
+          "clear": "Temizle"
+        },
+        "activeProjects": "Aktif Projeler",
+        "actions": {
+          "exploreProfile": "Profili Keşfet",
+          "visitWebsite": "Web sitesini ziyaret et"
+        },
+        "empty": {
+          "filtered": "Filtrelerle eşleşen ortak yok."
+        }
+      },
+      "PartnerDetails": {
+        "back": "Ortaklar",
+        "visitOfficialWebsite": "Resmi web sitesini ziyaret et",
+        "collaborativeProjects": "İş Birliği Projeleri",
+        "collaborativeProjectsSubtitle": "{partnerName} ile yürütülen araştırma ve girişimler.",
+        "noLinkedProjects": "Henüz bağlantılı proje yok."
+      },
+      "PhDContent": {
+        "title": "Endüstriyel Doktora Programı",
+        "p1": "Akademik araştırma ile endüstriyel uygulama arasındaki boşluğu doldurmak.",
+        "p2": "Endüstriyel Doktora programımız, adayların ortak bir şirket içinde gerçek dünya zorluklarını çözerken titiz akademik araştırmalar yürütmelerine olanak tanır.",
+        "compTitle": "Şirketler İçin",
+        "compDesc": "Belirli zorluklarınızın üstesinden gelmek için özel bir araştırmacıya sponsor olarak yeniliği teşvik edin.",
+        "candTitle": "Adaylar İçin",
+        "candDesc": "Değerli endüstri deneyimi ve rekabetçi bir maaş kazanırken doktoranızı alın.",
+        "collabTitle": "Ortak Danışmanlık",
+        "collabDesc": "Akademik danışmanların ve endüstri mentorlarının birleşik uzmanlığından yararlanın.",
+        "btnContact": "Endüstriyel Doktoralar Hakkında Bize Ulaşın"
+      }
+    }
+  },
+  "about": {
+    "mission": {
+      "title": "Misyon",
+      "text": "Yapay Zeka Araştırma Enstitüsü (AIRi), Cluj-Napoca Teknik Üniversitesi'nde işbirlikçi araştırma için bir merkezdir. AIRi@UTCN, UTCN genelindeki araştırmacıları açık işbirliği vizyonu etrafında bir araya getirerek yapay zeka teorisi ve pratiğinde mükemmelliği teşvik eder. Çalışmalarımız, disiplinler arası araştırmaları, disiplinler arası yapay zeka okuryazarlığını ve iş dünyası ile kamusal ortak yaratım ortaklıkları yoluyla etki yaratmayı kapsamaktadır."
+    },
+    "history": {
+      "title": "AIRI Zaman Çizelgesi",
+      "event1": {
+        "date": "15 Oca 2023",
+        "title": "UTCN'de Yapay Zeka Enstitüsünün Duyurulması",
+        "description": "Cluj-Napoca Teknik Üniversitesi, yapay zeka teknolojilerinde araştırma ve inovasyonu teşvik etmek amacıyla özel bir Yapay Zeka Enstitüsü kurma planlarını duyurdu."
+      },
+      "event2": {
+        "date": "10 Haz 2023",
+        "title": "Temel Atma Töreni",
+        "description": "Yapay Zeka Enstitüsü binasının inşası için üniversite yetkilileri ve yerel ileri gelenlerin katılımıyla resmi temel atma töreni düzenlendi."
+      },
+      "event3": {
+        "date": "1 Eyl 2024",
+        "title": "İnşaatın Tamamlanması",
+        "description": "Yapay Zeka Enstitüsünün modern laboratuvarlara ve ortak çalışma alanlarına sahip son teknoloji tesisinin inşası tamamlandı."
+      },
+      "event4": {
+        "date": "15 Eki 2024",
+        "title": "Açılış Yapay Zeka Sempozyumu",
+        "description": "Enstitü, yapay zekadaki en son gelişmeleri tartışmak üzere yapay zeka araştırmacılarını, endüstri uzmanlarını ve öğrencileri bir araya getiren ilk sempozyumuna ev sahipliği yaptı."
+      },
+      "event5": {
+        "date": "20 Ağu 2025",
+        "title": "Mevcut İnşaat İlerlemesi",
+        "descriptionPart1": "Yapay Zeka Enstitüsünün mevcut inşaat ilerlemesinden haberdar olun.",
+        "descriptionPart2": "Web kameramız aracılığıyla canlı izleyin:"
+      }
+    },
+    "guidelines": {
+      "students": "Öğrenciler",
+      "faculty": "Fakülte",
+      "researchers": "Araştırmacılar",
+      "staff": "Personel",
+      "title": "Sadece senin için"
+    },
+    "organigram": {
+      "title": "Organizasyon Şeması",
+      "description": "<strong>Yönetim Kurulu</strong> ve <strong>Bilim Kurulu</strong>'nun tanımı",
+      "directorCommittee": "Yönetim Kurulu",
+      "viewDirectorStructure": "Yönetim Kurulunun yapısını görüntüleyin:",
+      "scientificCommittee": "Bilim Kurulu",
+      "viewScientificStructure": "Bilim Kurulunun yapısını görüntüleyin:",
+      "downloadPdf": "PDF İndir",
+      "viewPng": "PNG Görüntüle"
+    },
+    "regulations": {
+      "title": "Yönetmelikler",
+      "comingSoon": "İçerik yakında geliyor."
+    },
+    "reports": {
+      "title": "Raporlar",
+      "comingSoon": "İçerik yakında geliyor."
+    },
+    "roomsCalendar": {
+      "title": "Odalar ve Takvim",
+      "comingSoon": "İçerik yakında geliyor."
+    },
+    "sitemap": {
+      "title": "Site Haritası",
+      "filterPlaceholder": "Sayfaları filtrele…",
+      "clear": "Temizle",
+      "noResults": "“{query}” için sonuç yok.",
+      "sections": {
+        "research": {
+          "title": "Araştırma",
+          "links": {
+            "departments": "Departmanlar",
+            "themes": "Temalar",
+            "projects": "Projeler",
+            "publications": "Yayınlar",
+            "thesis": "Tezler",
+            "tools": "Araçlar",
+            "resources": "Kaynaklar"
+          }
+        },
+        "engagement": {
+          "title": "İşbirlikleri",
+          "links": {
+            "public": "Halkla etkileşim",
+            "academic": "Akademik işbirliği",
+            "industry": "Endüstri işbirliği",
+            "highSchool": "Liselerle işbirliği",
+            "partners": "Ortaklar",
+            "industrialPhd": "Endüstriyel Doktora"
+          }
+        },
+        "people": {
+          "title": "Kişiler",
+          "links": {
+            "researchers": "Araştırmacılar",
+            "staff": "Personel",
+            "alumni": "Mezunlar",
+            "visiting": "Misafir araştırmacılar"
+          }
+        },
+        "newsEvents": {
+          "title": "Haberler ve Etkinlikler",
+          "links": {
+            "news": "Haberler",
+            "events": "Etkinlikler",
+            "seminars": "Seminerler",
+            "openCalls": "Açık Proje çağrıları",
+            "awards": "Ödüller",
+            "careers": "Kariyer/İş Fırsatları"
+          }
+        },
+        "about": {
+          "title": "Hakkında",
+          "links": {
+            "missionHistory": "Misyon, Tarihçe (zaman çizelgesi)",
+            "organigram": "Organizasyon Şeması",
+            "sitemap": "Site Haritası",
+            "reports": "Raporlar Öz değerlendirme raporları",
+            "regulations": "Prosedürler ve Yönetmelikler",
+            "guidelines": "Kılavuzlar",
+            "virtualTour": "Sanal Tur",
+            "roomsCalendar": "Odalar ve takvim",
+            "contact": "İletişim"
+          }
+        },
+        "search": {
+          "title": "Arama",
+          "links": {
+            "classic": "Klasik arama",
+            "chatbot": "AIRi chatbot (LLM tabanlı)",
+            "knowledgeGraph": "AIRi Bilgi grafikleri gezgini"
+          }
+        }
+      }
+    },
+    "virtualTour": {
+      "title": "Sanal Tur",
+      "comingSoon": "İçerik yakında geliyor."
+    }
+  },
+  "media": {
+    "header-title": "Medya Galerisi",
+    "header-subtitle": "AIRI Enstitüsünün ilerlemesini sergileyen resimleri ve videoları keşfedin."
+  },
+  "news&events": {
+    "awards": {
+      "title": "Ödüller",
+      "subtitle": "AIRI ve işbirlikçileri tarafından kazanılan takdirler ve ayrıcalıklar.",
+      "coming-soon": "Daha fazla bilgi yakında."
+    },
+    "careers": {
+      "title": "Kariyer Fırsatları",
+      "subtitle": "Eğitim seviyeleri ve rolleri genelinde AIRI ile çalışma yollarını keşfedin.",
+      "coming-soon": "Daha fazla bilgi yakında.",
+      "undergraduate": "Lisans Öğrencisi Olarak",
+      "postgraduate": "Lisansüstü Öğrencisi Olarak",
+      "postdoctoral": "Doktora Sonrası Araştırmacı Olarak",
+      "visiting-researcher": "Misafir Araştırmacı Olarak",
+      "software-engineer": "Yazılım Mühendisi Olarak"
+    },
+    "events": {
+      "title": "Etkinlikler",
+      "subtitle": "AIRI'den öne çıkanlar ve unutulmaz anlar.",
+      "calendar-title": "Enstitü Takvimi",
+      "no-events": "Şu anda mevcut etkinlik yok."
+    },
+    "news": {
+      "title": "Haberler ve Etkinlikler",
+      "latest": "AIRI'den En Son Haberler",
+      "subtitle": "Strapi destekli haber odasından derlenen yeni hikayeler, araştırma kilometre taşları ve basın anları.",
+      "quickFilters": "Hızlı filtreler",
+      "searchLabel": "Haberleri ara",
+      "searchPlaceholder": "Başlıkları, anahtar kelimeleri veya özetleri arayın",
+      "stories": "hikayeler",
+      "readStory": "Hikayeyi oku",
+      "spotlight": "Gündem",
+      "noSummary": "Henüz bir özet sağlanmadı.",
+      "openArticle": "Makaleyi aç",
+      "emptyState": "Şu anda mevcut haber yok.",
+      "noImage": "Resim yok",
+      "readMore": "Devamını oku",
+      "categories": {
+        "all": "Tümü",
+        "announcement": "Duyurular",
+        "construction": "İnşaat",
+        "collaboration": "İşbirlikleri",
+        "award": "Ödüller",
+        "press": "Basın",
+        "other": "Diğer"
+      }
+    },
+    "open-project-calls": {
+      "title": "Proje Çağrıları",
+      "subtitle": "Teklif çağrıları ve işbirliği fırsatları.",
+      "coming-soon": "Bu bölümdeki diğer güncellemeler yakında."
+    },
+    "seminars": {
+      "title": "Seminerler",
+      "subtitle": "AIRI ve misafirler tarafından düzenlenen akademik seminerler.",
+      "emptyState": "Şu anda mevcut seminer yok.",
+      "whatYouWillLearn": "Neler öğreneceksiniz",
+      "modules": "Modüller"
+    }
+  },
+  "people": {
+    "title": "Kişiler",
+    "subtitle": "AIRi @ UTCN'nin arkasındaki ekiple tanışın",
+    "searchPlaceholder": "İsme, unvana veya departmana göre ara...",
+    "clearSearch": "Aramayı temizle",
+    "tabs": {
+      "researchers": "Araştırmacılar",
+      "staff": "Personel",
+      "visiting": "Misafir Araştırmacılar",
+      "alumni": "Mezunlar"
+    },
+    "results": "\"{query}\" için {count} sonuç bulundu",
+    "resultsPlural": "\"{query}\" için {count} sonuç bulundu",
+    "emptySearch": "Aramanızla eşleşen kişi yok.",
+    "emptyTab": "Henüz mevcut {tabName} yok.",
+    "details": {
+      "publications": "Yayınlar",
+      "teams": "Ekipler",
+      "searchPubs": "Yayınları ara...",
+      "allYears": "Tüm Yıllar",
+      "allTypes": "Tüm Türler",
+      "allDomains": "Tüm Alanlar",
+      "clear": "Temizle",
+      "viewDetails": "Ayrıntıları Görüntüle",
+      "pdf": "PDF",
+      "lead": "Lider",
+      "projects": "Projeler",
+      "noPubs": "Mevcut yayın yok.",
+      "noPubsMatch": "Filtrelerinizle eşleşen yayın yok.",
+      "noTeams": "Şu anda hiçbir ekibe atanmamış."
+    },
+    "projectDetails": {
+      "backToProfile": "← Profile Dön",
+      "backToStaffProfile": "← Personel Profiline Dön",
+      "projectDetails": "Proje Detayları",
+      "visitWebsite": "Web Sitesini Ziyaret Et",
+      "documentation": "Belgeler",
+      "projectTimeline": "Proje Zaman Çizelgesi",
+      "resources": "Kaynaklar",
+      "relatedPublications": "İlgili Yayınlar",
+      "details": "Detaylar",
+      "visitProjectWebsite": "Proje Web Sitesini Ziyaret Et",
+      "viewDocumentation": "Belgeleri Görüntüle",
+      "projectTeam": "Proje Ekibi",
+      "lead": "Lider",
+      "members": "Üyeler",
+      "partners": "Ortaklar",
+      "themes": "Temalar",
+      "researchAreas": "Araştırma Alanları",
+      "phases": {
+        "completed": "Tamamlandı",
+        "planned": "Planlanan",
+        "ongoing": "Devam Eden"
+      }
+    }
+  },
+  "research": {
+    "departments": {
+      "title": "Departmanlar",
+      "subtitle": "AIRi @ UTCN'deki araştırma ve destek departmanlarımızı keşfedin",
+      "members": "{count} üye",
+      "projects": "{count} proje",
+      "types": {
+        "research": "Araştırma Departmanları",
+        "research_networks": "Araştırma Ağları",
+        "support": "Destek Departmanları",
+        "other": "Departmanlar"
+      },
+      "departmentDetails": {
+        "backToDepartments": "Departmanlara Dön",
+        "notFound": "Departman bulunamadı.",
+        "membersCount": "Üyeler",
+        "projectsCount": "Projeler",
+        "publicationsCount": "Yayınlar",
+        "tabs": {
+          "overview": "Genel Bakış",
+          "members": "Kişiler ve Ekipler",
+          "projects": "Projeler",
+          "publications": "Yayınlar"
+        },
+        "overview": {
+          "about": "Hakkında",
+          "coordinator": "Koordinatör",
+          "contact": "İletişim"
+        },
+        "members": {
+          "teams": "Ekipler",
+          "member": "üye",
+          "membersPlural": "üyeler",
+          "independentResearchers": "Bağımsız Araştırmacılar",
+          "noMembers": "Bu departman için üye bulunamadı.",
+          "projects": "Projeler"
+        },
+        "projects": {
+          "lead": "Lider:",
+          "noProjects": "Bu departman için proje bulunamadı."
+        },
+        "publications": {
+          "noPublications": "Bu departman için yayın bulunamadı."
+        },
+        "phases": {
+          "completed": "Tamamlandı",
+          "planned": "Planlanan",
+          "ongoing": "Devam eden",
+          "archived": "Arşivlendi"
+        }
+      }
+    },
+    "projects": {
+      "title": "Projeler",
+      "subtitle": "Çeşitli alanlardaki araştırma projelerimizi keşfedin",
+      "searchPlaceholder": "Projelere göre başlık, lider, departman ara...",
+      "filters": "Filtreler",
+      "allRegions": "Tüm bölgeler",
+      "allDepartments": "Tüm departmanlar",
+      "allLeads": "Tüm liderler",
+      "allMembers": "Tüm üyeler",
+      "filterByTheme": "Temaya göre filtrele...",
+      "region": "Bölge",
+      "department": "Departman",
+      "dept": "Dep:",
+      "lead": "Lider",
+      "leadLabel": "Lider:",
+      "member": "Üye",
+      "theme": "Tema",
+      "projectsFound": "{count} proje bulundu",
+      "projectsFoundPlural": "{count} proje bulundu",
+      "clearAllFilters": "Tüm filtreleri temizle",
+      "clearFilters": "Filtreleri temizle",
+      "noProjects": "Kriterlerinizle eşleşen proje bulunamadı."
+    },
+    "projectDetails": {
+      "notFound": "Proje bulunamadı",
+      "backToProjects": "Projelere Dön",
+      "region": "Bölge",
+      "phase": "Aşama",
+      "partners": "Ortaklar",
+      "partnerCount": "{count} ortak",
+      "partnerCountPlural": "{count} ortak",
+      "officialWebsite": "Resmi Web Sitesi",
+      "documentation": "Belgeler",
+      "tabs": {
+        "overview": "Genel Bakış",
+        "people": "Kişiler",
+        "resources": "Kaynaklar",
+        "publications": "Yayınlar"
+      },
+      "abstract": "Özet",
+      "researchDomains": "Araştırma Alanları",
+      "teams": "Ekipler",
+      "memberCount": "{count} üye",
+      "memberCountPlural": "{count} üyeler",
+      "lead": "Lider",
+      "noTeamMembers": "Bu ekip için üye listelenmemiş.",
+      "individualContributors": "Bireysel Katkıda Bulunanlar",
+      "contributors": "Katkıda Bulunanlar",
+      "noPeople": "Bu projeye atanmış kimse yok.",
+      "platform": "Platform:",
+      "noResources": "Bu proje için kullanılabilir kaynak yok.",
+      "publicationCount": "{count} yayın",
+      "publicationCountPlural": "{count} yayın",
+      "noPublications": "Bu proje için yayın mevcut değil.",
+      "authors": "Yazarlar:",
+      "viewDetails": "Ayrıntıları görüntüle",
+      "pdf": "PDF",
+      "teamProjects": "Projeler",
+      "phases": {
+        "ongoing": "Devam Ediyor",
+        "planned": "Planlanan",
+        "completed": "Tamamlandı",
+        "archived": "Arşivlendi"
+      }
+    },
+    "publications": {
+      "title": "Yayınlar",
+      "subtitle": "Ekibimizden araştırma makaleleri, makaleler ve akademik yayınlar",
+      "searchPlaceholder": "Yayınları başlığa, yazara, türe göre ara...",
+      "filters": "Filtreler",
+      "year": "Yıl",
+      "allYears": "Tüm yıllar",
+      "author": "Yazar",
+      "allAuthors": "Tüm yazarlar",
+      "department": "Departman",
+      "allDepartments": "Tüm departmanlar",
+      "type": "Tür",
+      "allTypes": "Tüm türler",
+      "theme": "Tema",
+      "filterByTheme": "Temaya göre filtrele...",
+      "publicationsFound": "{count} yayın bulundu",
+      "publicationsFoundPlural": "{count} yayın bulundu",
+      "clearAllFilters": "Tüm filtreleri temizle",
+      "clearFilters": "Filtreleri temizle",
+      "authorsLabel": "Yazarlar:",
+      "viewDetails": "Ayrıntıları görüntüle",
+      "openPdf": "PDF'yi Aç",
+      "noPublications": "Kriterlerinizle eşleşen yayın bulunamadı."
+    },
+    "publicationDetails": {
+      "notFound": "Yayın bulunamadı.",
+      "backToPublications": "← Yayınlara dön",
+      "openPdf": "PDF'yi Aç",
+      "downloadBibtex": "BibTeX İndir",
+      "authors": "Yazarlar",
+      "noAuthors": "Listelenen yazar yok.",
+      "relatedProjects": "İlgili projeler",
+      "noProjects": "Bağlantılı proje yok.",
+      "themes": "Temalar",
+      "noThemes": "Bağlantılı tema yok.",
+      "resources": "Kaynaklar",
+      "noResources": "Bağlantılı kaynak yok.",
+      "viewResource": "Kaynağı görüntüle",
+      "attachments": "Ekler",
+      "noAttachments": "Henüz ek yok.",
+      "images": "Görseller",
+      "files": "Dosyalar",
+      "download": "İndir"
+    },
+    "themes": {
+      "title": "Araştırma Temaları",
+      "subtitle": "Temel araştırma alanlarımızı keşfedin ve ilgili projeleri ve yayınları keşfedin.",
+      "viewProjects": "Projeleri Görüntüle",
+      "viewPublications": "Yayınları Görüntüle",
+      "noThemes": "Tema bulunamadı."
+    },
+    "thesis": {
+      "title": "Tezler",
+      "tabs": {
+        "phd": "Doktora",
+        "master": "Yüksek Lisans",
+        "bachelor": "Lisans"
+      },
+      "messages": {
+        "phd": "Doktora bölümü için daha fazla güncelleme yakında geliyor.",
+        "master": "Yüksek Lisans bölümü için daha fazla güncelleme yakında geliyor.",
+        "bachelor": "Lisans bölümü için daha fazla güncelleme yakında geliyor."
+      }
+    }
+  },
+  "resources": {
+    "title": "Kaynaklar",
+    "subtitle": "Yapay zeka araştırma ve geliştirmenizi desteklemek için özel olarak seçilmiş araçlar, kaynaklar, API'ler ve öğrenim materyalleri koleksiyonumuzu keşfedin.",
+    "searchPlaceholder": "Kaynakları ara...",
+    "allCategories": "Tüm kategoriler",
+    "clearFilters": "Filtreleri temizle",
+    "clearAllFilters": "Tüm filtreleri temizle",
+    "showing": "{total} kaynaktan {filtered} tanesi gösteriliyor",
+    "filtered": " (filtrelendi)",
+    "featuredResources": "Öne Çıkan Kaynaklar",
+    "allResources": "Tüm Kaynaklar",
+    "noResourcesFound": "Kaynak bulunamadı",
+    "noResourcesFilterMatch": "Mevcut filtrelerinizle eşleşen herhangi bir kaynak bulamadık. Arama kriterlerinizi ayarlamayı deneyin.",
+    "noResourcesYet": "Kaynaklar sisteme eklendiklerinde burada görünecektir.",
+    "visitResource": "Kaynağı Ziyaret Et",
+    "categories": {
+      "resource": "Kaynak",
+      "tool": "Araç",
+      "software": "Yazılım",
+      "documentation": "Belgeler",
+      "api": "API",
+      "library": "Kütüphane",
+      "framework": "Çerçeve",
+      "learning": "Öğrenme",
+      "other": "Diğer"
+    }
+  },
+  "search": {
+    "chatbot": {
+      "title": "AIRi Chatbot",
+      "cardTitle": "AIRi Chatbot",
+      "comingSoon": "Yakında — AIRi bilgisi ve site içeriği için YDM tabanlı chatbot."
+    },
+    "classic": {
+      "title": "🔎 Arama",
+      "placeholder": "Sayfaları aramak için yazın…",
+      "resultsSingular": "için {count} sonuç",
+      "resultsPlural": "için {count} sonuç",
+      "noMatches": "Eşleşme yok! Farklı anahtar kelimeler deneyin veya yazımınızı kontrol edin!"
+    },
+    "knowledgeGraph": {
+      "title": "Bilgi Grafikleri Gezgini",
+      "cardTitle": "AIRi Bilgi Grafikleri",
+      "comingSoon": "Yakında — AIRi bilgi grafikleri için etkileşimli gezgin."
+    }
+  },
+  "timeline": {
+    "title": "📅 AIRI Zaman Çizelgesi",
+    "events": {
+      "event1": {
+        "date": "15 Oca 2023",
+        "title": "UTCN'de Yapay Zeka Enstitüsünün Duyurulması",
+        "description": "Cluj-Napoca Teknik Üniversitesi, yapay zeka teknolojilerinde araştırma ve inovasyonu teşvik etmek amacıyla özel bir Yapay Zeka Enstitüsü kurma planlarını duyurdu."
+      },
+      "event2": {
+        "date": "10 Haz 2023",
+        "title": "Temel Atma Töreni",
+        "description": "Yapay Zeka Enstitüsü binasının inşası için üniversite yetkilileri ve yerel ileri gelenlerin katılımıyla resmi temel atma töreni düzenlendi."
+      },
+      "event3": {
+        "date": "1 Eyl 2024",
+        "title": "İnşaatın Tamamlanması",
+        "description": "Yapay Zeka Enstitüsünün modern laboratuvarlara ve ortak çalışma alanlarına sahip son teknoloji tesisinin inşası tamamlandı."
+      },
+      "event4": {
+        "date": "15 Eki 2024",
+        "title": "Açılış Yapay Zeka Sempozyumu",
+        "description": "Enstitü, yapay zekadaki en son gelişmeleri tartışmak üzere yapay zeka araştırmacılarını, endüstri uzmanlarını ve öğrencileri bir araya getiren ilk sempozyumuna ev sahipliği yaptı."
+      },
+      "event5": {
+        "title": "Mevcut İnşaat İlerlemesi",
+        "descriptionPart1": "Yapay Zeka Enstitüsünün mevcut inşaat ilerlemesinden haberdar olun.",
+        "descriptionPart2": "Web kameramız aracılığıyla canlı izleyin:"
+      }
+    }
+  }
+}

@@ -4,7 +4,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DarkModeBubble from "@/components/DarkModeBubble";
 import ThemeProvider from "@/components/ThemeProvider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import Script from "next/script";
+import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
+
+// 1. Import next-intl requirements
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,9 +23,40 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "AIRI",
+  metadataBase: new URL("https://airi.utcluj.ro"),
+  title: {
+    template: "%s | AIRi @ UTCN",
+    default: "AIRi @ UTCN – Artificial Intelligence Research Institute",
+  },
   description:
-    "The Artificial Intelligence Research Institute (AIRI) within the Technical University of Cluj-Napoca assumes a catalytic role in advancing research, innovation, and exploration in the field of artificial intelligence. AIRi contributes to the development of an ecosystem of excellence that generates a significant impact on society, the economy, and the academic environment. By integrating expertise from various constituent departments, ICIA aims to surpass individual results by promoting interdisciplinary collaboration, knowledge transfer, and the implementation of AI-based solutions in key sectors such as healthcare, industry, energy, or education. ICIA will also serve as a space for interaction between researchers, as well as between AI and human intelligence. ",
+    "The Artificial Intelligence Research Institute (AIRi) at the Technical University of Cluj-Napoca advances research, innovation, and interdisciplinary collaboration in AI across healthcare, industry, energy, and education.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "AIRi @ UTCN",
+    title: "AIRi @ UTCN – Artificial Intelligence Research Institute",
+    description:
+      "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.",
+    url: "https://airi.utcluj.ro",
+    images: [
+      {
+        url: "/homepage/hero5.png",
+        width: 1200,
+        height: 630,
+        alt: "AIRi – Artificial Intelligence Research Institute at UTCN",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AIRi @ UTCN – Artificial Intelligence Research Institute",
+    description:
+      "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.",
+    images: ["/homepage/hero5.png"],
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 // Always render routes on-demand so Strapi data is fetched at first access.
@@ -27,10 +64,15 @@ export const dynamic = "force-dynamic";
 // Allow individual fetches to opt into caching (we set force-cache in fetchAPI by default).
 export const fetchCache = "force-cache";
 
-export default function RootLayout({ children }) {
+// 2. Make the layout async
+export default async function RootLayout({ children }) {
+  // 3. Fetch the locale and messages on the server side
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
+      lang={locale} // 4. Use the dynamic locale here
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
@@ -47,14 +89,21 @@ export default function RootLayout({ children }) {
           `}
         </Script>
 
-        <ThemeProvider>
-          <Navbar />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <DarkModeBubble />
-          <Footer />
-        </ThemeProvider>
+        {/* Structured Data for SEO from master branch */}
+        <JsonLd data={organizationJsonLd()} />
+        <JsonLd data={websiteJsonLd()} />
+
+        {/* 5. Wrap the app with NextIntlClientProvider from localization branch */}
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <Navbar />
+            <main className="flex-grow">
+              {children}
+            </main>
+            <DarkModeBubble />
+            <Footer />
+          </ThemeProvider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

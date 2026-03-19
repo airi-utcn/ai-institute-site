@@ -1,5 +1,6 @@
 export const metadata = {
-  title: "AIRi @ UTCN – People",
+  title: "People",
+  description: "Meet the researchers, staff, and visiting scholars of the Artificial Intelligence Research Institute at UTCN.",
 };
 
 import { getStaff, transformStaffData, PERSON_TYPE_FILTERS } from "@/lib/strapi";

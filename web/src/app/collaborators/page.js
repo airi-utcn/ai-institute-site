@@ -9,9 +9,9 @@ import CollaboratorsClient from "./CollaboratorsClient";
 
 export default function Page() {
   return (
-    <main className="min-h-screen">
+    <div className="min-h-screen">
       <CollaboratorsClient />
-    </main>
+    </div>
   );
 }
   */

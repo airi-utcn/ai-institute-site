@@ -23,7 +23,14 @@ class StrapiClient:
         self._pub_by_oaid = {}
         self._pub_by_doi = {}
         self._pub_by_title = {}
+        self._pub_source_kind = {}
+        self._pub_listing_eligible = {}
         self._person_by_name = {}
+
+    def _normalize_source_kind(self, source_kind):
+        if source_kind in {"openAlexAutomated", "openalex", "merged"}:
+            return "openAlexAutomated"
+        return "manual"
 
     def build_import_create_payload(self, paper_data, author_ids=None, attachment_id=None):
         """Build the create payload for a new imported publication.
@@ -33,8 +40,7 @@ class StrapiClient:
         payload = self._build_machine_owned_payload(paper_data)
         payload.update(
             {
-                "sourceKind": "openalex",
-                "verificationStatus": "imported",
+                "sourceKind": "openAlexAutomated",
                 "graphEligible": True,
                 "listingEligible": False,
             }
@@ -74,7 +80,7 @@ class StrapiClient:
 
     def _build_raw_import_metadata(self, paper_data, imported_at):
         return {
-            "source": "openalex",
+            "source": "openAlexAutomated",
             "sourceId": paper_data.get("openAlexId"),
             "authors": paper_data.get("authors") or [],
             "pdfUrl": paper_data.get("pdf_url"),
@@ -126,11 +132,15 @@ class StrapiClient:
                 "fields[1]": "title",
                 "fields[2]": "doi",
                 "fields[3]": "documentId",
+                "fields[4]": "sourceKind",
+                "fields[5]": "listingEligible",
             },
         )
         for publication in publications:
             attributes = publication.get("attributes", publication)
             document_id = publication.get("documentId") or publication.get("id")
+            self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
+            self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
             if attributes.get("openAlexId"):
                 self._pub_by_oaid[attributes["openAlexId"]] = document_id
             if attributes.get("doi"):
@@ -157,6 +167,7 @@ class StrapiClient:
                 "fields[8]": "embedding",
                 "fields[9]": "embeddingModel",
                 "fields[10]": "embeddingSourceHash",
+                "fields[11]": "sourceKind",
                 "populate[authors][fields][0]": "fullName",
             },
         )
@@ -166,6 +177,9 @@ class StrapiClient:
 
         for publication in publications:
             attributes = publication.get("attributes", publication)
+            source_kind = self._normalize_source_kind(attributes.get("sourceKind"))
+            if source_kind != "openAlexAutomated":
+                continue
             document_id = publication.get("documentId") or publication.get("id")
             graph_id = attributes.get("openAlexId") or f"publication:{document_id}"
 
@@ -198,6 +212,12 @@ class StrapiClient:
 
         log.info(f"  Loaded {len(graph_publications)} graph-eligible publications")
         return graph_publications, publication_map
+
+    def get_publication_source_kind(self, document_id):
+        return self._pub_source_kind.get(document_id)
+
+    def get_publication_listing_eligible(self, document_id):
+        return bool(self._pub_listing_eligible.get(document_id))
 
     def load_existing_people(self):
         """Pre-fetch all Person entries for author matching."""
@@ -359,6 +379,8 @@ class StrapiClient:
             created = response.json().get("data", {})
             document_id = created.get("documentId") or created.get("id")
             if document_id:
+                self._pub_source_kind[document_id] = "openAlexAutomated"
+                self._pub_listing_eligible[document_id] = False
                 if paper_data.get("openAlexId"):
                     self._pub_by_oaid[paper_data["openAlexId"]] = document_id
                 if paper_data.get("doi"):
@@ -426,6 +448,8 @@ class StrapiClient:
             "pagination[pageSize]": 1,
             "fields[0]": "documentId",
             "fields[1]": "id",
+            "fields[2]": "sourceKind",
+            "fields[3]": "listingEligible",
         }
         try:
             response = requests.get(f"{self.api_url}/publications", headers=self.headers, params=params)
@@ -433,6 +457,9 @@ class StrapiClient:
             data = response.json().get("data", [])
             if data:
                 document_id = data[0].get("documentId") or data[0].get("id")
+                attributes = data[0].get("attributes", data[0])
+                self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
+                self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
                 self._pub_by_oaid[openalex_id] = document_id
                 return document_id
             return None

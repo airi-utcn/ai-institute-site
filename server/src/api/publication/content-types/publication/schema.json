@@ -28,19 +28,9 @@
       "type": "enumeration",
       "enum": [
         "manual",
-        "openalex",
-        "merged"
+        "openAlexAutomated"
       ],
       "default": "manual"
-    },
-    "verificationStatus": {
-      "type": "enumeration",
-      "enum": [
-        "imported",
-        "reviewed",
-        "curated"
-      ],
-      "default": "curated"
     },
     "graphEligible": {
       "type": "boolean",

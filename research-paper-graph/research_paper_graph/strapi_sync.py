@@ -16,7 +16,7 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
     strapi.load_existing_people()
 
     pub_map = {}
-    stats = {"created": 0, "updated": 0, "skipped": 0, "failed": 0}
+    stats = {"created": 0, "updated": 0, "skipped": 0, "failed": 0, "protected_manual": 0}
 
     log.info(f"Uploading {len(papers_to_upload)} publications...")
     for paper in papers_to_upload:
@@ -32,12 +32,21 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
 
         if existing_id:
             pub_map[oa_id] = existing_id
+            existing_source = strapi.get_publication_source_kind(existing_id)
+            existing_listing_eligible = strapi.get_publication_listing_eligible(existing_id)
             if args.update_existing:
-                merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)
-                update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
-                strapi.update_publication(existing_id, update_payload)
-                stats["updated"] += 1
-                log.debug(f"  Updated ({match_type}): {paper['title'][:60]}")
+                if existing_source == "openAlexAutomated" and not existing_listing_eligible:
+                    merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)
+                    update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
+                    strapi.update_publication(existing_id, update_payload)
+                    stats["updated"] += 1
+                    log.debug(f"  Updated ({match_type}): {paper['title'][:60]}")
+                else:
+                    stats["protected_manual"] += 1
+                    stats["skipped"] += 1
+                    log.debug(
+                        f"  Protected curated/manual-priority entry ({match_type}): {paper['title'][:60]}"
+                    )
             else:
                 stats["skipped"] += 1
                 log.debug(f"  Exists ({match_type}): {paper['title'][:60]}")
@@ -59,7 +68,7 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
 
     log.info(
         f"Publications: {stats['created']} created, {stats['updated']} updated, "
-        f"{stats['skipped']} skipped, {stats['failed']} failed"
+        f"{stats['skipped']} skipped, {stats['protected_manual']} manual protected, {stats['failed']} failed"
     )
     return pub_map, stats
 

@@ -403,7 +403,7 @@ export async function getStaffMember(slug) {
         socialLinks: {
           fields: ['label', 'url', 'icon'],
         },
-        publications: { fields: ['title', 'slug', 'year'] },
+        publications: { fields: ['title', 'slug', 'year', 'sourceKind', 'openAlexId', 'kind', 'description'] },
       },
     });
 
@@ -612,19 +612,19 @@ export async function getPartners() {
  */
 export async function getPublications(options = {}) {
   try {
-    const { domainSlug, includeUnlisted = false, graphEligibleOnly = false } = options;
+    const { domainSlug, graphEligibleOnly = false, sourceKind } = options;
     const filters = {};
 
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
     }
 
-    if (!includeUnlisted) {
-      filters.listingEligible = { $eq: true };
-    }
-
     if (graphEligibleOnly) {
       filters.graphEligible = { $eq: true };
+    }
+
+    if (sourceKind) {
+      filters.sourceKind = { $eq: sourceKind };
     }
 
     const params = createParams({
@@ -709,13 +709,19 @@ export async function getNewsArticles(options = {}) {
 /**
  * Get publications by author slug
  * @param {string} authorSlug - The author's slug
+ * @param {Object} [options] - Optional publication filters
+ * @param {string} [options.sourceKind] - Source filter (`manual` or `openAlexAutomated`)
  * @returns {Promise<Array>} Array of publications by the author
  */
-export async function getPublicationsByAuthor(authorSlug) {
+export async function getPublicationsByAuthor(authorSlug, options = {}) {
   try {
     if (!authorSlug) return [];
+    const { sourceKind } = options;
     const params = new URLSearchParams();
     params.set('filters[authors][slug][$eq]', authorSlug);
+    if (sourceKind) {
+      params.set('filters[sourceKind][$eq]', sourceKind);
+    }
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
@@ -1050,11 +1056,19 @@ export function transformPublicationData(strapiPubs) {
     const domainData = domainEntry?.attributes ?? domainEntry ?? {};
     const domain = domainData.name || (typeof attributes.domain === 'string' ? attributes.domain : '');
 
+    const sourceKind = (() => {
+      const raw = String(attributes.sourceKind || '').trim();
+      if (raw === 'openalex' || raw === 'merged') return 'openAlexAutomated';
+      if (raw === 'manual' || raw === 'openAlexAutomated') return raw;
+      return attributes.openAlexId ? 'openAlexAutomated' : 'manual';
+    })();
+
     return {
       id: pub?.id ?? null,
       slug: attributes.slug || toPublicationSlug({ title: attributes.title, year: attributes.year }),
       title: attributes.title || '',
       year: attributes.year ?? null,
+      sourceKind,
       domain,
       kind: attributes.kind || '',
       description: stripHtml(attributes.description) || '',

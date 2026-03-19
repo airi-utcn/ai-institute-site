@@ -30,6 +30,7 @@ def fetch_papers(args, logger=None, settings=None):
             use_cache=args.use_fetch_cache,
             refresh_cache=args.refresh_fetch_cache,
         )
+        papers = _dedupe_papers(papers)
         return papers, label
 
     if getattr(args, "mode", None) == "person":
@@ -51,6 +52,7 @@ def fetch_papers(args, logger=None, settings=None):
             use_cache=args.use_fetch_cache,
             refresh_cache=args.refresh_fetch_cache,
         )
+        papers = _dedupe_papers(papers)
         return papers, label
 
     if getattr(args, "mode", None) != "strapi-people":
@@ -161,3 +163,59 @@ def _merge_unique(existing_values, new_values):
 def _slugify(value):
     normalized = re.sub(r"[^a-zA-Z0-9]+", "_", value.strip())
     return normalized.strip("_") or "person"
+
+
+def _normalize_openalex_id(value):
+    raw = str(value or "").strip()
+    return raw.rstrip("/") if raw else ""
+
+
+def _normalize_doi(value):
+    raw = str(value or "").strip().lower()
+    if not raw:
+        return ""
+    return re.sub(r"^https?://(dx\.)?doi\.org/", "", raw)
+
+
+def _normalize_title(value):
+    raw = str(value or "").strip().lower()
+    return re.sub(r"\s+", " ", raw)
+
+
+def _paper_key(paper):
+    return (
+        _normalize_openalex_id(paper.get("openAlexId"))
+        or _normalize_doi(paper.get("doi"))
+        or _normalize_title(paper.get("title"))
+    )
+
+
+def _dedupe_papers(papers):
+    """Merge duplicate paper records deterministically for idempotent upserts."""
+    merged_by_key = {}
+    for paper in papers or []:
+        key = _paper_key(paper)
+        if not key:
+            continue
+
+        existing = merged_by_key.get(key)
+        if not existing:
+            merged_by_key[key] = dict(paper)
+            continue
+
+        existing["authors"] = _merge_unique(existing.get("authors", []), paper.get("authors", []))
+        existing["topics"] = _merge_unique(existing.get("topics", []), paper.get("topics", []))
+
+        if not existing.get("abstract") and paper.get("abstract"):
+            existing["abstract"] = paper["abstract"]
+        if not existing.get("doi") and paper.get("doi"):
+            existing["doi"] = paper["doi"]
+        if not existing.get("openAlexId") and paper.get("openAlexId"):
+            existing["openAlexId"] = paper["openAlexId"]
+        if not existing.get("pdf_url") and paper.get("pdf_url"):
+            existing["pdf_url"] = paper["pdf_url"]
+        if not existing.get("year") and paper.get("year"):
+            existing["year"] = paper["year"]
+        existing["cited_by"] = max(existing.get("cited_by") or 0, paper.get("cited_by") or 0)
+
+    return list(merged_by_key.values())

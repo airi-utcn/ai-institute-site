@@ -31,6 +31,24 @@ class StrapiClient:
         self._pub_published = {}
         self._person_by_name = {}
 
+    def _normalize_openalex_id(self, value):
+        raw = str(value or "").strip()
+        if not raw:
+            return ""
+        return raw.rstrip("/")
+
+    def _normalize_doi(self, value):
+        raw = str(value or "").strip().lower()
+        if not raw:
+            return ""
+        raw = re.sub(r"^https?://(dx\.)?doi\.org/", "", raw)
+        return raw
+
+    def _normalize_title(self, value):
+        raw = str(value or "").strip().lower()
+        raw = re.sub(r"\s+", " ", raw)
+        return raw
+
     def _normalize_source_kind(self, source_kind):
         if source_kind in {"openAlexAutomated", "openalex", "merged"}:
             return "openAlexAutomated"
@@ -93,10 +111,12 @@ class StrapiClient:
 
     def _build_machine_owned_payload(self, paper_data):
         imported_at = self._utc_now()
+        openalex_id = self._normalize_openalex_id(paper_data.get("openAlexId"))
+        doi = self._normalize_doi(paper_data.get("doi"))
         return {
             "title": paper_data["title"],
-            "openAlexId": paper_data.get("openAlexId"),
-            "doi": paper_data.get("doi"),
+            "openAlexId": openalex_id or None,
+            "doi": doi or None,
             "year": paper_data.get("year"),
             "cited_by": paper_data.get("cited_by", 0),
             "abstract": paper_data.get("abstract"),
@@ -108,7 +128,7 @@ class StrapiClient:
     def _build_raw_import_metadata(self, paper_data, imported_at):
         return {
             "source": "openAlexAutomated",
-            "sourceId": paper_data.get("openAlexId"),
+            "sourceId": self._normalize_openalex_id(paper_data.get("openAlexId")) or None,
             "authors": paper_data.get("authors") or [],
             "pdfUrl": paper_data.get("pdf_url"),
             "importedAt": imported_at,
@@ -172,12 +192,15 @@ class StrapiClient:
             self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
             self._pub_slug[document_id] = attributes.get("slug") or ""
             self._pub_published[document_id] = bool(attributes.get("publishedAt"))
-            if attributes.get("openAlexId"):
-                self._pub_by_oaid[attributes["openAlexId"]] = document_id
-            if attributes.get("doi"):
-                self._pub_by_doi[attributes["doi"]] = document_id
-            if attributes.get("title"):
-                self._pub_by_title[attributes["title"].lower().strip()] = document_id
+            normalized_oaid = self._normalize_openalex_id(attributes.get("openAlexId"))
+            normalized_doi = self._normalize_doi(attributes.get("doi"))
+            normalized_title = self._normalize_title(attributes.get("title"))
+            if normalized_oaid:
+                self._pub_by_oaid[normalized_oaid] = document_id
+            if normalized_doi:
+                self._pub_by_doi[normalized_doi] = document_id
+            if normalized_title:
+                self._pub_by_title[normalized_title] = document_id
         log.info(f"  Loaded {len(publications)} publications ({len(self._pub_by_oaid)} with openAlexId)")
 
     def load_graph_eligible_publications(self):
@@ -347,14 +370,17 @@ class StrapiClient:
 
     def find_existing_publication(self, openalex_id=None, doi=None, title=None):
         """Find an existing publication by OpenAlex ID, DOI, or fuzzy title."""
-        if openalex_id and openalex_id in self._pub_by_oaid:
-            return self._pub_by_oaid[openalex_id], "openAlexId"
+        normalized_oaid = self._normalize_openalex_id(openalex_id)
+        normalized_doi = self._normalize_doi(doi)
+        normalized_title = self._normalize_title(title)
 
-        if doi and doi in self._pub_by_doi:
-            return self._pub_by_doi[doi], "doi"
+        if normalized_oaid and normalized_oaid in self._pub_by_oaid:
+            return self._pub_by_oaid[normalized_oaid], "openAlexId"
 
-        if title:
-            normalized_title = title.lower().strip()
+        if normalized_doi and normalized_doi in self._pub_by_doi:
+            return self._pub_by_doi[normalized_doi], "doi"
+
+        if normalized_title:
             if normalized_title in self._pub_by_title:
                 return self._pub_by_title[normalized_title], "title_exact"
             for existing_title, document_id in self._pub_by_title.items():
@@ -422,12 +448,15 @@ class StrapiClient:
                 self._pub_listing_eligible[document_id] = False
                 self._pub_slug[document_id] = payload.get("slug") or ""
                 self._pub_published[document_id] = bool(payload.get("publishedAt"))
-                if paper_data.get("openAlexId"):
-                    self._pub_by_oaid[paper_data["openAlexId"]] = document_id
-                if paper_data.get("doi"):
-                    self._pub_by_doi[paper_data["doi"]] = document_id
-                if paper_data.get("title"):
-                    self._pub_by_title[paper_data["title"].lower().strip()] = document_id
+                normalized_oaid = self._normalize_openalex_id(paper_data.get("openAlexId"))
+                normalized_doi = self._normalize_doi(paper_data.get("doi"))
+                normalized_title = self._normalize_title(paper_data.get("title"))
+                if normalized_oaid:
+                    self._pub_by_oaid[normalized_oaid] = document_id
+                if normalized_doi:
+                    self._pub_by_doi[normalized_doi] = document_id
+                if normalized_title:
+                    self._pub_by_title[normalized_title] = document_id
             return document_id
         except requests.exceptions.RequestException as exc:
             log.error(f"Failed to create publication '{paper_data.get('title', '?')}': {exc}")
@@ -489,11 +518,15 @@ class StrapiClient:
 
     def get_publication_id_by_openalex(self, openalex_id):
         """Find an existing Strapi document ID for a given OpenAlex ID."""
-        if openalex_id in self._pub_by_oaid:
-            return self._pub_by_oaid[openalex_id]
+        normalized_oaid = self._normalize_openalex_id(openalex_id)
+        if normalized_oaid in self._pub_by_oaid:
+            return self._pub_by_oaid[normalized_oaid]
+
+        if not normalized_oaid:
+            return None
 
         params = {
-            "filters[openAlexId][$eq]": openalex_id,
+            "filters[openAlexId][$eq]": normalized_oaid,
             "pagination[pageSize]": 1,
             "fields[0]": "documentId",
             "fields[1]": "id",
@@ -513,7 +546,7 @@ class StrapiClient:
                 self._pub_listing_eligible[document_id] = bool(attributes.get("listingEligible"))
                 self._pub_slug[document_id] = attributes.get("slug") or ""
                 self._pub_published[document_id] = bool(attributes.get("publishedAt"))
-                self._pub_by_oaid[openalex_id] = document_id
+                self._pub_by_oaid[normalized_oaid] = document_id
                 return document_id
             return None
         except Exception:

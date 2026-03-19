@@ -21,6 +21,7 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
     log.info(f"Uploading {len(papers_to_upload)} publications...")
     for paper in papers_to_upload:
         oa_id = paper.get("openAlexId")
+        paper_label = paper.get("title", "?")
         matched_author_ids = strapi.match_authors(paper.get("authors", []))
         seeded_author_ids = paper.get("seedPersonIds", [])
         author_ids = list(dict.fromkeys([*matched_author_ids, *seeded_author_ids]))
@@ -31,7 +32,8 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
         )
 
         if existing_id:
-            pub_map[oa_id] = existing_id
+            if oa_id:
+                pub_map[oa_id] = existing_id
             existing_source = strapi.get_publication_source_kind(existing_id)
             existing_listing_eligible = strapi.get_publication_listing_eligible(existing_id)
 
@@ -51,29 +53,32 @@ def upload_publications(strapi, papers_to_upload, args, logger=None):
                     update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
                     strapi.update_publication(existing_id, update_payload)
                     stats["updated"] += 1
-                    log.debug(f"  Updated ({match_type}): {paper['title'][:60]}")
+                    log.debug(f"  Updated ({match_type}): {paper_label[:60]}")
                 else:
                     stats["protected_manual"] += 1
                     stats["skipped"] += 1
                     log.debug(
-                        f"  Protected curated/manual-priority entry ({match_type}): {paper['title'][:60]}"
+                        f"  Protected curated/manual-priority entry ({match_type}): {paper_label[:60]}"
                     )
             else:
                 stats["skipped"] += 1
-                log.debug(f"  Exists ({match_type}): {paper['title'][:60]}")
+                log.debug(f"  Exists ({match_type}): {paper_label[:60]}")
             continue
 
         if args.upload_pdfs and paper.get("pdf_url"):
-            safe_name = f"{oa_id.split('/')[-1]}.pdf"
+            source_value = oa_id or paper.get("doi") or paper_label or "paper"
+            source_token = str(source_value).split("/")[-1].strip() or "paper"
+            safe_name = f"{source_token}.pdf"
             pdf_id = strapi.upload_pdf(paper["pdf_url"], safe_name)
             if pdf_id:
                 paper["attachment"] = pdf_id
 
         doc_id = strapi.create_publication(paper, author_ids=author_ids or None)
         if doc_id:
-            pub_map[oa_id] = doc_id
+            if oa_id:
+                pub_map[oa_id] = doc_id
             stats["created"] += 1
-            log.info(f"  Created: {paper['title'][:60]}")
+            log.info(f"  Created: {paper_label[:60]}")
         else:
             stats["failed"] += 1
 

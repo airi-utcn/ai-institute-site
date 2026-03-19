@@ -2,6 +2,7 @@ import json
 import hashlib
 import logging
 import os
+import re
 from collections import defaultdict
 from functools import lru_cache
 
@@ -9,6 +10,63 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 
 log = logging.getLogger(__name__)
+
+
+# Coarse top-level sectors used to avoid over-segmented galaxy clusters.
+# Keep this list intentionally short and broad; topic-level detail is surfaced downstream.
+MACRO_SECTORS = [
+    {
+        "key": "ai_ml",
+        "label": "AI & Machine Learning",
+        "keywords": [
+            "artificial intelligence",
+            "machine learning",
+            "deep learning",
+            "neural network",
+            "computer vision",
+            "natural language",
+            "reinforcement learning",
+            "llm",
+            "transformer",
+            "data mining",
+        ],
+    },
+    {
+        "key": "circuits_systems",
+        "label": "Circuits & Systems",
+        "keywords": [
+            "circuit",
+            "vlsi",
+            "fpga",
+            "embedded",
+            "hardware",
+            "electronic",
+            "signal processing",
+            "control system",
+            "analog",
+            "digital design",
+        ],
+    },
+    {
+        "key": "medical_health",
+        "label": "Medical & Health",
+        "keywords": [
+            "medical",
+            "clinical",
+            "health",
+            "biomedical",
+            "diagnosis",
+            "hospital",
+            "patient",
+            "imaging",
+            "retina",
+            "ophthalmology",
+        ],
+    },
+]
+
+FALLBACK_SECTOR_KEY = "emerging_other"
+FALLBACK_SECTOR_LABEL = "Emerging & Other"
 
 
 @lru_cache(maxsize=None)
@@ -335,10 +393,82 @@ def detect_communities(filtered_papers, embeddings, links, resolution=1.0):
         for paper_id in members:
             communities[paper_id] = community_id
 
-    community_labels = _label_communities(filtered_papers, communities)
-    log.info(f"Detected {len(communities_list)} communities")
+    # Coarsen Louvain groups into broad manually curated sectors.
+    # This keeps the top-level graph stable and avoids many single-item clusters.
+    communities, community_labels = _coarsen_to_macro_sectors(filtered_papers, communities)
+    log.info(f"Detected {len(communities_list)} raw communities; {len(set(communities.values()))} macro sectors")
 
     return communities, community_labels
+
+
+def _coarsen_to_macro_sectors(papers, communities):
+    papers_by_id = {paper_identifier(paper): paper for paper in papers}
+
+    grouped = defaultdict(list)
+    for paper_id, community_id in communities.items():
+        grouped[community_id].append(paper_id)
+
+    # First assign each raw community to a dominant macro sector when confident.
+    raw_to_sector = {}
+    for community_id, member_ids in grouped.items():
+        counts = defaultdict(int)
+        for paper_id in member_ids:
+            paper = papers_by_id.get(paper_id)
+            sector_key = _infer_macro_sector(paper)
+            if sector_key:
+                counts[sector_key] += 1
+
+        if not counts:
+            raw_to_sector[community_id] = FALLBACK_SECTOR_KEY
+            continue
+
+        dominant_sector, dominant_count = max(counts.items(), key=lambda kv: kv[1])
+        confidence = dominant_count / max(len(member_ids), 1)
+
+        # If a raw community has weak thematic agreement, keep it in fallback.
+        raw_to_sector[community_id] = dominant_sector if confidence >= 0.5 else FALLBACK_SECTOR_KEY
+
+    # Stable sector ordering keeps IDs deterministic across runs.
+    ordered_sector_keys = [sector["key"] for sector in MACRO_SECTORS] + [FALLBACK_SECTOR_KEY]
+    sector_key_to_id = {key: idx for idx, key in enumerate(ordered_sector_keys)}
+
+    sector_communities = {}
+    for paper_id, community_id in communities.items():
+        sector_key = raw_to_sector.get(community_id, FALLBACK_SECTOR_KEY)
+        sector_communities[paper_id] = sector_key_to_id[sector_key]
+
+    labels = {
+        sector_key_to_id[sector["key"]]: sector["label"]
+        for sector in MACRO_SECTORS
+    }
+    labels[sector_key_to_id[FALLBACK_SECTOR_KEY]] = FALLBACK_SECTOR_LABEL
+
+    return sector_communities, labels
+
+
+def _infer_macro_sector(paper):
+    if not paper:
+        return None
+
+    title = str(paper.get("title") or "")
+    abstract = str(paper.get("abstract") or "")
+    topics = " ".join(str(topic) for topic in (paper.get("topics") or []))
+    text = f"{title} {abstract} {topics}".lower()
+    text = re.sub(r"\s+", " ", text)
+
+    scores = {}
+    for sector in MACRO_SECTORS:
+        score = 0
+        for keyword in sector["keywords"]:
+            if keyword in text:
+                score += 1
+        if score > 0:
+            scores[sector["key"]] = score
+
+    if not scores:
+        return None
+
+    return max(scores.items(), key=lambda kv: kv[1])[0]
 
 
 def _label_communities(papers, communities):

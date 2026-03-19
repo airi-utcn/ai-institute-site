@@ -79,7 +79,7 @@ services:
         condition: service_healthy
 
   # Paper sync service — run manually or on a cron schedule.
-  # Usage: docker compose run --rm paper-sync --mode institution --institution "..."
+  # Usage: docker compose run --rm paper-sync --institution "..."
   paper-sync:
     build: ./research-paper-graph
     profiles: ["tools"]

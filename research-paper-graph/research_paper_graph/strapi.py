@@ -286,7 +286,8 @@ class StrapiClient:
             {
                 "fields[0]": "fullName",
                 "fields[1]": "documentId",
-                "fields[2]": "type",
+                "fields[2]": "slug",
+                "fields[3]": "type",
             },
         )
 
@@ -301,6 +302,7 @@ class StrapiClient:
                 {
                     "documentId": document_id,
                     "fullName": full_name,
+                    "slug": attributes.get("slug"),
                     "type": attributes.get("type"),
                 }
             )

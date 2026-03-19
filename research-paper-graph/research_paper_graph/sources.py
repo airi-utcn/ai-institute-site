@@ -1,5 +1,3 @@
-import glob
-import json
 import logging
 import os
 import re
@@ -9,25 +7,22 @@ from . import openalex as oaf
 from .strapi import StrapiClient
 
 
-def fetch_papers(args, prompt=input, logger=None, settings=None):
-    """Fetch papers based on the selected mode. Returns (papers, label)."""
+def fetch_papers(args, logger=None, settings=None):
+    """Fetch papers from the configured source and return (papers, label)."""
     log = logger or logging.getLogger("paper-sync")
 
-    if args.mode == "institution":
-        name = args.institution
-        if not name:
-            if args.interactive:
-                name = prompt("Enter institution name: ").strip()
-            else:
-                log.error("--institution is required for mode=institution")
-                sys.exit(1)
-
-        inst_id = oaf.find_institution_id(name)
-        if not inst_id:
-            log.error(f"Institution '{name}' not found in OpenAlex.")
+    if getattr(args, "mode", None) == "institution":
+        institution_name = (getattr(args, "institution", None) or "").strip()
+        if not institution_name:
+            log.error("--institution is required for mode=institution")
             sys.exit(1)
 
-        label = name.replace(" ", "_")
+        inst_id = oaf.find_institution_id(institution_name)
+        if not inst_id:
+            log.error(f"Institution '{institution_name}' not found in OpenAlex")
+            sys.exit(1)
+
+        label = institution_name.replace(" ", "_")
         cache_path = _resolve_fetch_cache_path(args, f"institution_{label}")
         papers = oaf.get_institution_papers(
             inst_id,
@@ -37,26 +32,19 @@ def fetch_papers(args, prompt=input, logger=None, settings=None):
         )
         return papers, label
 
-    if args.mode == "author":
-        name = args.author
-        institution = args.author_institution
-        if not name:
-            if args.interactive:
-                name = prompt("Enter author name: ").strip()
-                institution = prompt("Institution filter (optional, Enter to skip): ").strip() or None
-            else:
-                log.error("--author is required for mode=author")
-                sys.exit(1)
-
-        author_id = oaf.find_author_id(name, institution)
-        if not author_id:
-            log.error(f"Author '{name}' not found.")
+    if getattr(args, "mode", None) == "person":
+        person_name = (getattr(args, "person", None) or "").strip()
+        if not person_name:
+            log.error("--person is required for person mode")
             sys.exit(1)
 
-        label = name.replace(" ", "_")
-        if institution:
-            label = f"{label}_{institution.replace(' ', '_')}"
-        cache_path = _resolve_fetch_cache_path(args, f"author_{label}")
+        author_id = oaf.find_author_id(person_name)
+        if not author_id:
+            log.error(f"Author '{person_name}' not found in OpenAlex")
+            sys.exit(1)
+
+        label = _slugify(person_name)
+        cache_path = _resolve_fetch_cache_path(args, f"person_{label}")
         papers = oaf.get_author_papers(
             author_id,
             cache_path=cache_path,
@@ -65,74 +53,53 @@ def fetch_papers(args, prompt=input, logger=None, settings=None):
         )
         return papers, label
 
-    if args.mode == "strapi-people":
-        if not settings:
-            log.error("Runtime settings are required for mode=strapi-people")
-            sys.exit(1)
+    if getattr(args, "mode", None) != "strapi-people":
+        log.error("Unsupported --mode. Allowed values: strapi-people, institution, person")
+        sys.exit(1)
 
-        strapi = StrapiClient(settings.strapi_api_url, settings.strapi_token)
-        people = strapi.load_import_people()
-        if not people:
-            log.error("No people found in Strapi for author-based import")
-            sys.exit(1)
+    if not settings:
+        log.error("Runtime settings are required for Strapi people sync")
+        sys.exit(1)
 
-        papers_by_key = {}
-        total_people = len(people)
+    # strapi-people mode is strict: no source selector parameters allowed.
+    if (getattr(args, "institution", None) or "").strip():
+        log.error("--institution is only valid when --mode institution")
+        sys.exit(1)
 
-        for index, person in enumerate(people, start=1):
-            person_name = person["fullName"]
-            person_id = person["documentId"]
-            person_label = _slugify(person_name)
-            cache_path = _resolve_fetch_cache_path(args, f"person_{person_label}_{person_id}")
+    strapi = StrapiClient(settings.strapi_api_url, settings.strapi_token)
+    people = strapi.load_import_people()
+    if not people:
+        log.error("No people found in Strapi for author-based import")
+        sys.exit(1)
 
-            log.info(f"Fetching papers for Strapi person {index}/{total_people}: {person_name}")
-            author_id = oaf.find_author_id(person_name, args.author_institution)
-            if not author_id:
-                log.warning(f"Skipping Strapi person with no OpenAlex match: {person_name}")
-                continue
+    papers_by_key = {}
+    total_people = len(people)
 
-            person_papers = oaf.get_author_papers(
-                author_id,
-                cache_path=cache_path,
-                use_cache=args.use_fetch_cache,
-                refresh_cache=args.refresh_fetch_cache,
-            )
+    for index, person in enumerate(people, start=1):
+        person_name = person["fullName"]
+        person_id = person["documentId"]
+        person_label = _slugify(person_name)
+        cache_path = _resolve_fetch_cache_path(args, f"person_{person_label}_{person_id}")
 
-            for paper in person_papers:
-                _merge_seed_paper(papers_by_key, paper, person)
+        log.info(f"Fetching papers for Strapi person {index}/{total_people}: {person_name}")
+        author_id = oaf.find_author_id(person_name)
+        if not author_id:
+            log.warning(f"Skipping Strapi person with no OpenAlex match: {person_name}")
+            continue
 
-        papers = list(papers_by_key.values())
-        log.info(f"Collected {len(papers)} unique papers across {total_people} Strapi people")
-        return papers, "strapi_people"
+        person_papers = oaf.get_author_papers(
+            author_id,
+            cache_path=cache_path,
+            use_cache=args.use_fetch_cache,
+            refresh_cache=args.refresh_fetch_cache,
+        )
 
-    if args.mode == "file":
-        path = args.file
-        if not path:
-            if args.interactive:
-                files = glob.glob("outputs/*.json")
-                if not files:
-                    log.error("No JSON files in outputs/")
-                    sys.exit(1)
+        for paper in person_papers:
+            _merge_seed_paper(papers_by_key, paper, person)
 
-                print("Local files:")
-                for idx, file_path in enumerate(files):
-                    print(f"  [{idx}] {file_path}")
-
-                choice = prompt("Choose file index or enter path: ").strip()
-                path = files[int(choice)] if choice.isdigit() else choice
-            else:
-                log.error("--file is required for mode=file")
-                sys.exit(1)
-
-        with open(path, "r", encoding="utf-8") as handle:
-            papers = json.load(handle)
-
-        label = os.path.splitext(os.path.basename(path))[0]
-        log.info(f"Loaded {len(papers)} papers from {path}")
-        return papers, label
-
-    log.error(f"Unsupported mode: {args.mode}")
-    sys.exit(1)
+    papers = list(papers_by_key.values())
+    log.info(f"Collected {len(papers)} unique papers across {total_people} Strapi people")
+    return papers, "strapi_people"
 
 
 def _resolve_fetch_cache_path(args, cache_key):

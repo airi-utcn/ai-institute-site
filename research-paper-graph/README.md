@@ -35,10 +35,12 @@ python main.py --help
 Common examples:
 
 ```bash
-python main.py --mode author --author "Adrian Groza" --use-fetch-cache --update-existing
-python main.py --mode institution --institution "Technical University of Cluj-Napoca" --use-fetch-cache
-python main.py --mode strapi-people --use-fetch-cache --update-existing
-python main.py --mode file --file outputs/papers_strapi_people.json --dry-run
+python main.py --strapi-people
+python main.py --strapi-people --dry-run
+python main.py --institution "Technical University of Cluj-Napoca"
+python main.py --institution "Technical University of Cluj-Napoca" --dry-run
+python main.py --person "Adrian Groza"
+python main.py --person "Adrian Groza" --dry-run
 ```
 
 ## Documentation

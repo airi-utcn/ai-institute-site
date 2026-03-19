@@ -2,7 +2,6 @@
 
 import argparse
 import logging
-import sys
 
 from .config import load_runtime_settings
 from .pipeline import build_graph_artifacts, save_paper_snapshot
@@ -22,82 +21,60 @@ log = logging.getLogger("paper-sync")
 def build_parser():
     p = argparse.ArgumentParser(
         prog="paper-sync",
-        description="Fetch academic papers, build a global similarity graph, and sync them into Strapi.",
+        description="Sync publications and rebuild the global graph.",
     )
-    p.add_argument(
-        "--mode", choices=["institution", "author", "strapi-people", "file"], default="institution",
-        help="Source of papers (default: institution)",
-    )
-    p.add_argument("--institution", type=str, help="Institution name for mode=institution")
-    p.add_argument("--author", type=str, help="Author name for mode=author")
-    p.add_argument("--author-institution", type=str, help="Institution filter for author search")
-    p.add_argument("--file", type=str, help="JSON file path for mode=file")
-    p.add_argument(
-        "--use-fetch-cache",
+    source_group = p.add_mutually_exclusive_group(required=False)
+    source_group.add_argument(
+        "--strapi-people",
         action="store_true",
-        help="Reuse or resume cached OpenAlex fetch results when available",
+        help="Import papers only from people loaded from Strapi",
     )
-    p.add_argument(
-        "--refresh-fetch-cache",
-        action="store_true",
-        help="Ignore any existing OpenAlex fetch cache and rebuild it from scratch",
-    )
-    p.add_argument(
-        "--fetch-cache-file",
+    source_group.add_argument(
+        "--institution",
+        "-institution",
         type=str,
-        help="Override the default OpenAlex fetch cache path (in strapi-people mode, a per-person suffix is added)",
+        help="Import papers for one institution",
     )
-
-    p.add_argument(
-        "--skip-graph",
-        action="store_true",
-        help="Skip duplicate screening and both preview/global graph generation steps",
+    source_group.add_argument(
+        "--person",
+        type=str,
+        help="Import papers for one person by name",
     )
-    p.add_argument("--skip-communities", action="store_true", help="Skip community detection")
-    p.add_argument("--update-existing", action="store_true", help="Update publications that already exist in Strapi")
     p.add_argument(
         "--dry-run",
         action="store_true",
         help="Skip all Strapi writes (local preview artifacts are still generated)",
     )
-    p.add_argument("--upload-pdfs", action="store_true", help="Download and upload PDFs to Strapi")
-
-    p.add_argument(
-        "--limit",
-        type=int,
-        default=0,
-        help="Maximum number of papers to process in this run (default: 0 = unlimited)",
-    )
-
-    p.add_argument("--similarity-threshold", type=float, default=None)
-    p.add_argument("--duplicate-threshold", type=float, default=None)
-    p.add_argument("--model", type=str, default=None)
-    p.add_argument("--top-k", type=int, default=None)
-    p.add_argument(
-        "--community-resolution",
-        type=float,
-        default=1.0,
-        help="Louvain resolution (higher = more communities)",
-    )
-
-    p.add_argument("--verbose", "-v", action="store_true")
-    p.add_argument("--interactive", "-i", action="store_true", help="Run the legacy interactive prompt flow")
-
     return p
 
 
+def _apply_runtime_defaults(args):
+    """Set fixed runtime defaults to keep the tool predictable and low-config."""
+    if getattr(args, "institution", None):
+        args.mode = "institution"
+    elif getattr(args, "person", None):
+        args.mode = "person"
+    else:
+        args.mode = "strapi-people"
+    args.use_fetch_cache = True
+    args.refresh_fetch_cache = False
+    args.fetch_cache_file = None
+    args.skip_graph = False
+    args.skip_communities = False
+    args.update_existing = True
+    args.upload_pdfs = False
+    args.limit = 0
+    args.community_resolution = 1.0
+
+
 def run(args):
-    sim_thresh = args.similarity_threshold or SETTINGS.graph_similarity_threshold
-    dup_thresh = args.duplicate_threshold or SETTINGS.graph_duplicate_threshold
-    model_name = args.model or SETTINGS.graph_ai_model
-    top_k = args.top_k or SETTINGS.graph_top_k
+    sim_thresh = SETTINGS.graph_similarity_threshold
+    dup_thresh = SETTINGS.graph_duplicate_threshold
+    model_name = SETTINGS.graph_ai_model
+    top_k = SETTINGS.graph_top_k
 
     papers, label = fetch_papers(args, logger=log, settings=SETTINGS)
     log.info(f"Fetched {len(papers)} papers ({label})")
-
-    if args.limit and args.limit > 0 and len(papers) > args.limit:
-        log.info(f"Limiting to {args.limit} papers (--limit {args.limit})")
-        papers = papers[:args.limit]
 
     save_paper_snapshot(papers, label, logger=log)
 
@@ -165,46 +142,21 @@ def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    has_source_selector = bool(
+        getattr(args, "strapi_people", False)
+        or getattr(args, "institution", None)
+        or getattr(args, "person", None)
+    )
+    if not has_source_selector:
+        parser.print_help()
+        return
+
+    _apply_runtime_defaults(args)
+
     logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
+        level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         datefmt="%H:%M:%S",
     )
-
-    if argv is None and len(sys.argv) == 1:
-        args.interactive = True
-
-    if args.interactive:
-        _interactive_mode(args)
-    else:
-        run(args)
-
-
-def _interactive_mode(args):
-    print("=== Research Paper Graph Manager ===")
-    choice = input("Load papers from (1) OpenAlex Author, (2) Local file, (3) Institution, (4) Strapi People [1/2/3/4]: ").strip() or "1"
-
-    if choice == "4":
-        args.mode = "strapi-people"
-    elif choice == "3":
-        args.mode = "institution"
-    elif choice == "2":
-        args.mode = "file"
-    else:
-        args.mode = "author"
-
-    if args.mode in {"author", "institution", "strapi-people"}:
-        use_fetch_cache = input("Reuse or resume cached OpenAlex fetches if available? (y/n) [y]: ").strip().lower()
-        args.use_fetch_cache = use_fetch_cache != "n"
-
-        refresh_fetch_cache = input("Force a fresh OpenAlex fetch and rebuild the cache? (y/n) [n]: ").strip().lower()
-        args.refresh_fetch_cache = refresh_fetch_cache == "y"
-
-    if args.mode == "strapi-people":
-        institution_filter = input("Institution filter for author lookup (optional, Enter to skip): ").strip()
-        args.author_institution = institution_filter or None
-
-    args.update_existing = input("Update existing publications? (y/n) [n]: ").strip().lower() == "y"
-    args.upload_pdfs = input("Upload PDFs? (y/n) [n]: ").strip().lower() == "y"
 
     run(args)

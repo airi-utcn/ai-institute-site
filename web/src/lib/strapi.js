@@ -1358,7 +1358,7 @@ export function transformProjectData(strapiProjects) {
         id: resource?.id ?? null,
         title: resourceAttrs.title || '',
         slug: resourceAttrs.slug || '',
-        url: resourceAttrs.url || '',
+        url: normalizeExternalUrl(resourceAttrs.url),
         icon: resourceAttrs.icon || 'link',
         category: resourceAttrs.category || '',
       };
@@ -1592,7 +1592,7 @@ export function transformResourceData(strapiResources) {
       title: attributes.title || '',
       slug: attributes.slug || '',
       description: attributes.description || '',
-      url: attributes.url || '',
+      url: normalizeExternalUrl(attributes.url),
       icon: attributes.icon || 'link',
       category: attributes.category || 'other',
       tags: attributes.tags || [],

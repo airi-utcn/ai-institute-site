@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import Markdown from "markdown-to-jsx";
 import { 
   FaDatabase, 
   FaGithub, 
@@ -18,6 +17,7 @@ import {
   FaStar
 } from "react-icons/fa";
 import { useTranslations } from "next-intl";
+import RichMarkdown from "@/components/shared/RichMarkdown";
 
 /* Icon map based on schema enums */
 const iconMap = {
@@ -115,19 +115,12 @@ function ResourceCard({ resource, t }) {
       </h3>
 
       {/* Description */}
-      <div className="mb-5 flex-grow text-gray-600 dark:text-gray-400 text-sm leading-relaxed prose dark:prose-invert prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1 prose-a:text-blue-600 hover:prose-a:underline">
-        <Markdown options={{
-          overrides: {
-            a: {
-              component: ({ children, ...props }) => (
-                <a {...props} className="text-blue-600 dark:text-blue-400 font-medium hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>
-              ),
-            },
-          }
-        }}>
-          {resource.description || ""}
-        </Markdown>
-      </div>
+      <RichMarkdown
+        content={resource.description || ""}
+        className="mb-5 flex-grow text-gray-600 dark:text-gray-400 text-sm leading-relaxed prose dark:prose-invert prose-sm max-w-none prose-p:my-1 prose-headings:my-2 prose-ul:my-1"
+        linkClassName="text-blue-600 dark:text-blue-400 font-medium hover:underline break-words"
+        imageClassName="rounded-lg shadow-sm my-3"
+      />
 
       {/* Tags */}
       {resource.tags && resource.tags.length > 0 && (

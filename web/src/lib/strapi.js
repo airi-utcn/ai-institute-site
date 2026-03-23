@@ -28,14 +28,6 @@ const getStrapiApiBaseUrl = () => {
 
 const DEFAULT_REVALIDATE_SECONDS = 60; // 1 minute
 
-// Buckets used by UI tabs; keep normalized values to avoid client-side filtering.
-export const PERSON_TYPE_FILTERS = {
-  staff: ['staff', 'personal'],
-  researchers: ['researcher', 'research'],
-  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher', 'external', 'collaborator'],
-  alumni: ['alumni', 'alumnus'], 
-};
-
 const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
 
 const stripHtml = (value) =>
@@ -170,7 +162,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type'];
+const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type', 'subtype', 'typeDescription', 'subtypeDescription'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -212,30 +204,54 @@ const PROJECT_POPULATE = {
   },
 };
 
-// Map raw type/status values to human-friendly buckets used by the UI tabs
+const STAFF_TYPE_ALIASES = {
+  personal: 'staff',
+  research: 'researcher',
+  alumnus: 'alumni',
+  visitor: 'visiting',
+  visiting_researcher: 'visiting',
+  'visiting researcher': 'visiting',
+  external: 'visiting',
+  collaborator: 'visiting',
+};
+
 const STAFF_TYPE_LABELS = {
   staff: 'Staff',
-  personal: 'Staff', // legacy name
   researcher: 'Researchers',
-  research: 'Researchers',
   alumni: 'Alumni',
-  alumnus: 'Alumni',
   visiting: 'Visiting Researchers',
-  visitor: 'Visiting Researchers',
-  'visiting researcher': 'Visiting Researchers',
-  external: 'External',
-  collaborator: 'External',
 };
+
+const toTitleCase = (value) =>
+  (value || '')
+    .toString()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 
 const normalizeStaffType = (value) => {
   const raw = value ?? '';
   const stringValue = typeof raw === 'string' ? raw.trim() : String(raw || '').trim();
-  const key = stringValue.toLowerCase();
+  const rawKey = stringValue.toLowerCase();
+  const key = STAFF_TYPE_ALIASES[rawKey] || rawKey || 'other';
   return {
+    rawKey,
     key,
-    label: STAFF_TYPE_LABELS[key] || '',
+    label: STAFF_TYPE_LABELS[key] || toTitleCase(stringValue || key),
   };
 };
+
+const toKey = (value) =>
+  (value || '')
+    .toString()
+    .trim()
+    .toLowerCase();
+
+const toId = (value) =>
+  toKey(value)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 const normalizeDepartmentType = (value) => {
   const raw = value ?? '';
@@ -910,6 +926,7 @@ export function transformStaffData(strapiStaff) {
     const { key: typeKey, label: typeLabel } = normalizeStaffType(
       attributes.type ?? attributes.status ?? attributes.category ?? attributes.role ?? ''
     );
+    const subtypeRaw = (attributes.subtype || '').toString().trim();
     // Strapi 5: department is direct object, Strapi 4: department.data
     const departmentEntry = attributes.department?.data ?? attributes.department;
     const departmentAttributes = departmentEntry?.attributes ?? departmentEntry ?? {};
@@ -995,8 +1012,11 @@ export function transformStaffData(strapiStaff) {
       phone: attributes.phone || '',
       email: attributes.email || '',
       type: typeKey,
+      subtype: subtypeRaw,
       role: typeKey || attributes.role || '',
       category: typeLabel || typeKey || '',
+      typeDescription: stripHtml(attributes.typeDescription) || '',
+      subtypeDescription: stripHtml(attributes.subtypeDescription) || '',
       department: department?.name || '',
       departmentInfo: department,
       image,
@@ -1021,6 +1041,77 @@ export function groupStaffByType(staffList) {
     acc[bucket].push(person);
     return acc;
   }, {});
+}
+
+export function buildPeopleDirectory(staffList) {
+  const list = Array.isArray(staffList) ? staffList : staffList ? [staffList] : [];
+  const groupsMap = new Map();
+
+  for (const person of list) {
+    const { key: typeKey, label: typeLabel } = normalizeStaffType(
+      person?.type ?? person?.role ?? person?.category ?? person?.status ?? ''
+    );
+    const groupId = toId(typeKey) || 'other';
+    const subtypeRaw = (person?.subtype || '').toString().trim();
+    const subtypeKey = toKey(subtypeRaw);
+    const subtypeId = toId(subtypeKey);
+
+    if (!groupsMap.has(groupId)) {
+      groupsMap.set(groupId, {
+        id: groupId,
+        key: typeKey || 'other',
+        label: typeLabel || toTitleCase(typeKey || 'other'),
+        description: '',
+        people: [],
+        subtypesMap: new Map(),
+      });
+    }
+
+    const group = groupsMap.get(groupId);
+    if (!group.description && person?.typeDescription) group.description = person.typeDescription;
+    group.people.push(person);
+
+    if (subtypeId) {
+      if (!group.subtypesMap.has(subtypeId)) {
+        group.subtypesMap.set(subtypeId, {
+          id: subtypeId,
+          key: subtypeKey,
+          label: subtypeRaw || toTitleCase(subtypeKey),
+          description: '',
+          people: [],
+        });
+      }
+
+      const subtype = group.subtypesMap.get(subtypeId);
+      if (!subtype.description && person?.subtypeDescription) subtype.description = person.subtypeDescription;
+      subtype.people.push(person);
+    }
+  }
+
+  const order = {
+    researcher: 1,
+    staff: 2,
+    visiting: 3,
+    alumni: 4,
+  };
+
+  return Array.from(groupsMap.values())
+    .map((group) => ({
+      id: group.id,
+      key: group.key,
+      label: group.label,
+      description: group.description,
+      people: group.people,
+      subtypes: Array.from(group.subtypesMap.values()).sort((a, b) =>
+        a.label.localeCompare(b.label, 'ro', { sensitivity: 'base', numeric: true })
+      ),
+    }))
+    .sort((a, b) => {
+      const orderA = order[a.key] ?? Number.MAX_SAFE_INTEGER;
+      const orderB = order[b.key] ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.label.localeCompare(b.label, 'ro', { sensitivity: 'base', numeric: true });
+    });
 }
 
 /**
@@ -1696,4 +1787,3 @@ export function transformPartnerData(strapiPartners) {
     };
   });
 }
-

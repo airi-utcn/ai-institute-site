@@ -64,31 +64,42 @@ function PersonCard({ person, basePath = "/people" }) {
 }
 
 export default function PeopleClient({ 
-  staff = [], 
-  researchers = [], 
-  visiting = [], 
-  alumni = [] 
+  groups = [] 
 }) {
-  const [activeTab, setActiveTab] = useState("researchers");
+  const availableGroups = useMemo(
+    () => (Array.isArray(groups) ? groups.filter((group) => Array.isArray(group?.people) && group.people.length) : []),
+    [groups]
+  );
+  const [activeTab, setActiveTab] = useState(availableGroups[0]?.id || "");
+  const [activeSubtab, setActiveSubtab] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const t = useTranslations("people");
 
-  const TABS = [
-    { id: "researchers", label: t("tabs.researchers"), icon: "🔬" },
-    { id: "staff", label: t("tabs.staff"), icon: "👥" },
-    { id: "visiting", label: t("tabs.visiting"), icon: "🌍" },
-    { id: "alumni", label: t("tabs.alumni"), icon: "🎓" },
-  ];
+  const activeGroup = useMemo(
+    () => availableGroups.find((group) => group.id === activeTab) || availableGroups[0] || null,
+    [availableGroups, activeTab]
+  );
 
-  const allPeople = useMemo(() => ({
-    researchers: Array.isArray(researchers) ? researchers : [],
-    staff: Array.isArray(staff) ? staff : [],
-    visiting: Array.isArray(visiting) ? visiting : [],
-    alumni: Array.isArray(alumni) ? alumni : [],
-  }), [staff, researchers, visiting, alumni]);
+  const subtabOptions = useMemo(
+    () => (Array.isArray(activeGroup?.subtypes) ? activeGroup.subtypes.filter((subtype) => subtype.people?.length) : []),
+    [activeGroup]
+  );
+
+  const selectedSubtabId = useMemo(() => {
+    if (!subtabOptions.length) return "";
+    if (activeSubtab && subtabOptions.some((subtype) => subtype.id === activeSubtab)) return activeSubtab;
+    return "";
+  }, [subtabOptions, activeSubtab]);
+
+  const sourcePeople = useMemo(() => {
+    if (!activeGroup) return [];
+    if (!selectedSubtabId) return activeGroup.people || [];
+    const selectedSubtype = subtabOptions.find((subtype) => subtype.id === selectedSubtabId);
+    return selectedSubtype?.people || [];
+  }, [activeGroup, subtabOptions, selectedSubtabId]);
 
   const currentPeople = useMemo(() => {
-    const list = allPeople[activeTab] || [];
+    const list = sourcePeople || [];
     const terms = parseSearchTerms(searchQuery);
     
     const filtered = terms.length
@@ -107,14 +118,15 @@ export default function PeopleClient({
         numeric: true,
       })
     );
-  }, [allPeople, activeTab, searchQuery]);
+  }, [sourcePeople, searchQuery]);
 
-  const counts = useMemo(() => ({
-    researchers: allPeople.researchers.length,
-    staff: allPeople.staff.length,
-    visiting: allPeople.visiting.length,
-    alumni: allPeople.alumni.length,
-  }), [allPeople]);
+  const counts = useMemo(
+    () =>
+      Object.fromEntries(
+        availableGroups.map((group) => [group.id, Array.isArray(group.people) ? group.people.length : 0])
+      ),
+    [availableGroups]
+  );
 
   return (
     <div className="page-container">
@@ -166,13 +178,16 @@ export default function PeopleClient({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
         >
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            const count = counts[tab.id];
+          {availableGroups.map((tab) => {
+            const isActive = activeGroup?.id === tab.id;
+            const count = counts[tab.id] ?? 0;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setActiveSubtab("");
+                }}
                 className={`
                   px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
                   flex items-center gap-2
@@ -182,7 +197,6 @@ export default function PeopleClient({
                   }
                 `}
               >
-                <span>{tab.icon}</span>
                 <span>{tab.label}</span>
                 <span className={`
                   text-xs px-1.5 py-0.5 rounded-full
@@ -197,6 +211,66 @@ export default function PeopleClient({
             );
           })}
         </motion.div>
+
+        {subtabOptions.length > 0 && (
+          <motion.div
+            className="flex flex-wrap justify-center gap-2 mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <button
+              onClick={() => setActiveSubtab("")}
+              className={`
+                px-3 py-2 rounded-lg font-medium text-xs transition-all duration-200 border
+                ${!selectedSubtabId
+                  ? "bg-primary-600 text-white border-primary-600 dark:bg-accent-500 dark:border-accent-500"
+                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700"
+                }
+              `}
+            >
+              All
+            </button>
+            {subtabOptions.map((subtab) => {
+              const isActiveSubtab = selectedSubtabId === subtab.id;
+              const subtypeCount = Array.isArray(subtab.people) ? subtab.people.length : 0;
+              return (
+                <button
+                  key={subtab.id}
+                  onClick={() => setActiveSubtab(subtab.id)}
+                  className={`
+                    px-3 py-2 rounded-lg font-medium text-xs transition-all duration-200 border flex items-center gap-2
+                    ${isActiveSubtab
+                      ? "bg-primary-600 text-white border-primary-600 dark:bg-accent-500 dark:border-accent-500"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700"
+                    }
+                  `}
+                >
+                  <span>{subtab.label}</span>
+                  <span
+                    className={`
+                      text-[10px] px-1.5 py-0.5 rounded-full
+                      ${isActiveSubtab ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}
+                    `}
+                  >
+                    {subtypeCount}
+                  </span>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+
+        {(activeGroup?.description || (selectedSubtabId && subtabOptions.find((sub) => sub.id === selectedSubtabId)?.description)) && (
+          <motion.p
+            className="text-center text-muted text-sm mb-6 max-w-3xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            {selectedSubtabId
+              ? subtabOptions.find((sub) => sub.id === selectedSubtabId)?.description
+              : activeGroup?.description}
+          </motion.p>
+        )}
 
         {/* Results info */}
         {searchQuery && (
@@ -225,7 +299,7 @@ export default function PeopleClient({
               <p className="text-lg">
                 {searchQuery 
                   ? t("emptySearch") 
-                  : t("emptyTab", { tabName: TABS.find(tObj => tObj.id === activeTab)?.label.toLowerCase() })
+                  : t("emptyTab", { tabName: (activeGroup?.label || "").toLowerCase() })
                 }
               </p>
               {searchQuery && (

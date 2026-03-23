@@ -753,17 +753,12 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
         'Student',
       ]
     >;
-    type: Schema.Attribute.Enumeration<
-      [
-        'staff',
-        'researcher',
-        'alumni',
-        'visitor',
-        'visiting_researcher',
-        'external',
-      ]
-    > &
-      Schema.Attribute.DefaultTo<'researcher'>;
+    subtype: Schema.Attribute.String;
+    subtypeDescription: Schema.Attribute.RichText;
+    type: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'researcher'> &
+      Schema.Attribute.Required;
+    typeDescription: Schema.Attribute.RichText;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

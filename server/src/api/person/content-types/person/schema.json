@@ -23,16 +23,18 @@
       "required": true
     },
     "type": {
-      "type": "enumeration",
+      "type": "string",
       "default": "researcher",
-      "enum": [
-        "staff",
-        "researcher",
-        "alumni",
-        "visitor",
-        "visiting_researcher",
-        "external"
-      ]
+      "required": true
+    },
+    "subtype": {
+      "type": "string"
+    },
+    "typeDescription": {
+      "type": "richtext"
+    },
+    "subtypeDescription": {
+      "type": "richtext"
     },
     "title": {
       "type": "enumeration",

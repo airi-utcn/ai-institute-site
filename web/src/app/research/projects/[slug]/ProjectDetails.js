@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Markdown from 'markdown-to-jsx';
 import {
   FaArrowLeft,
   FaUsers,
@@ -21,6 +20,8 @@ import {
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import { useTranslations } from 'next-intl';
+import BodyContentImage from '@/components/shared/BodyContentImage';
+import RichMarkdown from '@/components/shared/RichMarkdown';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -346,35 +347,7 @@ export default function ProjectDetails({ project }) {
     return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
   };
 
-  const renderMarkdown = (markdown, key) => {
-    if (!markdown) return null;
-    const content = typeof markdown === 'string' ? markdown : String(markdown);
-    return (
-      <div
-        key={key}
-        className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 [&_a]:text-blue-600 dark:[&_a]:text-blue-400 hover:[&_a]:underline"
-      >
-        <Markdown
-          options={{
-            overrides: {
-              img: {
-                component: (props) => (
-                  <img {...props} className="rounded-xl shadow-md my-4 max-w-full h-auto" />
-                ),
-              },
-              a: {
-                component: (props) => (
-                  <a {...props} className="text-blue-600 dark:text-blue-400 hover:underline break-words" target="_blank" rel="noopener noreferrer" />
-                ),
-              },
-            },
-          }}
-        >
-          {content}
-        </Markdown>
-      </div>
-    );
-  };
+  const markdownClassName = 'prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300';
 
   const peopleCount = teams.length + contributors.length;
   const tabs = [
@@ -553,7 +526,13 @@ export default function ProjectDetails({ project }) {
                 >
                   {project.body.map((block, index) => {
                     if (block.__component === 'shared.rich-text') {
-                      return renderMarkdown(block.body, `rich-${index}`);
+                      return (
+                        <RichMarkdown
+                          key={`rich-${index}`}
+                          content={block.body}
+                          className={markdownClassName}
+                        />
+                      );
                     }
                     if (block.__component === 'shared.section') {
                       return (
@@ -568,7 +547,47 @@ export default function ProjectDetails({ project }) {
                               {block.subheading}
                             </h4>
                           )}
-                          {renderMarkdown(block.body, `section-${index}`)}
+                          <RichMarkdown content={block.body} className={markdownClassName} />
+                          {block.media && (
+                            <div className="mt-4 rounded-xl overflow-hidden shadow-md">
+                              <BodyContentImage
+                                src={block.media}
+                                alt={block.heading || project.title || 'Project section media'}
+                                className="w-full"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    if (block.__component === 'shared.media' && block.file) {
+                      return (
+                        <div key={`media-${index}`} className="mb-6 last:mb-0 rounded-xl overflow-hidden shadow-md">
+                          <BodyContentImage
+                            src={block.file}
+                            alt={project.title || 'Project media'}
+                            className="w-full"
+                            loading="lazy"
+                          />
+                        </div>
+                      );
+                    }
+                    if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
+                      return (
+                        <div key={`slider-${index}`} className="mb-6 last:mb-0 grid gap-4 sm:grid-cols-2">
+                          {block.files.map((file, fileIndex) => (
+                            <div key={`slide-${index}-${fileIndex}`} className="rounded-xl overflow-hidden shadow-sm">
+                              <BodyContentImage
+                                src={file}
+                                alt={`${project.title || 'Project'} slide ${fileIndex + 1}`}
+                                className="w-full"
+                                landscapeClassName="w-full aspect-video object-cover"
+                                portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+                          ))}
                         </div>
                       );
                     }

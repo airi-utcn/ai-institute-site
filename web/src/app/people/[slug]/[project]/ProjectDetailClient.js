@@ -2,9 +2,10 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import Markdown from "markdown-to-jsx";
 import { toPublicationSlug } from "@/lib/slug";
 import { useTranslations } from "next-intl";
+import BodyContentImage from "@/components/shared/BodyContentImage";
+import RichMarkdown from "@/components/shared/RichMarkdown";
 
 const FALLBACK_AVATAR = "/people/Basic_avatar_image.png";
 
@@ -74,37 +75,19 @@ export default function ProjectDetailClient({
     const lowerPhase = phase.toLowerCase();
     return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
   };
-
-  const renderRichText = (markdown, key) =>
-    markdown ? (
-      <div
-        key={key}
-        className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 [&_a]:text-blue-600 dark:[&_a]:text-blue-400 hover:[&_a]:underline"
-      >
-        <Markdown options={{
-            overrides: {
-                img: {
-                    component: (props) => (
-                        <img {...props} className="rounded-xl shadow-md my-4 max-w-full h-auto" />
-                    )
-                },
-                a: {
-                    component: (props) => (
-                        <a {...props} className="text-blue-600 hover:underline break-words" target="_blank" rel="noopener noreferrer" />
-                    )
-                }
-            }
-        }}>
-            {markdown}
-        </Markdown>
-      </div>
-    ) : null;
+  const markdownClassName = "prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300";
 
   const renderBlock = (block, index) => {
     if (!block) return null;
     switch (block.__component) {
       case "shared.rich-text":
-        return renderRichText(block.body, `rich-${index}`);
+        return (
+          <RichMarkdown
+            key={`rich-${index}`}
+            content={block.body}
+            className={markdownClassName}
+          />
+        );
       case "shared.section":
         return (
           <section key={`section-${index}`} className="my-8 first:mt-0">
@@ -118,13 +101,13 @@ export default function ProjectDetailClient({
                 {block.subheading}
               </p>
             )}
-            {renderRichText(block.body, `section-body-${index}`)}
+            <RichMarkdown content={block.body} className={markdownClassName} />
             {block.media && (
               <div className="mt-6 rounded-xl overflow-hidden shadow-md">
-                <img
+                <BodyContentImage
                   src={block.media}
                   alt={block.heading || "Project media"}
-                  className="w-full h-auto object-cover"
+                  className="w-full"
                   loading="lazy"
                 />
               </div>
@@ -134,10 +117,10 @@ export default function ProjectDetailClient({
       case "shared.media":
         return block.file ? (
           <div key={`media-${index}`} className="my-8 rounded-xl overflow-hidden shadow-md">
-            <img
+            <BodyContentImage
               src={block.file}
               alt="Project media"
-              className="w-full h-auto object-cover"
+              className="w-full"
               loading="lazy"
             />
           </div>
@@ -147,10 +130,12 @@ export default function ProjectDetailClient({
           <div key={`slider-${index}`} className="my-8 grid gap-4 sm:grid-cols-2">
             {block.files.map((file, idx) => (
               <div key={`slider-${index}-${idx}`} className="rounded-xl overflow-hidden shadow-sm aspect-video relative group">
-                <img
+                <BodyContentImage
                   src={file}
                   alt={`Project slide ${idx + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full transition-transform duration-500 group-hover:scale-105"
+                  landscapeClassName="w-full h-full object-cover"
+                  portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
                   loading="lazy"
                 />
               </div>

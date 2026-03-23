@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import { useTranslations } from 'next-intl';
+import BodyContentImage from '@/components/shared/BodyContentImage';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -359,7 +360,10 @@ export default function ProjectDetails({ project }) {
             overrides: {
               img: {
                 component: (props) => (
-                  <img {...props} className="rounded-xl shadow-md my-4 max-w-full h-auto" />
+                  <BodyContentImage
+                    {...props}
+                    className="rounded-xl shadow-md my-4"
+                  />
                 ),
               },
               a: {
@@ -569,6 +573,46 @@ export default function ProjectDetails({ project }) {
                             </h4>
                           )}
                           {renderMarkdown(block.body, `section-${index}`)}
+                          {block.media && (
+                            <div className="mt-4 rounded-xl overflow-hidden shadow-md">
+                              <BodyContentImage
+                                src={block.media}
+                                alt={block.heading || project.title || 'Project section media'}
+                                className="w-full"
+                                loading="lazy"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    if (block.__component === 'shared.media' && block.file) {
+                      return (
+                        <div key={`media-${index}`} className="mb-6 last:mb-0 rounded-xl overflow-hidden shadow-md">
+                          <BodyContentImage
+                            src={block.file}
+                            alt={project.title || 'Project media'}
+                            className="w-full"
+                            loading="lazy"
+                          />
+                        </div>
+                      );
+                    }
+                    if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
+                      return (
+                        <div key={`slider-${index}`} className="mb-6 last:mb-0 grid gap-4 sm:grid-cols-2">
+                          {block.files.map((file, fileIndex) => (
+                            <div key={`slide-${index}-${fileIndex}`} className="rounded-xl overflow-hidden shadow-sm">
+                              <BodyContentImage
+                                src={file}
+                                alt={`${project.title || 'Project'} slide ${fileIndex + 1}`}
+                                className="w-full"
+                                landscapeClassName="w-full aspect-video object-cover"
+                                portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
+                                loading="lazy"
+                              />
+                            </div>
+                          ))}
                         </div>
                       );
                     }

@@ -766,6 +766,9 @@
       "visiting": "Investigadores Visitantes",
       "alumni": "Antiguos Alumnos"
     },
+    "subtabs": {
+      "all": "Todos"
+    },
     "results": "Se encontró {count} resultado para \"{query}\"",
     "resultsPlural": "Se encontraron {count} resultados para \"{query}\"",
     "emptySearch": "Ninguna persona coincide con su búsqueda.",

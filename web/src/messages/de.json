@@ -757,6 +757,9 @@
       "visiting": "Gastforscher",
       "alumni": "Alumni"
     },
+    "subtabs": {
+      "all": "Alle"
+    },
     "results": "{count} Ergebnis gefunden für \"{query}\"",
     "resultsPlural": "{count} Ergebnisse gefunden für \"{query}\"",
     "emptySearch": "Keine Personen gefunden.",

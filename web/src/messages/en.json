@@ -773,6 +773,9 @@
       "visiting": "Visiting Researchers",
       "alumni": "Alumni"
     },
+    "subtabs": {
+      "all": "All"
+    },
     "results": "Found {count} result for \"{query}\"",
     "resultsPlural": "Found {count} results for \"{query}\"",
     "emptySearch": "No people match your search.",

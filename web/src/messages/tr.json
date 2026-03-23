@@ -766,6 +766,9 @@
       "visiting": "Misafir Araştırmacılar",
       "alumni": "Mezunlar"
     },
+    "subtabs": {
+      "all": "Tümü"
+    },
     "results": "\"{query}\" için {count} sonuç bulundu",
     "resultsPlural": "\"{query}\" için {count} sonuç bulundu",
     "emptySearch": "Aramanızla eşleşen kişi yok.",

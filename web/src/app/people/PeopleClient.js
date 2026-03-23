@@ -228,7 +228,7 @@ export default function PeopleClient({
                 }
               `}
             >
-              All
+              {t("subtabs.all")}
             </button>
             {subtabOptions.map((subtab) => {
               const isActiveSubtab = selectedSubtabId === subtab.id;

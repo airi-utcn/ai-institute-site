@@ -766,6 +766,9 @@
       "visiting": "Cercetători invitați",
       "alumni": "Alumni"
     },
+    "subtabs": {
+      "all": "Toate"
+    },
     "results": "A fost găsit {count} rezultat pentru \"{query}\"",
     "resultsPlural": "Au fost găsite {count} rezultate pentru \"{query}\"",
     "emptySearch": "Nicio persoană nu se potrivește căutării tale.",

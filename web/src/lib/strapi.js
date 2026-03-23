@@ -1103,14 +1103,14 @@ export function buildPeopleDirectory(staffList) {
       description: group.description,
       people: group.people,
       subtypes: Array.from(group.subtypesMap.values()).sort((a, b) =>
-        a.label.localeCompare(b.label, 'ro', { sensitivity: 'base', numeric: true })
+        a.label.localeCompare(b.label, undefined, { sensitivity: 'base', numeric: true })
       ),
     }))
     .sort((a, b) => {
       const orderA = order[a.key] ?? Number.MAX_SAFE_INTEGER;
       const orderB = order[b.key] ?? Number.MAX_SAFE_INTEGER;
       if (orderA !== orderB) return orderA - orderB;
-      return a.label.localeCompare(b.label, 'ro', { sensitivity: 'base', numeric: true });
+      return a.label.localeCompare(b.label, undefined, { sensitivity: 'base', numeric: true });
     });
 }
 

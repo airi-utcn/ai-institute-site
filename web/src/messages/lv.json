@@ -766,6 +766,9 @@
       "visiting": "Viespētnieki",
       "alumni": "Absolventi"
     },
+    "subtabs": {
+      "all": "Visi"
+    },
     "results": "Atrasts {count} rezultāts vaicājumam \"{query}\"",
     "resultsPlural": "Atrasti {count} rezultāti vaicājumam \"{query}\"",
     "emptySearch": "Neviens neatbilst jūsu meklēšanai.",

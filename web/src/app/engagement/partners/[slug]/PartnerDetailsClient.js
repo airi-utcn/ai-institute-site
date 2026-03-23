@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import Markdown from 'markdown-to-jsx';
 import { FaArrowLeft, FaExternalLinkAlt, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import { useTranslations } from 'next-intl';
 import BodyContentImage from '@/components/shared/BodyContentImage';
+import RichMarkdown from '@/components/shared/RichMarkdown';
 
 export default function PartnerDetailsClient({ partner }) {
   const t = useTranslations('engagement.basic');
@@ -12,15 +12,7 @@ export default function PartnerDetailsClient({ partner }) {
     (t.has(`PartnerDetails.${key}`) ? t(`PartnerDetails.${key}`, values) : fallback);
   const projects = Array.isArray(partner?.projects) ? partner.projects : [];
   const bodyBlocks = Array.isArray(partner?.body) ? partner.body : [];
-
-  const renderMarkdown = (value, key) => {
-    if (!value) return null;
-    return (
-      <div key={key} className="prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-        <Markdown>{typeof value === 'string' ? value : String(value)}</Markdown>
-      </div>
-    );
-  };
+  const markdownClassName = 'prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300';
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
@@ -76,7 +68,7 @@ export default function PartnerDetailsClient({ partner }) {
               {/* Short Bio / Description */}
               {partner.descriptionMarkdown && (
                 <div className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                  {renderMarkdown(partner.descriptionMarkdown, 'desc')}
+                  <RichMarkdown content={partner.descriptionMarkdown} className={markdownClassName} />
                 </div>
               )}
 
@@ -108,7 +100,7 @@ export default function PartnerDetailsClient({ partner }) {
                   if (block.__component === 'shared.rich-text') {
                     return (
                       <div key={`rich-${index}`} className="prose-wrapper">
-                        {renderMarkdown(block.body, `rich-body-${index}`)}
+                        <RichMarkdown content={block.body} className={markdownClassName} />
                       </div>
                     );
                   }
@@ -121,7 +113,7 @@ export default function PartnerDetailsClient({ partner }) {
                           {block.subheading && <p className="text-lg text-gray-500 dark:text-gray-400">{block.subheading}</p>}
                         </header>
                         
-                        {renderMarkdown(block.body, `section-body-${index}`)}
+                        <RichMarkdown content={block.body} className={markdownClassName} />
                         
                         {block.media && (
                           <div className="mt-8 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
@@ -129,7 +121,7 @@ export default function PartnerDetailsClient({ partner }) {
                               src={block.media}
                               alt={block.heading || partner.name}
                               className="w-full"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[32rem] object-contain"
+                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
                               landscapeClassName="w-full max-h-[36rem] object-cover"
                             />
                           </div>
@@ -145,7 +137,7 @@ export default function PartnerDetailsClient({ partner }) {
                           src={block.file}
                           alt={partner.name}
                           className="rounded-xl"
-                          portraitClassName="mx-auto w-auto max-w-full max-h-[36rem] object-contain"
+                          portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
                           landscapeClassName="w-full max-h-[40rem] object-contain"
                         />
                       </figure>

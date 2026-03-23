@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 
-const DEFAULT_PORTRAIT_CLASS = 'mx-auto w-auto max-w-full max-h-[70vh] object-contain';
+const DEFAULT_PORTRAIT_CLASS = 'mx-auto w-auto max-w-full max-h-[60vh] object-contain';
 const DEFAULT_LANDSCAPE_CLASS = 'w-full h-auto object-cover';
 
 export default function BodyContentImage({

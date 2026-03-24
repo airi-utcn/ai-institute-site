@@ -45,6 +45,17 @@ def build_parser():
         action="store_true",
         help="Skip all Strapi writes (local preview artifacts are still generated)",
     )
+    p.add_argument(
+        "--min-community-size",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "Minimum number of papers a Louvain community must contain before it is "
+            "merged into its nearest large community (default: from GRAPH_COMMUNITY_MIN_SIZE env var, "
+            "or 3 if not set). Set to 1 to disable merging."
+        ),
+    )
     return p
 
 
@@ -64,7 +75,9 @@ def _apply_runtime_defaults(args):
     args.update_existing = True
     args.upload_pdfs = False
     args.limit = 0
-    args.community_resolution = 1.0
+    args.community_resolution = SETTINGS.graph_community_resolution
+    if getattr(args, "min_community_size", None) is None:
+        args.min_community_size = SETTINGS.graph_community_min_size
 
 
 def run(args):
@@ -88,6 +101,7 @@ def run(args):
         model_name=model_name,
         top_k=top_k,
         community_resolution=args.community_resolution,
+        min_community_size=args.min_community_size,
         logger=log,
     )
 
@@ -119,6 +133,7 @@ def run(args):
         model_name=model_name,
         top_k=top_k,
         community_resolution=args.community_resolution,
+        min_community_size=args.min_community_size,
         logger=log,
     )
 

@@ -41,7 +41,8 @@ def build_graph_artifacts(
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
     top_k=20,
-    community_resolution=1.0,
+    community_resolution=0.5,
+    min_community_size=3,
     output_dir="outputs",
     logger=None,
 ):
@@ -92,6 +93,7 @@ def build_graph_artifacts(
             embeddings,
             clean_links,
             resolution=community_resolution,
+            min_community_size=min_community_size,
         )
 
         comm_path = os.path.join(output_dir, f"communities_{label}.json")

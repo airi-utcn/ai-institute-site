@@ -364,8 +364,14 @@ def _paper_rank_tuple(paper):
     )
 
 
-def detect_communities(filtered_papers, embeddings, links, resolution=1.0):
-    """Detect communities using the Louvain algorithm."""
+def detect_communities(filtered_papers, embeddings, links, resolution=0.5, min_community_size=3):
+    """Detect communities using the Louvain algorithm.
+
+    Small communities (fewer than *min_community_size* papers) that remain
+    after the Louvain pass are absorbed into their nearest large community
+    using embedding-centroid cosine similarity.  This prevents the graph from
+    being cluttered with many single- or two-paper clusters.
+    """
     try:
         import networkx as nx
         from networkx.algorithms.community import louvain_communities
@@ -393,12 +399,87 @@ def detect_communities(filtered_papers, embeddings, links, resolution=1.0):
         for paper_id in members:
             communities[paper_id] = community_id
 
+    raw_count = len(communities_list)
+
+    # Merge tiny Louvain clusters into their nearest large community so that
+    # the final output contains no community with fewer than min_community_size papers.
+    if min_community_size > 1 and len(embeddings) > 0:
+        communities = _merge_small_communities(filtered_papers, embeddings, communities, min_community_size)
+
+    merged_count = len(set(communities.values()))
+    log.info(f"Louvain: {raw_count} raw communities → {merged_count} after merging small clusters")
+
     # Coarsen Louvain groups into broad manually curated sectors.
     # This keeps the top-level graph stable and avoids many single-item clusters.
     communities, community_labels = _coarsen_to_macro_sectors(filtered_papers, communities)
-    log.info(f"Detected {len(communities_list)} raw communities; {len(set(communities.values()))} macro sectors")
+    log.info(f"Final: {len(set(communities.values()))} macro sectors")
 
     return communities, community_labels
+
+
+def _merge_small_communities(papers, embeddings, communities, min_size):
+    """Absorb communities smaller than *min_size* into their nearest large community.
+
+    Proximity is measured by cosine similarity between community centroid
+    embeddings (embeddings are already L2-normalised so a dot product suffices).
+    The merge is applied iteratively until no community has fewer than
+    *min_size* members, or until no large community exists to absorb them.
+    """
+    embedding_by_id = {paper_identifier(p): emb for p, emb in zip(papers, embeddings)}
+
+    result = dict(communities)
+
+    for _ in range(len(papers)):  # upper-bound on iterations
+        groups = defaultdict(list)
+        for paper_id, comm_id in result.items():
+            groups[comm_id].append(paper_id)
+
+        small_ids = {cid for cid, members in groups.items() if len(members) < min_size}
+        if not small_ids:
+            break
+
+        large_ids = {cid for cid in groups if cid not in small_ids}
+
+        if not large_ids:
+            # All communities are below the threshold; pick the largest one as the
+            # single target so at least the papers are grouped together.
+            target = max(groups, key=lambda cid: len(groups[cid]))
+            return {pid: target for pid in result}
+
+        # Compute normalised centroids for large communities.
+        large_centroids: dict[int, np.ndarray] = {}
+        for comm_id in large_ids:
+            embs = [embedding_by_id[pid] for pid in groups[comm_id] if pid in embedding_by_id]
+            if not embs:
+                continue
+            centroid = np.mean(embs, axis=0)
+            norm = float(np.linalg.norm(centroid))
+            large_centroids[comm_id] = centroid / norm if norm > 0 else centroid
+
+        if not large_centroids:
+            break
+
+        large_comm_ids = list(large_centroids)
+        centroid_matrix = np.stack([large_centroids[cid] for cid in large_comm_ids])  # (L, D)
+
+        # Reassign every small community in this pass.
+        for small_id in small_ids:
+            member_embs = [embedding_by_id[pid] for pid in groups[small_id] if pid in embedding_by_id]
+            if member_embs:
+                small_centroid = np.mean(member_embs, axis=0)
+                norm = float(np.linalg.norm(small_centroid))
+                if norm > 0:
+                    small_centroid = small_centroid / norm
+                sims = centroid_matrix @ small_centroid
+                best = large_comm_ids[int(np.argmax(sims))]
+            else:
+                # No embeddings available — fall back to the largest community.
+                best = max(large_ids, key=lambda cid: len(groups[cid]))
+
+            for pid in groups[small_id]:
+                result[pid] = best
+
+    return result
 
 
 def _coarsen_to_macro_sectors(papers, communities):

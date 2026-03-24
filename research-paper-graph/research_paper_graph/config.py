@@ -13,6 +13,8 @@ class RuntimeSettings:
     graph_duplicate_threshold: float
     graph_ai_model: str
     graph_top_k: int
+    graph_community_resolution: float
+    graph_community_min_size: int
 
 
 def _find_env_file(start_path):
@@ -43,4 +45,6 @@ def load_runtime_settings(current_file=None):
         graph_duplicate_threshold=float(os.getenv("GRAPH_DUPLICATE_THRESHOLD", "0.92")),
         graph_ai_model=os.getenv("GRAPH_AI_MODEL", "all-MiniLM-L6-v2"),
         graph_top_k=int(os.getenv("GRAPH_TOP_K", "20")),
+        graph_community_resolution=float(os.getenv("GRAPH_COMMUNITY_RESOLUTION", "0.5")),
+        graph_community_min_size=int(os.getenv("GRAPH_COMMUNITY_MIN_SIZE", "3")),
     )

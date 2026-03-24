@@ -1,0 +1,17 @@
+# Core
+requests>=2.31
+python-dotenv>=1.0
+numpy>=1.24
+
+# ML – embeddings
+sentence-transformers>=2.2
+torch --index-url https://download.pytorch.org/whl/cpu
+
+# Approximate nearest neighbours
+faiss-cpu>=1.7
+
+# Community detection
+networkx>=3.1
+
+# scikit-learn (used by sentence-transformers internally)
+scikit-learn>=1.3

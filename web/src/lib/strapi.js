@@ -678,16 +678,191 @@ export async function getPartnerBySlug(slug) {
 }
 
 /**
+ * Get graph-eligible publications for the paper graph views.
+ * @param {Object} options
+ * @param {number} options.community - Optional community id filter
+ * @returns {Promise<Array>}
+ */
+export async function getPapers(options = {}) {
+  try {
+    const { community } = options;
+    const filters = {
+      graphEligible: { $eq: true },
+    };
+
+    if (typeof community === 'number' && Number.isFinite(community)) {
+      filters.community = { $eq: community };
+    }
+
+    const baseOptions = {
+      sort: ['cited_by:desc', 'year:desc'],
+      filters,
+      fields: [
+        'openAlexId',
+        'title',
+        'doi',
+        'year',
+        'cited_by',
+        'abstract',
+        'description',
+        'topics',
+        'community',
+        'communityLabel',
+      ],
+      populate: {
+        authors: PERSON_FLAT_POPULATE,
+        pdfFile: { fields: ['url'] },
+      },
+    };
+
+    return await fetchAllEntries('/publications', baseOptions, 200);
+  } catch (error) {
+    console.error('Failed to fetch graph papers:', error);
+    return [];
+  }
+}
+
+/**
+ * Get graph-eligible papers scoped to one community.
+ * @param {number} communityId
+ * @returns {Promise<Array>}
+ */
+export async function getPapersByCommunity(communityId) {
+  if (typeof communityId !== 'number' || !Number.isFinite(communityId)) return [];
+  return getPapers({ community: communityId });
+}
+
+/**
+ * Get relation edges between publications used by the paper graph.
+ * @returns {Promise<Array>}
+ */
+export async function getGraphLinks() {
+  try {
+    const baseOptions = {
+      fields: ['isCrossCluster', 'score'],
+      populate: {
+        source: { fields: ['openAlexId'] },
+        target: { fields: ['openAlexId'] },
+      },
+    };
+
+    return await fetchAllEntries('/graph-links', baseOptions, 500);
+  } catch (error) {
+    console.error('Failed to fetch graph links:', error);
+    return [];
+  }
+}
+
+/**
+ * Transform graph paper records into a frontend-friendly shape.
+ * @param {Array|Object} strapiPapers
+ * @returns {Array}
+ */
+export function transformPaperData(strapiPapers) {
+  const list = Array.isArray(strapiPapers) ? strapiPapers : strapiPapers ? [strapiPapers] : [];
+
+  return list
+    .map((paper) => {
+      const attributes = paper?.attributes ?? paper ?? {};
+      const abstractText = stripHtml(attributes.abstract || attributes.description || '');
+
+      const topics = Array.isArray(attributes.topics)
+        ? attributes.topics.filter(Boolean).map((value) => String(value))
+        : [];
+
+      const authorEntries = toArray(attributes.authors?.data ?? attributes.authors);
+      const authors = authorEntries
+        .map((author) => {
+          const authorData = author?.attributes ?? author ?? {};
+          return authorData.fullName || authorData.name || '';
+        })
+        .filter(Boolean);
+
+      const pdfUrl = resolveMediaUrl(attributes.pdfFile) || normalizeExternalUrl(attributes.pdf_url);
+
+      return {
+        id: paper?.id ?? null,
+        openAlexId: attributes.openAlexId || '',
+        title: attributes.title || '',
+        doi: attributes.doi || '',
+        year: typeof attributes.year === 'number' ? attributes.year : null,
+        cited_by: typeof attributes.cited_by === 'number' ? attributes.cited_by : 0,
+        abstract: abstractText,
+        topics,
+        authors,
+        pdf_url: pdfUrl,
+        community: typeof attributes.community === 'number' ? attributes.community : null,
+        communityLabel: attributes.communityLabel || '',
+        _strapi: paper,
+      };
+    })
+    .filter((paper) => paper.id !== null && paper.title);
+}
+
+/**
+ * Transform graph links into source/target paper ids.
+ * @param {Array|Object} strapiLinks
+ * @param {Object} oaToIdMap - Mapping of OpenAlex ids to visible paper ids
+ * @returns {Array}
+ */
+export function transformGraphLinkData(strapiLinks, oaToIdMap = {}) {
+  const list = Array.isArray(strapiLinks) ? strapiLinks : strapiLinks ? [strapiLinks] : [];
+
+  return list
+    .map((link) => {
+      const attributes = link?.attributes ?? link ?? {};
+      const sourceEntry = attributes.source?.data ?? attributes.source;
+      const targetEntry = attributes.target?.data ?? attributes.target;
+
+      const sourceData = sourceEntry?.attributes ?? sourceEntry ?? {};
+      const targetData = targetEntry?.attributes ?? targetEntry ?? {};
+
+      const sourceOpenAlexId = sourceData.openAlexId || '';
+      const targetOpenAlexId = targetData.openAlexId || '';
+
+      const sourceId = oaToIdMap[sourceOpenAlexId] ?? null;
+      const targetId = oaToIdMap[targetOpenAlexId] ?? null;
+
+      const scoreValue = Number(attributes.score);
+      const score = Number.isFinite(scoreValue) ? scoreValue : 0;
+
+      return {
+        id: link?.id ?? `${sourceOpenAlexId}->${targetOpenAlexId}`,
+        sourceId,
+        targetId,
+        sourceOpenAlexId,
+        targetOpenAlexId,
+        isCrossCluster: !!attributes.isCrossCluster,
+        score,
+      };
+    })
+    .filter((link) => link.sourceId !== null && link.targetId !== null && link.sourceId !== link.targetId);
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */
 export async function getPublications(options = {}) {
   try {
-    const { domainSlug, includeUnlisted = false, graphEligibleOnly = false } = options;
+    const {
+      domainSlug,
+      includeUnlisted = false,
+      graphEligibleOnly = false,
+      sourceKind,
+    } = options;
     const filters = {};
 
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
+    }
+
+    if (graphEligibleOnly) {
+      filters.graphEligible = { $eq: true };
+    }
+
+    if (sourceKind) {
+      filters.sourceKind = { $eq: sourceKind };
     }
     const params = createParams({
       sort: 'year:desc',
@@ -696,7 +871,6 @@ export async function getPublications(options = {}) {
 
     // Kept for API compatibility with existing callers.
     void includeUnlisted;
-    void graphEligibleOnly;
 
     setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });

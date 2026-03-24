@@ -30,7 +30,8 @@
       "projects": "Projeler",
       "publications": "Yayınlar",
       "thesis": "Tezler",
-      "resources": "Kaynaklar"
+      "resources": "Kaynaklar",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Haberler",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Akademik ortaklıklar", "desc": "Bir işbirliği ve ortak etkinlikler ağı." },
-          "teaching": { "title": "Öğretim ve eğitim", "desc": "Kurslar, yaz okulları ve atölye çalışmaları." },
-          "mobility": { "title": "Hareketlilik", "desc": "Ortak danışmanlık, ziyaretler, stajlar, değişimler." }
+          "partnerships": {
+            "title": "Akademik ortaklıklar",
+            "desc": "Bir işbirliği ve ortak etkinlikler ağı."
+          },
+          "teaching": {
+            "title": "Öğretim ve eğitim",
+            "desc": "Kurslar, yaz okulları ve atölye çalışmaları."
+          },
+          "mobility": {
+            "title": "Hareketlilik",
+            "desc": "Ortak danışmanlık, ziyaretler, stajlar, değişimler."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Yaz okulları ve atölyeler", "desc": "Öğrenciler ve araştırmacılar için uluslararası ve yerel etkinlikler." },
-          "seminars": { "title": "Ortak seminerler", "desc": "Ortak konuşmalar ve davetli konuşmacılar." },
-          "visits": { "title": "Araştırma ziyaretleri", "desc": "Kısa ve uzun vadeli araştırma konaklamaları." }
+          "schools": {
+            "title": "Yaz okulları ve atölyeler",
+            "desc": "Öğrenciler ve araştırmacılar için uluslararası ve yerel etkinlikler."
+          },
+          "seminars": {
+            "title": "Ortak seminerler",
+            "desc": "Ortak konuşmalar ve davetli konuşmacılar."
+          },
+          "visits": {
+            "title": "Araştırma ziyaretleri",
+            "desc": "Kısa ve uzun vadeli araştırma konaklamaları."
+          }
         },
         "Courses": {
-          "ml": { "title": "Makine Öğrenimi", "desc": "Ortak kurslar, uygulamalı modüller, projeler." },
-          "robotics": { "title": "Robotik ve Vizyon", "desc": "Uygulamalı laboratuvarlar, otomasyon ve vizyon sistemleri." },
-          "hpc": { "title": "Yapay Zeka için HPC", "desc": "GPU programlama ve büyük ölçekli yapay zeka eğitimi." },
-          "ethics": { "title": "Yapay Zeka Etiği ve Güvenliği", "desc": "Yapay zekada adalet, açıklanabilirlik ve yönetişim." }
+          "ml": {
+            "title": "Makine Öğrenimi",
+            "desc": "Ortak kurslar, uygulamalı modüller, projeler."
+          },
+          "robotics": {
+            "title": "Robotik ve Vizyon",
+            "desc": "Uygulamalı laboratuvarlar, otomasyon ve vizyon sistemleri."
+          },
+          "hpc": {
+            "title": "Yapay Zeka için HPC",
+            "desc": "GPU programlama ve büyük ölçekli yapay zeka eğitimi."
+          },
+          "ethics": {
+            "title": "Yapay Zeka Etiği ve Güvenliği",
+            "desc": "Yapay zekada adalet, açıklanabilirlik ve yönetişim."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Ortak danışmanlık", "desc": "Uluslararası ortaklarla ortak doktora danışmanlığı." },
-          "grants": { "title": "Hareketlilik hibeleri", "desc": "Değişimler ve araştırma konaklamaları için finansman." },
-          "placements": { "title": "Stajlar ve değişimler", "desc": "Stajlar, ziyaretler ve personel değişimleri." }
+          "phd": {
+            "title": "Ortak danışmanlık",
+            "desc": "Uluslararası ortaklarla ortak doktora danışmanlığı."
+          },
+          "grants": {
+            "title": "Hareketlilik hibeleri",
+            "desc": "Değişimler ve araştırma konaklamaları için finansman."
+          },
+          "placements": {
+            "title": "Stajlar ve değişimler",
+            "desc": "Stajlar, ziyaretler ve personel değişimleri."
+          }
         }
       },
       "Event": {

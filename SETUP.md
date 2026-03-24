@@ -88,7 +88,7 @@ docker compose up --build
 # The frontend will be at http://localhost:3000
 
 # Start previously built containers (no rebuild)
-docker compose up
+docker compose upand
 
 # Stop containers (Ctrl+C, then)
 docker compose down

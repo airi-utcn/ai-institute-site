@@ -186,10 +186,7 @@ export default function ClassicClient() {
         {t("title")}
       </motion.h1>
 
-      <motion.div
-        className="rounded-2xl border p-4 mb-6 bg-white/70 dark:bg-slate-900/60 backdrop-blur"
-        variants={item}
-      >
+      <div className="card p-4 md:p-5">
         <input
           type="search"
           value={q}
@@ -197,7 +194,7 @@ export default function ClassicClient() {
           placeholder={t("placeholder")}
           className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
-      </motion.div>
+      </div>
 
       {ready && q.trim() && (
         <>

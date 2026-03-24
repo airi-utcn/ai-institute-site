@@ -30,7 +30,8 @@
       "projects": "Projekte",
       "publications": "Publikationen",
       "thesis": "Abschlussarbeiten",
-      "resources": "Ressourcen"
+      "resources": "Ressourcen",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Neuigkeiten",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Akademische Partnerschaften", "desc": "Ein Netzwerk von Kooperationen." },
-          "teaching": { "title": "Lehre & Training", "desc": "Kurse und Workshops." },
-          "mobility": { "title": "Mobilität", "desc": "Forschungsbesuche und Austausch." }
+          "partnerships": {
+            "title": "Akademische Partnerschaften",
+            "desc": "Ein Netzwerk von Kooperationen."
+          },
+          "teaching": {
+            "title": "Lehre & Training",
+            "desc": "Kurse und Workshops."
+          },
+          "mobility": {
+            "title": "Mobilität",
+            "desc": "Forschungsbesuche und Austausch."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Sommerschulen", "desc": "Programme für Studenten." },
-          "seminars": { "title": "Seminare", "desc": "Gemeinsame Vorträge." },
-          "visits": { "title": "Forschungsaufenthalte", "desc": "Kurz- und langfristige Aufenthalte." }
+          "schools": {
+            "title": "Sommerschulen",
+            "desc": "Programme für Studenten."
+          },
+          "seminars": {
+            "title": "Seminare",
+            "desc": "Gemeinsame Vorträge."
+          },
+          "visits": {
+            "title": "Forschungsaufenthalte",
+            "desc": "Kurz- und langfristige Aufenthalte."
+          }
         },
         "Courses": {
-          "ml": { "title": "Maschinelles Lernen", "desc": "Angewandte Module und Kurse." },
-          "robotics": { "title": "Robotik", "desc": "Labore und Automatisierung." },
-          "hpc": { "title": "HPC für KI", "desc": "GPU-Programmierung." },
-          "ethics": { "title": "KI-Ethik", "desc": "Fairness und Governance in KI." }
+          "ml": {
+            "title": "Maschinelles Lernen",
+            "desc": "Angewandte Module und Kurse."
+          },
+          "robotics": {
+            "title": "Robotik",
+            "desc": "Labore und Automatisierung."
+          },
+          "hpc": {
+            "title": "HPC für KI",
+            "desc": "GPU-Programmierung."
+          },
+          "ethics": {
+            "title": "KI-Ethik",
+            "desc": "Fairness und Governance in KI."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Mitbetreuung", "desc": "Gemeinsame PhD-Betreuung." },
-          "grants": { "title": "Stipendien", "desc": "Finanzierung von Aufenthalten." },
-          "placements": { "title": "Austausch", "desc": "Austausch von Mitarbeitern." }
+          "phd": {
+            "title": "Mitbetreuung",
+            "desc": "Gemeinsame PhD-Betreuung."
+          },
+          "grants": {
+            "title": "Stipendien",
+            "desc": "Finanzierung von Aufenthalten."
+          },
+          "placements": {
+            "title": "Austausch",
+            "desc": "Austausch von Mitarbeitern."
+          }
         }
       },
       "Event": {
@@ -205,9 +245,18 @@
       "title": "Engagement an Schulen",
       "description": "Wettbewerbe und KI-Ressourcen für Schüler.",
       "features": {
-        "competitions": { "title": "Wettbewerbe", "desc": "KI-Herausforderungen für Schüler." },
-        "events": { "title": "Veranstaltungen", "desc": "Laborführungen und Workshops." },
-        "resources": { "title": "Ressourcen", "desc": "Materialien für Lehrer." }
+        "competitions": {
+          "title": "Wettbewerbe",
+          "desc": "KI-Herausforderungen für Schüler."
+        },
+        "events": {
+          "title": "Veranstaltungen",
+          "desc": "Laborführungen und Workshops."
+        },
+        "resources": {
+          "title": "Ressourcen",
+          "desc": "Materialien für Lehrer."
+        }
       },
       "linkText": "AILIT Framework ansehen"
     },

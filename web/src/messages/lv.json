@@ -30,7 +30,8 @@
       "projects": "Projekti",
       "publications": "Publikācijas",
       "thesis": "Disertācijas",
-      "resources": "Resursi"
+      "resources": "Resursi",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Jaunumi",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Akadēmiskās partnerības", "desc": "Sadarbības un kopīgu aktivitāšu tīkls." },
-          "teaching": { "title": "Mācīšana un apmācība", "desc": "Kursi, vasaras skolas un darbnīcas." },
-          "mobility": { "title": "Mobilitāte", "desc": "Kopīga uzraudzība, vizītes, stažēšanās, apmaiņa." }
+          "partnerships": {
+            "title": "Akadēmiskās partnerības",
+            "desc": "Sadarbības un kopīgu aktivitāšu tīkls."
+          },
+          "teaching": {
+            "title": "Mācīšana un apmācība",
+            "desc": "Kursi, vasaras skolas un darbnīcas."
+          },
+          "mobility": {
+            "title": "Mobilitāte",
+            "desc": "Kopīga uzraudzība, vizītes, stažēšanās, apmaiņa."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Vasaras skolas un darbnīcas", "desc": "Starptautiski un vietēji pasākumi studentiem un pētniekiem." },
-          "seminars": { "title": "Kopīgi semināri", "desc": "Kopīgas uzstāšanās un vieslektori." },
-          "visits": { "title": "Pētniecības vizītes", "desc": "Īstermiņa un ilgtermiņa pētniecības uzturēšanās." }
+          "schools": {
+            "title": "Vasaras skolas un darbnīcas",
+            "desc": "Starptautiski un vietēji pasākumi studentiem un pētniekiem."
+          },
+          "seminars": {
+            "title": "Kopīgi semināri",
+            "desc": "Kopīgas uzstāšanās un vieslektori."
+          },
+          "visits": {
+            "title": "Pētniecības vizītes",
+            "desc": "Īstermiņa un ilgtermiņa pētniecības uzturēšanās."
+          }
         },
         "Courses": {
-          "ml": { "title": "Mašīnmācīšanās", "desc": "Kopīgi kursi, lietišķie moduļi, projekti." },
-          "robotics": { "title": "Robotika un redze", "desc": "Praktiskās laboratorijas, automatizācija un redzes sistēmas." },
-          "hpc": { "title": "HPC MI vajadzībām", "desc": "GPU programmēšana un liela mēroga MI apmācība." },
-          "ethics": { "title": "MI ētika un drošība", "desc": "Taisnīgums, izskaidrojamība un pārvaldība mākslīgajā intelektā." }
+          "ml": {
+            "title": "Mašīnmācīšanās",
+            "desc": "Kopīgi kursi, lietišķie moduļi, projekti."
+          },
+          "robotics": {
+            "title": "Robotika un redze",
+            "desc": "Praktiskās laboratorijas, automatizācija un redzes sistēmas."
+          },
+          "hpc": {
+            "title": "HPC MI vajadzībām",
+            "desc": "GPU programmēšana un liela mēroga MI apmācība."
+          },
+          "ethics": {
+            "title": "MI ētika un drošība",
+            "desc": "Taisnīgums, izskaidrojamība un pārvaldība mākslīgajā intelektā."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Kopīga uzraudzība", "desc": "Kopīga doktorantūras uzraudzība ar starptautiskiem partneriem." },
-          "grants": { "title": "Mobilitātes granti", "desc": "Finansējums apmaiņai un pētniecības uzturēšanās periodiem." },
-          "placements": { "title": "Prakse un apmaiņa", "desc": "Stažēšanās, vizītes un personāla apmaiņa." }
+          "phd": {
+            "title": "Kopīga uzraudzība",
+            "desc": "Kopīga doktorantūras uzraudzība ar starptautiskiem partneriem."
+          },
+          "grants": {
+            "title": "Mobilitātes granti",
+            "desc": "Finansējums apmaiņai un pētniecības uzturēšanās periodiem."
+          },
+          "placements": {
+            "title": "Prakse un apmaiņa",
+            "desc": "Stažēšanās, vizītes un personāla apmaiņa."
+          }
         }
       },
       "Event": {

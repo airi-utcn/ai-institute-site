@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
-import LogoLight from '../../public/media/Logos/LogoLight.svg';
-import LogoDark from '../../public/media/Logos/LogoDark.svg';
 import EUT_Logo from '../../public/media/Logos/UT&EUT_Logo.png';
-import { useTheme } from "@/components/ThemeProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslations } from "next-intl"; // Added import
 
@@ -133,7 +130,6 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDark } = useTheme();
   const router = useRouter();
   
   // Initialize translations
@@ -158,7 +154,7 @@ export default function Navbar() {
   const navLinks = [
     { href: '/research', label: t('navLinks.research') },
     { href: '/engagement', label: t('navLinks.engagement') },
-    { href: '/people/', label: t('navLinks.people') },
+    { href: '/people', label: t('navLinks.people') },
     { href: '/news', label: t('navLinks.news') },
     { href: '/about', label: t('navLinks.about') },
   ];
@@ -170,6 +166,7 @@ export default function Navbar() {
     { href: '/research/publications', label: t('researchMenu.publications') },
     { href: '/research/thesis', label: t('researchMenu.thesis') },
     { href: '/resources', label: t('researchMenu.resources') },
+    { href: '/research/paper-graph', label: t('researchMenu.paperGraph') },
   ];
 
   const newsMenu = [
@@ -194,9 +191,9 @@ export default function Navbar() {
   ];
 
   const desktopDropdowns = {
-    [t('navLinks.research')]: { open: researchOpen, setOpen: setResearchOpen, items: researchMenu },
-    [t('navLinks.news')]:     { open: newsOpen,     setOpen: setNewsOpen,     items: newsMenu },
-    [t('navLinks.about')]:    { open: aboutOpen,    setOpen: setAboutOpen,    items: aboutMenu },
+    '/research': { open: researchOpen, setOpen: setResearchOpen, items: researchMenu },
+    '/news': { open: newsOpen, setOpen: setNewsOpen, items: newsMenu },
+    '/about': { open: aboutOpen, setOpen: setAboutOpen, items: aboutMenu },
   };
 
   useEffect(() => {
@@ -375,7 +372,7 @@ export default function Navbar() {
 
         <ul className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => {
-            const dd = desktopDropdowns[link.label];
+            const dd = desktopDropdowns[link.href];
             if (dd) {
               return (
                 <DesktopDropdown

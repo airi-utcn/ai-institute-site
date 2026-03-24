@@ -30,7 +30,8 @@
       "projects": "Progetti",
       "publications": "Pubblicazioni",
       "thesis": "Tesi",
-      "resources": "Risorse"
+      "resources": "Risorse",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Notizie",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Partnership accademiche", "desc": "Una rete di collaborazioni e attività congiunte." },
-          "teaching": { "title": "Insegnamento e formazione", "desc": "Corsi, scuole estive e workshop." },
-          "mobility": { "title": "Mobilità", "desc": "Co-tutela, visite, tirocini, scambi." }
+          "partnerships": {
+            "title": "Partnership accademiche",
+            "desc": "Una rete di collaborazioni e attività congiunte."
+          },
+          "teaching": {
+            "title": "Insegnamento e formazione",
+            "desc": "Corsi, scuole estive e workshop."
+          },
+          "mobility": {
+            "title": "Mobilità",
+            "desc": "Co-tutela, visite, tirocini, scambi."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Scuole estive e workshop", "desc": "Eventi internazionali e locali per studenti e ricercatori." },
-          "seminars": { "title": "Seminari congiunti", "desc": "Interventi collaborativi e relatori ospiti." },
-          "visits": { "title": "Visite di ricerca", "desc": "Soggiorni di ricerca a breve e lungo termine." }
+          "schools": {
+            "title": "Scuole estive e workshop",
+            "desc": "Eventi internazionali e locali per studenti e ricercatori."
+          },
+          "seminars": {
+            "title": "Seminari congiunti",
+            "desc": "Interventi collaborativi e relatori ospiti."
+          },
+          "visits": {
+            "title": "Visite di ricerca",
+            "desc": "Soggiorni di ricerca a breve e lungo termine."
+          }
         },
         "Courses": {
-          "ml": { "title": "Machine Learning", "desc": "Corsi congiunti, moduli applicati, progetti." },
-          "robotics": { "title": "Robotica e Visione", "desc": "Laboratori pratici, automazione e sistemi di visione." },
-          "hpc": { "title": "HPC per l'IA", "desc": "Programmazione GPU e addestramento IA su larga scala." },
-          "ethics": { "title": "Etica e Sicurezza dell'IA", "desc": "Equità, spiegabilità e governance nell'IA." }
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Corsi congiunti, moduli applicati, progetti."
+          },
+          "robotics": {
+            "title": "Robotica e Visione",
+            "desc": "Laboratori pratici, automazione e sistemi di visione."
+          },
+          "hpc": {
+            "title": "HPC per l'IA",
+            "desc": "Programmazione GPU e addestramento IA su larga scala."
+          },
+          "ethics": {
+            "title": "Etica e Sicurezza dell'IA",
+            "desc": "Equità, spiegabilità e governance nell'IA."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Co-supervisione", "desc": "Supervisione congiunta di dottorati con partner internazionali." },
-          "grants": { "title": "Borse di mobilità", "desc": "Finanziamenti per scambi e soggiorni di ricerca." },
-          "placements": { "title": "Tirocini e scambi", "desc": "Tirocini, visite e scambio di personale." }
+          "phd": {
+            "title": "Co-supervisione",
+            "desc": "Supervisione congiunta di dottorati con partner internazionali."
+          },
+          "grants": {
+            "title": "Borse di mobilità",
+            "desc": "Finanziamenti per scambi e soggiorni di ricerca."
+          },
+          "placements": {
+            "title": "Tirocini e scambi",
+            "desc": "Tirocini, visite e scambio di personale."
+          }
         }
       },
       "Event": {

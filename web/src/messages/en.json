@@ -30,7 +30,8 @@
       "projects": "Projects",
       "publications": "Publications",
       "thesis": "Thesis",
-      "resources": "Resources"
+      "resources": "Resources",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "News",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Academic partnerships", "desc": "A network of collaborations and joint activities." },
-          "teaching": { "title": "Teaching & training", "desc": "Courses, summer schools, and workshops." },
-          "mobility": { "title": "Mobility", "desc": "Co-tutoring, visits, internships, exchanges." }
+          "partnerships": {
+            "title": "Academic partnerships",
+            "desc": "A network of collaborations and joint activities."
+          },
+          "teaching": {
+            "title": "Teaching & training",
+            "desc": "Courses, summer schools, and workshops."
+          },
+          "mobility": {
+            "title": "Mobility",
+            "desc": "Co-tutoring, visits, internships, exchanges."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Summer schools & workshops", "desc": "International and local events for students and researchers." },
-          "seminars": { "title": "Joint seminars", "desc": "Collaborative talks & invited speakers." },
-          "visits": { "title": "Research visits", "desc": "Short-term & long-term research stays." }
+          "schools": {
+            "title": "Summer schools & workshops",
+            "desc": "International and local events for students and researchers."
+          },
+          "seminars": {
+            "title": "Joint seminars",
+            "desc": "Collaborative talks & invited speakers."
+          },
+          "visits": {
+            "title": "Research visits",
+            "desc": "Short-term & long-term research stays."
+          }
         },
         "Courses": {
-          "ml": { "title": "Machine Learning", "desc": "Joint courses, applied modules, projects." },
-          "robotics": { "title": "Robotics & Vision", "desc": "Hands-on labs, automation, and vision systems." },
-          "hpc": { "title": "HPC for AI", "desc": "GPU programming & large-scale AI training." },
-          "ethics": { "title": "AI Ethics & Safety", "desc": "Fairness, explainability & governance in AI." }
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Joint courses, applied modules, projects."
+          },
+          "robotics": {
+            "title": "Robotics & Vision",
+            "desc": "Hands-on labs, automation, and vision systems."
+          },
+          "hpc": {
+            "title": "HPC for AI",
+            "desc": "GPU programming & large-scale AI training."
+          },
+          "ethics": {
+            "title": "AI Ethics & Safety",
+            "desc": "Fairness, explainability & governance in AI."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Co-supervision", "desc": "Joint PhD supervision with international partners." },
-          "grants": { "title": "Mobility grants", "desc": "Funding for exchanges & research stays." },
-          "placements": { "title": "Placements & exchanges", "desc": "Internships, visits, and staff exchanges." }
+          "phd": {
+            "title": "Co-supervision",
+            "desc": "Joint PhD supervision with international partners."
+          },
+          "grants": {
+            "title": "Mobility grants",
+            "desc": "Funding for exchanges & research stays."
+          },
+          "placements": {
+            "title": "Placements & exchanges",
+            "desc": "Internships, visits, and staff exchanges."
+          }
         }
       },
       "Event": {
@@ -563,7 +603,7 @@
       "text": "The Artificial Intelligence Research Institute (AIRi) is a nexus for collaborative research at the Technical University of Cluj-Napoca. AIRi@UTCN promotes excellence in AI theory and practice, bringing together researchers across UTCN around a vision of open collaboration. Our work spans interdisciplinary research, AI literacy across disciplines, and impact through business and public co-creation partnerships."
     },
     "history": {
-      "title":"AIRI Timeline",
+      "title": "AIRI Timeline",
       "event1": {
         "date": "2023-01-15",
         "title": "Announcement of AI Institute at UTCN",

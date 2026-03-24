@@ -15,7 +15,7 @@
       "contactUs": "Contactează-ne"
     },
     "copyright": "© {year} Universitatea Tehnică din Cluj-Napoca. Toate drepturile rezervate."
-  },  
+  },
   "navbar": {
     "navLinks": {
       "research": "Cercetare",
@@ -30,7 +30,8 @@
       "projects": "Proiecte",
       "publications": "Publicații",
       "thesis": "Teze",
-      "resources": "Resurse"
+      "resources": "Resurse",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Știri",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Parteneriate academice", "desc": "O rețea de colaborări și activități comune." },
-          "teaching": { "title": "Predare și formare", "desc": "Cursuri, școli de vară și workshop-uri." },
-          "mobility": { "title": "Mobilitate", "desc": "Co-tutelă, vizite, internship-uri, schimburi de experiență." }
+          "partnerships": {
+            "title": "Parteneriate academice",
+            "desc": "O rețea de colaborări și activități comune."
+          },
+          "teaching": {
+            "title": "Predare și formare",
+            "desc": "Cursuri, școli de vară și workshop-uri."
+          },
+          "mobility": {
+            "title": "Mobilitate",
+            "desc": "Co-tutelă, vizite, internship-uri, schimburi de experiență."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Școli de vară și workshop-uri", "desc": "Evenimente internaționale și locale pentru studenți și cercetători." },
-          "seminars": { "title": "Seminarii comune", "desc": "Prezentări colaborative și speakeri invitați." },
-          "visits": { "title": "Vizite de cercetare", "desc": "Stagii de cercetare pe termen scurt și lung." }
+          "schools": {
+            "title": "Școli de vară și workshop-uri",
+            "desc": "Evenimente internaționale și locale pentru studenți și cercetători."
+          },
+          "seminars": {
+            "title": "Seminarii comune",
+            "desc": "Prezentări colaborative și speakeri invitați."
+          },
+          "visits": {
+            "title": "Vizite de cercetare",
+            "desc": "Stagii de cercetare pe termen scurt și lung."
+          }
         },
         "Courses": {
-          "ml": { "title": "Machine Learning", "desc": "Cursuri comune, module aplicate, proiecte." },
-          "robotics": { "title": "Robotică și Viziune", "desc": "Laboratoare practice, automatizări și sisteme de viziune." },
-          "hpc": { "title": "HPC pentru IA", "desc": "Programare GPU și antrenarea modelelor IA la scară largă." },
-          "ethics": { "title": "Etică și Siguranță în IA", "desc": "Echitate, explicabilitate și guvernanță în IA." }
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Cursuri comune, module aplicate, proiecte."
+          },
+          "robotics": {
+            "title": "Robotică și Viziune",
+            "desc": "Laboratoare practice, automatizări și sisteme de viziune."
+          },
+          "hpc": {
+            "title": "HPC pentru IA",
+            "desc": "Programare GPU și antrenarea modelelor IA la scară largă."
+          },
+          "ethics": {
+            "title": "Etică și Siguranță în IA",
+            "desc": "Echitate, explicabilitate și guvernanță în IA."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Co-tutelă", "desc": "Coordonarea comună a doctoratelor cu parteneri internaționali." },
-          "grants": { "title": "Granturi de mobilitate", "desc": "Finanțare pentru schimburi și stagii de cercetare." },
-          "placements": { "title": "Stagii și schimburi de experiență", "desc": "Internship-uri, vizite și schimburi de personal." }
+          "phd": {
+            "title": "Co-tutelă",
+            "desc": "Coordonarea comună a doctoratelor cu parteneri internaționali."
+          },
+          "grants": {
+            "title": "Granturi de mobilitate",
+            "desc": "Finanțare pentru schimburi și stagii de cercetare."
+          },
+          "placements": {
+            "title": "Stagii și schimburi de experiență",
+            "desc": "Internship-uri, vizite și schimburi de personal."
+          }
         }
       },
       "Event": {
@@ -556,7 +596,7 @@
       "text": "Institutul de Cercetare în Inteligența Artificială (AIRi) este un nucleu pentru cercetarea colaborativă la Universitatea Tehnică din Cluj-Napoca. AIRi@UTCN promovează excelența în teoria și practica IA, reunind cercetători din cadrul UTCN în jurul unei viziuni de colaborare deschisă. Activitatea noastră acoperă cercetarea interdisciplinară, alfabetizarea în domeniul IA dincolo de discipline și obținerea unui impact prin parteneriate de co-creare cu mediul public și de afaceri."
     },
     "history": {
-      "title":"Evoluția AIRI",
+      "title": "Evoluția AIRI",
       "event1": {
         "date": "15 Ianuarie 2023",
         "title": "Anunțarea Institutului de IA la UTCN",

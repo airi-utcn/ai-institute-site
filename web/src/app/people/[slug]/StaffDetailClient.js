@@ -13,6 +13,7 @@ import {
   FaExternalLinkAlt,
   FaFileAlt,
   FaGlobe,
+  FaDatabase,
   FaStar,
   FaProjectDiagram,
   FaBuilding,
@@ -72,6 +73,7 @@ function FilterDropdown({ value, onChange, options, placeholder, icon: Icon }) {
 // Publication Card Component
 function PublicationCard({ publication, t }) {
   const publicationSlug = toPublicationSlug(publication);
+  const publicationSource = publication.sourceKind === 'openAlexAutomated' ? 'OpenAlex automated' : 'Manual';
   
   return (
     <motion.div
@@ -90,6 +92,11 @@ function PublicationCard({ publication, t }) {
             {publication.kind && (
               <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
                 {publication.kind}
+              </span>
+            )}
+            {publication.sourceKind && (
+              <span className="text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full">
+                {publicationSource}
               </span>
             )}
           </div>
@@ -275,13 +282,16 @@ export default function StaffDetailClient({ person, publications, teams, slug })
   const [yearFilter, setYearFilter] = useState('');
   const [kindFilter, setKindFilter] = useState('');
   const [domainFilter, setDomainFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
 
   // Publications processing
-  const { yearOptions, kindOptions, pubDomainOptions } = useMemo(() => {
+  const { yearOptions, kindOptions, pubDomainOptions, sourceOptions } = useMemo(() => {
     const years = [...new Set(publications.map((p) => p.year).filter((y) => y !== null))].sort((a, b) => b - a);
     const kinds = [...new Set(publications.map((p) => p.kind).filter(Boolean))];
     const domains = [...new Set(publications.map((p) => p.domain).filter(Boolean))];
-    return { yearOptions: years, kindOptions: kinds, pubDomainOptions: domains };
+    const sources = [...new Set(publications.map((p) => p.sourceKind).filter(Boolean))]
+      .map((source) => (source === 'openAlexAutomated' ? 'OpenAlex automated' : 'Manual'));
+    return { yearOptions: years, kindOptions: kinds, pubDomainOptions: domains, sourceOptions: sources };
   }, [publications]);
 
   const filteredPubs = useMemo(() => {
@@ -292,18 +302,21 @@ export default function StaffDetailClient({ person, publications, teams, slug })
       const matchesYear = !yearFilter || String(p.year) === String(yearFilter);
       const matchesKind = !kindFilter || p.kind === kindFilter;
       const matchesDomain = !domainFilter || p.domain === domainFilter;
-      return matchesSearch && matchesYear && matchesKind && matchesDomain;
+      const pSourceLabel = p.sourceKind === 'openAlexAutomated' ? 'OpenAlex automated' : 'Manual';
+      const matchesSource = !sourceFilter || pSourceLabel === sourceFilter;
+      return matchesSearch && matchesYear && matchesKind && matchesDomain && matchesSource;
     });
-  }, [publications, pubQuery, yearFilter, kindFilter, domainFilter]);
+  }, [publications, pubQuery, yearFilter, kindFilter, domainFilter, sourceFilter]);
 
   // Projects processing
-  const hasActiveFilters = pubQuery || yearFilter || kindFilter || domainFilter;
+  const hasActiveFilters = pubQuery || yearFilter || kindFilter || domainFilter || sourceFilter;
 
   const clearFilters = () => {
     setPubQuery('');
     setYearFilter('');
     setKindFilter('');
     setDomainFilter('');
+    setSourceFilter('');
   };
 
   return (
@@ -369,6 +382,13 @@ export default function StaffDetailClient({ person, publications, teams, slug })
               options={pubDomainOptions}
               placeholder={t('allDomains')}
               icon={FaGlobe}
+            />
+            <FilterDropdown
+              value={sourceFilter}
+              onChange={setSourceFilter}
+              options={sourceOptions}
+              placeholder="All Sources"
+              icon={FaDatabase}
             />
             {hasActiveFilters && (
               <button

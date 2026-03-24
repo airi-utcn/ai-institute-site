@@ -20,11 +20,68 @@
       "type": "uid",
       "targetField": "title"
     },
+    "openAlexId": {
+      "type": "string",
+      "unique": true
+    },
+    "sourceKind": {
+      "type": "enumeration",
+      "enum": [
+        "manual",
+        "openAlexAutomated"
+      ],
+      "default": "manual"
+    },
+    "graphEligible": {
+      "type": "boolean",
+      "default": true
+    },
+    "listingEligible": {
+      "type": "boolean",
+      "default": true
+    },
+    "doi": {
+      "type": "string"
+    },
     "year": {
       "type": "integer"
     },
     "kind": {
       "type": "string"
+    },
+    "cited_by": {
+      "type": "integer",
+      "default": 0
+    },
+    "abstract": {
+      "type": "text"
+    },
+    "topics": {
+      "type": "json"
+    },
+    "community": {
+      "type": "integer"
+    },
+    "communityLabel": {
+      "type": "string"
+    },
+    "lastImportedAt": {
+      "type": "datetime"
+    },
+    "lastGraphIndexedAt": {
+      "type": "datetime"
+    },
+    "embeddingModel": {
+      "type": "string"
+    },
+    "embeddingUpdatedAt": {
+      "type": "datetime"
+    },
+    "embeddingSourceHash": {
+      "type": "string"
+    },
+    "embedding": {
+      "type": "json"
     },
     "description": {
       "type": "richtext"
@@ -59,6 +116,9 @@
     "metadata": {
       "type": "json"
     },
+    "rawImportMetadata": {
+      "type": "json"
+    },
     "domain": {
       "type": "relation",
       "relation": "manyToOne",
@@ -87,6 +147,18 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::resource.resource"
+    },
+    "outgoingGraphLinks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::graph-link.graph-link",
+      "mappedBy": "source"
+    },
+    "incomingGraphLinks": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::graph-link.graph-link",
+      "mappedBy": "target"
     }
   }
 }

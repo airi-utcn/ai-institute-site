@@ -595,6 +595,36 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiGraphLinkGraphLink extends Struct.CollectionTypeSchema {
+  collectionName: 'graph_links';
+  info: {
+    displayName: 'GraphLink';
+    pluralName: 'graph-links';
+    singularName: 'graph-link';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::graph-link.graph-link'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    score: Schema.Attribute.Decimal;
+    source: Schema.Attribute.Relation<'oneToOne', 'api::paper.paper'>;
+    target: Schema.Attribute.Relation<'oneToOne', 'api::paper.paper'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
   collectionName: 'news_articles';
   info: {
@@ -661,6 +691,40 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiPaperPaper extends Struct.CollectionTypeSchema {
+  collectionName: 'papers';
+  info: {
+    displayName: 'Paper';
+    pluralName: 'papers';
+    singularName: 'paper';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    abstract: Schema.Attribute.Text;
+    attachment: Schema.Attribute.Media<'files'>;
+    authors: Schema.Attribute.JSON;
+    cited_by: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    doi: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::paper.paper'> &
+      Schema.Attribute.Private;
+    openAlexId: Schema.Attribute.String & Schema.Attribute.Unique;
+    pdf_url: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    topics: Schema.Attribute.JSON;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    year: Schema.Attribute.Integer;
   };
 }
 
@@ -1590,7 +1654,9 @@ declare module '@strapi/strapi' {
       'api::department.department': ApiDepartmentDepartment;
       'api::event.event': ApiEventEvent;
       'api::global.global': ApiGlobalGlobal;
+      'api::graph-link.graph-link': ApiGraphLinkGraphLink;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
+      'api::paper.paper': ApiPaperPaper;
       'api::partner.partner': ApiPartnerPartner;
       'api::person.person': ApiPersonPerson;
       'api::project.project': ApiProjectProject;

@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "graph_links",
+  "info": {
+    "singularName": "graph-link",
+    "pluralName": "graph-links",
+    "displayName": "GraphLink"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "source": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::publication.publication",
+      "inversedBy": "outgoingGraphLinks"
+    },
+    "target": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::publication.publication",
+      "inversedBy": "incomingGraphLinks"
+    },
+    "isCrossCluster": {
+      "type": "boolean",
+      "default": false
+    },
+    "score": {
+      "type": "decimal"
+    }
+  }
+}

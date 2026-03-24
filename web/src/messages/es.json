@@ -30,7 +30,8 @@
       "projects": "Proyectos",
       "publications": "Publicaciones",
       "thesis": "Tesis",
-      "resources": "Recursos"
+      "resources": "Recursos",
+      "paperGraph": "Paper Graph"
     },
     "newsMenu": {
       "news": "Noticias",
@@ -164,25 +165,64 @@
       },
       "Content": {
         "Overview": {
-          "partnerships": { "title": "Asociaciones académicas", "desc": "Una red de colaboraciones y actividades conjuntas." },
-          "teaching": { "title": "Enseñanza y formación", "desc": "Cursos, escuelas de verano y talleres." },
-          "mobility": { "title": "Movilidad", "desc": "Cotutorías, visitas, pasantías, intercambios." }
+          "partnerships": {
+            "title": "Asociaciones académicas",
+            "desc": "Una red de colaboraciones y actividades conjuntas."
+          },
+          "teaching": {
+            "title": "Enseñanza y formación",
+            "desc": "Cursos, escuelas de verano y talleres."
+          },
+          "mobility": {
+            "title": "Movilidad",
+            "desc": "Cotutorías, visitas, pasantías, intercambios."
+          }
         },
         "Initiatives": {
-          "schools": { "title": "Escuelas de verano y talleres", "desc": "Eventos locales e internacionales para estudiantes e investigadores." },
-          "seminars": { "title": "Seminarios conjuntos", "desc": "Charlas colaborativas y ponentes invitados." },
-          "visits": { "title": "Visitas de investigación", "desc": "Estancias de investigación a corto y largo plazo." }
+          "schools": {
+            "title": "Escuelas de verano y talleres",
+            "desc": "Eventos locales e internacionales para estudiantes e investigadores."
+          },
+          "seminars": {
+            "title": "Seminarios conjuntos",
+            "desc": "Charlas colaborativas y ponentes invitados."
+          },
+          "visits": {
+            "title": "Visitas de investigación",
+            "desc": "Estancias de investigación a corto y largo plazo."
+          }
         },
         "Courses": {
-          "ml": { "title": "Machine Learning", "desc": "Cursos conjuntos, módulos aplicados, proyectos." },
-          "robotics": { "title": "Robótica y Visión", "desc": "Laboratorios prácticos, automatización y sistemas de visión." },
-          "hpc": { "title": "HPC para IA", "desc": "Programación GPU y entrenamiento de IA a gran escala." },
-          "ethics": { "title": "Ética y Seguridad en IA", "desc": "Equidad, explicabilidad y gobernanza en la IA." }
+          "ml": {
+            "title": "Machine Learning",
+            "desc": "Cursos conjuntos, módulos aplicados, proyectos."
+          },
+          "robotics": {
+            "title": "Robótica y Visión",
+            "desc": "Laboratorios prácticos, automatización y sistemas de visión."
+          },
+          "hpc": {
+            "title": "HPC para IA",
+            "desc": "Programación GPU y entrenamiento de IA a gran escala."
+          },
+          "ethics": {
+            "title": "Ética y Seguridad en IA",
+            "desc": "Equidad, explicabilidad y gobernanza en la IA."
+          }
         },
         "Mobility": {
-          "phd": { "title": "Co-supervisión", "desc": "Supervisión conjunta de doctorados con socios internacionales." },
-          "grants": { "title": "Becas de movilidad", "desc": "Financiación para intercambios y estancias de investigación." },
-          "placements": { "title": "Prácticas e intercambios", "desc": "Pasantías, visitas e intercambio de personal." }
+          "phd": {
+            "title": "Co-supervisión",
+            "desc": "Supervisión conjunta de doctorados con socios internacionales."
+          },
+          "grants": {
+            "title": "Becas de movilidad",
+            "desc": "Financiación para intercambios y estancias de investigación."
+          },
+          "placements": {
+            "title": "Prácticas e intercambios",
+            "desc": "Pasantías, visitas e intercambio de personal."
+          }
         }
       },
       "Event": {

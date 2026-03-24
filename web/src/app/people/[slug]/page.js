@@ -122,6 +122,7 @@ export default async function PersonDetailPage({ params }) {
     slug: pub.slug || "",
     title: pub.title || "",
     year: pub.year ?? null,
+    sourceKind: pub.sourceKind || (pub.openAlexId ? "openAlexAutomated" : "manual"),
     domain: pub.domain || "",
     kind: pub.kind || "",
     description: pub.description || "",

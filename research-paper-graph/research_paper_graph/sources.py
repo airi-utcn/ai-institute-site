@@ -11,6 +11,9 @@ def fetch_papers(args, logger=None, settings=None):
     """Fetch papers from the configured source and return (papers, label)."""
     log = logger or logging.getLogger("paper-sync")
 
+    # TODO: --institution and -institution is allowed, smoothen out to same way of processing everywhere
+    # Other fields are allowed only with --
+    # --mode is deprecated, to clean up
     if getattr(args, "mode", None) == "institution":
         institution_name = (getattr(args, "institution", None) or "").strip()
         if not institution_name:
@@ -55,6 +58,7 @@ def fetch_papers(args, logger=None, settings=None):
         papers = _dedupe_papers(papers)
         return papers, label
 
+    # TODO: Reinforce options. 
     if getattr(args, "mode", None) != "strapi-people":
         log.error("Unsupported --mode. Allowed values: strapi-people, institution, person")
         sys.exit(1)
@@ -67,6 +71,8 @@ def fetch_papers(args, logger=None, settings=None):
     if (getattr(args, "institution", None) or "").strip():
         log.error("--institution is only valid when --mode institution")
         sys.exit(1)
+
+    # Strapi-people as a "default" mode is a bit messy. Consider adding an explicit "if" cause
 
     strapi = StrapiClient(settings.strapi_api_url, settings.strapi_token)
     people = strapi.load_import_people()
@@ -105,6 +111,7 @@ def fetch_papers(args, logger=None, settings=None):
 
 
 def _resolve_fetch_cache_path(args, cache_key):
+    """Determine the cache path for fetched papers based on the cache key"""
     override_path = getattr(args, "fetch_cache_file", None)
     if override_path:
         if getattr(args, "mode", None) == "strapi-people":
@@ -148,9 +155,10 @@ def _merge_seed_paper(papers_by_key, paper, person):
 
 
 def _merge_unique(existing_values, new_values):
+    """Merges two lists of values, ensuring uniqueness with list comprehension. Preserves order with seen set."""
     merged = []
     seen = set()
-    for value in [*(existing_values or []), *(new_values or [])]:
+    for value in [*(existing_values or []), *(new_values or [])]: # '*' is the unpacking operator. Without it, you would have nested lists.  
         if not value:
             continue
         if value in seen:

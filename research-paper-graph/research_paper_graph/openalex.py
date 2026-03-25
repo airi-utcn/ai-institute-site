@@ -200,6 +200,8 @@ def _get_processed_works(
         else:
             log.info(f"Incomplete fetch cache exists for {description} but cache reuse is disabled; refetching.")
 
+    # Not explicit, but lazy fetching is working. Look above at the elif use_cache, we reuse the cursor from there and resume fetching where we left off
+
     log.info(f"Fetching works for {description}...")
     while True:
         params = {

@@ -49,7 +49,11 @@ def build_parser():
 
 
 def _apply_runtime_defaults(args):
-    """Set fixed runtime defaults to keep the tool predictable and low-config."""
+    """Set fixed runtime defaults to keep the tool predictable and low-config.
+    
+    Leftover from previous versions where these were all CLI flags - now hardcoded to avoid config sprawl and user confusion.
+    
+    TODO: To be removed, along with all the options themselves. """
     if getattr(args, "institution", None):
         args.mode = "institution"
     elif getattr(args, "person", None):
@@ -151,6 +155,7 @@ def main(argv=None):
         parser.print_help()
         return
 
+    # TODO: Remove this method and all the options it sets, now that the relevant flags have been removed and hardcoded defaults are in place.
     _apply_runtime_defaults(args)
 
     logging.basicConfig(

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import LinkedInWidget from "@/components/LinkedInWidget";
 import { getNewsArticles, transformNewsData } from "@/lib/strapi";
 import { getTranslations } from "next-intl/server";
 
@@ -238,27 +237,7 @@ export default async function Home() {
         )}
       </section>
 
-      {/* Full-width Social Feed */}
-      <section className="page-container pb-16">
-        <div className="grid grid-cols-1 gap-8">
-          <div className="w-full">
-            <div className="card p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="heading-2 heading-accent">{t("Social.title")}</h3>
-                <a 
-                  href="https://www.linkedin.com/company/artificial-intelligence-research-institute-airi-utcn/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold"
-                >
-                  {t("Social.visit")}
-                </a>
-              </div>
-              <LinkedInWidget />
-            </div>
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 }

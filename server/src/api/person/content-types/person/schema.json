@@ -24,6 +24,7 @@
     },
     "type": {
       "type": "enumeration",
+      "required": true,
       "default": "researcher",
       "enum": [
         "staff",

@@ -510,6 +510,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
     type: Schema.Attribute.Enumeration<
       ['research', 'research_networks', 'support', 'other']
     > &
+      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'research'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -770,6 +771,7 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
         'external',
       ]
     > &
+      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'researcher'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -816,6 +818,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     phase: Schema.Attribute.Enumeration<
       ['planned', 'ongoing', 'completed', 'archived']
     > &
+      Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'ongoing'>;
     publications: Schema.Attribute.Relation<
       'manyToMany',

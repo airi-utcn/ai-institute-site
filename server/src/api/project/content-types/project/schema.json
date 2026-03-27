@@ -26,6 +26,7 @@
     },
     "phase": {
       "type": "enumeration",
+      "required": true,
       "default": "ongoing",
       "enum": [
         "planned",

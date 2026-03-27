@@ -23,6 +23,7 @@
     },
     "type": {
       "type": "enumeration",
+      "required": true,
       "default": "research",
       "enum": [
         "research",

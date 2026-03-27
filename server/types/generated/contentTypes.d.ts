@@ -504,7 +504,7 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
       'api::publication.publication'
     >;
     publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'name'>;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     summary: Schema.Attribute.Text;
     teams: Schema.Attribute.Relation<'oneToMany', 'api::team.team'>;
     type: Schema.Attribute.Enumeration<
@@ -676,11 +676,15 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    body: Schema.Attribute.DynamicZone<
+      ['shared.section', 'shared.rich-text', 'shared.media', 'shared.slider']
+    >;
     country: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
+    description: Schema.Attribute.RichText;
+    heroImage: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -689,6 +693,9 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    partnershipStatus: Schema.Attribute.Enumeration<['current', 'former']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'current'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
@@ -823,7 +830,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
       'manyToMany',
       'api::resource.resource'
     >;
-    slug: Schema.Attribute.UID<'title'>;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     teams: Schema.Attribute.Relation<'manyToMany', 'api::team.team'>;
     themes: Schema.Attribute.Relation<
       'manyToMany',
@@ -879,7 +886,7 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
       'manyToMany',
       'api::resource.resource'
     >;
-    slug: Schema.Attribute.UID<'title'>;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     themes: Schema.Attribute.Relation<
       'manyToMany',
       'api::research-theme.research-theme'

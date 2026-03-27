@@ -18,7 +18,8 @@
     },
     "slug": {
       "type": "uid",
-      "targetField": "name"
+      "targetField": "name",
+      "required": true
     },
     "type": {
       "type": "enumeration",

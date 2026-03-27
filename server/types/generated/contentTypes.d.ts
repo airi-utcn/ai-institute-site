@@ -676,11 +676,15 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    body: Schema.Attribute.DynamicZone<
+      ['shared.section', 'shared.rich-text', 'shared.media', 'shared.slider']
+    >;
     country: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
+    description: Schema.Attribute.RichText;
+    heroImage: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -689,6 +693,9 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     logo: Schema.Attribute.Media<'images'>;
     name: Schema.Attribute.String & Schema.Attribute.Required;
+    partnershipStatus: Schema.Attribute.Enumeration<['current', 'former']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'current'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
@@ -760,10 +767,14 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
         'alumni',
         'visitor',
         'visiting_researcher',
+        'student',
         'external',
       ]
     > &
       Schema.Attribute.DefaultTo<'researcher'>;
+    type_alumni: Schema.Attribute.Enumeration<['alumni_AIRI', 'alumni_UTCN']>;
+    type_external: Schema.Attribute.Enumeration<['mentor']>;
+    type_student: Schema.Attribute.Enumeration<['highschool', 'university']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

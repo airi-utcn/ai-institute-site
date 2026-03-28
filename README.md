@@ -1,4 +1,4 @@
-# AI Institute Website
+# AI Research Institute Website (AIRi@UTCN)
 
 The official website for the Artificial Intelligence Research Institute (AIRI) at the Technical University of Cluj-Napoca. This platform showcases our research activities, team members, publications, and events while serving as a knowledge hub for students and researchers interested in AI.
 

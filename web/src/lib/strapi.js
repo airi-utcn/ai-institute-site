@@ -172,7 +172,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type', 'type_alumni', 'type_student', 'type_external'];
+const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type', 'scholarId', 'type_alumni', 'type_student', 'type_external'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -384,6 +384,9 @@ export async function getStaff(options = {}) {
         department: DEPARTMENT_POPULATE,
         portrait: {
           fields: ['url', 'formats', 'alternativeText'],
+        },
+        socialLinks: {
+          fields: ['label', 'url', 'icon'],
         },
       },
     };
@@ -1035,6 +1038,7 @@ export function transformStaffData(strapiStaff) {
       title: attributes.title || '',
       phone: attributes.phone || '',
       email: attributes.email || '',
+      scholarId: attributes.scholarId || '',
       type: typeKey,
       role: typeKey || attributes.role || '',
       category: typeLabel || typeKey || '',
@@ -1742,4 +1746,3 @@ export function transformPartnerData(strapiPartners) {
     };
   });
 }
-

@@ -120,6 +120,9 @@
       "component": "shared.contact-link",
       "repeatable": true
     },
+    "scholarId": {
+      "type": "string"
+    },
     "department": {
       "type": "relation",
       "relation": "manyToOne",

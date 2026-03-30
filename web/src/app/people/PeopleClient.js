@@ -121,6 +121,10 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = false, activ
     return roleConfig.label;
   };
   
+  // Only show badge if there's actually a subtype to display
+  // OR if we're viewing "All" during a search (to help identify roles)
+  const shouldShowBadge = showRoleBadge && (subtypeLabel || (activeFilter === "all" && showRoleBadge));
+  
   return (
     <motion.article
       className="card card-hover p-5"
@@ -143,8 +147,8 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = false, activ
           {person.name}
         </h2>
         
-        {/* Role badge - shown when filtering by "All" or during search */}
-        {showRoleBadge && (
+        {/* Role badge - only shown when there's a subtype */}
+        {shouldShowBadge && (
           <div className="flex items-center justify-center gap-1 mt-2 px-2">
             <span className={`inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${roleConfig.color}`}>
               <RoleIcon className="w-2.5 h-2.5 flex-shrink-0" />
@@ -243,9 +247,6 @@ export default function PeopleClient({
     
     return sorted;
   }, [allPeopleFlat, activeFilter, searchQuery, sortBy]);
-
-  // Determine if we should show role badges (when viewing "all" or searching)
-  const showRoleBadges = activeFilter === "all" || searchQuery.length > 0;
 
   return (
     <div className="page-container">
@@ -411,7 +412,7 @@ export default function PeopleClient({
                   key={person.slug} 
                   person={person} 
                   basePath="/people"
-                  showRoleBadge={showRoleBadges}
+                  showRoleBadge={true} // Always show role badges to display subtypes. TODO: Trim up, since it's a stub from older logic 
                   activeFilter={activeFilter}
                 />
               ))}

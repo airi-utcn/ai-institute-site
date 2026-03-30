@@ -32,7 +32,9 @@ const DEFAULT_REVALIDATE_SECONDS = 60; // 1 minute
 export const PERSON_TYPE_FILTERS = {
   staff: ['staff', 'personal'],
   researchers: ['researcher', 'research'],
-  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher', 'external', 'collaborator'],
+  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher'],
+  students: ['student'],
+  external: ['external', 'collaborator'],
   alumni: ['alumni', 'alumnus'], 
 };
 
@@ -170,7 +172,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type'];
+const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type', 'type_alumni', 'type_student', 'type_external'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -997,6 +999,11 @@ export function transformStaffData(strapiStaff) {
       type: typeKey,
       role: typeKey || attributes.role || '',
       category: typeLabel || typeKey || '',
+      // Include subtypes
+      subtype: attributes.type_alumni || attributes.type_student || attributes.type_external || null,
+      type_alumni: attributes.type_alumni || null,
+      type_student: attributes.type_student || null,
+      type_external: attributes.type_external || null,
       department: department?.name || '',
       departmentInfo: department,
       image,

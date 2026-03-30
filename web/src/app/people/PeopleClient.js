@@ -41,6 +41,12 @@ const parseSearchTerms = (query) =>
     .split(/\s+/)
     .filter(Boolean);
 
+const normalizeSortName = (name) =>
+  (name || "")
+    .toString()
+    .replace(/\s+/g, " ")
+    .trim();
+
 function getCitationCount(person) {
   const value = person?.scholarCitationCount;
   if (typeof value === "number" && !Number.isNaN(value)) return value;
@@ -264,7 +270,9 @@ export default function PeopleClient({
         if (researcherSort === "fewest-citations" && countA !== countB) return countA - countB;
       }
 
-      return (a?.name || "").localeCompare(b?.name || "", "ro", {
+      const nameA = normalizeSortName(a?.name);
+      const nameB = normalizeSortName(b?.name);
+      return nameA.localeCompare(nameB, "ro", {
         sensitivity: "base",
         numeric: true,
       });

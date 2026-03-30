@@ -770,7 +770,9 @@
     "tabs": {
       "researchers": "Researchers",
       "staff": "Staff",
+      "students": "Students",
       "visiting": "Visiting Researchers",
+      "external": "External Collaborators",
       "alumni": "Alumni"
     },
     "results": "Found {count} result for \"{query}\"",

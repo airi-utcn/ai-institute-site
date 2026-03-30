@@ -5,7 +5,13 @@ import {
   FaMapMarkerAlt,
   FaLink,
   FaCalendarAlt,
-  FaExternalLinkAlt
+  FaExternalLinkAlt,
+  FaFlask,
+  FaUserTie,
+  FaGraduationCap,
+  FaGlobe,
+  FaHandshake,
+  FaTrophy
 } from "react-icons/fa";
 import {
   getStaff,
@@ -164,6 +170,77 @@ export default async function PersonDetailPage({ params }) {
 
   const getSocialLabel = (link) => link?.label || link?.url || "Link";
 
+  // Get role configuration for badge display (same as PeopleClient.js)
+  const getRoleConfig = (type) => {
+    const configs = {
+      researcher: { 
+        label: "Researcher", 
+        icon: FaFlask, 
+        color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+      },
+      staff: { 
+        label: "Staff", 
+        icon: FaUserTie, 
+        color: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300"
+      },
+      student: { 
+        label: "Student", 
+        icon: FaGraduationCap, 
+        color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+      },
+      visiting: { 
+        label: "Visiting", 
+        icon: FaGlobe, 
+        color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+      },
+      visiting_researcher: { 
+        label: "Visiting", 
+        icon: FaGlobe, 
+        color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+      },
+      external: { 
+        label: "External", 
+        icon: FaHandshake, 
+        color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300"
+      },
+      alumni: { 
+        label: "Alumni", 
+        icon: FaTrophy, 
+        color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+      },
+    };
+    
+    return configs[type] || configs.researcher;
+  };
+
+  // Format subtype labels for display (same as PeopleClient.js)
+  const formatSubtypeLabel = (subtype) => {
+    if (!subtype) return null;
+    
+    // Smart formatting: convert snake_case/camelCase to Title Case
+    const formatted = subtype
+      .replace(/_/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .trim()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+    
+    return formatted;
+  };
+
+  const subtypeLabel = formatSubtypeLabel(person.subtype);
+  const roleConfig = getRoleConfig(person.type);
+  const RoleIcon = roleConfig.icon;
+  
+  // Show "Type • Subtype" if both exist, otherwise just one
+  const getBadgeLabel = () => {
+    if (subtypeLabel) {
+      return `${roleConfig.label} • ${subtypeLabel}`;
+    }
+    return roleConfig.label;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <JsonLd data={personJsonLd(person)} />
@@ -187,6 +264,17 @@ export default async function PersonDetailPage({ params }) {
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-3xl md:text-4xl font-bold mb-2">{person.name}</h1>
+              
+              {/* Role badge with type and subtype */}
+              {(person.type || person.subtype) && (
+                <div className="flex justify-center md:justify-start mb-3">
+                  <span className={`inline-flex items-center gap-2 text-sm px-3 py-1 rounded-full font-medium whitespace-nowrap ${roleConfig.color}`}>
+                    <RoleIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="whitespace-nowrap">{getBadgeLabel()}</span>
+                  </span>
+                </div>
+              )}
+              
               {person.title && (
                 <p className="text-xl text-blue-100 mb-3">{person.title}</p>
               )}

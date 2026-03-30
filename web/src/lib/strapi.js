@@ -32,7 +32,9 @@ const DEFAULT_REVALIDATE_SECONDS = 60; // 1 minute
 export const PERSON_TYPE_FILTERS = {
   staff: ['staff', 'personal'],
   researchers: ['researcher', 'research'],
-  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher', 'external', 'collaborator'],
+  visiting: ['visiting', 'visitor', 'visiting_researcher', 'visiting researcher'],
+  students: ['student'],
+  external: ['external', 'collaborator'],
   alumni: ['alumni', 'alumnus'], 
 };
 
@@ -170,7 +172,7 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
   return params;
 };
 
-const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type'];
+const PERSON_FIELDS = ['fullName', 'slug', 'title', 'email', 'phone', 'type', 'type_alumni', 'type_student', 'type_external'];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -218,11 +220,13 @@ const STAFF_TYPE_LABELS = {
   personal: 'Staff', // legacy name
   researcher: 'Researchers',
   research: 'Researchers',
+  student: 'Students',
   alumni: 'Alumni',
   alumnus: 'Alumni',
   visiting: 'Visiting Researchers',
   visitor: 'Visiting Researchers',
   'visiting researcher': 'Visiting Researchers',
+  visiting_researcher: 'Visiting Researchers',
   external: 'External',
   collaborator: 'External',
 };
@@ -986,6 +990,43 @@ export function transformStaffData(strapiStaff) {
     // Use 'portrait' field from schema
     const image = resolveMediaUrl(attributes.portrait);
 
+    // ============================================================================
+    // QUICKFIX: Validate subtypes match parent type
+    // ============================================================================
+    // Issue: When editors change person type in Strapi (e.g., student → visiting),
+    // the old subtype fields (type_student, type_alumni, type_external) remain in
+    // the database due to Strapi's conditional field visibility not clearing them.
+    // This causes mismatches like "Visiting • University" in the frontend.
+    //
+    // Root Cause: Strapi conditional fields are hidden in the UI but not cleared
+    // in the database when the parent field changes. Lifecycle hooks were attempted
+    // but caused unpredictable behavior with Strapi's field visibility system.
+    //
+    // TODO: Implement proper solution:
+    // - Option 1: Strapi lifecycle hook that correctly handles conditional fields
+    // - Option 2: Database migration to clean up orphaned subtypes
+    // - Option 3: Strapi plugin to manage conditional field cleanup
+    //
+    // Current Solution: Filter out subtypes that don't match the parent type
+    // in the data transformation layer. This prevents display issues but doesn't
+    // clean the database.
+    // ============================================================================
+    
+    const getValidSubtype = () => {
+      // Only include subtype if it matches the parent type
+      if (typeKey === 'alumni' && attributes.type_alumni) {
+        return attributes.type_alumni;
+      }
+      if (typeKey === 'student' && attributes.type_student) {
+        return attributes.type_student;
+      }
+      if (typeKey === 'external' && attributes.type_external) {
+        return attributes.type_external;
+      }
+      // Ignore orphaned subtypes
+      return null;
+    };
+
     return {
       id: person?.id ?? null,
       slug: attributes.slug || '',
@@ -997,6 +1038,11 @@ export function transformStaffData(strapiStaff) {
       type: typeKey,
       role: typeKey || attributes.role || '',
       category: typeLabel || typeKey || '',
+      // Include only validated subtypes that match the parent type (see QUICKFIX above)
+      subtype: getValidSubtype(),
+      type_alumni: typeKey === 'alumni' ? attributes.type_alumni || null : null,
+      type_student: typeKey === 'student' ? attributes.type_student || null : null,
+      type_external: typeKey === 'external' ? attributes.type_external || null : null,
       department: department?.name || '',
       departmentInfo: department,
       image,

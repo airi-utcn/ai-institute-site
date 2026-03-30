@@ -31,7 +31,58 @@
         "alumni",
         "visitor",
         "visiting_researcher",
+        "student",
         "external"
+      ]
+    },
+    "type_alumni": {
+      "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "type"
+            },
+            "alumni"
+          ]
+        }
+      },
+      "enum": [
+        "alumni_AIRI",
+        "alumni_UTCN"
+      ]
+    },
+    "type_student": {
+      "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "type"
+            },
+            "student"
+          ]
+        }
+      },
+      "enum": [
+        "highschool",
+        "university"
+      ]
+    },
+    "type_external": {
+      "type": "enumeration",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "type"
+            },
+            "external"
+          ]
+        }
+      },
+      "enum": [
+        "mentor"
       ]
     },
     "title": {

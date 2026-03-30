@@ -763,7 +763,9 @@
     "tabs": {
       "researchers": "Investigadores",
       "staff": "Personal",
+      "students": "Estudiantes",
       "visiting": "Investigadores Visitantes",
+      "external": "Colaboradores Externos",
       "alumni": "Antiguos Alumnos"
     },
     "results": "Se encontró {count} resultado para \"{query}\"",

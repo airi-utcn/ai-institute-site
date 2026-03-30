@@ -763,7 +763,9 @@
     "tabs": {
       "researchers": "Pētnieki",
       "staff": "Personāls",
+      "students": "Studenti",
       "visiting": "Viespētnieki",
+      "external": "Ārējie Sadarbības Partneri",
       "alumni": "Absolventi"
     },
     "results": "Atrasts {count} rezultāts vaicājumam \"{query}\"",

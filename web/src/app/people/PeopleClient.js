@@ -97,10 +97,29 @@ const formatSubtypeLabel = (subtype) => {
   return formatted;
 };
 
-function PersonCard({ person, basePath = "/people", showRoleBadge = false }) {
+function PersonCard({ person, basePath = "/people", showRoleBadge = false, activeFilter = "all" }) {
   const subtypeLabel = formatSubtypeLabel(person.subtype);
   const roleConfig = getRoleConfig(person.type);
   const RoleIcon = roleConfig.icon;
+  
+  // Determine what to show in the badge
+  const getBadgeLabel = () => {
+    // When viewing "All": show both type and subtype with bullet
+    if (activeFilter === "all") {
+      if (subtypeLabel) {
+        return `${roleConfig.label} • ${subtypeLabel}`;
+      }
+      return roleConfig.label;
+    }
+    
+    // When filtered by specific type: show only subtype (if exists)
+    if (subtypeLabel) {
+      return subtypeLabel;
+    }
+    
+    // Fallback to main type
+    return roleConfig.label;
+  };
   
   return (
     <motion.article
@@ -126,10 +145,10 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = false }) {
         
         {/* Role badge - shown when filtering by "All" or during search */}
         {showRoleBadge && (
-          <div className="flex items-center justify-center gap-1 mt-2">
-            <span className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${roleConfig.color}`}>
-              <RoleIcon className="w-2.5 h-2.5" />
-              {subtypeLabel || roleConfig.label}
+          <div className="flex items-center justify-center gap-1 mt-2 px-2">
+            <span className={`inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${roleConfig.color}`}>
+              <RoleIcon className="w-2.5 h-2.5 flex-shrink-0" />
+              <span className="whitespace-nowrap">{getBadgeLabel()}</span>
             </span>
           </div>
         )}
@@ -393,6 +412,7 @@ export default function PeopleClient({
                   person={person} 
                   basePath="/people"
                   showRoleBadge={showRoleBadges}
+                  activeFilter={activeFilter}
                 />
               ))}
             </motion.div>

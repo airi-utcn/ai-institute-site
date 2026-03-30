@@ -763,7 +763,9 @@
     "tabs": {
       "researchers": "Cercetători",
       "staff": "Personal administrativ",
+      "students": "Studenți",
       "visiting": "Cercetători invitați",
+      "external": "Colaboratori externi",
       "alumni": "Alumni"
     },
     "results": "A fost găsit {count} rezultat pentru \"{query}\"",

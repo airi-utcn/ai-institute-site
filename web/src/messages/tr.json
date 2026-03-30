@@ -763,7 +763,9 @@
     "tabs": {
       "researchers": "Araştırmacılar",
       "staff": "Personel",
+      "students": "Öğrenciler",
       "visiting": "Misafir Araştırmacılar",
+      "external": "Dış İşbirlikçiler",
       "alumni": "Mezunlar"
     },
     "results": "\"{query}\" için {count} sonuç bulundu",

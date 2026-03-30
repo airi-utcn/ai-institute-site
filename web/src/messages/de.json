@@ -754,7 +754,9 @@
     "tabs": {
       "researchers": "Forscher",
       "staff": "Mitarbeiter",
+      "students": "Studenten",
       "visiting": "Gastforscher",
+      "external": "Externe Mitarbeiter",
       "alumni": "Alumni"
     },
     "results": "{count} Ergebnis gefunden für \"{query}\"",

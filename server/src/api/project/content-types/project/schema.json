@@ -23,15 +23,12 @@
     "abstract": {
       "type": "text"
     },
-    "phase": {
-      "type": "enumeration",
-      "default": "ongoing",
-      "enum": [
-        "planned",
-        "ongoing",
-        "completed",
-        "archived"
-      ]
+    "startDate": {
+      "type": "date",
+      "required": true
+    },
+    "endDate": {
+      "type": "date"
     },
     "region": {
       "type": "enumeration",
@@ -64,6 +61,20 @@
         "shared.slider"
       ]
     },
+    "researchContent": {
+      "type": "dynamiczone",
+      "components": [
+        "shared.section",
+        "shared.rich-text",
+        "shared.media",
+        "shared.slider"
+      ]
+    },
+    "contactInfo": {
+      "type": "component",
+      "component": "project.contact-info",
+      "repeatable": false
+    },
     "themes": {
       "type": "relation",
       "relation": "manyToMany",
@@ -82,12 +93,6 @@
       "target": "api::partner.partner",
       "inversedBy": "projects"
     },
-    "docUrl": {
-      "type": "text"
-    },
-    "officialUrl": {
-      "type": "text"
-    },
     "teams": {
       "type": "relation",
       "relation": "manyToMany",
@@ -105,10 +110,6 @@
       "target": "api::publication.publication",
       "mappedBy": "projects"
     },
-    "featured": {
-      "type": "boolean",
-      "default": false
-    },
     "resources": {
       "type": "relation",
       "relation": "manyToMany",
@@ -119,6 +120,12 @@
       "relation": "manyToMany",
       "target": "api::person.person",
       "inversedBy": "contributingProjects"
+    },
+    "results": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::result.result",
+      "mappedBy": "projects"
     }
   }
 }

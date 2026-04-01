@@ -1,5 +1,37 @@
 import type { Schema, Struct } from '@strapi/strapi';
 
+export interface ProjectContactEntry extends Struct.ComponentSchema {
+  collectionName: 'components_project_contact_entries';
+  info: {
+    description: 'Individual contact method with type and description';
+    displayName: 'Contact Entry';
+    icon: 'envelope';
+  };
+  attributes: {
+    description: Schema.Attribute.Text;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    type: Schema.Attribute.Enumeration<
+      ['email', 'phone', 'address', 'website', 'social', 'other']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'email'>;
+    value: Schema.Attribute.Text & Schema.Attribute.Required;
+  };
+}
+
+export interface ProjectContactInfo extends Struct.ComponentSchema {
+  collectionName: 'components_project_contact_infos';
+  info: {
+    description: 'Contact information for a project';
+    displayName: 'Contact Info';
+    icon: 'phone';
+  };
+  attributes: {
+    contactEntries: Schema.Attribute.Component<'project.contact-entry', true>;
+    generalInfo: Schema.Attribute.RichText;
+  };
+}
+
 export interface ProjectTeamMember extends Struct.ComponentSchema {
   collectionName: 'components_project_team_members';
   info: {
@@ -153,6 +185,8 @@ export interface TeamMembership extends Struct.ComponentSchema {
 declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
+      'project.contact-entry': ProjectContactEntry;
+      'project.contact-info': ProjectContactInfo;
       'project.team-member': ProjectTeamMember;
       'project.timeline-entry': ProjectTimelineEntry;
       'shared.contact-link': SharedContactLink;

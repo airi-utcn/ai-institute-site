@@ -1,0 +1,35 @@
+{
+  "collectionName": "components_project_contact_entries",
+  "info": {
+    "displayName": "Contact Entry",
+    "description": "Individual contact method with type and description",
+    "icon": "envelope"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "email",
+        "phone",
+        "address",
+        "website",
+        "social",
+        "other"
+      ],
+      "default": "email",
+      "required": true
+    },
+    "value": {
+      "type": "text",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

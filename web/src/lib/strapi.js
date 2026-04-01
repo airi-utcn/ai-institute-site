@@ -194,7 +194,7 @@ const DEPARTMENT_POPULATE = {
 
 
 const PROJECT_POPULATE = {
-  fields: ['title', 'slug', 'abstract', 'region', 'phase', 'docUrl', 'officialUrl', 'featured', 'isIndustryEngagement'],
+  fields: ['title', 'slug', 'abstract', 'region', 'startDate', 'endDate', 'isIndustryEngagement'],
   populate: {
     heroImage: {
       fields: ['url', 'formats', 'alternativeText'],
@@ -493,12 +493,11 @@ export async function getDepartmentTeams(departmentSlug) {
  */
 export async function getProjects(options = {}) {
   try {
-    const { domainSlug, themeSlug, featured, publicationState = 'preview' } = options;
+    const { domainSlug, themeSlug, publicationState = 'preview' } = options;
 
     const filters = {};
     if (domainSlug) filters.domains = { slug: { $eq: domainSlug } };
     if (themeSlug) filters.themes = { slug: { $eq: themeSlug } };
-    if (featured !== undefined) filters.featured = { $eq: featured };
 
     const params = createParams({
       sort: 'title:asc',
@@ -612,7 +611,7 @@ export async function getPartners() {
         fields: ['url', 'formats', 'alternativeText'],
       },
       projects: {
-        fields: ['title', 'slug', 'featured', 'isIndustryEngagement'],
+        fields: ['title', 'slug', 'isIndustryEngagement'],
       },
     },
   };
@@ -650,7 +649,7 @@ export async function getPartnerBySlug(slug) {
           fields: ['url', 'formats', 'alternativeText'],
         },
         projects: {
-          fields: ['title', 'slug', 'abstract', 'phase', 'featured', 'isIndustryEngagement'],
+          fields: ['title', 'slug', 'abstract', 'isIndustryEngagement'],
           populate: {
             heroImage: {
               fields: ['url', 'formats', 'alternativeText'],
@@ -777,6 +776,78 @@ export async function getNewsArticles(options = {}) {
     return [];
   }
 }
+
+/**
+ * Get all results from Strapi
+ * @param {Object} options - Options for the query
+ * @returns {Promise<Array>} Array of results
+ */
+export async function getResults(options = {}) {
+  try {
+    const params = createParams({
+      sort: 'publishedDate:desc',
+      fields: ['title', 'slug', 'description', 'publishedDate'],
+      populate: {
+        attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats'] },
+        projects: { fields: ['title', 'slug'] },
+      },
+    });
+    const data = await fetchAPI(`/results?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch results:', error);
+    return [];
+  }
+}
+
+/**
+ * Get a single result by slug
+ * @param {string} slug - The result's slug
+ * @returns {Promise<Object|null>} The result or null
+ */
+export async function getResultBySlug(slug) {
+  try {
+    if (!slug) return null;
+    
+    const params = createParams({
+      filters: { slug: { $eq: slug } },
+      publicationState: 'preview',
+      fields: ['title', 'slug', 'description', 'publishedDate'],
+      populate: {
+        attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText'] },
+        projects: { fields: ['title', 'slug'] },
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: {
+                media: { fields: ['url', 'formats', 'alternativeText', 'name', 'mime'] },
+              },
+            },
+            'shared.media': {
+              populate: {
+                file: { fields: ['url', 'formats', 'alternativeText', 'name', 'mime'] },
+              },
+            },
+            'shared.slider': {
+              populate: {
+                files: { fields: ['url', 'formats', 'alternativeText', 'name'] },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const data = await fetchAPI(`/results?${params.toString()}`);
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch result by slug:', error);
+    return null;
+  }
+}
+
 
 /**
  * Get publications by author slug
@@ -1186,6 +1257,107 @@ export function transformPublicationData(strapiPubs) {
   });
 }
 
+/**
+ * Helper function to transform result data
+ */
+export function transformResultData(strapiResults) {
+  const list = Array.isArray(strapiResults) ? strapiResults : strapiResults ? [strapiResults] : [];
+
+  const normalizeBodyBlocks = (blocks) =>
+    toArray(blocks)
+      .map((block) => {
+        const blockData = block?.attributes ?? block ?? {};
+        const componentType = block?.__component;
+
+        const mediaFile = blockData.media?.data ?? blockData.media;
+        const mediaData = mediaFile?.attributes ?? mediaFile ?? {};
+
+        const file = blockData.file?.data ?? blockData.file;
+        const fileData = file?.attributes ?? file ?? {};
+
+        const files = toArray(blockData.files?.data ?? blockData.files).map((f) => {
+          const fd = f?.attributes ?? f ?? {};
+          return {
+            url: resolveMediaUrl(f),
+            alt: fd.alternativeText || fd.name || '',
+            name: fd.name || '',
+          };
+        });
+
+        return {
+          __component: componentType,
+          heading: blockData.heading || '',
+          subheading: blockData.subheading || '',
+          body: blockData.body || '',
+          media: mediaFile
+            ? {
+                url: resolveMediaUrl(mediaFile),
+                alt: mediaData.alternativeText || mediaData.name || '',
+                mime: mediaData.mime || '',
+                name: mediaData.name || '',
+              }
+            : null,
+          file: file
+            ? {
+                url: resolveMediaUrl(file),
+                alt: fileData.alternativeText || fileData.name || '',
+                mime: fileData.mime || '',
+                name: fileData.name || '',
+              }
+            : null,
+          files,
+        };
+      })
+      .filter((block) => block.__component);
+
+  return list.map((result) => {
+    const attributes = result?.attributes ?? result ?? {};
+
+    const projects = toArray(attributes.projects?.data ?? attributes.projects).map((project) => {
+      const projectData = project?.attributes ?? project ?? {};
+      return {
+        id: project?.id ?? null,
+        slug: projectData.slug || '',
+        title: projectData.title || '',
+      };
+    });
+
+    const attachments = toArray(attributes.attachments?.data ?? attributes.attachments).map((file) => {
+      const fileData = file?.attributes ?? file ?? {};
+      return {
+        id: file?.id ?? null,
+        name: fileData.name || '',
+        url: resolveMediaUrl(file),
+        mime: fileData.mime || '',
+        ext: fileData.ext || '',
+        size: typeof fileData.size === 'number' ? fileData.size : null,
+        alt: fileData.alternativeText || '',
+      };
+    });
+
+    const body = normalizeBodyBlocks(attributes.body);
+
+    const normalizeDate = (value) => {
+      if (!value) return '';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return '';
+      return d.toISOString();
+    };
+
+    return {
+      id: result?.id ?? null,
+      slug: attributes.slug || '',
+      title: attributes.title || '',
+      description: attributes.description || '',
+      publishedDate: normalizeDate(attributes.publishedDate),
+      projects,
+      attachments,
+      body,
+      _strapi: result,
+    };
+  });
+}
+
 export function transformNewsData(strapiNews) {
   const list = Array.isArray(strapiNews) ? strapiNews : strapiNews ? [strapiNews] : [];
 
@@ -1437,10 +1609,6 @@ export function transformProjectData(strapiProjects) {
       timeline: normalizeTimelineEntries(attributes.timeline),
       publications,
       resources,
-      // Map docUrl (schema) to docUrl (frontend)
-      docUrl: attributes.docUrl || attributes.doc_url || '',
-      // Map officialUrl (schema) to oficialUrl (legacy frontend typo)
-      oficialUrl: attributes.officialUrl || attributes.oficial_url || attributes.official_url || '',
       _strapi: project,
     };
   });
@@ -1703,7 +1871,6 @@ export function transformPartnerData(strapiPartners) {
           title: projectData.title || '',
           slug: projectData.slug || '',
           abstract: projectData.abstract || '',
-          featured: !!projectData.featured,
           isIndustryEngagement: !!projectData.isIndustryEngagement,
           heroImage: resolveMediaUrl(projectData.heroImage),
           domains: toArray(projectData.domains?.data ?? projectData.domains)

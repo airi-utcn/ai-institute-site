@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_project_contact_infos",
+  "info": {
+    "displayName": "Contact Info",
+    "description": "Contact information for a project",
+    "icon": "phone"
+  },
+  "options": {},
+  "attributes": {
+    "contactEntries": {
+      "type": "component",
+      "repeatable": true,
+      "component": "project.contact-entry"
+    },
+    "generalInfo": {
+      "type": "richtext"
+    }
+  }
+}

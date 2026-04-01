@@ -45,7 +45,7 @@ python main.py --person "Adrian Groza" --dry-run
 
 ## Documentation
 
-- [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md): detailed explanation of embeddings, FAISS, links, duplicates, and Louvain communities
+- [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md): detailed explanation of embeddings, similarity computation, links, duplicates, and Louvain communities
 - [docs/paper-sync-cli-guide.md](/home/shumy/Projects/ai-institute-site/docs/paper-sync-cli-guide.md): option-by-option CLI guide, usage patterns, and current caveats
 
 ## Dependency fallback

@@ -167,46 +167,9 @@ That normalization is what allows the FAISS inner-product index to behave as a c
 
 ### Step 4: Compare Each Paper Against The Whole Build Set
 
-After embeddings exist, the code computes cross-paper similarity.
+After embeddings exist, the code computes cross-paper similarity using a brute-force approach.
 
-There are two execution paths.
-
-#### Preferred Path: FAISS
-
-If FAISS is installed, the pipeline builds an `IndexFlatIP` index over the normalized embeddings in [research-paper-graph/research_paper_graph/graph.py](/home/shumy/Projects/ai-institute-site/research-paper-graph/research_paper_graph/graph.py#L76).
-
-Then, for each paper, it searches the top `k + 1` nearest neighbors, where the extra `1` accounts for the paper matching itself.
-
-This means the pipeline is not explicitly materializing the full $N \times N$ matrix when FAISS is available.
-
-Instead, it is doing this:
-
-1. retrieve the top nearest neighbors for each paper from the full set
-2. drop self-matches
-3. deduplicate symmetric pairs using `seen_pairs`
-4. keep only pairs whose score is at least `similarity_threshold`
-
-Important nuance:
-
-This is still comparing each paper against the full indexed set, but the output is limited to the nearest `top_k` candidates per paper before threshold filtering.
-
-So the final graph is not "all pairs above threshold" when FAISS mode is active. It is "all retained pairs that appear inside the top-k neighborhood searches and also exceed the threshold".
-
-FAISS uses the embedding vectors directly.
-
-The flow is:
-
-1. generate or reuse embeddings for the current build set
-2. normalize those vectors to unit length
-3. insert them into a FAISS inner-product index
-4. query nearest neighbors for each paper embedding
-5. convert returned neighbors into similarity links
-
-So FAISS is the mechanism that turns embeddings into candidate similar-paper pairs.
-
-#### Fallback Path: Brute Force
-
-If FAISS is not installed, the code computes the dense similarity matrix directly using:
+The pipeline computes the dense similarity matrix directly using:
 
 $$
 S = E E^T
@@ -214,9 +177,16 @@ $$
 
 where $E$ is the matrix of normalized embeddings.
 
-In that mode, the code does evaluate every pair `(i, j)` with `i < j` and keeps those above `similarity_threshold`.
+The code evaluates every pair `(i, j)` with `i < j` and keeps those above `similarity_threshold`.
 
-So the fallback mode is the true full pairwise comparison path.
+So this is the true full pairwise comparison path.
+
+The flow is:
+
+1. generate or reuse embeddings for the current build set
+2. normalize those vectors to unit length
+3. compute the full similarity matrix
+4. iterate through all pairs and convert to similarity links above threshold
 
 ## Duplicate Detection
 
@@ -262,8 +232,6 @@ Louvain does not operate directly on the embedding vectors.
 
 Instead, it operates on the weighted similarity graph that was already built from those embeddings.
 
-`detect_communities(...)` in [research-paper-graph/research_paper_graph/graph.py](/home/shumy/Projects/ai-institute-site/research-paper-graph/research_paper_graph/graph.py#L244) constructs an undirected NetworkX graph using only links where `is_duplicate` is false.
-
 Then it runs Louvain with a fixed seed for stability.
 
 The output is:
@@ -275,14 +243,9 @@ So communities are built from the final clean link graph, not directly from embe
 
 The flow is:
 
-1. embeddings produce similarity links
+1. embeddings produce similarity links via brute-force comparison
 2. non-duplicate similarity links become weighted graph edges
 3. Louvain partitions that weighted graph into communities
-
-So the roles are intentionally separated:
-
-- FAISS consumes embeddings directly
-- Louvain consumes the graph derived from those embeddings
 
 ## Embeddings Versus Links
 
@@ -310,10 +273,8 @@ They are produced from similarity comparisons between embeddings.
 They depend on:
 
 - which papers are included in the current build
-- whether FAISS or brute-force mode is used
 - `similarity_threshold`
 - `duplicate_threshold`
-- `top_k`
 
 So links are not stored inside the embedding. They are computed from the embedding set for the current build.
 
@@ -396,7 +357,6 @@ Known limitations:
 - embeddings are reused only when the current build is operating on Strapi-loaded publications with matching `embeddingModel` and `embeddingSourceHash`
 - the preview build and global build may both encode overlapping papers in the same run
 - papers without abstracts cannot participate in similarity or communities
-- with FAISS enabled, link generation is restricted to top-k neighbors per paper rather than all pairs above threshold
 - local `outputs/index_*.json` files are debugging artifacts, not the source of truth
 
 ## Practical Mental Model

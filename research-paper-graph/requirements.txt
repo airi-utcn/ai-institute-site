@@ -7,9 +7,6 @@ numpy>=1.24
 sentence-transformers>=2.2
 torch --index-url https://download.pytorch.org/whl/cpu
 
-# Approximate nearest neighbours
-faiss-cpu>=1.7
-
 # Community detection
 networkx>=3.1
 

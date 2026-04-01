@@ -75,7 +75,6 @@ def run(args):
     sim_thresh = SETTINGS.graph_similarity_threshold
     dup_thresh = SETTINGS.graph_duplicate_threshold
     model_name = SETTINGS.graph_ai_model
-    top_k = SETTINGS.graph_top_k
 
     papers, label = fetch_papers(args, logger=log, settings=SETTINGS)
     log.info(f"Fetched {len(papers)} papers ({label})")
@@ -90,7 +89,6 @@ def run(args):
         similarity_threshold=sim_thresh,
         duplicate_threshold=dup_thresh,
         model_name=model_name,
-        top_k=top_k,
         community_resolution=args.community_resolution,
         logger=log,
     )
@@ -121,7 +119,6 @@ def run(args):
         similarity_threshold=sim_thresh,
         duplicate_threshold=dup_thresh,
         model_name=model_name,
-        top_k=top_k,
         community_resolution=args.community_resolution,
         logger=log,
     )

@@ -75,17 +75,6 @@ def _load_sentence_transformer(model_name):
     return SentenceTransformer(model_name)
 
 
-def _get_faiss():
-    """Import FAISS when available."""
-    try:
-        import faiss
-
-        return faiss
-    except ImportError:
-        log.warning("faiss-cpu not installed — falling back to brute-force similarity")
-        return None
-
-
 def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
     """Generate embeddings for papers that have abstracts, reusing stored vectors when valid."""
     papers_with_text = [paper for paper in papers if paper.get("abstract")]
@@ -184,26 +173,13 @@ def _normalize_embeddings(embeddings):
     return embeddings / norms
 
 
-def build_faiss_index(embeddings):
-    """Build a FAISS inner-product index from normalized embeddings."""
-    faiss = _get_faiss()
-    if faiss is None or len(embeddings) == 0:
-        return None
-
-    dimension = embeddings.shape[1]
-    index = faiss.IndexFlatIP(dimension)
-    index.add(embeddings.astype(np.float32))
-    return index
-
-
 def generate_links(
     papers,
     similarity_threshold=0.5,
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
-    top_k=20,
 ):
-    """Compute similarity links between papers."""
+    """Compute similarity links between papers using brute-force similarity."""
     filtered_papers, embeddings = build_embeddings(papers, model_name)
 
     if len(embeddings) == 0:
@@ -212,71 +188,31 @@ def generate_links(
     links = []
     duplicate_pairs = []
 
-    faiss_index = build_faiss_index(embeddings)
+    log.info("Computing full similarity matrix...")
+    similarity_matrix = embeddings @ embeddings.T
 
-    if faiss_index is not None:
-        log.info(f"Querying FAISS index (top_k={top_k})...")
-        k = min(top_k + 1, len(filtered_papers))
-        scores, indices = faiss_index.search(embeddings.astype(np.float32), k)
+    for source_index in range(len(filtered_papers)):
+        for target_index in range(source_index + 1, len(filtered_papers)):
+            score = float(similarity_matrix[source_index][target_index])
+            if score < similarity_threshold:
+                continue
 
-        seen_pairs = set()
-        for source_index in range(len(filtered_papers)):
-            for rank in range(k):
-                target_index = int(indices[source_index][rank])
-                if target_index == source_index or target_index < 0:
-                    continue
+            is_duplicate = score >= duplicate_threshold
+            source_paper_id = paper_identifier(filtered_papers[source_index])
+            target_paper_id = paper_identifier(filtered_papers[target_index])
+            if is_duplicate:
+                duplicate_pairs.append((source_paper_id, target_paper_id))
 
-                pair = (min(source_index, target_index), max(source_index, target_index))
-                if pair in seen_pairs:
-                    continue
-                seen_pairs.add(pair)
-
-                score = float(scores[source_index][rank])
-                if score < similarity_threshold:
-                    continue
-
-                is_duplicate = score >= duplicate_threshold
-                source_paper_id = paper_identifier(filtered_papers[source_index])
-                target_paper_id = paper_identifier(filtered_papers[target_index])
-                if is_duplicate:
-                    duplicate_pairs.append((source_paper_id, target_paper_id))
-
-                links.append(
-                    {
-                        "source_paper_id": source_paper_id,
-                        "target_paper_id": target_paper_id,
-                        "source_title": filtered_papers[source_index]["title"],
-                        "target_title": filtered_papers[target_index]["title"],
-                        "score": round(score, 4),
-                        "is_duplicate": False,
-                    }
-                )
-    else:
-        log.info("Computing full similarity matrix (brute-force)...")
-        similarity_matrix = embeddings @ embeddings.T
-
-        for source_index in range(len(filtered_papers)):
-            for target_index in range(source_index + 1, len(filtered_papers)):
-                score = float(similarity_matrix[source_index][target_index])
-                if score < similarity_threshold:
-                    continue
-
-                is_duplicate = score >= duplicate_threshold
-                source_paper_id = paper_identifier(filtered_papers[source_index])
-                target_paper_id = paper_identifier(filtered_papers[target_index])
-                if is_duplicate:
-                    duplicate_pairs.append((source_paper_id, target_paper_id))
-
-                links.append(
-                    {
-                        "source_paper_id": source_paper_id,
-                        "target_paper_id": target_paper_id,
-                        "source_title": filtered_papers[source_index]["title"],
-                        "target_title": filtered_papers[target_index]["title"],
-                        "score": round(score, 4),
-                        "is_duplicate": False,
-                    }
-                )
+            links.append(
+                {
+                    "source_paper_id": source_paper_id,
+                    "target_paper_id": target_paper_id,
+                    "source_title": filtered_papers[source_index]["title"],
+                    "target_title": filtered_papers[target_index]["title"],
+                    "score": round(score, 4),
+                    "is_duplicate": False,
+                }
+            )
 
     duplicate_paper_ids, canonical_by_duplicate = _resolve_duplicate_groups(filtered_papers, duplicate_pairs)
 

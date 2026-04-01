@@ -40,7 +40,6 @@ def build_graph_artifacts(
     similarity_threshold=0.5,
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
-    top_k=20,
     community_resolution=1.0,
     output_dir="outputs",
     logger=None,
@@ -60,14 +59,13 @@ def build_graph_artifacts(
         )
 
     log.info(
-        f"Generating links (threshold={similarity_threshold}, dup={duplicate_threshold}, top_k={top_k})..."
+        f"Generating links (threshold={similarity_threshold}, dup={duplicate_threshold})..."
     )
     all_links, duplicate_ids, filtered_papers, embeddings = gg.generate_links(
         papers,
         similarity_threshold=similarity_threshold,
         duplicate_threshold=duplicate_threshold,
         model_name=model_name,
-        top_k=top_k,
     )
 
     if len(filtered_papers) > 0:

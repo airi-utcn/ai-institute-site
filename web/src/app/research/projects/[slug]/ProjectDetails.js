@@ -446,34 +446,6 @@ export default function ProjectDetails({ project }) {
           )}
         </motion.div>
 
-        {/* External Links */}
-        {(project.officialUrl || project.docUrl) && (
-          <motion.div variants={itemVariants} className="flex flex-wrap gap-3 mb-8">
-            {project.officialUrl && (
-              <a
-                href={project.officialUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <FaExternalLinkAlt className="w-4 h-4" />
-                <span>{t("officialWebsite")}</span>
-              </a>
-            )}
-            {project.docUrl && (
-              <a
-                href={project.docUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <FaFileAlt className="w-4 h-4" />
-                <span>{t("documentation")}</span>
-              </a>
-            )}
-          </motion.div>
-        )}
-
         {/* Tabs */}
         <motion.div variants={itemVariants} className="flex flex-wrap gap-2 mb-8">
           {tabs.map(tab => (

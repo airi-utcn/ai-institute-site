@@ -792,6 +792,7 @@ export async function getNewsArticles(options = {}) {
       pagination: pageSize ? { pageSize } : null,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+        author: PERSON_FLAT_POPULATE,
       },
     });
     const data = await fetchAPI(`/news-articles?${params.toString()}`);
@@ -1299,10 +1300,10 @@ export function transformNewsData(strapiNews) {
     const attrs = person?.attributes ?? person ?? {};
     return {
       id: person?.id ?? null,
-      name: attrs.name || '',
+      name: attrs.fullName || attrs.name || '',
       slug: attrs.slug || '',
       title: attrs.title || '',
-      image: resolveMediaUrl(attrs.profileImage),
+      image: resolveMediaUrl(attrs.portrait || attrs.profileImage),
     };
   };
 

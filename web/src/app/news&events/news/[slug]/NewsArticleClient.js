@@ -11,6 +11,7 @@ import GallerySlideshow from '@/components/shared/GallerySlideshow';
 export default function NewsArticleClient({ article }) {
   const t = useTranslations('news&events.news');
   const locale = useLocale();
+  const authorLabel = t.has('author') ? t('author') : 'By';
 
   const tr = (key, fallback, values) =>
     (t.has(`article.${key}`) ? t(`article.${key}`, values) : fallback);
@@ -96,14 +97,34 @@ export default function NewsArticleClient({ article }) {
               </div>
             )}
             {article.author && (
-              <div className="flex items-center gap-2">
-                <FaUser className="w-4 h-4" />
-                <Link
-                  href={`/people/${article.author.slug}`}
-                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                >
-                  {article.author.name}
-                </Link>
+              <div className="flex items-start gap-2">
+                <FaUser className="w-4 h-4 mt-0.5" />
+                {article.author.slug ? (
+                  <Link
+                    href={`/people/${article.author.slug}`}
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {authorLabel} {article.author.name}
+                    </span>
+                    {article.author.title && (
+                      <span className="block text-xs text-gray-400 dark:text-gray-500">
+                        {article.author.title}
+                      </span>
+                    )}
+                  </Link>
+                ) : (
+                  <div>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      {authorLabel} {article.author.name}
+                    </span>
+                    {article.author.title && (
+                      <span className="block text-xs text-gray-400 dark:text-gray-500">
+                        {article.author.title}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             )}
             {article.image && (

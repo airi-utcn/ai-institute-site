@@ -95,6 +95,8 @@
     "LatestNews": {
       "title": "Ultimele știri",
       "viewAll": "Vezi toate știrile →",
+      "viewArticle": "Vezi articolul",
+      "readMore": "Citește mai mult",
       "emptyState": "Articolele de știri vor apărea aici odată ce vor fi publicate.",
       "visitNews": "Vizitează Știri și Evenimente →"
     },
@@ -732,6 +734,7 @@
       "emptyState": "Nu există știri disponibile în acest moment.",
       "noImage": "Fără imagine",
       "readMore": "Citește mai mult",
+      "viewArticle": "Vezi articolul",
       "categories": {
         "all": "Toate",
         "announcement": "Anunțuri",
@@ -740,6 +743,15 @@
         "award": "Premii",
         "press": "Presă",
         "other": "Altele"
+      },
+      "article": {
+        "backToNews": "Înapoi la Știri",
+        "readOnLinkedIn": "Citește pe LinkedIn",
+        "gallery": "Galerie",
+        "tags": "Etichete",
+        "relatedProjects": "Proiecte conexe",
+        "featuredPeople": "Persoane prezentate",
+        "relatedDepartments": "Departamente conexe"
       }
     },
     "open-project-calls": {

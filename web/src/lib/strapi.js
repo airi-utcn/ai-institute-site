@@ -80,6 +80,30 @@ const resolveMediaUrl = (media) => {
   return `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 };
 
+const resolveMediaData = (media) => {
+  if (!media) return null;
+
+  const data = Array.isArray(media?.data) ? media.data[0] : media?.data ?? media;
+  if (!data) return null;
+
+  const attrs = data?.attributes ?? data ?? {};
+  const url = attrs.url;
+  if (!url) return null;
+
+  const fullUrl = /^https?:\/\//i.test(url) 
+    ? url 
+    : `${getStrapiPublicUrl()}${url.startsWith('/') ? url : `/${url}`}`;
+
+  return {
+    url: fullUrl,
+    mime: attrs.mime || '',
+    alt: attrs.alternativeText || '',
+    caption: attrs.caption || '',
+    width: attrs.width || null,
+    height: attrs.height || null,
+  };
+};
+
 const setPopulate = (params, baseKey, config = {}) => {
   const fields = Array.isArray(config.fields) ? config.fields : [];
 
@@ -768,6 +792,7 @@ export async function getNewsArticles(options = {}) {
       pagination: pageSize ? { pageSize } : null,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+        author: PERSON_FLAT_POPULATE,
       },
     });
     const data = await fetchAPI(`/news-articles?${params.toString()}`);
@@ -775,6 +800,58 @@ export async function getNewsArticles(options = {}) {
   } catch (error) {
     console.error('Failed to fetch news articles:', error);
     return [];
+  }
+}
+
+/**
+ * Get a single news article by slug with full body content
+ * @param {string} slug - The article's slug
+ * @returns {Promise<Object|null>} The news article or null if not found
+ */
+export async function getNewsArticleBySlug(slug) {
+  try {
+    if (!slug) return null;
+
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { slug: { $eq: slug } },
+      fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
+      populate: {
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
+        gallery: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] },
+        author: PERSON_FLAT_POPULATE,
+        relatedDepartments: DEPARTMENT_POPULATE,
+        relatedProjects: {
+          fields: ['title', 'slug', 'abstract', 'phase'],
+          populate: {
+            heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+          },
+        },
+        featuredPeople: PERSON_FLAT_POPULATE,
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.media': {
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.slider': {
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.quote': { fields: ['title', 'body'] },
+          },
+        },
+      },
+    });
+
+    const data = await fetchAPI(`/news-articles?${params.toString()}`);
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch news article by slug:', error);
+    return null;
   }
 }
 
@@ -1196,10 +1273,53 @@ export function transformNewsData(strapiNews) {
     return d.toISOString();
   };
 
+  const normalizeBodyBlocks = (blocks) =>
+    toArray(blocks)
+      .map((block) => {
+        if (!block || typeof block !== 'object') return null;
+        switch (block.__component) {
+          case 'shared.media':
+            return { ...block, file: resolveMediaData(block.file) || resolveMediaUrl(block.file) };
+          case 'shared.section':
+            return { ...block, media: resolveMediaData(block.media) || resolveMediaUrl(block.media) };
+          case 'shared.slider':
+            return { 
+              ...block, 
+              files: toArray(block.files)
+                .map(f => resolveMediaData(f) || resolveMediaUrl(f))
+                .filter(Boolean) 
+            };
+          default:
+            return block;
+        }
+      })
+      .filter(Boolean);
+
+  const normalizePerson = (person) => {
+    if (!person) return null;
+    const attrs = person?.attributes ?? person ?? {};
+    return {
+      id: person?.id ?? null,
+      name: attrs.fullName || attrs.name || '',
+      slug: attrs.slug || '',
+      title: attrs.title || '',
+      image: resolveMediaUrl(attrs.portrait || attrs.profileImage),
+    };
+  };
+
   return list
     .map((item) => {
       const attributes = item?.attributes ?? item ?? {};
       const tags = Array.isArray(attributes.tags) ? attributes.tags : [];
+      
+      // Related data (may not be present in listing queries)
+      const rawAuthor = attributes.author?.data ?? attributes.author ?? null;
+      const rawDepartments = attributes.relatedDepartments?.data ?? attributes.relatedDepartments ?? [];
+      const rawProjects = attributes.relatedProjects?.data ?? attributes.relatedProjects ?? [];
+      const rawPeople = attributes.featuredPeople?.data ?? attributes.featuredPeople ?? [];
+      const rawGallery = attributes.gallery?.data ?? attributes.gallery ?? [];
+      const rawBody = attributes.body ?? [];
+
       return {
         id: item?.id ?? null,
         title: attributes.title || '',
@@ -1210,6 +1330,26 @@ export function transformNewsData(strapiNews) {
         linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
         tags,
+        // Full article data
+        author: normalizePerson(rawAuthor),
+        gallery: toArray(rawGallery).map(resolveMediaUrl).filter(Boolean),
+        body: normalizeBodyBlocks(rawBody),
+        relatedDepartments: toArray(rawDepartments).map((d) => {
+          const da = d?.attributes ?? d ?? {};
+          return { id: d?.id, name: da.name || '', slug: da.slug || '' };
+        }),
+        relatedProjects: toArray(rawProjects).map((p) => {
+          const pa = p?.attributes ?? p ?? {};
+          return {
+            id: p?.id,
+            title: pa.title || '',
+            slug: pa.slug || '',
+            abstract: pa.abstract || '',
+            phase: pa.phase || '',
+            image: resolveMediaUrl(pa.heroImage),
+          };
+        }),
+        featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
         _strapi: item,
       };
     });

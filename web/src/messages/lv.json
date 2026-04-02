@@ -95,6 +95,8 @@
     "LatestNews": {
       "title": "Jaunākās ziņas",
       "viewAll": "Skatīt visas ziņas →",
+      "viewArticle": "Skatīt rakstu",
+      "readMore": "Lasīt vairāk",
       "emptyState": "Ziņu raksti parādīsies šeit, tiklīdz tie būs publicēti.",
       "visitNews": "Apmeklēt Jaunumi un notikumi →"
     },
@@ -732,6 +734,16 @@
       "emptyState": "Šobrīd ziņu nav.",
       "noImage": "Nav attēla",
       "readMore": "Lasīt vairāk",
+      "viewArticle": "Skatīt rakstu",
+      "article": {
+        "backToNews": "Atpakaļ uz jaunumiem",
+        "readOnLinkedIn": "Lasīt LinkedIn",
+        "gallery": "Galerija",
+        "tags": "Birkas",
+        "relatedProjects": "Saistītie projekti",
+        "featuredPeople": "Iezīmētās personas",
+        "relatedDepartments": "Saistītās nodaļas"
+      },
       "categories": {
         "all": "Visi",
         "announcement": "Paziņojumi",

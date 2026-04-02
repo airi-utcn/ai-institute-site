@@ -95,6 +95,9 @@
     "LatestNews": {
       "title": "Последни новини",
       "viewAll": "Вижте всички новини →",
+      "viewArticle": "Вижте статията",
+      "readMore": "Прочетете повече",
+      "viewArticle": "Вижте статията",
       "emptyState": "Новинарските статии ще се появят тук след публикуването им.",
       "visitNews": "Посетете Новини и Събития →"
     },
@@ -732,6 +735,7 @@
       "emptyState": "Няма налични новини в момента.",
       "noImage": "Няма изображение",
       "readMore": "Прочетете повече",
+      "viewArticle": "Вижте статията",
       "categories": {
         "all": "Всички",
         "announcement": "Обявления",
@@ -740,6 +744,15 @@
         "award": "Награди",
         "press": "Преса",
         "other": "Други"
+      },
+      "article": {
+        "backToNews": "Обратно към новините",
+        "readOnLinkedIn": "Прочетете в LinkedIn",
+        "gallery": "Галерия",
+        "tags": "Етикети",
+        "relatedProjects": "Свързани проекти",
+        "featuredPeople": "Представени хора",
+        "relatedDepartments": "Свързани отдели"
       }
     },
     "open-project-calls": {

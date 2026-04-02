@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
+import { FaUser } from "react-icons/fa";
 
 const motionCard = {
   hidden: { y: 10, opacity: 0 },
@@ -30,6 +32,7 @@ export default function NewsClient({ newsItems = [] }) {
 
   const t = useTranslations("news&events.news");
   const locale = useLocale();
+  const authorLabel = t.has("author") ? t("author") : "By";
 
   // Moved inside the component to access the current locale dynamically
   const formatDate = (value) => {
@@ -44,6 +47,28 @@ export default function NewsClient({ newsItems = [] }) {
     const knownKeys = ["announcement", "construction", "collaboration", "award", "press", "other"];
     const key = knownKeys.includes(value) ? value : "other";
     return t(`categories.${key}`);
+  };
+
+  const renderAuthor = (author, textClassName) => {
+    if (!author?.name) return null;
+
+    const content = (
+      <span className={`inline-flex items-center gap-1.5 ${textClassName}`}>
+        <FaUser className="w-3.5 h-3.5" />
+        <span>
+          {authorLabel} <span className="font-semibold">{author.name}</span>
+          {author.title ? <span className="font-normal"> · {author.title}</span> : null}
+        </span>
+      </span>
+    );
+
+    if (!author.slug) return content;
+
+    return (
+      <Link href={`/people/${author.slug}`} className="inline-flex items-center hover:text-current transition-colors">
+        {content}
+      </Link>
+    );
   };
 
   const categories = useMemo(() => {
@@ -160,6 +185,7 @@ export default function NewsClient({ newsItems = [] }) {
                     </span>
                     {hero.date && <span className="text-white/80">{formatDate(hero.date)}</span>}
                   </div>
+                  {hero.author && <div className="text-sm">{renderAuthor(hero.author, "text-white/80")}</div>}
                   <h2 className="text-2xl font-semibold leading-snug">{hero.title}</h2>
                   {hero.summary && <p className="text-white/85 text-sm max-w-2xl line-clamp-2">{hero.summary}</p>}
                   <div className="flex flex-wrap gap-2 pt-2">
@@ -170,23 +196,30 @@ export default function NewsClient({ newsItems = [] }) {
                         </span>
                       ))}
                   </div>
-                  <div className="pt-2">
-                    {hasNewsLink(hero.linkUrl) ? (
+                  <div className="flex flex-wrap items-center gap-4 pt-3">
+                    {hero.slug && (
+                      <Link
+                        href={`/news&events/news/${hero.slug}`}
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200 transition-colors"
+                      >
+                        {t("viewArticle")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                        </svg>
+                      </Link>
+                    )}
+                    {hasNewsLink(hero.linkUrl) && (
                       <a
                         href={hero.linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:text-blue-200"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white transition-colors"
                       >
                         {t("readStory")}
                         <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
                           <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
                         </svg>
                       </a>
-                    ) : (
-                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-white/70">
-                        {t("readStory")}
-                      </span>
                     )}
                   </div>
                 </div>
@@ -208,23 +241,30 @@ export default function NewsClient({ newsItems = [] }) {
                     </span>
                   ))}
                 </div>
-                <div className="pt-2">
-                  {hasNewsLink(hero.linkUrl) ? (
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  {hero.slug && (
+                    <Link
+                      href={`/news&events/news/${hero.slug}`}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      {t("viewArticle")}
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                        <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                      </svg>
+                    </Link>
+                  )}
+                  {hasNewsLink(hero.linkUrl) && (
                     <a
                       href={hero.linkUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-600 dark:text-yellow-400 hover:underline"
                     >
                       {t("openArticle")}
                       <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
                         <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
                       </svg>
                     </a>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
-                      {t("openArticle")}
-                    </span>
                   )}
                 </div>
               </div>
@@ -258,6 +298,7 @@ export default function NewsClient({ newsItems = [] }) {
 
                   <div className="flex-1 p-5 space-y-3">
                     {item.date && <div className="text-xs uppercase tracking-[0.15em] text-gray-500">{formatDate(item.date)}</div>}
+                    {item.author && <div className="text-sm text-gray-500 dark:text-gray-400">{renderAuthor(item.author, "text-gray-500 dark:text-gray-400")}</div>}
                     <h3 className="text-lg font-semibold leading-snug line-clamp-2">{item.title}</h3>
                     {item.summary && <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">{item.summary}</p>}
                     <div className="flex flex-wrap gap-2 pt-1">
@@ -269,23 +310,30 @@ export default function NewsClient({ newsItems = [] }) {
                     </div>
                   </div>
 
-                  <div className="px-5 pb-5">
-                    {hasNewsLink(item.linkUrl) ? (
+                  <div className="px-5 pb-5 flex flex-wrap items-center gap-4">
+                    {item.slug && (
+                      <Link
+                        href={`/news&events/news/${item.slug}`}
+                        className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
+                      >
+                        {t("viewArticle")}
+                        <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                          <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                        </svg>
+                      </Link>
+                    )}
+                    {hasNewsLink(item.linkUrl) && (
                       <a
                         href={item.linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="link-accent inline-flex items-center gap-2 text-sm font-semibold"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
                       >
                         {t("readMore")}
                         <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
                           <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
                         </svg>
                       </a>
-                    ) : (
-                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-400 dark:text-gray-500">
-                        {t("readMore")}
-                      </span>
                     )}
                   </div>
                 </motion.article>

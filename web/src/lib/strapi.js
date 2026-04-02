@@ -80,6 +80,30 @@ const resolveMediaUrl = (media) => {
   return `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 };
 
+const resolveMediaData = (media) => {
+  if (!media) return null;
+
+  const data = Array.isArray(media?.data) ? media.data[0] : media?.data ?? media;
+  if (!data) return null;
+
+  const attrs = data?.attributes ?? data ?? {};
+  const url = attrs.url;
+  if (!url) return null;
+
+  const fullUrl = /^https?:\/\//i.test(url) 
+    ? url 
+    : `${getStrapiPublicUrl()}${url.startsWith('/') ? url : `/${url}`}`;
+
+  return {
+    url: fullUrl,
+    mime: attrs.mime || '',
+    alt: attrs.alternativeText || '',
+    caption: attrs.caption || '',
+    width: attrs.width || null,
+    height: attrs.height || null,
+  };
+};
+
 const setPopulate = (params, baseKey, config = {}) => {
   const fields = Array.isArray(config.fields) ? config.fields : [];
 
@@ -808,13 +832,13 @@ export async function getNewsArticleBySlug(slug) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.quote': { fields: ['title', 'body'] },
           },
@@ -1254,11 +1278,16 @@ export function transformNewsData(strapiNews) {
         if (!block || typeof block !== 'object') return null;
         switch (block.__component) {
           case 'shared.media':
-            return { ...block, file: resolveMediaUrl(block.file) };
+            return { ...block, file: resolveMediaData(block.file) || resolveMediaUrl(block.file) };
           case 'shared.section':
-            return { ...block, media: resolveMediaUrl(block.media) };
+            return { ...block, media: resolveMediaData(block.media) || resolveMediaUrl(block.media) };
           case 'shared.slider':
-            return { ...block, files: toArray(block.files).map(resolveMediaUrl).filter(Boolean) };
+            return { 
+              ...block, 
+              files: toArray(block.files)
+                .map(f => resolveMediaData(f) || resolveMediaUrl(f))
+                .filter(Boolean) 
+            };
           default:
             return block;
         }

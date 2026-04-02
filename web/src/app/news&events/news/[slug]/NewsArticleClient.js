@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaExternalLinkAlt, FaCalendar, FaUser, FaTag, FaLinkedin } from 'react-icons/fa';
 import { useTranslations, useLocale } from 'next-intl';
 import BodyContentImage from '@/components/shared/BodyContentImage';
+import MediaPlayer from '@/components/shared/MediaPlayer';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 
@@ -168,8 +169,8 @@ export default function NewsArticleClient({ article }) {
                     
                     {block.media && (
                       <figure className="mt-8 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                        <BodyContentImage
-                          src={block.media}
+                        <MediaPlayer
+                          media={block.media}
                           alt={block.heading || article.title}
                           className="w-full"
                           portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
@@ -184,8 +185,8 @@ export default function NewsArticleClient({ article }) {
               if (block.__component === 'shared.media' && block.file) {
                 return (
                   <figure key={`media-${index}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-4">
-                    <BodyContentImage
-                      src={block.file}
+                    <MediaPlayer
+                      media={block.file}
                       alt={article.title}
                       className="rounded-xl"
                       portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
@@ -200,9 +201,9 @@ export default function NewsArticleClient({ article }) {
                   <div key={`slider-${index}`} className="grid gap-4 sm:grid-cols-2">
                     {block.files.map((file, fileIndex) => (
                       <figure key={`slider-file-${index}-${fileIndex}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900">
-                        <BodyContentImage
-                          src={file}
-                          alt={`${article.title} image ${fileIndex + 1}`}
+                        <MediaPlayer
+                          media={file}
+                          alt={`${article.title} media ${fileIndex + 1}`}
                           landscapeClassName="aspect-video w-full object-cover"
                           portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
                         />

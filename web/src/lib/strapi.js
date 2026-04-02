@@ -779,6 +779,58 @@ export async function getNewsArticles(options = {}) {
 }
 
 /**
+ * Get a single news article by slug with full body content
+ * @param {string} slug - The article's slug
+ * @returns {Promise<Object|null>} The news article or null if not found
+ */
+export async function getNewsArticleBySlug(slug) {
+  try {
+    if (!slug) return null;
+
+    const params = createParams({
+      publicationState: 'preview',
+      filters: { slug: { $eq: slug } },
+      fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
+      populate: {
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
+        gallery: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] },
+        author: PERSON_FLAT_POPULATE,
+        relatedDepartments: DEPARTMENT_POPULATE,
+        relatedProjects: {
+          fields: ['title', 'slug', 'abstract', 'phase'],
+          populate: {
+            heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+          },
+        },
+        featuredPeople: PERSON_FLAT_POPULATE,
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.media': {
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.slider': {
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+            },
+            'shared.quote': { fields: ['title', 'body'] },
+          },
+        },
+      },
+    });
+
+    const data = await fetchAPI(`/news-articles?${params.toString()}`);
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch news article by slug:', error);
+    return null;
+  }
+}
+
+/**
  * Get publications by author slug
  * @param {string} authorSlug - The author's slug
  * @returns {Promise<Array>} Array of publications by the author
@@ -1196,10 +1248,48 @@ export function transformNewsData(strapiNews) {
     return d.toISOString();
   };
 
+  const normalizeBodyBlocks = (blocks) =>
+    toArray(blocks)
+      .map((block) => {
+        if (!block || typeof block !== 'object') return null;
+        switch (block.__component) {
+          case 'shared.media':
+            return { ...block, file: resolveMediaUrl(block.file) };
+          case 'shared.section':
+            return { ...block, media: resolveMediaUrl(block.media) };
+          case 'shared.slider':
+            return { ...block, files: toArray(block.files).map(resolveMediaUrl).filter(Boolean) };
+          default:
+            return block;
+        }
+      })
+      .filter(Boolean);
+
+  const normalizePerson = (person) => {
+    if (!person) return null;
+    const attrs = person?.attributes ?? person ?? {};
+    return {
+      id: person?.id ?? null,
+      name: attrs.name || '',
+      slug: attrs.slug || '',
+      title: attrs.title || '',
+      image: resolveMediaUrl(attrs.profileImage),
+    };
+  };
+
   return list
     .map((item) => {
       const attributes = item?.attributes ?? item ?? {};
       const tags = Array.isArray(attributes.tags) ? attributes.tags : [];
+      
+      // Related data (may not be present in listing queries)
+      const rawAuthor = attributes.author?.data ?? attributes.author ?? null;
+      const rawDepartments = attributes.relatedDepartments?.data ?? attributes.relatedDepartments ?? [];
+      const rawProjects = attributes.relatedProjects?.data ?? attributes.relatedProjects ?? [];
+      const rawPeople = attributes.featuredPeople?.data ?? attributes.featuredPeople ?? [];
+      const rawGallery = attributes.gallery?.data ?? attributes.gallery ?? [];
+      const rawBody = attributes.body ?? [];
+
       return {
         id: item?.id ?? null,
         title: attributes.title || '',
@@ -1210,6 +1300,26 @@ export function transformNewsData(strapiNews) {
         linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
         tags,
+        // Full article data
+        author: normalizePerson(rawAuthor),
+        gallery: toArray(rawGallery).map(resolveMediaUrl).filter(Boolean),
+        body: normalizeBodyBlocks(rawBody),
+        relatedDepartments: toArray(rawDepartments).map((d) => {
+          const da = d?.attributes ?? d ?? {};
+          return { id: d?.id, name: da.name || '', slug: da.slug || '' };
+        }),
+        relatedProjects: toArray(rawProjects).map((p) => {
+          const pa = p?.attributes ?? p ?? {};
+          return {
+            id: p?.id,
+            title: pa.title || '',
+            slug: pa.slug || '',
+            abstract: pa.abstract || '',
+            phase: pa.phase || '',
+            image: resolveMediaUrl(pa.heroImage),
+          };
+        }),
+        featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
         _strapi: item,
       };
     });

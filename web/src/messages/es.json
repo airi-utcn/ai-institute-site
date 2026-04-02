@@ -95,6 +95,9 @@
     "LatestNews": {
       "title": "Últimas Noticias",
       "viewAll": "Ver Todas las Noticias →",
+      "viewArticle": "Ver artículo",
+      "readMore": "Leer más",
+      "viewArticle": "Ver artículo",
       "emptyState": "Los artículos de noticias aparecerán aquí una vez publicados.",
       "visitNews": "Visitar Noticias y Eventos →"
     },
@@ -732,6 +735,7 @@
       "emptyState": "No hay noticias disponibles en este momento.",
       "noImage": "Sin imagen",
       "readMore": "Leer más",
+      "viewArticle": "Ver artículo",
       "categories": {
         "all": "Todas",
         "announcement": "Anuncios",
@@ -740,6 +744,15 @@
         "award": "Premios",
         "press": "Prensa",
         "other": "Otros"
+      },
+      "article": {
+        "backToNews": "Volver a las noticias",
+        "readOnLinkedIn": "Leer en LinkedIn",
+        "gallery": "Galería",
+        "tags": "Etiquetas",
+        "relatedProjects": "Proyectos relacionados",
+        "featuredPeople": "Personas destacadas",
+        "relatedDepartments": "Departamentos relacionados"
       }
     },
     "open-project-calls": {

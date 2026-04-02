@@ -95,6 +95,8 @@
     "LatestNews": {
       "title": "Τελευταία Νέα",
       "viewAll": "Προβολή Όλων των Νέων →",
+      "viewArticle": "Προβολή άρθρου",
+      "readMore": "Διαβάστε περισσότερα",
       "emptyState": "Τα άρθρα ειδήσεων θα εμφανιστούν εδώ μόλις δημοσιευτούν.",
       "visitNews": "Επισκεφθείτε Νέα & Εκδηλώσεις →"
     },
@@ -732,6 +734,16 @@
       "emptyState": "Δεν υπάρχουν διαθέσιμα νέα αυτή τη στιγμή.",
       "noImage": "Χωρίς εικόνα",
       "readMore": "Διαβάστε περισσότερα",
+      "viewArticle": "Προβολή άρθρου",
+      "article": {
+        "backToNews": "Επιστροφή στα Νέα",
+        "readOnLinkedIn": "Διαβάστε στο LinkedIn",
+        "gallery": "Συλλογή",
+        "tags": "Ετικέτες",
+        "relatedProjects": "Σχετικά έργα",
+        "featuredPeople": "Προβεβλημένα άτομα",
+        "relatedDepartments": "Σχετικά τμήματα"
+      },
       "categories": {
         "all": "Όλα",
         "announcement": "Ανακοινώσεις",

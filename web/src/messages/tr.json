@@ -95,6 +95,8 @@
     "LatestNews": {
       "title": "En Son Haberler",
       "viewAll": "Tüm Haberleri Gör →",
+      "viewArticle": "Makaleyi görüntüle",
+      "readMore": "Daha fazlasını oku",
       "emptyState": "Haber makaleleri yayınlandıklarında burada görünecektir.",
       "visitNews": "Haberler ve Etkinlikleri Ziyaret Et →"
     },
@@ -732,6 +734,16 @@
       "emptyState": "Şu anda mevcut haber yok.",
       "noImage": "Resim yok",
       "readMore": "Devamını oku",
+      "viewArticle": "Makaleyi görüntüle",
+      "article": {
+        "backToNews": "Haberlere geri dön",
+        "readOnLinkedIn": "LinkedIn'de oku",
+        "gallery": "Galeri",
+        "tags": "Etiketler",
+        "relatedProjects": "İlgili projeler",
+        "featuredPeople": "Öne çıkan kişiler",
+        "relatedDepartments": "İlgili bölümler"
+      },
       "categories": {
         "all": "Tümü",
         "announcement": "Duyurular",

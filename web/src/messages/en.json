@@ -95,6 +95,8 @@
     "LatestNews": {
       "title": "Latest News",
       "viewAll": "View All News →",
+      "viewArticle": "View article",
+      "readMore": "Read more",
       "emptyState": "News articles will appear here once published.",
       "visitNews": "Visit News & Events →"
     },
@@ -739,6 +741,7 @@
       "emptyState": "No news available at the moment.",
       "noImage": "No image",
       "readMore": "Read more",
+      "viewArticle": "View article",
       "categories": {
         "all": "All",
         "announcement": "Announcements",
@@ -747,6 +750,15 @@
         "award": "Awards",
         "press": "Press",
         "other": "Other"
+      },
+      "article": {
+        "backToNews": "Back to News",
+        "readOnLinkedIn": "Read on LinkedIn",
+        "gallery": "Gallery",
+        "tags": "Tags",
+        "relatedProjects": "Related Projects",
+        "featuredPeople": "Featured People",
+        "relatedDepartments": "Related Departments"
       }
     },
     "open-project-calls": {

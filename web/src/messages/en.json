@@ -565,6 +565,7 @@
           "clear": "Clear"
         },
         "activeProjects": "Active Projects",
+        "moreProjects": "+{count} more",
         "status": {
           "current": "Current",
           "former": "Former"

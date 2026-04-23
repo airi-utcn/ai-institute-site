@@ -767,7 +767,7 @@ function PartnersContent({ partners, CollaboratorsClient }) {
                               ))}
                               {p.projects.length > 3 && (
                                 <span className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium text-gray-500">
-                                  +{p.projects.length - 3} more
+                                  {tr('moreProjects', '+{count} more', { count: p.projects.length - 3 })}
                                 </span>
                               )}
                             </div>

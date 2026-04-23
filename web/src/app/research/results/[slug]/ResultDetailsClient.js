@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaDownload, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
 import { useTranslations } from 'next-intl';
 import BodyContentImage from '@/components/shared/BodyContentImage';
-import RichMarkdown from '@/components/shared/RichMarkdown';
+import DynamicBodyBlocks from '@/components/shared/DynamicBodyBlocks';
 
 export default function ResultDetailsClient({ result }) {
   const t = useTranslations('research.resultDetails');
@@ -104,77 +104,30 @@ export default function ResultDetailsClient({ result }) {
             
             {/* Dynamic Content Blocks */}
             {bodyBlocks.length > 0 && (
-              <section className="space-y-12">
-                {bodyBlocks.map((block, index) => {
-                  if (!block || typeof block !== 'object') return null;
-
-                  if (block.__component === 'shared.rich-text') {
-                    return (
-                      <div key={`rich-${index}`} className="prose-wrapper">
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                      </div>
-                    );
-                  }
-
-                  if (block.__component === 'shared.section') {
-                    return (
-                      <article key={`section-${index}`} className="space-y-6">
-                        <header>
-                          {block.heading && <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">{block.heading}</h3>}
-                          {block.subheading && <p className="text-lg text-gray-500 dark:text-gray-400">{block.subheading}</p>}
-                        </header>
-                        
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                        
-                        {block.media?.url && (
-                          <div className="mt-8 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                            <BodyContentImage
-                              src={block.media.url}
-                              alt={block.media.alt || block.heading || result.title}
-                              className="w-full"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                              landscapeClassName="w-full max-h-[36rem] object-cover"
-                            />
-                          </div>
-                        )}
-                      </article>
-                    );
-                  }
-
-                  if (block.__component === 'shared.media' && block.file?.url) {
-                    return (
-                      <figure key={`media-${index}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-4">
-                        <BodyContentImage
-                          src={block.file.url}
-                          alt={block.file.alt || result.title}
-                          className="rounded-xl"
-                          portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                          landscapeClassName="w-full max-h-[40rem] object-contain"
-                        />
-                      </figure>
-                    );
-                  }
-
-                  if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
-                    return (
-                      <div key={`slider-${index}`} className="grid gap-4 sm:grid-cols-2">
-                        {block.files.map((file, fileIndex) => (
-                          <figure key={`slider-file-${index}-${fileIndex}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900">
-                            <BodyContentImage
-                              src={file.url}
-                              alt={file.alt || `${result.title} media ${fileIndex + 1}`}
-                              landscapeClassName="aspect-video w-full object-cover"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            />
-                          </figure>
-                        ))}
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
-              </section>
+              <DynamicBodyBlocks
+                blocks={bodyBlocks}
+                markdownClassName={markdownClassName}
+                getAltFallback={(block, _index, fileIndex) =>
+                  typeof fileIndex === 'number'
+                    ? `${result.title} media ${fileIndex + 1}`
+                    : block?.heading || result.title
+                }
+                renderMedia={({ kind, src, alt }) => (
+                  <BodyContentImage
+                    src={src}
+                    alt={alt}
+                    className={kind === 'media' ? 'rounded-xl' : 'w-full'}
+                    portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
+                    landscapeClassName={
+                      kind === 'slider'
+                        ? 'aspect-video w-full object-cover'
+                        : kind === 'media'
+                        ? 'w-full max-h-[40rem] object-contain'
+                        : 'w-full max-h-[36rem] object-cover'
+                    }
+                  />
+                )}
+              />
             )}
 
             {/* Attachments */}

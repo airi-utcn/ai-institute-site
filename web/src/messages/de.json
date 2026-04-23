@@ -559,9 +559,17 @@
         "filters": {
           "searchPlaceholder": "Suche nach Partner, Land, Projekt",
           "allCountries": "Alle Länder",
+          "allStatuses": "Alle Status",
+          "currentPartners": "Aktuelle Partner",
+          "formerPartners": "Ehemalige Partner",
           "clear": "Zurücksetzen"
         },
         "activeProjects": "Aktive Projekte",
+        "moreProjects": "+{count} weitere",
+        "status": {
+          "current": "Aktiv",
+          "former": "Ehemalig"
+        },
         "actions": {
           "exploreProfile": "Profil ansehen",
           "visitWebsite": "Website besuchen"

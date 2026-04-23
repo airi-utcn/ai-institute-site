@@ -559,9 +559,17 @@
         "filters": {
           "searchPlaceholder": "Αναζήτηση ανά συνεργάτη, χώρα, έργο",
           "allCountries": "Όλες οι χώρες",
+          "allStatuses": "Όλες οι καταστάσεις",
+          "currentPartners": "Τρέχοντες συνεργάτες",
+          "formerPartners": "Πρώην συνεργάτες",
           "clear": "Καθαρισμός"
         },
         "activeProjects": "Ενεργά Έργα",
+        "moreProjects": "+{count} ακόμη",
+        "status": {
+          "current": "Τρέχων",
+          "former": "Πρώην"
+        },
         "actions": {
           "exploreProfile": "Εξερεύνηση Προφίλ",
           "visitWebsite": "Επισκεφθείτε τον ιστότοπο"

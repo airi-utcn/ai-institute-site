@@ -1,363 +1,136 @@
 # Development Setup Guide
 
-This guide covers detailed setup instructions and troubleshooting for developing the AI Institute website.
+This is the canonical setup guide for the main website repo. Use [README.md](README.md) for the high-level project overview, and use [research-paper-graph/README.md](research-paper-graph/README.md) for the publication sync pipeline.
 
-## Table of Contents
+## Prerequisites
 
-- [Environment Setup](#environment-setup)
-- [Running with Docker](#running-with-docker)
-- [Local Development](#local-development)
-- [Database and Migrations](#database-and-migrations)
-- [Strapi Development](#strapi-development)
-- [Next.js Development](#nextjs-development)
-- [Troubleshooting](#troubleshooting)
+Install the tools you need for the parts of the project you plan to work on:
+
+- Docker and Docker Compose
+- Node.js 18+ and npm
+- Python 3 and pip for the research-paper-graph package
+- Git
 
 ## Environment Setup
 
-### Prerequisites
-
-Ensure you have the following installed:
-- **Docker Desktop** (or Docker Engine + Docker Compose)
-- **Node.js 18+** and npm
-- **Git**
-- A code editor (VS Code recommended)
-
-### Environment Variables
-
 1. Copy the example environment file:
+
    ```bash
    cp .env.example .env
    ```
 
-2. Update the following variables in `.env`:
+2. Fill in the values in `.env`.
 
-   **For Development:**
-   - Update only the STRAPI_API_TOKEN with the key found in the admin pannel of Strapi (Settings -> API Tokens -> Read Only)
+   For local development, the important values are the Strapi URL fields and `STRAPI_API_TOKEN`. For production-like runs, also provide strong database passwords and the rest of the Strapi secrets.
 
-   **For Production:**
-   - Generate secure secrets for all Strapi keys:
-     ```bash
-     # Generate random strings
-     openssl rand -base64 32
-     ```
-   - Update `PUBLIC_STRAPI_URL` to your production domain
-   - Use strong database passwords
-   - Set `NODE_ENV=production`
-   - Update STRAPI_API_TOKEN same as in dev env.
+3. Create the Strapi API token in the admin panel after the first boot, then copy it into `.env`.
 
-## Running with Docker
+## Docker Workflows
 
-This project has **two Docker Compose configurations** with different purposes:
+There are two Compose files with different goals:
 
 | File | Purpose |
 |---|---|
-| `docker-compose.yml` | Simulates the **production environment** — full image builds, `npm start` / `next start`. Use this to verify production-like behavior. |
-| `docker-compose.dev.yml` | **Active development** — lightweight dev images with `strapi develop` and `next dev --turbopack`. File changes are synced instantly via Docker Compose Watch; no rebuilds needed. |
+| `docker-compose.yml` | Production-like build and runtime. Use this to validate the full stack with built assets. |
+| `docker-compose.dev.yml` | Active development with `strapi develop` and `next dev --turbopack`. |
 
-### Active Development (Recommended)
+The third prod file is specific to our hosting provider and should not be used locally. If anything, feel free to inspire yourself from it with the DB backup container or other gimmicks from there.
 
-Use Docker Compose Watch for day-to-day development. It syncs your local source files directly into the running containers, so Strapi's built-in watcher and Next.js's Turbopack HMR pick up changes instantly — **no image rebuilds required**.
+### Production-like run
 
 ```bash
-# First time: build dev images and start the watch loop
+docker compose up --build
+```
+
+Use this when you want to verify the full stack end to end. After Strapi starts, open `/strapi/admin`, create an admin user, and confirm that the frontend can read from the API.
+
+### Active development
+
+```bash
 docker compose -f docker-compose.dev.yml watch
+```
 
-# Ctrl+C stops the watch loop. Bring the stack down with:
+This mode syncs source files into the running containers and keeps the frontend and backend hot-reloading.
+
+**Be advised:** strapi schema changes will not be persisted to the codebase. Use the local development instructions below for schema work. The DB data will be different, since that mode of running strapi is left default to run on a SQLite instance, not on the postgres container. 
+
+To stop the stack:
+
+```bash
 docker compose -f docker-compose.dev.yml down
+```
 
-# View logs while watching (separate terminal)
+To inspect logs while developing:
+
+```bash
 docker compose -f docker-compose.dev.yml logs -f strapi
 docker compose -f docker-compose.dev.yml logs -f nextjs
 ```
 
-What gets synced automatically:
-- `server/src/` and `server/config/` → Strapi (reloads on save)
-- `web/src/` and `web/public/` → Next.js (HMR on save)
-- Either `package.json` → triggers a container rebuild (rare)
-
-### Production Simulation
-
-Use the default `docker-compose.yml` to test the full production build locally (full image builds, admin bundle compiled ahead of time, `npm start`).
-
-```bash
-# Build and start containers (can be run from anywhere in the project)
-docker compose up --build
-
-# Wait for Strapi to initialize (check logs for "Server started")
-# Then open http://localhost:1337 and create admin user. If it redirects wrong, try again
-# The frontend will be at http://localhost:3000
-
-# Start previously built containers (no rebuild)
-docker compose upand
-
-# Stop containers (Ctrl+C, then)
-docker compose down
-
-# Rebuild after changes
-docker compose up --build
-
-# View logs
-docker compose logs -f strapi
-docker compose logs -f nextjs
-```
-
-### Accessing Containers
-
-```bash
-# Enter Strapi container
-docker exec -it ai-institute-site-strapi-1 /bin/sh
-
-# Enter Next.js container
-docker exec -it ai-institute-site-web-1 /bin/sh
-
-# View database
-docker exec -it ai-institute-site-postgres-1 psql -U strapi -d strapi
-```
-
 ## Local Development
 
-Running services locally gives faster iteration, and allows Strapi schema changes, which will not be persisted if ran in containers. 
-Do keep in mind, you can really only work on services independently, so you can't test API calls and such. 
+Running services directly can be useful when you want to work outside Docker or focus on one service at a time.
 
-### Backend (Strapi)
+### Backend: Strapi
 
 ```bash
 cd server
-
-# Install dependencies
 npm install
-
-# Run in development mode (with auto-reload)
 npm run develop
-
-# Build admin panel
-npm run build
-
-# Run in production mode
-npm start
 ```
 
-**Strapi will be available at:**
-- Admin: http://localhost:1337/strapi/admin
-- API: http://localhost:1337/api
+Useful follow-ups:
 
-### Frontend (Next.js)
+- `npm run build` to rebuild the admin panel
+- `npm start` to run the production server
+
+Strapi is available at `http://localhost:1337/strapi/admin` and `http://localhost:1337/api`.
+
+As mentioned above, this mode does not use the postgres container, so the data will be different from the Docker runs. 
+
+### Frontend: Next.js
 
 ```bash
 cd web
-
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
-
-# Build for production
-npm run build
-
-# Run production build
-npm start
-
-# Generate static export
-npm run export
 ```
 
-**Next.js will be available at:**
-- http://localhost:3000
+Useful follow-ups:
 
-## Database and Migrations
+- `npm run build` to produce a production build
+- `npm start` to run the built app
+- `npm run export` to generate a static export
 
-### Migrating Legacy Data
+The frontend runs at `http://localhost:3000`.
 
-The project includes a script to import JSON data into Strapi. Serves as a good start for testing purposes. 
+### Research paper graph pipeline
 
-```bash
-# If using Docker:
-docker cp web/src/app/data ai-institute-site-strapi-1:/app/migration-data
-docker exec -it ai-institute-site-strapi-1 /bin/sh -c \
-  "MIGRATION_DATA_ROOT=/app/migration-data node /app/scripts/migrate-json.js"
+Use [research-paper-graph/README.md](research-paper-graph/README.md) for the full setup and CLI usage. That package reads the repository-root `.env`, so make sure the Strapi settings are in place before running it.
 
-# If running Strapi locally:
-cd server
-MIGRATION_DATA_ROOT=../web/src/app/data node scripts/migrate-json.js
-```
+## Data seeding
 
-This script:
-- Imports people, projects, publications, resources, etc.
-- Automatically publishes content
-- Is idempotent (safe to run multiple times)
+For the moment, we don't have a standardized way of seeding the database with some test data. This will likely be added in the future, but for now you can use the Strapi admin panel to create entries manually or ask the maintainers for a database dump with some sample data.
 
-### Database Operations
+### Backup and restore
 
 ```bash
-# Reset database (Docker)
-docker compose down -v  # Removes volumes, data WILL be lost.
-docker compose up --build
-
-# Backup database (custom format — required for pg_restore)
 docker exec ai-institute-site-postgres-1 pg_dump -U strapi -Fc strapi > backup.dump
-
-# Restore database
-# IMPORTANT: use pg_restore (not psql) and always pass -U, otherwise PostgreSQL
-# tries to connect as your OS user (e.g. root) and throws "role root does not exist".
 docker exec -i ai-institute-site-postgres-1 pg_restore -U strapi -d strapi < backup.dump
 ```
 
-## Strapi Development
-
-### Content Type Development
-
-Ideally, all changes should be made from the admin interface, but if you want to go "manual"...
-
-When creating or modifying content types:
-
-1. Edit files in `server/src/api/*/content-types/`
-2. Restart Strapi to apply changes:
-   ```bash
-   # Docker: requires rebuild
-   docker compose up --build
-
-   # Local: automatic reload in dev mode
-   npm run develop
-   ```
-
-3. Verify in admin panel
-4. Test API endpoints
-
-### Understanding Strapi States
-
-- **Draft** - Content exists but not published
-- **Published** - Content is live
-- Use `?publicationState=preview` in API calls to see both states
-
-### API Testing
-
-```bash
-# Get all published projects
-curl http://localhost:1337/api/projects
-
-# Get projects with populated relations
-curl http://localhost:1337/api/projects?populate=*
-
-# Preview draft and published content
-curl 'http://localhost:1337/api/projects?publicationState=preview'
-```
-
-### Admin Panel Tips
-
-- **First run:** Create an admin user at `/strapi/admin`
-- **Content types:** Manage in Content-Type Builder
-- **Permissions:** Configure in Settings > Roles
-- **Media:** Upload in Media Library
-
-## Next.js Development
-
-### Project Structure
-
-```
-web/src/
-├── app/              # App router pages
-│   ├── page.js      # Homepage
-│   ├── layout.js    # Root layout
-│   ├── about/       # About page
-│   ├── research/    # Research sections
-│   └── ...
-├── components/       # Reusable components
-└── lib/             # Utility functions
-    └── strapi.js    # Strapi API client
-```
-
-### Fetching Data from Strapi
-
-Check the Strapi.js file. Should give you info on how we roll at the moment. 
-
-### Environment Variables
-
-Next.js uses:
-- `PUBLIC_STRAPI_URL` - Strapi API endpoint
-- `STRAPI_API_TOKEN` - Authentication token (if required)
+If you reset the database with Docker, remember that `docker compose down -v` deletes volumes.
 
 ## Troubleshooting
 
-### Strapi Issues
+If Strapi schema changes do not appear, rebuild the containers with `docker compose up --build`.
 
-**Problem:** Schema changes not reflected
-```bash
-# Solution: Rebuild containers
-docker compose down
-docker compose up --build
-```
+If the frontend cannot reach Strapi, verify `PUBLIC_STRAPI_URL` and `STRAPI_API_TOKEN` in `.env`, then check the container logs.
 
-**Problem:** Can't access admin panel
-- Check `STRAPI_ADMIN_URL` in `.env` matches your path
-- Verify container is running: `docker compose ps`
-- Check logs: `docker compose logs strapi`
-
-**Problem:** API returns empty data
-- Verify content is published in admin panel
-- Check permissions in Settings > Roles > Public
-- Test with `?publicationState=preview`
-
-### Next.js Issues
-
-**Problem:** Can't fetch data from Strapi
-- Verify `PUBLIC_STRAPI_URL` in `.env`
-- Check Strapi is running and accessible
-- Test API endpoint directly with curl
-- Check docker logs
-
-**Problem:** Build fails
-```bash
-# Clear cache and rebuild
-cd web
-rm -rf .next
-npm run build
-```
-
-### Docker Issues
-
-**Problem:** Port already in use
-```bash
-# Find what's using the port
-lsof -i :3000
-lsof -i :1337
-
-# Stop the process or change ports in docker-compose.yml
-```
-
-**Problem:** Out of disk space
-```bash
-# Remove all containers, images and networks that are not running right now.
-# Be advised, you'll have to build from scratch afterwards. 
-docker system prune -a
-
-# Remove volumes (WARNING: deletes database)
-docker compose down -v
-```
-
-### Database Issues
-
-**Problem:** Connection refused
-- Verify PostgreSQL container is running
-- Check `DATABASE_HOST` matches service name in docker-compose.yml
-- Wait a few seconds for PostgreSQL to fully start
-
-**Problem:** Migration script fails
-- Ensure data directory path is correct
-- Check file permissions
-- Verify Strapi is fully started before running migration
-
-## Development Tips
-
-1. **Hot Reload:** Use `npm run develop` for Strapi and `npm run dev` for Next.js
-2. **Logs:** Always check logs when something doesn't work
-3. **Docker Volumes:** Data persists in volumes even when containers stop
-4. **Schema Changes:** Always require Strapi restart/rebuild
-5. **Git:** Don't commit `.env`, `node_modules`, or build artifacts
+If the migration script fails, make sure Strapi is fully running and that the data path is correct.
 
 ## Need More Help?
 
-- Check the [main README](./README.md)
-- Review [Strapi Documentation](https://docs.strapi.io/)
-- Review [Next.js Documentation](https://nextjs.org/docs)
-- Open an issue on GitHub
+- Review [CONTRIBUTING.md](CONTRIBUTING.md)
+- Review the [Strapi documentation](https://docs.strapi.io/)
+- Review the [Next.js documentation](https://nextjs.org/docs)

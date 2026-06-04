@@ -137,24 +137,52 @@ export function projectJsonLd(project) {
 // ─── ScholarlyArticle (publication) ──────────────────────────────────────────
 
 export function publicationJsonLd(pub) {
+  const authors = Array.isArray(pub.authors)
+    ? pub.authors
+        .map((author) => {
+          const authorName = typeof author === "string" ? author : author?.name || "";
+          if (!authorName) return null;
+
+          const affiliationName =
+            (typeof author === "object" && author?.affiliation?.name) ||
+            (typeof author === "object" && author?.departmentInfo?.name) ||
+            (typeof author === "object" && author?.department) ||
+            ORG_NAME;
+
+          return {
+            "@type": "Person",
+            name: authorName,
+            affiliation: {
+              "@type": "Organization",
+              name: affiliationName,
+            },
+          };
+        })
+        .filter(Boolean)
+    : [];
+
+  const identifier = pub.doi
+    ? [
+        {
+          "@type": "PropertyValue",
+          propertyID: "doi",
+          value: pub.doi,
+        },
+      ]
+    : [];
+
   const data = {
     "@context": "https://schema.org",
     "@type": "ScholarlyArticle",
     headline: pub.title,
+    description: pub.abstract || pub.description || "",
     url: `${SITE_URL}/research/publications/${pub.slug}`,
+    author: authors,
   };
 
   if (pub.year) data.datePublished = String(pub.year);
-  if (pub.description || pub.abstract) data.description = pub.description || pub.abstract;
   if (pub.domain) data.about = pub.domain;
-
-  const authors = Array.isArray(pub.authors)
-    ? pub.authors.map((a) => ({
-        "@type": "Person",
-        name: typeof a === "string" ? a : a?.name || "",
-      })).filter((a) => a.name)
-    : [];
-  if (authors.length) data.author = authors;
+  if (identifier.length) data.identifier = identifier;
 
   return data;
 }

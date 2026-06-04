@@ -18,6 +18,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   if (!slug) return { title: "Publication Not Found" };
+  const canonicalUrl = `/research/publications/${encodeURIComponent(slug)}`;
 
   try {
     const pubEntry = await getPublicationBySlug(slug);
@@ -37,10 +38,29 @@ export async function generateMetadata({ params }) {
     return {
       title: publication.title || "Publication",
       description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: `${publication.title} | AIRi @ UTCN`,
         description,
         type: "article",
+        url: canonicalUrl,
+        siteName: "AIRi @ UTCN",
+        images: [
+          {
+            url: "/homepage/hero5.png",
+            width: 1200,
+            height: 630,
+            alt: `${publication.title} | AIRi @ UTCN`,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${publication.title} | AIRi @ UTCN`,
+        description,
+        images: ["/homepage/hero5.png"],
       },
     };
   } catch {

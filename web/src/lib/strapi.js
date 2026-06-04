@@ -204,8 +204,19 @@ const createParams = ({ fields = [], populate = {}, filters = null, sort = null,
 
 const PERSON_FIELDS = ['firstName', 'lastName', 'slug', 'title', 'email', 'phone', 'type', 'scholarId', 'type_alumni', 'type_student', 'type_external', 'type_visiting'];
 
+const DEPARTMENT_POPULATE = {
+  fields: ['name', 'slug', 'summary', 'description'],
+};
+
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
+};
+
+const PERSON_WITH_DEPARTMENT_POPULATE = {
+  fields: PERSON_FIELDS,
+  populate: {
+    department: DEPARTMENT_POPULATE,
+  },
 };
 
 const PERSON_WITH_IMAGE_POPULATE = {
@@ -215,10 +226,6 @@ const PERSON_WITH_IMAGE_POPULATE = {
       fields: ['url', 'formats', 'alternativeText'],
     },
   },
-};
-
-const DEPARTMENT_POPULATE = {
-  fields: ['name', 'slug', 'summary', 'description'],
 };
 
 
@@ -1120,7 +1127,7 @@ export async function getPublications(options = {}) {
     // Kept for API compatibility with existing callers.
     void includeUnlisted;
 
-    setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
+    setPopulate(params, 'populate[authors]', PERSON_WITH_DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
     setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
@@ -1146,7 +1153,7 @@ export async function getPublicationBySlug(slug) {
     const params = new URLSearchParams();
     params.set('filters[slug][$eq]', slug);
     params.set('sort', 'year:desc');
-    setPopulate(params, 'populate[authors]', PERSON_FLAT_POPULATE);
+    setPopulate(params, 'populate[authors]', PERSON_WITH_DEPARTMENT_POPULATE);
     setPopulate(params, 'populate[projects]', {
       fields: ['title', 'slug'],
       populate: {
@@ -1637,11 +1644,20 @@ export function transformPublicationData(strapiPubs) {
 
     const authors = toArray(attributes.authors?.data ?? attributes.authors).map((author) => {
       const authorData = author?.attributes ?? author ?? {};
+      const departmentEntry = authorData.department?.data ?? authorData.department;
+      const departmentAttributes = departmentEntry?.attributes ?? departmentEntry ?? {};
+      const affiliationName = departmentAttributes.name || '';
       return {
         id: author?.id ?? null,
         slug: authorData.slug || '',
         // Construct name from firstName and lastName
         name: `${authorData.firstName || ''} ${authorData.lastName || ''}`.trim(),
+        affiliation: affiliationName
+          ? {
+              name: affiliationName,
+              slug: departmentAttributes.slug || '',
+            }
+          : null,
       };
     });
 

@@ -31,7 +31,8 @@
       "publications": "Publications",
       "thesis": "Thèses",
       "resources": "Ressources",
-      "paperGraph": "Paper Graph"
+      "paperGraph": "Paper Graph",
+      "peopleGraph": "Graphe des Personnes"
     },
     "newsMenu": {
       "news": "Actualités",

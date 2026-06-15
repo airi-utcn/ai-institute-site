@@ -167,6 +167,7 @@ export default function Navbar() {
     { href: '/research/thesis', label: t('researchMenu.thesis') },
     { href: '/resources', label: t('researchMenu.resources') },
     { href: '/research/paper-graph', label: t('researchMenu.paperGraph') },
+    { href: '/research/people-graph', label: t('researchMenu.peopleGraph') },
   ];
 
   const newsMenu = [

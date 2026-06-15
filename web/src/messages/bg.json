@@ -31,7 +31,8 @@
       "publications": "Публикации",
       "thesis": "Дисертации",
       "resources": "Ресурси",
-      "paperGraph": "Paper Graph"
+      "paperGraph": "Paper Graph",
+      "peopleGraph": "Граф на хората"
     },
     "newsMenu": {
       "news": "Новини",

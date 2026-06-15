@@ -31,7 +31,8 @@
       "publications": "Publikācijas",
       "thesis": "Disertācijas",
       "resources": "Resursi",
-      "paperGraph": "Paper Graph"
+      "paperGraph": "Paper Graph",
+      "peopleGraph": "Cilvēku grafs"
     },
     "newsMenu": {
       "news": "Jaunumi",

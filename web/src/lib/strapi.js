@@ -228,6 +228,17 @@ const PERSON_WITH_IMAGE_POPULATE = {
   },
 };
 
+// People-graph feature: keep relation payloads light. `fields: ['title']` on the
+// publication relation is important — without it Strapi would return heavy JSON
+// columns (abstract, embedding) for every authored paper. socialLinks is needed
+// so resolveScholarUrl() can find a Google Scholar profile when scholarId is absent.
+const PEOPLE_GRAPH_POPULATE = {
+  department: { fields: ['name', 'slug'] },
+  publications: { fields: ['title'] },
+  contributingProjects: { fields: ['title'] },
+  socialLinks: { fields: ['label', 'url', 'icon'] },
+};
+
 
 
 const PROJECT_POPULATE = {
@@ -472,6 +483,26 @@ export async function getStaffMember(slug) {
   } catch (error) {
     console.error('Failed to fetch staff member:', error);
     return null;
+  }
+}
+
+/**
+ * People-graph feature: fetch every person with the minimal fields and the
+ * publication / project relations needed to build the client-side collaboration
+ * graph. Co-authorship and co-project edges are derived in the browser from the
+ * shared publication/project ids returned here.
+ * @returns {Promise<Array>} Array of people with department + publications + contributingProjects
+ */
+export async function getPeopleGraphData() {
+  try {
+    return await fetchAllEntries('/people', {
+      fields: ['firstName', 'lastName', 'fullName', 'slug', 'type', 'title', 'scholarId'],
+      sort: 'lastName:asc,firstName:asc',
+      populate: PEOPLE_GRAPH_POPULATE,
+    });
+  } catch (error) {
+    console.error('Failed to fetch people graph data:', error);
+    return [];
   }
 }
 

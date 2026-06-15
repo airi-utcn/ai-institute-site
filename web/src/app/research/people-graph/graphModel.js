@@ -106,9 +106,21 @@ function groupByTeam(teams) {
 export function buildGraph(people = [], teams = []) {
   const departmentColors = buildDepartmentColors(people);
 
+  // Reverse the team->members list into person id -> [{ id, title }] so each
+  // node can carry its own teams for the detail panel and search.
+  const teamsByPerson = new Map();
+  teams.forEach((t) => {
+    if (!t || t.id == null) return;
+    (t.memberIds || []).forEach((pid) => {
+      if (!teamsByPerson.has(pid)) teamsByPerson.set(pid, []);
+      teamsByPerson.get(pid).push({ id: t.id, title: t.name || null });
+    });
+  });
+
   const nodes = people.map((p) => {
     const deptName = p.department?.name || null;
     const pubs = p.publications || [];
+    const personTeams = teamsByPerson.get(p.id) || [];
     return {
       id: p.id,
       slug: p.slug || null,
@@ -127,6 +139,8 @@ export function buildGraph(people = [], teams = []) {
       citationCount: p.scholarCitationCount || 0,
       projectCount: (p.contributingProjects || []).length,
       projects: (p.contributingProjects || []).map((x) => ({ id: x.id, title: x.title })),
+      teamCount: personTeams.length,
+      teams: personTeams,
       degree: 0,
     };
   });

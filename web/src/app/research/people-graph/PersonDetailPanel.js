@@ -33,10 +33,11 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 p-5 text-center">
+      <div className="grid grid-cols-4 gap-2 p-5 text-center">
         <Stat label="Collaborators" value={node.degree} />
         <Stat label="Publications" value={node.publicationCount} />
         <Stat label="Projects" value={node.projectCount} />
+        <Stat label="Teams" value={node.teamCount} />
       </div>
 
       {node.projects?.length > 0 && (
@@ -45,6 +46,18 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
             {node.projects.map((p) => (
               <li key={p.id} className="text-sm text-white/70">
                 {p.title}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {node.teams?.length > 0 && (
+        <Section title="Teams">
+          <ul className="space-y-1">
+            {node.teams.map((t) => (
+              <li key={t.id} className="text-sm text-white/70">
+                {t.title}
               </li>
             ))}
           </ul>

@@ -95,6 +95,17 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     return m;
   }, [nodes]);
 
+  const teamsIndex = useMemo(() => {
+    const m = new Map();
+    nodes.forEach((n) => {
+      (n.teams || []).forEach((t) => {
+        if (!m.has(t.id)) m.set(t.id, { id: t.id, title: t.title, memberIds: new Set() });
+        m.get(t.id).memberIds.add(n.id);
+      });
+    });
+    return m;
+  }, [nodes]);
+
   const departmentList = useMemo(
     () => Object.entries(departmentColors).sort((a, b) => a[0].localeCompare(b[0])),
     [departmentColors]
@@ -180,7 +191,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return { people: [], departments: [], projects: [] };
+    if (!q) return { people: [], departments: [], projects: [], teams: [] };
     return {
       people: nodes.filter((n) => n.name.toLowerCase().includes(q)).slice(0, 6),
       departments: Array.from(departmentsIndex.values())
@@ -189,11 +200,14 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       projects: Array.from(projectsIndex.values())
         .filter((p) => (p.title || "").toLowerCase().includes(q))
         .slice(0, 5),
+      teams: Array.from(teamsIndex.values())
+        .filter((t) => (t.title || "").toLowerCase().includes(q))
+        .slice(0, 4),
     };
-  }, [query, nodes, departmentsIndex, projectsIndex]);
+  }, [query, nodes, departmentsIndex, projectsIndex, teamsIndex]);
 
   const hasMatches =
-    matches.people.length || matches.departments.length || matches.projects.length;
+    matches.people.length || matches.departments.length || matches.projects.length || matches.teams.length;
 
   const selectedNode = selectedId != null ? nodeById.get(selectedId) : null;
   const selectedNeighbors = useMemo(() => {
@@ -366,6 +380,19 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                 ))}
               </SearchGroup>
             )}
+            {matches.teams.length > 0 && (
+              <SearchGroup label="Teams">
+                {matches.teams.map((t) => (
+                  <SearchRow
+                    key={`t${t.id}`}
+                    color="#74c0fc"
+                    label={t.title}
+                    hint={`${t.memberIds.size} people`}
+                    onSelect={() => applyGroupSelection({ type: "team", label: t.title, memberIds: t.memberIds })}
+                  />
+                ))}
+              </SearchGroup>
+            )}
           </div>
         )}
       </div>
@@ -373,7 +400,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       {/* Active group-selection banner */}
       {selection && (
         <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80">
-          <span className="text-white/40">{selection.type === "project" ? "Project" : "Department"}:</span>{" "}
+          <span className="text-white/40">{selection.type === "project" ? "Project" : selection.type === "team" ? "Team" : "Department"}:</span>{" "}
           <span className="font-medium">{selection.label}</span>{" "}
           <span className="text-white/40">({selection.memberIds.size})</span>
           <button onClick={() => setSelection(null)} className="ml-3 text-white/50 hover:text-white" aria-label="Clear">

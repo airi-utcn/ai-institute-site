@@ -31,7 +31,8 @@
       "publications": "Δημοσιεύσεις",
       "thesis": "Διατριβές",
       "resources": "Πόροι",
-      "paperGraph": "Paper Graph"
+      "paperGraph": "Paper Graph",
+      "peopleGraph": "People Graph"
     },
     "newsMenu": {
       "news": "Νέα",

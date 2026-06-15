@@ -30,7 +30,8 @@
       "projects": "科研项目",
       "publications": "学术出版物",
       "thesis": "学位论文",
-      "resources": "学术资源"
+      "resources": "学术资源",
+      "peopleGraph": "People Graph"
     },
     "newsMenu": {
       "news": "新闻动态",

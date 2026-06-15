@@ -328,7 +328,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   return (
     <main className="relative h-screen w-screen overflow-hidden" style={{ background: BG_COLOR }}>
       {/* Title + hint */}
-      <div className="pointer-events-none absolute left-5 top-4 z-10 hidden text-white sm:block">
+      <div className="pointer-events-none absolute left-5 top-4 z-10 hidden max-w-[calc(100vw-23rem)] text-white sm:block">
         <h1 className="text-lg font-semibold">AIRI People Graph</h1>
         <p className="text-xs text-white/50">
           {nodes.length} people · {links.length} collaborations · size = connections, glow = citations, ring = publications
@@ -336,7 +336,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       </div>
 
       {/* Search (people + departments + projects) */}
-      <div className="absolute right-5 top-4 z-20 w-80">
+      <div className="absolute left-5 right-5 top-4 z-20 sm:left-auto sm:w-80">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -399,11 +399,11 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
       {/* Active group-selection banner */}
       {selection && (
-        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80">
-          <span className="text-white/40">{selection.type === "project" ? "Project" : selection.type === "team" ? "Team" : "Department"}:</span>{" "}
-          <span className="font-medium">{selection.label}</span>{" "}
-          <span className="text-white/40">({selection.memberIds.size})</span>
-          <button onClick={() => setSelection(null)} className="ml-3 text-white/50 hover:text-white" aria-label="Clear">
+        <div className="absolute left-1/2 top-16 z-10 flex max-w-[calc(100vw-2.5rem)] -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80 lg:top-4">
+          <span className="shrink-0 text-white/40">{selection.type === "project" ? "Project" : selection.type === "team" ? "Team" : "Department"}:</span>
+          <span className="truncate font-medium">{selection.label}</span>
+          <span className="shrink-0 text-white/40">({selection.memberIds.size})</span>
+          <button onClick={() => setSelection(null)} className="ml-1.5 shrink-0 text-white/50 hover:text-white" aria-label="Clear">
             ✕
           </button>
         </div>

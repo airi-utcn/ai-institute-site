@@ -7,7 +7,7 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
   if (!node) return null;
 
   return (
-    <aside className="absolute top-0 right-0 z-20 h-full w-full max-w-sm overflow-y-auto border-l border-white/10 bg-[#0e1320]/95 backdrop-blur-sm text-white shadow-2xl">
+    <aside className="absolute top-0 right-0 z-20 h-full w-full overflow-y-auto border-l border-white/10 bg-[#0e1320]/95 backdrop-blur-sm text-white shadow-2xl sm:max-w-sm">
       <div className="flex items-start justify-between gap-3 p-5 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2">

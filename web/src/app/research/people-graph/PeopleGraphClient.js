@@ -328,7 +328,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   return (
     <main className="relative h-screen w-screen overflow-hidden" style={{ background: BG_COLOR }}>
       {/* Title + hint */}
-      <div className="pointer-events-none absolute left-5 top-4 z-10 text-white">
+      <div className="pointer-events-none absolute left-5 top-4 z-10 hidden text-white sm:block">
         <h1 className="text-lg font-semibold">AIRI People Graph</h1>
         <p className="text-xs text-white/50">
           {nodes.length} people · {links.length} collaborations · size = connections, glow = citations, ring = publications

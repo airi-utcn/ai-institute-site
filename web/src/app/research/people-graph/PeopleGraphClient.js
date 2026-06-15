@@ -298,6 +298,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
           (titles.length ? `: ${titles.join(", ")}${more > 0 ? ` +${more} more` : ""}` : "")
       );
     }
+    if (link.sharedTeams > 0) {
+      const titles = uniq(link.sharedTeamNames).filter(Boolean);
+      parts.push(
+        `${link.sharedTeams} shared team${link.sharedTeams > 1 ? "s" : ""}` +
+          (titles.length ? `: ${titles.join(", ")}` : "")
+      );
+    }
     return `<div style="max-width:280px;padding:6px 8px;border-radius:6px;background:#0e1320;color:#fff;font-size:12px;line-height:1.4;border:1px solid rgba(255,255,255,0.15)">
       <div style="font-weight:600;margin-bottom:2px">${escapeHtml(a)} &harr; ${escapeHtml(b)}</div>
       <div style="color:rgba(255,255,255,0.7)">${escapeHtml(parts.join(" · "))}</div>

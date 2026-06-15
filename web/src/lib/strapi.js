@@ -507,6 +507,27 @@ export async function getPeopleGraphData() {
 }
 
 /**
+ * Minimal team fetch for the people graph: each team's name plus the ids of its
+ * member people. Team membership lives on the team side (a repeatable component),
+ * so it can't be read off the person record — co-membership edges are derived in
+ * the browser from the shared team ids returned here.
+ * @returns {Promise<Array>} Array of teams with members[].person populated
+ */
+export async function getTeamsGraphData() {
+  try {
+    return await fetchAllEntries('/teams', {
+      fields: ['name', 'slug'],
+      populate: {
+        members: { populate: { person: { fields: ['id'] } } },
+      },
+    });
+  } catch (error) {
+    console.error('Failed to fetch teams graph data:', error);
+    return [];
+  }
+}
+
+/**
  * Get all teams a person is a member of, identified by their slug.
  * Filters server-side on the members[].person.slug component relation.
  * @param {string} slug - The person's slug

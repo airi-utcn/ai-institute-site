@@ -33,7 +33,7 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
         </button>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 p-5 text-center">
+      <div className="grid grid-cols-2 gap-2 p-5 text-center">
         <Stat label="Collaborators" value={node.degree} />
         <Stat label="Publications" value={node.publicationCount} />
         <Stat label="Projects" value={node.projectCount} />

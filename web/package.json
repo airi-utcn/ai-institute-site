@@ -10,12 +10,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next-intl": "^4.8.3",
+    "d3-force": "^3.0.0",
     "framer-motion": "^12.23.12",
     "jsonld": "^9.0.0",
     "leaflet": "^1.9.4",
     "markdown-to-jsx": "^9.6.1",
     "next": "^16.0.7",
+    "next-intl": "^4.8.3",
     "next-share": "^0.27.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

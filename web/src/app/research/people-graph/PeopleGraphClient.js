@@ -2,19 +2,68 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { forceCollide } from "d3-force";
 import PersonDetailPanel from "./PersonDetailPanel";
 
 // Canvas renderer touches `window`, so it must not be server-rendered.
-const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false });
+const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
+  ssr: false,
+});
 
 const BG_COLOR = "#0b0f17";
+
+// Velocity deadzone threshold. Nodes moving slower than this get braked toward
+// rest (see forceDeadzone); above it they move freely. Raise to suppress drift,
+// lower for more responsiveness.
+const MIN_VELOCITY = 1;
+
+// How hard to brake a node that's barely moving. This is the velocity
+// multiplier applied (per tick) as speed approaches zero; the braking ramps
+// smoothly from this value up to 1 at MIN_VELOCITY, so there's no abrupt
+// "snap". Lower = decays to rest faster/harder (more rigid); closer to 1 =
+// gentler, longer glide. 1 disables braking entirely.
+const DEADZONE_DAMP = 0.5;
+
+// Custom d3 force that bleeds off small velocities toward zero. Registered last
+// so it runs at the end of the force phase — AFTER every other force has
+// accumulated into vx/vy but BEFORE d3 integrates velocity into position.
+// (Doing this in onEngineTick is too late: positions have already been moved by
+// then, so touching the velocity there does nothing.)
+//
+// Instead of hard-stopping below the threshold (which looks rigid), we scale
+// velocity down — more the slower the node is already going — so residual
+// jitter eases to a standstill over a few frames while real forces above the
+// threshold pass through untouched.
+function forceDeadzone(minVelocity, damp) {
+  let nodes = [];
+  function force() {
+    for (const node of nodes) {
+      if (node.fx != null || node.fy != null) continue; // skip pinned/dragged
+      const speed = Math.hypot(node.vx || 0, node.vy || 0);
+      if (speed > 0 && speed < minVelocity) {
+        // factor: `damp` at speed≈0, ramping linearly to 1 at the threshold.
+        const factor = damp + (1 - damp) * (speed / minVelocity);
+        node.vx *= factor;
+        node.vy *= factor;
+      }
+    }
+  }
+  force.initialize = (_) => {
+    nodes = _;
+  };
+  return force;
+}
 
 const getId = (v) => (v && typeof v === "object" ? v.id : v);
 const uniq = (arr) => Array.from(new Set(arr));
 
 function hexToRgba(hex, alpha = 1) {
   let h = hex.replace("#", "");
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length === 3)
+    h = h
+      .split("")
+      .map((c) => c + c)
+      .join("");
   const r = parseInt(h.slice(0, 2), 16);
   const g = parseInt(h.slice(2, 4), 16);
   const b = parseInt(h.slice(4, 6), 16);
@@ -22,9 +71,10 @@ function hexToRgba(hex, alpha = 1) {
 }
 
 const escapeHtml = (s) =>
-  String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-const nodeRadius = (node) => 3 + Math.sqrt(node.degree || 0) * 1.6;
+  String(s).replace(
+    /[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+  );
 
 export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   const fgRef = useRef(null);
@@ -65,19 +115,30 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
   const maxPub = useMemo(
     () => nodes.reduce((mx, n) => Math.max(mx, n.publicationCount || 0), 0),
-    [nodes]
+    [nodes],
   );
   const maxCitations = useMemo(
     () => nodes.reduce((mx, n) => Math.max(mx, n.citationCount || 0), 0),
-    [nodes]
+    [nodes],
   );
+
+  // Scale node radius down as the graph grows so nodes don't overlap.
+  const nodeRadius = useMemo(() => {
+    const count = nodes.length;
+    const scale = count > 80 ? Math.max(0.65, 80 / count) : 1;
+    return (node) => (3 + Math.sqrt(node.degree || 0) * 1.6) * scale;
+  }, [nodes.length]);
 
   const departmentsIndex = useMemo(() => {
     const m = new Map();
     nodes.forEach((n) => {
       if (!n.departmentName) return;
       if (!m.has(n.departmentName)) {
-        m.set(n.departmentName, { name: n.departmentName, color: n.color, memberIds: new Set() });
+        m.set(n.departmentName, {
+          name: n.departmentName,
+          color: n.color,
+          memberIds: new Set(),
+        });
       }
       m.get(n.departmentName).memberIds.add(n.id);
     });
@@ -88,7 +149,8 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     const m = new Map();
     nodes.forEach((n) => {
       (n.projects || []).forEach((p) => {
-        if (!m.has(p.id)) m.set(p.id, { id: p.id, title: p.title, memberIds: new Set() });
+        if (!m.has(p.id))
+          m.set(p.id, { id: p.id, title: p.title, memberIds: new Set() });
         m.get(p.id).memberIds.add(n.id);
       });
     });
@@ -99,7 +161,8 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     const m = new Map();
     nodes.forEach((n) => {
       (n.teams || []).forEach((t) => {
-        if (!m.has(t.id)) m.set(t.id, { id: t.id, title: t.title, memberIds: new Set() });
+        if (!m.has(t.id))
+          m.set(t.id, { id: t.id, title: t.title, memberIds: new Set() });
         m.get(t.id).memberIds.add(n.id);
       });
     });
@@ -107,8 +170,9 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   }, [nodes]);
 
   const departmentList = useMemo(
-    () => Object.entries(departmentColors).sort((a, b) => a[0].localeCompare(b[0])),
-    [departmentColors]
+    () =>
+      Object.entries(departmentColors).sort((a, b) => a[0].localeCompare(b[0])),
+    [departmentColors],
   );
 
   const borderAlpha = (node) => {
@@ -127,13 +191,20 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     }
     if (hoverId == null && selection) {
       const set = selection.memberIds;
-      return { nodes: set, isLink: (l) => set.has(getId(l.source)) && set.has(getId(l.target)) };
+      return {
+        nodes: set,
+        isLink: (l) => set.has(getId(l.source)) && set.has(getId(l.target)),
+      };
     }
     const focusId = hoverId ?? selectedId;
     if (focusId != null) {
       const set = new Set([focusId]);
       (neighborIds.get(focusId) || []).forEach((n) => set.add(n));
-      return { nodes: set, isLink: (l) => getId(l.source) === focusId || getId(l.target) === focusId };
+      return {
+        nodes: set,
+        isLink: (l) =>
+          getId(l.source) === focusId || getId(l.target) === focusId,
+      };
     }
     return null;
   }, [hoverLink, hoverId, selection, selectedId, neighborIds]);
@@ -150,20 +221,44 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     return () => ro.disconnect();
   }, []);
 
-  // Force tuning: cap repulsion range so isolated nodes drift in close to the
-  // clusters instead of being flung to the edges; pull connected pairs tighter.
+  // Localize inter-node forces. The default charge (many-body) force has
+  // infinite range, so reheating the sim during a drag pushes every node
+  // outward forever. Capping distanceMax keeps repulsion to a local
+  // neighborhood, and a collision force only pushes nodes apart when they
+  // actually overlap — including unconnected nodes dragged over each other.
   useEffect(() => {
-    const fg = fgRef.current;
-    if (!fg || !size.width) return;
-    const charge = fg.d3Force("charge");
-    if (charge) {
-      charge.strength(-26);
-      charge.distanceMax(170);
-    }
-    const link = fg.d3Force("link");
-    if (link) link.distance((l) => 26 / (1 + (l.weight || 1)));
-    fg.d3ReheatSimulation?.();
-  }, [size.width, graphData]);
+    let raf;
+    const configure = () => {
+      const fg = fgRef.current;
+      if (!fg) {
+        raf = requestAnimationFrame(configure);
+        return;
+      }
+      // Charge keeps medium-range spacing; distanceMin stops it from spiking
+      // (1/r²) at very close range, so it doesn't fight collide and cause
+      // jitter. Collide handles short-range overlap with a gentle strength so
+      // it eases nodes apart instead of snapping them.
+      fg.d3Force("charge")?.distanceMax(150).distanceMin(12);
+      fg.d3Force(
+        "collide",
+        forceCollide((n) => nodeRadius(n) + 2)
+          .strength(0.6)
+          .iterations(2),
+      );
+      // Drop the global centering force. It re-translates every node each tick
+      // to keep the centroid centered, so dragging one node drifts the whole
+      // graph. Removing it leaves only local forces, so untouched nodes stay
+      // put. Initial framing is handled by zoomToFit in onEngineStop.
+      fg.d3Force("center", null);
+      // Deadzone runs last in the force phase, so it clamps tiny velocities
+      // right before d3 integrates them into position — actually stopping the
+      // jitter (unlike onEngineTick, which fires after positions move).
+      fg.d3Force("deadzone", forceDeadzone(MIN_VELOCITY, DEADZONE_DAMP));
+      fg.d3ReheatSimulation();
+    };
+    configure();
+    return () => cancelAnimationFrame(raf);
+  }, [graphData, nodeRadius]);
 
   const focusNode = (node) => {
     if (!node) return;
@@ -207,7 +302,10 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   }, [query, nodes, departmentsIndex, projectsIndex, teamsIndex]);
 
   const hasMatches =
-    matches.people.length || matches.departments.length || matches.projects.length || matches.teams.length;
+    matches.people.length ||
+    matches.departments.length ||
+    matches.projects.length ||
+    matches.teams.length;
 
   const selectedNode = selectedId != null ? nodeById.get(selectedId) : null;
   const selectedNeighbors = useMemo(() => {
@@ -229,7 +327,14 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     const cit = node.citationCount || 0;
     if (!dim && cit > 0 && maxCitations > 0) {
       const glowR = r + 2 + (Math.sqrt(cit) / Math.sqrt(maxCitations)) * 16;
-      const grad = ctx.createRadialGradient(node.x, node.y, r * 0.6, node.x, node.y, glowR);
+      const grad = ctx.createRadialGradient(
+        node.x,
+        node.y,
+        r * 0.6,
+        node.x,
+        node.y,
+        glowR,
+      );
       grad.addColorStop(0, hexToRgba(node.color, 0.4));
       grad.addColorStop(1, hexToRgba(node.color, 0));
       ctx.fillStyle = grad;
@@ -270,7 +375,11 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
         const fs2 = 8 / globalScale;
         ctx.font = `${fs2}px ui-sans-serif, system-ui, sans-serif`;
         ctx.fillStyle = hexToRgba("#ffffff", 0.5);
-        ctx.fillText(node.title || node.departmentName, node.x, node.y + r + fs + 2 / globalScale);
+        ctx.fillText(
+          node.title || node.departmentName,
+          node.x,
+          node.y + r + fs + 2 / globalScale,
+        );
       }
     }
   };
@@ -284,7 +393,9 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
   const linkColor = (link) => {
     if (!highlight) return hexToRgba("#9db4d6", 0.28);
-    return highlight.isLink(link) ? hexToRgba("#ffd43b", 0.9) : hexToRgba("#9db4d6", 0.07);
+    return highlight.isLink(link)
+      ? hexToRgba("#ffd43b", 0.9)
+      : hexToRgba("#9db4d6", 0.07);
   };
 
   const linkWidth = (link) => {
@@ -301,22 +412,26 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       const titles = uniq(link.sharedProjectTitles).filter(Boolean);
       parts.push(
         `${link.sharedProjects} shared project${link.sharedProjects > 1 ? "s" : ""}` +
-          (titles.length ? `: ${titles.join(", ")}` : "")
+          (titles.length ? `: ${titles.join(", ")}` : ""),
       );
     }
     if (link.sharedPublications > 0) {
-      const titles = uniq(link.sharedPublicationTitles).filter(Boolean).slice(0, 3);
+      const titles = uniq(link.sharedPublicationTitles)
+        .filter(Boolean)
+        .slice(0, 3);
       const more = uniq(link.sharedPublicationTitles).length - titles.length;
       parts.push(
         `${link.sharedPublications} shared publication${link.sharedPublications > 1 ? "s" : ""}` +
-          (titles.length ? `: ${titles.join(", ")}${more > 0 ? ` +${more} more` : ""}` : "")
+          (titles.length
+            ? `: ${titles.join(", ")}${more > 0 ? ` +${more} more` : ""}`
+            : ""),
       );
     }
     if (link.sharedTeams > 0) {
       const titles = uniq(link.sharedTeamNames).filter(Boolean);
       parts.push(
         `${link.sharedTeams} shared team${link.sharedTeams > 1 ? "s" : ""}` +
-          (titles.length ? `: ${titles.join(", ")}` : "")
+          (titles.length ? `: ${titles.join(", ")}` : ""),
       );
     }
     return `<div style="max-width:280px;padding:6px 8px;border-radius:6px;background:#0e1320;color:#fff;font-size:12px;line-height:1.4;border:1px solid rgba(255,255,255,0.15)">
@@ -326,12 +441,16 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   };
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden" style={{ background: BG_COLOR }}>
+    <main
+      className="relative h-screen w-screen overflow-hidden"
+      style={{ background: BG_COLOR }}
+    >
       {/* Title + hint */}
       <div className="pointer-events-none absolute left-5 top-4 z-10 hidden max-w-[calc(100vw-23rem)] text-white sm:block">
         <h1 className="text-lg font-semibold">AIRI People Graph</h1>
         <p className="text-xs text-white/50">
-          {nodes.length} people · {links.length} collaborations · size = connections, glow = citations, ring = publications
+          {nodes.length} people · {links.length} collaborations · size =
+          connections, glow = citations, ring = publications
         </p>
       </div>
 
@@ -350,7 +469,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
             {matches.people.length > 0 && (
               <SearchGroup label="People">
                 {matches.people.map((n) => (
-                  <SearchRow key={`p${n.id}`} color={n.color} label={n.name} hint={n.departmentName} onSelect={() => focusNode(n)} />
+                  <SearchRow
+                    key={`p${n.id}`}
+                    color={n.color}
+                    label={n.name}
+                    hint={n.departmentName}
+                    onSelect={() => focusNode(n)}
+                  />
                 ))}
               </SearchGroup>
             )}
@@ -362,7 +487,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                     color={d.color}
                     label={d.name}
                     hint={`${d.memberIds.size} people`}
-                    onSelect={() => applyGroupSelection({ type: "department", label: d.name, memberIds: d.memberIds })}
+                    onSelect={() =>
+                      applyGroupSelection({
+                        type: "department",
+                        label: d.name,
+                        memberIds: d.memberIds,
+                      })
+                    }
                   />
                 ))}
               </SearchGroup>
@@ -375,7 +506,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                     color="#ffd43b"
                     label={p.title}
                     hint={`${p.memberIds.size} people`}
-                    onSelect={() => applyGroupSelection({ type: "project", label: p.title, memberIds: p.memberIds })}
+                    onSelect={() =>
+                      applyGroupSelection({
+                        type: "project",
+                        label: p.title,
+                        memberIds: p.memberIds,
+                      })
+                    }
                   />
                 ))}
               </SearchGroup>
@@ -388,7 +525,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                     color="#74c0fc"
                     label={t.title}
                     hint={`${t.memberIds.size} people`}
-                    onSelect={() => applyGroupSelection({ type: "team", label: t.title, memberIds: t.memberIds })}
+                    onSelect={() =>
+                      applyGroupSelection({
+                        type: "team",
+                        label: t.title,
+                        memberIds: t.memberIds,
+                      })
+                    }
                   />
                 ))}
               </SearchGroup>
@@ -400,10 +543,23 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       {/* Active group-selection banner */}
       {selection && (
         <div className="absolute left-1/2 top-16 z-10 flex max-w-[calc(100vw-2.5rem)] -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80 lg:top-4">
-          <span className="shrink-0 text-white/40">{selection.type === "project" ? "Project" : selection.type === "team" ? "Team" : "Department"}:</span>
+          <span className="shrink-0 text-white/40">
+            {selection.type === "project"
+              ? "Project"
+              : selection.type === "team"
+                ? "Team"
+                : "Department"}
+            :
+          </span>
           <span className="truncate font-medium">{selection.label}</span>
-          <span className="shrink-0 text-white/40">({selection.memberIds.size})</span>
-          <button onClick={() => setSelection(null)} className="ml-1.5 shrink-0 text-white/50 hover:text-white" aria-label="Clear">
+          <span className="shrink-0 text-white/40">
+            ({selection.memberIds.size})
+          </span>
+          <button
+            onClick={() => setSelection(null)}
+            className="ml-1.5 shrink-0 text-white/50 hover:text-white"
+            aria-label="Clear"
+          >
             ✕
           </button>
         </div>
@@ -426,11 +582,19 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                   <li key={name}>
                     <button
                       onClick={() =>
-                        dept && applyGroupSelection({ type: "department", label: name, memberIds: dept.memberIds })
+                        dept &&
+                        applyGroupSelection({
+                          type: "department",
+                          label: name,
+                          memberIds: dept.memberIds,
+                        })
                       }
                       className="flex w-full items-center gap-2 rounded px-1 py-0.5 text-left text-xs text-white/70 hover:bg-white/10"
                     >
-                      <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+                      <span
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
                       <span className="truncate">{name}</span>
                     </button>
                   </li>
@@ -463,6 +627,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
               setSelection(null);
             }}
             cooldownTicks={120}
+            d3VelocityDecay={0.55}
             onEngineStop={() => {
               if (!didFitRef.current) {
                 didFitRef.current = true;
@@ -488,7 +653,9 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 function SearchGroup({ label, children }) {
   return (
     <div className="py-0.5">
-      <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/35">{label}</div>
+      <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/35">
+        {label}
+      </div>
       {children}
     </div>
   );
@@ -500,9 +667,16 @@ function SearchRow({ color, label, hint, onSelect }) {
       onMouseDown={onSelect}
       className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-white/80 hover:bg-white/10"
     >
-      <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+      <span
+        className="inline-block h-2 w-2 shrink-0 rounded-full"
+        style={{ backgroundColor: color }}
+      />
       <span className="truncate">{label}</span>
-      {hint && <span className="ml-auto shrink-0 truncate pl-2 text-xs text-white/35">{hint}</span>}
+      {hint && (
+        <span className="ml-auto shrink-0 truncate pl-2 text-xs text-white/35">
+          {hint}
+        </span>
+      )}
     </button>
   );
 }

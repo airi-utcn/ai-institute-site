@@ -7,7 +7,7 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
   if (!node) return null;
 
   return (
-    <aside className="absolute top-0 right-0 z-20 h-full w-full max-w-sm overflow-y-auto border-l border-white/10 bg-[#0e1320]/95 backdrop-blur-sm text-white shadow-2xl">
+    <aside className="absolute top-0 right-0 z-20 h-full w-full overflow-y-auto border-l border-white/10 bg-[#0e1320]/95 backdrop-blur-sm text-white shadow-2xl sm:max-w-sm">
       <div className="flex items-start justify-between gap-3 p-5 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2">
@@ -33,10 +33,11 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 p-5 text-center">
+      <div className="grid grid-cols-4 gap-2 p-5 text-center">
         <Stat label="Collaborators" value={node.degree} />
         <Stat label="Publications" value={node.publicationCount} />
         <Stat label="Projects" value={node.projectCount} />
+        <Stat label="Teams" value={node.teamCount} />
       </div>
 
       {node.projects?.length > 0 && (
@@ -45,6 +46,18 @@ export default function PersonDetailPanel({ node, neighbors = [], onClose, onSel
             {node.projects.map((p) => (
               <li key={p.id} className="text-sm text-white/70">
                 {p.title}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {node.teams?.length > 0 && (
+        <Section title="Teams">
+          <ul className="space-y-1">
+            {node.teams.map((t) => (
+              <li key={t.id} className="text-sm text-white/70">
+                {t.title}
               </li>
             ))}
           </ul>

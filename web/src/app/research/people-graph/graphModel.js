@@ -1,6 +1,8 @@
 // Pure helpers that turn raw Strapi `people` records into the { nodes, links }
 // shape consumed by react-force-graph. No React, no I/O — easy to reason about
-// and test. Edges are derived purely from shared publications / projects.
+// and test. Edges are derived from shared publications / projects / teams.
+// Department is intentionally NOT an edge: it is a broad one-per-person org
+// bucket, so it drives node color only, not connectivity.
 
 // Distinct, reasonably readable palette for department coloring.
 const DEPARTMENT_PALETTE = [
@@ -69,8 +71,10 @@ function accumulatePairs(groups, edgeMap, countKey, titlesKey) {
             target: a < b ? b : a,
             sharedPublications: 0,
             sharedProjects: 0,
+            sharedTeams: 0,
             sharedPublicationTitles: [],
             sharedProjectTitles: [],
+            sharedTeamNames: [],
           };
           edgeMap.set(key, edge);
         }
@@ -81,17 +85,42 @@ function accumulatePairs(groups, edgeMap, countKey, titlesKey) {
   });
 }
 
+// Teams are a person->team membership that lives on the team side (a component),
+// so it can't be read off the person record. Turn the [{ id, name, memberIds }]
+// list from getTeamsGraphData() into the same sharedItemId -> members shape.
+function groupByTeam(teams) {
+  const groups = new Map();
+  teams.forEach((t) => {
+    if (!t || t.id == null) return;
+    groups.set(t.id, { title: t.name || null, members: (t.memberIds || []).slice() });
+  });
+  return groups;
+}
+
 /**
  * Build the collaboration graph from raw people records.
  * @param {Array} people - records from getPeopleGraphData()
+ * @param {Array} teams - [{ id, name, memberIds }] from getTeamsGraphData()
  * @returns {{ nodes: Array, links: Array, departmentColors: Object }}
  */
-export function buildGraph(people = []) {
+export function buildGraph(people = [], teams = []) {
   const departmentColors = buildDepartmentColors(people);
+
+  // Reverse the team->members list into person id -> [{ id, title }] so each
+  // node can carry its own teams for the detail panel and search.
+  const teamsByPerson = new Map();
+  teams.forEach((t) => {
+    if (!t || t.id == null) return;
+    (t.memberIds || []).forEach((pid) => {
+      if (!teamsByPerson.has(pid)) teamsByPerson.set(pid, []);
+      teamsByPerson.get(pid).push({ id: t.id, title: t.name || null });
+    });
+  });
 
   const nodes = people.map((p) => {
     const deptName = p.department?.name || null;
     const pubs = p.publications || [];
+    const personTeams = teamsByPerson.get(p.id) || [];
     return {
       id: p.id,
       slug: p.slug || null,
@@ -110,20 +139,24 @@ export function buildGraph(people = []) {
       citationCount: p.scholarCitationCount || 0,
       projectCount: (p.contributingProjects || []).length,
       projects: (p.contributingProjects || []).map((x) => ({ id: x.id, title: x.title })),
+      teamCount: personTeams.length,
+      teams: personTeams,
       degree: 0,
     };
   });
 
   const pubGroups = groupByRelation(people, (p) => p.publications);
   const projGroups = groupByRelation(people, (p) => p.contributingProjects);
+  const teamGroups = groupByTeam(teams);
 
   const edgeMap = new Map();
   accumulatePairs(pubGroups, edgeMap, "sharedPublications", "sharedPublicationTitles");
   accumulatePairs(projGroups, edgeMap, "sharedProjects", "sharedProjectTitles");
+  accumulatePairs(teamGroups, edgeMap, "sharedTeams", "sharedTeamNames");
 
   const links = Array.from(edgeMap.values()).map((e) => ({
     ...e,
-    weight: e.sharedPublications + e.sharedProjects,
+    weight: e.sharedPublications + e.sharedProjects + e.sharedTeams,
   }));
 
   // Degree = number of distinct collaborators.

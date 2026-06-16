@@ -95,6 +95,17 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
     return m;
   }, [nodes]);
 
+  const teamsIndex = useMemo(() => {
+    const m = new Map();
+    nodes.forEach((n) => {
+      (n.teams || []).forEach((t) => {
+        if (!m.has(t.id)) m.set(t.id, { id: t.id, title: t.title, memberIds: new Set() });
+        m.get(t.id).memberIds.add(n.id);
+      });
+    });
+    return m;
+  }, [nodes]);
+
   const departmentList = useMemo(
     () => Object.entries(departmentColors).sort((a, b) => a[0].localeCompare(b[0])),
     [departmentColors]
@@ -180,7 +191,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return { people: [], departments: [], projects: [] };
+    if (!q) return { people: [], departments: [], projects: [], teams: [] };
     return {
       people: nodes.filter((n) => n.name.toLowerCase().includes(q)).slice(0, 6),
       departments: Array.from(departmentsIndex.values())
@@ -189,11 +200,14 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       projects: Array.from(projectsIndex.values())
         .filter((p) => (p.title || "").toLowerCase().includes(q))
         .slice(0, 5),
+      teams: Array.from(teamsIndex.values())
+        .filter((t) => (t.title || "").toLowerCase().includes(q))
+        .slice(0, 4),
     };
-  }, [query, nodes, departmentsIndex, projectsIndex]);
+  }, [query, nodes, departmentsIndex, projectsIndex, teamsIndex]);
 
   const hasMatches =
-    matches.people.length || matches.departments.length || matches.projects.length;
+    matches.people.length || matches.departments.length || matches.projects.length || matches.teams.length;
 
   const selectedNode = selectedId != null ? nodeById.get(selectedId) : null;
   const selectedNeighbors = useMemo(() => {
@@ -298,6 +312,13 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
           (titles.length ? `: ${titles.join(", ")}${more > 0 ? ` +${more} more` : ""}` : "")
       );
     }
+    if (link.sharedTeams > 0) {
+      const titles = uniq(link.sharedTeamNames).filter(Boolean);
+      parts.push(
+        `${link.sharedTeams} shared team${link.sharedTeams > 1 ? "s" : ""}` +
+          (titles.length ? `: ${titles.join(", ")}` : "")
+      );
+    }
     return `<div style="max-width:280px;padding:6px 8px;border-radius:6px;background:#0e1320;color:#fff;font-size:12px;line-height:1.4;border:1px solid rgba(255,255,255,0.15)">
       <div style="font-weight:600;margin-bottom:2px">${escapeHtml(a)} &harr; ${escapeHtml(b)}</div>
       <div style="color:rgba(255,255,255,0.7)">${escapeHtml(parts.join(" · "))}</div>
@@ -307,7 +328,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   return (
     <main className="relative h-screen w-screen overflow-hidden" style={{ background: BG_COLOR }}>
       {/* Title + hint */}
-      <div className="pointer-events-none absolute left-5 top-4 z-10 text-white">
+      <div className="pointer-events-none absolute left-5 top-4 z-10 hidden max-w-[calc(100vw-23rem)] text-white sm:block">
         <h1 className="text-lg font-semibold">AIRI People Graph</h1>
         <p className="text-xs text-white/50">
           {nodes.length} people · {links.length} collaborations · size = connections, glow = citations, ring = publications
@@ -315,7 +336,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
       </div>
 
       {/* Search (people + departments + projects) */}
-      <div className="absolute right-5 top-4 z-20 w-80">
+      <div className="absolute left-5 right-5 top-4 z-20 sm:left-auto sm:w-80">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -359,17 +380,30 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
                 ))}
               </SearchGroup>
             )}
+            {matches.teams.length > 0 && (
+              <SearchGroup label="Teams">
+                {matches.teams.map((t) => (
+                  <SearchRow
+                    key={`t${t.id}`}
+                    color="#74c0fc"
+                    label={t.title}
+                    hint={`${t.memberIds.size} people`}
+                    onSelect={() => applyGroupSelection({ type: "team", label: t.title, memberIds: t.memberIds })}
+                  />
+                ))}
+              </SearchGroup>
+            )}
           </div>
         )}
       </div>
 
       {/* Active group-selection banner */}
       {selection && (
-        <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80">
-          <span className="text-white/40">{selection.type === "project" ? "Project" : "Department"}:</span>{" "}
-          <span className="font-medium">{selection.label}</span>{" "}
-          <span className="text-white/40">({selection.memberIds.size})</span>
-          <button onClick={() => setSelection(null)} className="ml-3 text-white/50 hover:text-white" aria-label="Clear">
+        <div className="absolute left-1/2 top-16 z-10 flex max-w-[calc(100vw-2.5rem)] -translate-x-1/2 items-center gap-1.5 rounded-full border border-white/15 bg-[#0e1320]/90 px-4 py-1.5 text-xs text-white/80 lg:top-4">
+          <span className="shrink-0 text-white/40">{selection.type === "project" ? "Project" : selection.type === "team" ? "Team" : "Department"}:</span>
+          <span className="truncate font-medium">{selection.label}</span>
+          <span className="shrink-0 text-white/40">({selection.memberIds.size})</span>
+          <button onClick={() => setSelection(null)} className="ml-1.5 shrink-0 text-white/50 hover:text-white" aria-label="Clear">
             ✕
           </button>
         </div>

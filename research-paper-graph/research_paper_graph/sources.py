@@ -114,10 +114,6 @@ def _merge_unique(existing_values, new_values):
         merged.append(value)
     return merged
 
-
-
-
-
 def _paper_key(paper):
     return (
         normalize_openalex_id(paper.get("openAlexId"))

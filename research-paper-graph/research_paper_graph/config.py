@@ -5,6 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
+# @dataclass(frozen=True) means
 @dataclass(frozen=True)
 class RuntimeSettings:
     strapi_api_url: str

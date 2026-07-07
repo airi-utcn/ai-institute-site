@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
+import { FaBars, FaTimes, FaSearch, FaRss} from 'react-icons/fa';
 import EUT_Logo from '../../public/media/Logos/UT&EUT_Logo.png';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useTranslations } from "next-intl"; // Added import
@@ -440,6 +440,16 @@ export default function Navbar() {
           </li>
 
           {/* Desktop Language Switcher (compact) */}
+          <li>
+            <Link
+              href="/rss.xml"
+              aria-label="RSS Feed" 
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors inline-flex items-center"
+              title="Subscribe to RSS Feed"
+            >
+              <FaRss className="w-4 h-4 text-orange-500" />
+            </Link>
+          </li>
           <li className="ml-2">
             <LanguageSwitcher compact />
           </li>

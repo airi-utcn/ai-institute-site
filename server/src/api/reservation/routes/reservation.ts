@@ -1,2 +1,3 @@
 import { factories } from '@strapi/strapi';
-export default factories.createCoreRouter('api::reservation.reservation');
+
+export default factories.createCoreRouter('api::reservation.reservation' as any);

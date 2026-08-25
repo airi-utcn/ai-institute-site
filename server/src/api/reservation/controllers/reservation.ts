@@ -1,2 +1,3 @@
 import { factories } from '@strapi/strapi';
-export default factories.createCoreController('api::reservation.reservation');
+
+export default factories.createCoreController('api::reservation.reservation' as any);

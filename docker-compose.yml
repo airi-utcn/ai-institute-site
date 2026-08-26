@@ -118,14 +118,18 @@ services:
       MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
       MYSQL_USER: ${SNIPEIT_DB_USER}
       MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
     volumes:
       - mysql-snipeit-data:/var/lib/mysql
 
   snipe-it:
     image: snipe/snipe-it:latest
     restart: unless-stopped
-    depends_on:
-      - mysql-snipeit
     ports:
       - "8000:80"
     environment:
@@ -139,6 +143,9 @@ services:
       DB_PORT: 3306
     volumes:
       - snipeit-data:/var/lib/snipeit
+    depends_on:
+      mysql-snipeit:
+        condition: service_healthy
 
 volumes:
   pgdata:

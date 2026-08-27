@@ -5,12 +5,12 @@ This project integrates Strapi CMS with Snipe-IT for automated equipment managem
 ## Architecture
 - **Frontend (Next.js):** Fetches available assets directly and submits reservation requests to Strapi.
 - **Backend (Strapi):** Handles reservation lifecycles. When a reservation status changes to `checked_out` or `returned`, Strapi automatically triggers an API call to Snipe-IT to update the asset's status.
-- **Snipe-IT Container:** Runs on the Docker internal network (`http://snipeit:80`) and maintains the actual hardware inventory.
+- **Snipe-IT Container:** Runs on the Docker internal network (`http://snipe-it:80`) and maintains the actual hardware inventory.
 
 ## Setup Requirements
 Ensure your `.env` file contains the following:
 ```env
-SNIPEIT_URL=http://snipeit:80
+SNIPEIT_URL=http://snipe-it:80
 SNIPEIT_API_KEY=your_snipeit_api_key_here
 SNIPEIT_DB_DATABASE=snipeit_db
 SNIPEIT_DB_USER=snipeit_user

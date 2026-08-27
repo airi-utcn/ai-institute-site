@@ -44,6 +44,8 @@ services:
       API_TOKEN_SALT: ${API_TOKEN_SALT}
       APP_KEYS: ${APP_KEYS}
       TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      SNIPEIT_URL: ${SNIPEIT_URL}
+      SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
     ports:
       - "1337:1337"
     volumes:
@@ -74,6 +76,8 @@ services:
       GRAPH_MESO_MIN_NODE_PAPERS: ${GRAPH_MESO_MIN_NODE_PAPERS:-3}
       GRAPH_MESO_MAX_NODES: ${GRAPH_MESO_MAX_NODES:-20}
       GRAPH_MESO_MIN_NODES: ${GRAPH_MESO_MIN_NODES:-8}
+      SNIPEIT_URL: ${SNIPEIT_URL}
+      SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -147,22 +151,22 @@ services:
       strapi:
         condition: service_healthy
 
-    mysql-snipeit:
-      image: mysql:8.0
-      restart: unless-stopped
-      environment:
-        MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
-        MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
-        MYSQL_USER: ${SNIPEIT_DB_USER}
-        MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
-      healthcheck:
-        test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
-        interval: 5s
-        timeout: 5s
-        retries: 10
-        start_period: 15s
-      volumes:
-        - mysql-snipeit-data:/var/lib/mysql
+  mysql-snipeit:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
+      MYSQL_USER: ${SNIPEIT_DB_USER}
+      MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    volumes:
+      - mysql-snipeit-data:/var/lib/mysql
 
   snipe-it:
     image: snipe/snipe-it:latest

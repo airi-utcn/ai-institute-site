@@ -153,6 +153,7 @@ export default function Navbar() {
   // Moved arrays inside the component to access 't'
   const navLinks = [
     { href: '/research', label: t('navLinks.research') },
+    { href: '/equipment', label: 'Equipment' },
     { href: '/engagement', label: t('navLinks.engagement') },
     { href: '/people', label: t('navLinks.people') },
     { href: '/news', label: t('navLinks.news') },

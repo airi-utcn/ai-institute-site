@@ -1,0 +1,336 @@
+{
+  "kind": "singleType",
+  "collectionName": "engagement_pages",
+  "info": {
+    "singularName": "engagement-page",
+    "pluralName": "engagement-pages",
+    "displayName": "Engagement Page",
+    "description": "Content for the engagement sub-pages"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "heroTitle": {
+      "type": "string",
+      "default": "Engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabPublic": {
+      "type": "string",
+      "default": "Public",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabAcademic": {
+      "type": "string",
+      "default": "Academic",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabIndustry": {
+      "type": "string",
+      "default": "Industry",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabHighSchool": {
+      "type": "string",
+      "default": "High-School",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabPartners": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabPhd": {
+      "type": "string",
+      "default": "Industrial PhD",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabPartnerships": {
+      "type": "string",
+      "default": "Partnerships",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabTeaching": {
+      "type": "string",
+      "default": "Teaching",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabCourses": {
+      "type": "string",
+      "default": "Courses",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabMobility": {
+      "type": "string",
+      "default": "Mobility",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabOverview": {
+      "type": "string",
+      "default": "Overview",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtabEngagement": {
+      "type": "string",
+      "default": "How We Work",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicTitle": {
+      "type": "string",
+      "default": "Public Engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicDesc": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicBtnMedia": {
+      "type": "string",
+      "default": "View Media & Press",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicBtnNews": {
+      "type": "string",
+      "default": "News & Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "academicTitle": {
+      "type": "string",
+      "default": "Academic engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "academicDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "academicContactButton": {
+      "type": "string",
+      "default": "Contact the academic team",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "highSchoolTitle": {
+      "type": "string",
+      "default": "High-school engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "highSchoolDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "highSchoolBtnFramework": {
+      "type": "string",
+      "default": "AILIT Framework – Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phdTitle": {
+      "type": "string",
+      "default": "Industrial PhD Program",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phdP1": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phdP2": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phdP3": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phdBtnContact": {
+      "type": "string",
+      "default": "Contact Us",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "industryTitle": {
+      "type": "string",
+      "default": "Industry engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "industryDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "industryBtnContact": {
+      "type": "string",
+      "default": "Contact the industry team",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "industryBtnExplore": {
+      "type": "string",
+      "default": "Explore all projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partnersTitle": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partnersMapTitle": {
+      "type": "string",
+      "default": "Partners Map",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

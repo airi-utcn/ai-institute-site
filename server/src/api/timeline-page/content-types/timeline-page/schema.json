@@ -1,0 +1,39 @@
+{
+  "kind": "singleType",
+  "collectionName": "timeline_pages",
+  "info": {
+    "singularName": "timeline-page",
+    "pluralName": "timeline-pages",
+    "displayName": "Timeline Page",
+    "description": "Content for the timeline page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "📅 AIRI Timeline",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "events": {
+      "type": "component",
+      "repeatable": true,
+      "component": "about.timeline-item",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

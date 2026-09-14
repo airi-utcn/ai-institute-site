@@ -1,0 +1,425 @@
+{
+  "kind": "singleType",
+  "collectionName": "people_pages",
+  "info": {
+    "singularName": "people-page",
+    "pluralName": "people-pages",
+    "displayName": "People Page",
+    "description": "Content for the people directory and profiles"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Meet the team behind AIRi @ UTCN",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search by name, title, or department...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "clearSearch": {
+      "type": "string",
+      "default": "Clear search",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabResearchers": {
+      "type": "string",
+      "default": "Researchers",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabStaff": {
+      "type": "string",
+      "default": "Staff",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabStudents": {
+      "type": "string",
+      "default": "Students",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabVisiting": {
+      "type": "string",
+      "default": "Visiting Researchers",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabExternal": {
+      "type": "string",
+      "default": "External Collaborators",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabAlumni": {
+      "type": "string",
+      "default": "Alumni",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsSingular": {
+      "type": "string",
+      "default": "Found {count} member",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsPlural": {
+      "type": "string",
+      "default": "Found {count} members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "emptySearch": {
+      "type": "string",
+      "default": "No members match your search criteria.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "emptyTab": {
+      "type": "string",
+      "default": "No members found in this category.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsPublications": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsTeams": {
+      "type": "string",
+      "default": "Teams",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsSearchPubs": {
+      "type": "string",
+      "default": "Search publications...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsAllYears": {
+      "type": "string",
+      "default": "All Years",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsAllTypes": {
+      "type": "string",
+      "default": "All Types",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsAllDomains": {
+      "type": "string",
+      "default": "All Research Areas",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsClear": {
+      "type": "string",
+      "default": "Clear",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsViewDetails": {
+      "type": "string",
+      "default": "View Details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsPdf": {
+      "type": "string",
+      "default": "PDF",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsLead": {
+      "type": "string",
+      "default": "Lead",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsNoPubs": {
+      "type": "string",
+      "default": "No publications found for this member.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsNoPubsMatch": {
+      "type": "string",
+      "default": "No publications match your search criteria.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "detailsNoTeams": {
+      "type": "string",
+      "default": "No teams assigned.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectBackToProfile": {
+      "type": "string",
+      "default": "← Back to Profile",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectBackToStaffProfile": {
+      "type": "string",
+      "default": "← Back to Staff Profile",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectDetailsTitle": {
+      "type": "string",
+      "default": "Project Details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectVisitWebsite": {
+      "type": "string",
+      "default": "Visit Project Website",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectDocumentation": {
+      "type": "string",
+      "default": "Project Documentation",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectTimeline": {
+      "type": "string",
+      "default": "Timeline",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectResources": {
+      "type": "string",
+      "default": "Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectRelatedPublications": {
+      "type": "string",
+      "default": "Related Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectTeam": {
+      "type": "string",
+      "default": "Project Team",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectLead": {
+      "type": "string",
+      "default": "Project Lead",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectMembers": {
+      "type": "string",
+      "default": "Project Members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectPartners": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectThemes": {
+      "type": "string",
+      "default": "Research Themes",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectResearchAreas": {
+      "type": "string",
+      "default": "Research Areas",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phaseCompleted": {
+      "type": "string",
+      "default": "Completed",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasePlanned": {
+      "type": "string",
+      "default": "Planned",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phaseOngoing": {
+      "type": "string",
+      "default": "Ongoing",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

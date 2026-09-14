@@ -1,0 +1,110 @@
+{
+  "collectionName": "components_layout_footers",
+  "info": {
+    "displayName": "Footer",
+    "description": "Footer contact, links, and copyright",
+    "icon": "arrow-down"
+  },
+  "options": {},
+  "attributes": {
+    "contactTitle": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "addressLine1": {
+      "type": "string",
+      "default": "2 Observatorului Street,",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "addressLine2": {
+      "type": "string",
+      "default": "Cluj-Napoca 400347,",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "addressLine3": {
+      "type": "string",
+      "default": "Romania",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "quickLinksTitle": {
+      "type": "string",
+      "default": "Quick Links",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsLabel": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sitemapLabel": {
+      "type": "string",
+      "default": "Sitemap",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "roomsLabel": {
+      "type": "string",
+      "default": "Rooms",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "disseminationLabel": {
+      "type": "string",
+      "default": "Dissemination",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "contactUsLabel": {
+      "type": "string",
+      "default": "Contact Us",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "copyright": {
+      "type": "string",
+      "default": "© {year} Technical University of Cluj-Napoca. All rights reserved.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

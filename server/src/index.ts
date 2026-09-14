@@ -39,6 +39,18 @@ export default {
       'api::resource.resource',
       'api::event.event',
       'api::seminar.seminar',
+      'api::global.global',
+      'api::home-page.home-page',
+      'api::about-page.about-page',
+      'api::contact-page.contact-page',
+      'api::engagement-page.engagement-page',
+      'api::news-page.news-page',
+      'api::people-page.people-page',
+      'api::research-page.research-page',
+      'api::resources-page.resources-page',
+      'api::media-page.media-page',
+      'api::search-page.search-page',
+      'api::timeline-page.timeline-page',
     ];
 
     let addedCount = 0;

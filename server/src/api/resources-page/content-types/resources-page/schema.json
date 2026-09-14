@@ -1,0 +1,145 @@
+{
+  "kind": "singleType",
+  "collectionName": "resources_pages",
+  "info": {
+    "singularName": "resources-page",
+    "pluralName": "resources-pages",
+    "displayName": "Resources Page",
+    "description": "Content for the resources catalog and directory"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search resources...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allCategories": {
+      "type": "string",
+      "default": "All categories",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "clearFilters": {
+      "type": "string",
+      "default": "Clear filters",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "clearAllFilters": {
+      "type": "string",
+      "default": "Clear all filters",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "showingText": {
+      "type": "string",
+      "default": "Showing {filtered} of {total} resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "filteredText": {
+      "type": "string",
+      "default": "(filtered from {total})",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "featuredResources": {
+      "type": "string",
+      "default": "Featured Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allResources": {
+      "type": "string",
+      "default": "All Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResourcesFound": {
+      "type": "string",
+      "default": "No resources found",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResourcesFilterMatch": {
+      "type": "string",
+      "default": "No resources match your current filter criteria.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResourcesYet": {
+      "type": "string",
+      "default": "Resources will appear here once added to the system.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "visitResource": {
+      "type": "string",
+      "default": "Visit Resource",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

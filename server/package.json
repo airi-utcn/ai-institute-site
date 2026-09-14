@@ -10,6 +10,7 @@
     "dev": "strapi develop",
     "develop": "strapi develop",
     "seed:content": "node ./scripts/migrate-json.js",
+    "migrate:i18n": "node ./scripts/migrate-i18n.js",
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
@@ -38,9 +39,5 @@
   "engines": {
     "node": ">=18.0.0 <=22.x.x",
     "npm": ">=6.0.0"
-  },
-  "strapi": {
-    "uuid": "05d1d92e-6b2c-4246-a2fb-0488701a704c",
-    "installId": "ada19157ae6e34ccf0292ac35d3bf31b4648822d8cb647ee7289e0f633bedeff"
   }
 }

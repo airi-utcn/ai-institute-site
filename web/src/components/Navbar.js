@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch } from 'react-icons/fa';
 import EUT_Logo from '../../public/media/Logos/UT&EUT_Logo.png';
 import LanguageSwitcher from "./LanguageSwitcher";
-import { useTranslations } from "next-intl"; // Added import
+import { useGlobalData } from "@/context/LocaleContext";
 
 const strip = (value) =>
   (value || '')
@@ -128,12 +128,12 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
   );
 }
 
-export default function Navbar() {
+export default function Navbar({ navbarData: customNavbarData }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   
-  // Initialize translations
-  const t = useTranslations("navbar");
+  const globalData = useGlobalData();
+  const nav = customNavbarData || globalData?.navbar || {};
 
   const [researchOpen, setResearchOpen] = useState(false);
   const [newsOpen, setNewsOpen] = useState(false);
@@ -150,46 +150,45 @@ export default function Navbar() {
   const desktopSearchRef = useRef(null);
   const mobileSearchRef = useRef(null);
 
-  // Moved arrays inside the component to access 't'
   const navLinks = [
-    { href: '/research', label: t('navLinks.research') },
+    { href: '/research', label: nav.navResearch || 'Research' },
     { href: '/equipment', label: 'Equipment' },
-    { href: '/engagement', label: t('navLinks.engagement') },
-    { href: '/people', label: t('navLinks.people') },
-    { href: '/news', label: t('navLinks.news') },
-    { href: '/about', label: t('navLinks.about') },
+    { href: '/engagement', label: nav.navEngagement || 'Engagement' },
+    { href: '/people', label: nav.navPeople || 'People' },
+    { href: '/news', label: nav.navNews || 'News' },
+    { href: '/about', label: nav.navAbout || 'About' },
   ];
 
   const researchMenu = [
-    { href: '/research/departments', label: t('researchMenu.departments') },
-    { href: '/research/themes', label: t('researchMenu.themes') },
-    { href: '/research/projects', label: t('researchMenu.projects') },
-    { href: '/research/publications', label: t('researchMenu.publications') },
-    { href: '/research/thesis', label: t('researchMenu.thesis') },
-    { href: '/resources', label: t('researchMenu.resources') },
-    { href: '/research/paper-graph', label: t('researchMenu.paperGraph') },
-    { href: '/research/people-graph', label: t('researchMenu.peopleGraph') },
+    { href: '/research/departments', label: nav.menuDepartments || 'Departments' },
+    { href: '/research/themes', label: nav.menuThemes || 'Research Themes' },
+    { href: '/research/projects', label: nav.menuProjects || 'Projects' },
+    { href: '/research/publications', label: nav.menuPublications || 'Publications' },
+    { href: '/research/thesis', label: nav.menuThesis || 'Thesis' },
+    { href: '/resources', label: nav.menuResources || 'Resources' },
+    { href: '/research/paper-graph', label: nav.menuPaperGraph || 'Paper Graph' },
+    { href: '/research/people-graph', label: nav.menuPeopleGraph || 'People Graph' },
   ];
 
   const newsMenu = [
-    { href: '/news&events/news', label: t('newsMenu.news') },
-    { href: '/news&events/events', label: t('newsMenu.events') },
-    { href: '/news&events/seminars', label: t('newsMenu.seminars') },
-    { href: '/news&events/open-project-calls', label: t('newsMenu.calls') },
-    { href: '/news&events/awards', label: t('newsMenu.awards') },
-    { href: '/news&events/careers', label: t('newsMenu.careers') },
+    { href: '/news&events/news', label: nav.menuNews || 'News' },
+    { href: '/news&events/events', label: nav.menuEvents || 'Events' },
+    { href: '/news&events/seminars', label: nav.menuSeminars || 'Seminars' },
+    { href: '/news&events/open-project-calls', label: nav.menuCalls || 'Calls for Projects' },
+    { href: '/news&events/awards', label: nav.menuAwards || 'Awards' },
+    { href: '/news&events/careers', label: nav.menuCareers || 'Careers' },
   ];
 
   const aboutMenu = [
-    { href: '/about#mission', label: t('aboutMenu.mission') },
-    { href: '/about/organigram', label: t('aboutMenu.organigram') },
-    { href: '/about/sitemap', label: t('aboutMenu.sitemap') },
-    { href: '/about/reports', label: t('aboutMenu.reports') },
-    { href: '/about/procedures-regulations', label: t('aboutMenu.regulations') },
-    { href: '/about/guidelines', label: t('aboutMenu.guidelines') },
-    { href: '/about/virtual-tour', label: t('aboutMenu.tour') },
-    { href: '/about/rooms-calendar', label: t('aboutMenu.rooms') },
-    { href: '/contact', label: t('aboutMenu.contact') },
+    { href: '/about#mission', label: nav.menuMission || 'Mission' },
+    { href: '/about/organigram', label: nav.menuOrganigram || 'Organigram' },
+    { href: '/about/sitemap', label: nav.menuSitemap || 'Sitemap' },
+    { href: '/about/reports', label: nav.menuReports || 'Reports' },
+    { href: '/about/procedures-regulations', label: nav.menuRegulations || 'Regulations' },
+    { href: '/about/guidelines', label: nav.menuGuidelines || 'Guidelines' },
+    { href: '/about/virtual-tour', label: nav.menuTour || 'Virtual Tour' },
+    { href: '/about/rooms-calendar', label: nav.menuRooms || 'Rooms & Calendar' },
+    { href: '/contact', label: nav.menuContact || 'Contact' },
   ];
 
   const desktopDropdowns = {
@@ -340,21 +339,11 @@ export default function Navbar() {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex items-center">
-          {/* <Link href="/" aria-label="Home">
-            <Image
-              src={isDark ? LogoDark : LogoLight}
-              alt="AI Institute Logo"
-              width={160}
-              height={160}
-              priority
-              style={{ cursor: 'pointer' }}
-            />
-          </Link> */}
           <Link href="/" aria-label="Home">
             <Image
               src={EUT_Logo}
               alt="EUT Logo"
-              width={200} // Absurd, and way beyond the width of the navbar, TODO: figure out a better way
+              width={200}
               height={200}
               priority
               className="ml-4"
@@ -383,7 +372,7 @@ export default function Navbar() {
                   open={dd.open}
                   setOpen={dd.setOpen}
                   items={dd.items}
-                  alignRight={link.label === t('navLinks.about')}
+                  alignRight={link.href === '/about'}
                 />
               );
             }
@@ -408,7 +397,7 @@ export default function Navbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearchKeyDown}
-                      placeholder={t('search.placeholder')}
+                      placeholder={nav.searchPlaceholder || 'Type to search pages…'}
                       className="w-full pl-3 pr-8 py-1.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     <button
@@ -458,7 +447,7 @@ export default function Navbar() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('search.mobilePlaceholder')}
+                  placeholder={nav.searchMobilePlaceholder || 'Search…'}
                   className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 {searchQuery.trim() ? (
@@ -472,7 +461,7 @@ export default function Navbar() {
                 type="submit"
                 className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
               >
-                {t('search.button')}
+                {nav.searchButton || 'Search'}
               </button>
             </form>
             <div className="flex gap-2 mt-2 text-xs">
@@ -481,7 +470,7 @@ export default function Navbar() {
                 className="text-blue-600 dark:text-blue-400 hover:underline"
                 onClick={() => setIsOpen(false)}
               >
-                {t('search.chatbot')}
+                {nav.chatbotLabel || 'Chatbot'}
               </Link>
               <span className="text-gray-400">|</span>
               <Link
@@ -489,7 +478,7 @@ export default function Navbar() {
                 className="text-blue-600 dark:text-blue-400 hover:underline"
                 onClick={() => setIsOpen(false)}
               >
-                {t('search.knowledgeGraph')}
+                {nav.knowledgeGraphLabel || 'Knowledge Graph'}
               </Link>
             </div>
           </li>
@@ -502,7 +491,7 @@ export default function Navbar() {
           </li>
 
           <MobileAccordion
-            title={t('navLinks.research')}
+            title={nav.navResearch || 'Research'}
             open={researchMobileOpen}
             setOpen={setResearchMobileOpen}
             items={researchMenu}
@@ -513,7 +502,7 @@ export default function Navbar() {
               className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
-              {t('navLinks.engagement')}
+              {nav.navEngagement || 'Engagement'}
             </Link>
           </li>
           <li className="px-4 py-1">
@@ -522,17 +511,17 @@ export default function Navbar() {
               className="block w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 py-3 text-sm font-medium transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={() => setIsOpen(false)}
             >
-              {t('navLinks.people')}
+              {nav.navPeople || 'People'}
             </Link>
           </li>
           <MobileAccordion
-            title={t('navLinks.news')}
+            title={nav.navNews || 'News'}
             open={newsMobileOpen}
             setOpen={setNewsMobileOpen}
             items={newsMenu}
           />
           <MobileAccordion
-            title={t('navLinks.about')}
+            title={nav.navAbout || 'About'}
             open={aboutMobileOpen}
             setOpen={setAboutMobileOpen}
             items={aboutMenu}

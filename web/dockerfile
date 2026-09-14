@@ -28,14 +28,12 @@ RUN npm run build
 # STAGE 2 - assemble the runtime image
 FROM base AS runner
 
-# Copy the production build from the builder stage
+# Copy the production build and node_modules from the builder stage
 COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/next.config.mjs ./
-
-# Install only the production dependencies
-RUN npm install --omit=dev
 
 # Expose the port that the application will run on
 EXPOSE 3000

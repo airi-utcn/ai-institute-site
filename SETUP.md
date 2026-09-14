@@ -187,6 +187,24 @@ This script:
 - Automatically publishes content
 - Is idempotent (safe to run multiple times)
 
+### Migrating Internationalization & Static Content (i18n)
+
+To migrate all localized static text into Strapi single types across 11 languages (`en`, `ro`, `fr`, `de`, `es`, `it`, `el`, `tr`, `bg`, `lv`, `zh`):
+
+```bash
+# If running locally with Node:
+cd server
+npm run migrate:i18n
+
+# If using Docker (Development or Production):
+docker compose exec strapi npm run migrate:i18n
+
+# In production with docker-compose.prod.yml:
+docker compose -f docker-compose.prod.yml exec strapi npm run migrate:i18n
+```
+
+For a complete guide on running this migration in production Docker environments, see [docs/i18n-production-migration.md](./docs/i18n-production-migration.md).
+
 ### Database Operations
 
 ```bash

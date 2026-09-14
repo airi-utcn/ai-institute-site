@@ -102,6 +102,9 @@ ai-institute-site/
 - **Search Functionality** - Find publications, projects, and team members
 - **Media Galleries** - Showcase events and institute activities
 
+## Equipment Reservations
+The platform includes an automated equipment reservation system. It syncs Next.js frontend requests through Strapi CMS directly into a self-hosted Snipe-IT instance. For setup, testing instructions, and architecture details - [SNIPEIT_DOCS.md](./SNIPEIT_DOCS.md).
+
 ## Documentation
 
 - [Development Setup](./SETUP.md) - Detailed setup and troubleshooting

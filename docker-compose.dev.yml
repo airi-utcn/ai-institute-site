@@ -49,6 +49,8 @@ services:
       API_TOKEN_SALT: ${API_TOKEN_SALT}
       APP_KEYS: ${APP_KEYS}
       TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT}
+      SNIPEIT_URL: ${SNIPEIT_URL}
+      SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
     ports:
       - "1337:1337"
     volumes:
@@ -97,6 +99,8 @@ services:
       GRAPH_MESO_MIN_NODE_PAPERS: ${GRAPH_MESO_MIN_NODE_PAPERS:-3}
       GRAPH_MESO_MAX_NODES: ${GRAPH_MESO_MAX_NODES:-20}
       GRAPH_MESO_MIN_NODES: ${GRAPH_MESO_MIN_NODES:-8}
+      SNIPEIT_URL: ${SNIPEIT_URL}
+      SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -127,6 +131,43 @@ services:
         - action: rebuild
           path: ./web/package.json
 
+  mysql-snipeit:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
+      MYSQL_USER: ${SNIPEIT_DB_USER}
+      MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+    volumes:
+      - mysql-snipeit-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  snipe-it:
+    image: snipe/snipe-it:latest
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      APP_URL: http://localhost:8000
+      APP_KEY: ${SNIPEIT_APP_KEY}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql-snipeit
+      DB_DATABASE: ${SNIPEIT_DB_DATABASE}
+      DB_USERNAME: ${SNIPEIT_DB_USER}
+      DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+      DB_PORT: 3306
+    volumes:
+      - snipeit-data:/var/lib/snipeit
+    depends_on:
+      mysql-snipeit:
+        condition: service_healthy
+      
   # Paper sync scheduler service (containerized cron, similar to prod).
   # Default local schedule runs every 10 minutes for quick validation.
   # Override with PAPER_SYNC_CRON in .env, e.g. "0 0 * * 6" for Saturday midnight.
@@ -183,3 +224,5 @@ services:
 
 volumes:
   pgdata:
+  mysql-snipeit-data:
+  snipeit-data:

@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "reservations",
+  "info": {
+    "singularName": "reservation",
+    "pluralName": "reservations",
+    "displayName": "Reservation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "assetId": { "type": "string" },
+    "assetName": { "type": "string" },
+    "userEmail": { "type": "email" },
+    "userFirstName": { "type": "string" },
+    "userLastName": { "type": "string" },
+    "startDate": { "type": "date" },
+    "endDate": { "type": "date" },
+    "assetStatus": {
+      "type": "enumeration",
+      "enum": ["pending", "approved", "checked_out", "returned"],
+      "default": "pending"
+    }
+  }
+}

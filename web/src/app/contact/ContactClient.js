@@ -1,8 +1,14 @@
 import PageHeader from "@/components/PageHeader";
-import { useTranslations } from "next-intl";
 
-export default function ContactClient() {
-  const t = useTranslations("contact");
+export default function ContactClient({ contactData }) {
+  const headerTitle = contactData?.headerTitle || "Contact Us";
+  const headerSubtitle = contactData?.headerSubtitle || "Get in touch with the Artificial Intelligence Research Institute.";
+  const socialTitle = contactData?.socialTitle || "Connect With Us";
+  const formTitle = contactData?.formTitle || "Contact Form";
+  const formIframeTitle = contactData?.formIframeTitle || "Contact Us Form";
+  const locationTitle = contactData?.locationTitle || "Our Location";
+  const locationAddress = contactData?.locationAddress || "Strada Observatorului 2, Cluj-Napoca";
+  const locationIframeTitle = contactData?.locationIframeTitle || "Location Map";
 
   const email = "AIRI@campus.utcluj.ro";
 
@@ -34,14 +40,14 @@ export default function ContactClient() {
     <div className="page-container">
       <div className="content-wrapper content-padding">
         <PageHeader
-          title={t("PageHeader.title")}
-          subtitle={t("PageHeader.subtitle")}
+          title={headerTitle}
+          subtitle={headerSubtitle}
         />
 
         {/* Social Links */}
         <section className="mb-10">
           <div className="card p-6">
-            <h2 className="heading-3 heading-accent mb-6 text-center">{t("Social.title")}</h2>
+            <h2 className="heading-3 heading-accent mb-6 text-center">{socialTitle}</h2>
             <div className="flex justify-center gap-6 animate-slide-up animate-delay-1">
               {socialLinks.map((link) => (
                 <a
@@ -69,14 +75,14 @@ export default function ContactClient() {
 
         {/* Contact Form */}
         <section className="mb-10">
-          <h2 className="heading-3 heading-accent mb-4">{t("Form.title")}</h2>
+          <h2 className="heading-3 heading-accent mb-4">{formTitle}</h2>
           <div className="card overflow-hidden">
             <iframe
               src="https://forms.office.com/Pages/ResponsePage.aspx?id=-nnrpqnEzkyBjbhSdNFTBXfygrOv6LlPruqY6PJRcsFURDdWSVMxNVdRVjhNSEFQMVdXQ0UzNlo0Ti4u&origin=QRCode"
               width="100%"
               height="450"
               style={{ border: 0 }}
-              title={t("Form.iframeTitle")}
+              title={formIframeTitle}
               allowFullScreen
             />
           </div>
@@ -84,9 +90,9 @@ export default function ContactClient() {
 
         {/* Location */}
         <section>
-          <h2 className="heading-3 heading-accent mb-4">{t("Location.title")}</h2>
+          <h2 className="heading-3 heading-accent mb-4">{locationTitle}</h2>
           <p className="text-body mb-4">
-            {t("Location.address")}
+            {locationAddress}
           </p>
           <div className="card overflow-hidden">
             <iframe
@@ -96,7 +102,7 @@ export default function ContactClient() {
               style={{ border: 0 }}
               allowFullScreen
               loading="lazy"
-              title={t("Location.iframeTitle")}
+              title={locationIframeTitle}
             />
           </div>
         </section>

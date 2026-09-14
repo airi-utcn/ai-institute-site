@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "@/context/LocaleContext";
 import Link from "next/link";
 import { FaUser } from "react-icons/fa";
 
@@ -25,16 +25,45 @@ const parseSearchTerms = (query) =>
 
 const hasNewsLink = (value) => typeof value === "string" && value.trim().length > 0;
 
-export default function NewsClient({ newsItems = [] }) {
+const categoryLabels = {
+  announcement: "Announcement",
+  construction: "Construction",
+  collaboration: "Collaboration",
+  award: "Award",
+  press: "Press",
+  other: "Other",
+  all: "All",
+};
+
+export default function NewsClient({ newsItems = [], pageData }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
   const [category, setCategory] = useState("all");
   const [query, setQuery] = useState("");
 
-  const t = useTranslations("news&events.news");
   const locale = useLocale();
-  const authorLabel = t.has("author") ? t("author") : "By";
+  const authorLabel = "By";
 
-  // Moved inside the component to access the current locale dynamically
+  const t = (key) => {
+    const map = {
+      latest: "Latest from AIRi",
+      title: pageData?.title || "News & Stories",
+      subtitle: pageData?.subtitle || "Updates, breakthroughs, and community highlights from the Artificial Intelligence Research Institute.",
+      quickFilters: "Filter by topic",
+      searchLabel: "Search stories",
+      searchPlaceholder: "Search by keyword, author, or tag...",
+      stories: "stories",
+      spotlight: "Spotlight Story",
+      noSummary: "No summary provided.",
+      viewArticle: pageData?.readMore || "Read full article",
+      readStory: "Read full story",
+      openArticle: "Open Article",
+      emptyState: "No news found matching your criteria.",
+      noImage: "No image available",
+      "categories.all": "All",
+    };
+    return map[key] || key;
+  };
+
   const formatDate = (value) => {
     if (!value) return "";
     const d = new Date(value);
@@ -42,11 +71,8 @@ export default function NewsClient({ newsItems = [] }) {
     return d.toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" });
   };
 
-  // Replaces the static object to pull from translations
   const getCategoryLabel = (value) => {
-    const knownKeys = ["announcement", "construction", "collaboration", "award", "press", "other"];
-    const key = knownKeys.includes(value) ? value : "other";
-    return t(`categories.${key}`);
+    return categoryLabels[value] || (value ? value.charAt(0).toUpperCase() + value.slice(1) : "Other");
   };
 
   const renderAuthor = (author, textClassName) => {
@@ -72,31 +98,49 @@ export default function NewsClient({ newsItems = [] }) {
   };
 
   const categories = useMemo(() => {
-    const unique = new Set(items.map((it) => it.category || "other"));
-    return ["all", ...Array.from(unique)];
+    const set = new Set(["all"]);
+    for (const item of items) {
+      if (item.category) set.add(item.category);
+    }
+    return Array.from(set);
   }, [items]);
 
   const filtered = useMemo(() => {
     const terms = parseSearchTerms(query);
-    return items.filter((it) => {
-      const matchesCategory = category === "all" || (it.category || "other") === category;
-      const text = normalizeSearchText(`${it.title} ${it.summary}`);
-      const matchesQuery = !terms.length || terms.every((term) => text.includes(term));
-      return matchesCategory && matchesQuery;
+
+    return items.filter((item) => {
+      const matchCategory = category === "all" || item.category === category;
+
+      const searchable = normalizeSearchText(
+        [
+          item.title,
+          item.summary,
+          item.category,
+          item.author?.name,
+          item.author?.title,
+          ...(item.tags || []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+
+      const matchQuery =
+        !terms.length || terms.every((term) => searchable.includes(term));
+
+      return matchCategory && matchQuery;
     });
   }, [items, category, query]);
 
   const hero = filtered[0] || null;
-  const heroKey = hero ? hero.id ?? hero.slug ?? hero.title : null;
-  const gridItems = heroKey ? filtered.filter((it) => (it.id ?? it.slug ?? it.title) !== heroKey) : filtered;
+  const gridItems = filtered.slice(1);
 
   return (
-    <div className="page-container">
+    <div className="space-y-12">
       <motion.div
-        initial={{ opacity: 0, y: -12 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="hero-gradient text-white rounded-2xl p-8 shadow-lg mb-10 overflow-hidden"
+        className="rounded-3xl bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white p-8 sm:p-12 shadow-xl"
       >
         <div className="flex flex-col lg:flex-row gap-8 items-center">
           <div className="flex-1 space-y-3">
@@ -327,9 +371,9 @@ export default function NewsClient({ newsItems = [] }) {
                         href={item.linkUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 transition-colors"
+                        className="link font-semibold inline-flex items-center gap-2 text-sm"
                       >
-                        {t("readMore")}
+                        {t("readStory")}
                         <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
                           <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
                         </svg>

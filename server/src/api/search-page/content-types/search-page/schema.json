@@ -1,0 +1,162 @@
+{
+  "kind": "singleType",
+  "collectionName": "search_pages",
+  "info": {
+    "singularName": "search-page",
+    "pluralName": "search-pages",
+    "displayName": "Search Page",
+    "description": "Content for search, chatbot, and graph pages"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "chatbotTitle": {
+      "type": "string",
+      "default": "AIRi Chatbot",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "chatbotCardTitle": {
+      "type": "string",
+      "default": "AIRi Chatbot",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "chatbotComingSoon": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicTitle": {
+      "type": "string",
+      "default": "🔎 Search",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicPlaceholder": {
+      "type": "string",
+      "default": "Type to search pages…",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicResultsSingular": {
+      "type": "string",
+      "default": "{count} result for",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicResultsPlural": {
+      "type": "string",
+      "default": "{count} results for",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicNoMatches": {
+      "type": "string",
+      "default": "No matches! Try different keywords or check spelling.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicFilterAll": {
+      "type": "string",
+      "default": "All",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicFilterPages": {
+      "type": "string",
+      "default": "Pages",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicFilterArticles": {
+      "type": "string",
+      "default": "Articles",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicFilterPeople": {
+      "type": "string",
+      "default": "People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "classicFilterProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "graphTitle": {
+      "type": "string",
+      "default": "Knowledge Graphs",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "graphCardTitle": {
+      "type": "string",
+      "default": "Interactive Graphs",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "graphComingSoon": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

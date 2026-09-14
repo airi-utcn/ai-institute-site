@@ -1,0 +1,91 @@
+{
+  "kind": "singleType",
+  "collectionName": "contact_pages",
+  "info": {
+    "singularName": "contact-page",
+    "pluralName": "contact-pages",
+    "displayName": "Contact Page",
+    "description": "Content for the contact page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "headerTitle": {
+      "type": "string",
+      "default": "Contact Us",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "headerSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "socialTitle": {
+      "type": "string",
+      "default": "Connect With Us",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "formTitle": {
+      "type": "string",
+      "default": "Contact Form",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "formIframeTitle": {
+      "type": "string",
+      "default": "Contact Us Form",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "locationTitle": {
+      "type": "string",
+      "default": "Our Location",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "locationAddress": {
+      "type": "string",
+      "default": "📍 Strada Observatorului 2, Cluj-Napoca 400347, Romania",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "locationIframeTitle": {
+      "type": "string",
+      "default": "Location Map",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

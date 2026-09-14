@@ -3,44 +3,26 @@
 import { VerticalTimeline, VerticalTimelineElement } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { FaBuilding, FaUserFriends, FaMicrochip } from "react-icons/fa";
-import { useTranslations } from "next-intl";
 
-export default function HistorySection({ items }) {
-  const t = useTranslations("about.history");
+const EVENT_ICONS = [
+  <FaBuilding key="1" />,
+  <FaUserFriends key="2" />,
+  <FaBuilding key="3" />,
+  <FaMicrochip key="4" />,
+  <FaBuilding key="5" />,
+];
 
-  const defaultEvents = [
-    {
-      date: t("event1.date"),
-      title: t("event1.title"),
-      description: t("event1.description"),
-      icon: <FaBuilding />,
-    },
-    {
-      date: t("event2.date"),
-      title: t("event2.title"),
-      description: t("event2.description"),
-      icon: <FaUserFriends />,
-    },
-    {
-      date: t("event3.date"),
-      title: t("event3.title"),
-      description: t("event3.description"),
-      icon: <FaBuilding />,
-    },
-    {
-      date: t("event4.date"),
-      title: t("event4.title"),
-      description: t("event4.description"),
-      icon: <FaMicrochip />,
-    },
-    {
-      date: t("event5.date"),
-      title: t("event5.title"),
-      description: (
+export default function HistorySection({ items, aboutData }) {
+  const rawEvents = aboutData?.timelineEvents || [];
+  
+  const formattedEvents = rawEvents.map((ev, idx) => {
+    const isLiveWebcam = !ev.date || idx === rawEvents.length - 1;
+    return {
+      date: ev.date || "Today",
+      title: ev.title,
+      description: isLiveWebcam ? (
         <>
-          {t("event5.descriptionPart1")}
-          <br />
-          {t("event5.descriptionPart2")}
+          {ev.description}
           <br />
           <a
             href="http://webcam.obs.utcluj.ro/"
@@ -51,19 +33,21 @@ export default function HistorySection({ items }) {
             http://webcam.obs.utcluj.ro/
           </a>
         </>
+      ) : (
+        ev.description
       ),
-      icon: <FaBuilding />,
-    },
-  ];
+      icon: EVENT_ICONS[idx % EVENT_ICONS.length],
+    };
+  });
 
-  const displayItems = items || defaultEvents;
+  const displayItems = items || formattedEvents;
 
   return (
     <>
       <VerticalTimeline lineColor="var(--icia-line)">
-        {displayItems.map((ev) => (
+        {displayItems.map((ev, idx) => (
           <VerticalTimelineElement
-            key={`${ev.title}-${ev.date}`}
+            key={`${ev.title}-${ev.date || idx}`}
             date={ev.date}
             dateClassName="timeline-date"
             icon={ev.icon}

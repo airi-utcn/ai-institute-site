@@ -3,11 +3,18 @@ export const metadata = {
   description: "Explore the core research themes and focus areas of the AI Research Institute at UTCN.",
 };
 
+import { cookies } from "next/headers";
 import ThemesClient from "./themesClient";
-import { getResearchThemes } from "@/lib/strapi";
+import { getResearchThemes, getSingleType } from "@/lib/strapi";
 
 export default async function ThemesPage() {
-  const themes = await getResearchThemes();
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+
+  const [themes, pageData] = await Promise.all([
+    getResearchThemes(),
+    getSingleType("research-page", locale),
+  ]);
 
   const normalizedThemes = Array.isArray(themes)
     ? themes.map((entry) => {
@@ -21,5 +28,5 @@ export default async function ThemesPage() {
       })
     : [];
 
-  return <ThemesClient themes={normalizedThemes} />;
+  return <ThemesClient themes={normalizedThemes} pageData={pageData} />;
 }

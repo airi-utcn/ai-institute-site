@@ -1,0 +1,482 @@
+{
+  "kind": "singleType",
+  "collectionName": "news_pages",
+  "info": {
+    "singularName": "news-page",
+    "pluralName": "news-pages",
+    "displayName": "News & Events Page",
+    "description": "Content for News, Events, Seminars, Awards, Careers"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "newsTitle": {
+      "type": "string",
+      "default": "News & Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsLatest": {
+      "type": "string",
+      "default": "Latest from AIRI",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsQuickFilters": {
+      "type": "string",
+      "default": "Quick filters",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsSearchLabel": {
+      "type": "string",
+      "default": "Search news",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsSearchPlaceholder": {
+      "type": "string",
+      "default": "Search titles, keywords, or summaries",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsStories": {
+      "type": "string",
+      "default": "stories",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsReadStory": {
+      "type": "string",
+      "default": "Read story",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsSpotlight": {
+      "type": "string",
+      "default": "Spotlight",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsNoSummary": {
+      "type": "string",
+      "default": "No summary provided yet.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsOpenArticle": {
+      "type": "string",
+      "default": "Open article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsEmptyState": {
+      "type": "string",
+      "default": "No news available at the moment.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsNoImage": {
+      "type": "string",
+      "default": "No image",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsReadMore": {
+      "type": "string",
+      "default": "Read more",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsViewArticle": {
+      "type": "string",
+      "default": "View article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryAll": {
+      "type": "string",
+      "default": "All",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryAnnouncement": {
+      "type": "string",
+      "default": "Announcements",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryConstruction": {
+      "type": "string",
+      "default": "Construction",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryCollaboration": {
+      "type": "string",
+      "default": "Collaborations",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryAward": {
+      "type": "string",
+      "default": "Awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryPress": {
+      "type": "string",
+      "default": "Press",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryOther": {
+      "type": "string",
+      "default": "Other",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleBackToNews": {
+      "type": "string",
+      "default": "Back to News",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleReadOnLinkedIn": {
+      "type": "string",
+      "default": "Read on LinkedIn",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleGallery": {
+      "type": "string",
+      "default": "Gallery",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleTags": {
+      "type": "string",
+      "default": "Tags",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleRelatedProjects": {
+      "type": "string",
+      "default": "Related Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleFeaturedPeople": {
+      "type": "string",
+      "default": "Featured People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleRelatedDepartments": {
+      "type": "string",
+      "default": "Related Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsTitle": {
+      "type": "string",
+      "default": "Awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsComingSoon": {
+      "type": "string",
+      "default": "More information coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersTitle": {
+      "type": "string",
+      "default": "Career Opportunities",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersComingSoon": {
+      "type": "string",
+      "default": "More information coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersUndergrad": {
+      "type": "string",
+      "default": "As an Undergraduate Student",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersPostgrad": {
+      "type": "string",
+      "default": "As a Post-Graduate Student",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersPostdoc": {
+      "type": "string",
+      "default": "As a Postdoctoral Researcher",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersVisiting": {
+      "type": "string",
+      "default": "As a Visiting Researcher",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersSoftwareEngineer": {
+      "type": "string",
+      "default": "As a Software Engineer",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "eventsTitle": {
+      "type": "string",
+      "default": "Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "eventsSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "eventsCalendarTitle": {
+      "type": "string",
+      "default": "Institute Calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "eventsNoEvents": {
+      "type": "string",
+      "default": "No events available at the moment.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openCallsTitle": {
+      "type": "string",
+      "default": "Calls for Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openCallsSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openCallsComingSoon": {
+      "type": "string",
+      "default": "More updates on this section coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsTitle": {
+      "type": "string",
+      "default": "Seminars",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsEmptyState": {
+      "type": "string",
+      "default": "No seminars available at the moment.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsWhatYouWillLearn": {
+      "type": "string",
+      "default": "What you’ll learn",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsModules": {
+      "type": "string",
+      "default": "Modules",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_about_timeline_items",
+  "info": {
+    "displayName": "Timeline Item",
+    "description": "Timeline event entry",
+    "icon": "calendar"
+  },
+  "options": {},
+  "attributes": {
+    "date": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

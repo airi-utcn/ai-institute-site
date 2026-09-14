@@ -3,12 +3,20 @@ export const metadata = {
   description: "Research projects and funded initiatives at the Artificial Intelligence Research Institute.",
 };
 
+import { cookies } from "next/headers";
 import ProjectsClient from "./projectClient";
-import { getProjects, transformProjectData } from "@/lib/strapi";
+import { getProjects, getSingleType, transformProjectData } from "@/lib/strapi";
 
 export default async function ProjectPage() {
-  const strapiProjects = await getProjects();
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+
+  const [strapiProjects, pageData] = await Promise.all([
+    getProjects(),
+    getSingleType("research-page", locale),
+  ]);
+
   const projects = transformProjectData(strapiProjects);
 
-  return <ProjectsClient projects={projects} />;
+  return <ProjectsClient projects={projects} pageData={pageData} />;
 }

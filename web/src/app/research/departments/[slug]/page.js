@@ -1,6 +1,7 @@
-import { getDepartments, getDepartmentTeams, getProjects, getPublications, getStaff, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { getDepartments, getDepartmentTeams, getProjects, getPublications, getStaff, getSingleType, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import { getProjectPhase } from "@/lib/projectPhase";
 
 // Generate static paths for all departments
@@ -34,14 +35,17 @@ export async function generateMetadata({ params }) {
 
 export default async function DepartmentPage({ params }) {
   const { slug } = await params;
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   
   // Fetch department data and filtered data in parallel
-  const [departmentData, projectsData, publicationsData, staffData, rawTeams] = await Promise.all([
+  const [departmentData, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
     getDepartments(),
     getProjects({ domainSlug: slug }),
     getPublications({ domainSlug: slug }),
     getStaff({ departmentSlug: slug }),
     getDepartmentTeams(slug),
+    getSingleType("research-page", locale),
   ]);
 
   const departments = transformDepartmentData(departmentData);
@@ -90,6 +94,7 @@ export default async function DepartmentPage({ params }) {
       publications={publications}
       staff={staff}
       teams={teams}
+      pageData={pageData}
     />
   );
 }

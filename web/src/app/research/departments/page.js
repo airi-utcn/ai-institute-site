@@ -3,12 +3,14 @@ export const metadata = {
   description: "Research departments and units within the Artificial Intelligence Research Institute at UTCN.",
 };
 
+import { cookies } from "next/headers";
 import DepartmentsClient from "./DepartmentsClient";
 import {
   getDepartments,
   getProjects,
   getPublications,
   getStaff,
+  getSingleType,
   transformDepartmentData,
   transformProjectData,
   transformPublicationData,
@@ -16,11 +18,15 @@ import {
 } from "@/lib/strapi";
 
 export default async function ResearchPage() {
-  const [staffData, departmentData, projectsData, publicationsData] = await Promise.all([
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+
+  const [staffData, departmentData, projectsData, publicationsData, pageData] = await Promise.all([
     getStaff(),
     getDepartments({ slim: true }),
     getProjects(),
     getPublications(),
+    getSingleType("research-page", locale),
   ]);
 
   const staff = transformStaffData(staffData);
@@ -34,6 +40,7 @@ export default async function ResearchPage() {
       departments={departments}
       projects={projects}
       publications={publications}
+      pageData={pageData}
     />
   );
 }

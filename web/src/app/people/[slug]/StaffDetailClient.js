@@ -23,9 +23,26 @@ import {
 import { toPublicationSlug } from '@/lib/slug';
 import { getPublicationSourceLabel, normalizePublicationSourceKind } from '@/lib/publication';
 import { containerVariants, itemVariants } from '@/lib/animations';
-import { useTranslations } from 'next-intl';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
+
+const DEFAULT_TEXTS = {
+  about: 'About',
+  publications: 'Publications',
+  teams: 'Teams',
+  searchPubs: 'Search publications by title, year, domain...',
+  allYears: 'All Years',
+  allTypes: 'All Types',
+  allDomains: 'All Domains',
+  clear: 'Clear filters',
+  noPubs: 'No publications available yet.',
+  noPubsMatch: 'No publications found matching your filters.',
+  noTeams: 'No research teams or projects found.',
+  viewDetails: 'View Details',
+  pdf: 'PDF',
+  lead: 'Team Lead',
+  projects: 'Projects',
+};
 
 // Tab Button Component
 function TabButton({ active, onClick, icon: Icon, label, count }) {
@@ -148,10 +165,32 @@ function PublicationCard({ publication, t }) {
             href={publication.pdfFile.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
           >
             <FaExternalLinkAlt className="w-3 h-3" />
             {t('pdf')}
+          </a>
+        )}
+        {publication.doi && (
+          <a
+            href={`https://doi.org/${publication.doi}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+          >
+            <FaExternalLinkAlt className="w-3 h-3" />
+            DOI
+          </a>
+        )}
+        {publication.url && !publication.doi && (
+          <a
+            href={publication.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+          >
+            <FaExternalLinkAlt className="w-3 h-3" />
+            Link
           </a>
         )}
       </div>
@@ -160,129 +199,95 @@ function PublicationCard({ publication, t }) {
 }
 
 // Team Card Component
-const PHASE_STYLES = {
-  ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
-  planned:   'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
-  ended:     'bg-gray-100   dark:bg-gray-700      text-gray-600   dark:text-gray-300',
-  archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
-};
-
 function TeamCard({ team, t }) {
   return (
     <motion.div
       variants={itemVariants}
-      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5"
     >
-      {/* Left accent bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${
-        team.isLead
-          ? 'bg-gradient-to-b from-yellow-400 to-orange-400'
-          : 'bg-gradient-to-b from-blue-500 to-indigo-500'
-      }`} />
-
-      <div className="pl-5 pr-5 pt-5 pb-4 flex flex-col gap-3 flex-1">
-        {/* Header row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={`p-2 rounded-lg shrink-0 ${
-              team.isLead
-                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
-                : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-            }`}>
-              <FaUsers className="w-4 h-4" />
-            </div>
-            <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug truncate">
+      <div className="flex items-start justify-between gap-4 mb-3">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
               {team.name}
             </h3>
-          </div>
-          {team.isLead && (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full shrink-0">
-              <FaStar className="w-2.5 h-2.5" />
-              {t('lead')}
-            </span>
-          )}
-        </div>
-
-        {/* Role */}
-        {team.role && (
-          <div className="flex items-center gap-2">
-            <FaUserCog className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{team.role}</span>
-          </div>
-        )}
-
-        {/* Department */}
-        {team.department && (
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <FaBuilding className="w-3.5 h-3.5 shrink-0" />
-            {team.department.slug ? (
-              <Link
-                href={`/research/departments/${encodeURIComponent(team.department.slug)}`}
-                className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
-              >
-                {team.department.name}
-              </Link>
-            ) : (
-              <span className="truncate">{team.department.name}</span>
+            {team.isLead && (
+              <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
+                {t('lead')}
+              </span>
             )}
           </div>
-        )}
-
-        {/* Description */}
-        {team.description && (
-          <ExpandableMarkdown
-            content={team.description}
-            previewLength={180}
-            collapsedTextClassName="text-sm text-gray-500 dark:text-gray-400 leading-relaxed"
-            markdownClassName="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-p:my-1 prose-headings:my-2"
-          />
-        )}
-
-        {/* Projects */}
-        {team.projects && team.projects.length > 0 && (
-          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-center gap-1.5 mb-2">
-              <FaProjectDiagram className="w-3 h-3 text-gray-400" />
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                {t('projects')}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {team.projects.map((p) => {
-                const phaseClass = PHASE_STYLES[p.phase] || PHASE_STYLES.planned;
-                return p.slug ? (
-                  <Link
-                    key={p.slug}
-                    href={`/research/projects/${encodeURIComponent(p.slug)}`}
-                    className="group inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors font-medium"
-                  >
-                    {p.title}
-                    {p.phase && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${phaseClass}`}>
-                        {p.phase}
-                      </span>
-                    )}
-                  </Link>
-                ) : (
-                  <span
-                    key={p.title}
-                    className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full"
-                  >
-                    {p.title}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+          {team.role && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+              {team.role}
+            </p>
+          )}
+        </div>
+        {team.type && (
+          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
+            {team.type}
+          </span>
         )}
       </div>
+
+      {team.department && (
+        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <FaBuilding className="w-3 h-3 text-gray-400" />
+          {team.department.slug ? (
+            <Link
+              href={`/research/departments/${encodeURIComponent(team.department.slug)}`}
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              {team.department.name}
+            </Link>
+          ) : (
+            <span>{team.department.name}</span>
+          )}
+        </div>
+      )}
+
+      {team.description && (
+        <ExpandableMarkdown
+          content={team.description}
+          className="text-xs text-gray-600 dark:text-gray-400 mb-3"
+          clampLines={2}
+        />
+      )}
+
+      {/* Projects */}
+      {team.projects && team.projects.length > 0 && (
+        <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
+            <FaProjectDiagram className="w-3 h-3 text-blue-500" />
+            <span>{t('projects')} ({team.projects.length})</span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {team.projects.map((p, idx) => (
+              <span key={p.id || idx}>
+                {p.slug ? (
+                  <Link
+                    href={`/research/projects/${encodeURIComponent(p.slug)}`}
+                    className="inline-block text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                  >
+                    {p.title}
+                  </Link>
+                ) : (
+                  <span className="inline-block text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                    {p.title}
+                  </span>
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
   
 export default function StaffDetailClient({ person, publications, teams, slug }) {
-  const t = useTranslations('people.details');
-  const tr = (key, fallback, values) => (t.has(key) ? t(key, values) : fallback);
+  const t = (k) => DEFAULT_TEXTS[k] || k;
+  const tr = (key, fallback) => DEFAULT_TEXTS[key] || fallback;
   
   const [activeTab, setActiveTab] = useState(() => {
     if (person?.bioMarkdown) return 'about';
@@ -323,9 +328,6 @@ export default function StaffDetailClient({ person, publications, teams, slug })
     });
   }, [publications, pubQuery, yearFilter, kindFilter, domainFilter, sourceFilter]);
 
-  // Projects processing
-  const hasActiveFilters = pubQuery || yearFilter || kindFilter || domainFilter || sourceFilter;
-
   const clearFilters = () => {
     setPubQuery('');
     setYearFilter('');
@@ -333,6 +335,8 @@ export default function StaffDetailClient({ person, publications, teams, slug })
     setDomainFilter('');
     setSourceFilter('');
   };
+
+  const hasActiveFilters = pubQuery || yearFilter || kindFilter || domainFilter || sourceFilter;
 
   return (
     <motion.div
@@ -366,82 +370,94 @@ export default function StaffDetailClient({ person, publications, teams, slug })
         />
       </motion.div>
 
-      {/* Filters — only relevant for publications tab */}
-      {activeTab === 'publications' && (
-        <motion.div
-          variants={itemVariants}
-          className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 mb-8"
-        >
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaSearch className="w-4 h-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={pubQuery}
-                onChange={(e) => setPubQuery(e.target.value)}
-                placeholder={t('searchPubs')}
-                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-            <FilterDropdown
-              value={yearFilter}
-              onChange={setYearFilter}
-              options={yearOptions.map(String)}
-              placeholder={t('allYears')}
-              icon={FaCalendarAlt}
-            />
-            <FilterDropdown
-              value={kindFilter}
-              onChange={setKindFilter}
-              options={kindOptions}
-              placeholder={t('allTypes')}
-              icon={FaTag}
-            />
-            <FilterDropdown
-              value={domainFilter}
-              onChange={setDomainFilter}
-              options={pubDomainOptions}
-              placeholder={t('allDomains')}
-              icon={FaGlobe}
-            />
-            <FilterDropdown
-              value={sourceFilter}
-              onChange={setSourceFilter}
-              options={sourceOptions}
-              placeholder="All Sources"
-              icon={FaDatabase}
-            />
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-              >
-                <FaTimes className="w-4 h-4" />
-                {t('clear')}
-              </button>
-            )}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Content */}
-      <motion.div
-        key={activeTab}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        {activeTab === 'about' && person?.bioMarkdown ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 md:p-8">
-            <RichMarkdown 
-              content={person.bioMarkdown} 
-              className="prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300"
+      {/* Tab Content */}
+      <motion.div variants={itemVariants}>
+        {activeTab === 'about' ? (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 md:p-8">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              {tr('about', 'About')} {person?.name || ''}
+            </h2>
+            <RichMarkdown
+              content={person.bioMarkdown}
+              className="text-gray-700 dark:text-gray-300 leading-relaxed prose dark:prose-invert max-w-none"
             />
           </div>
         ) : activeTab === 'publications' ? (
           <div>
+            {/* Publications Filters */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {/* Search */}
+                <div className="relative lg:col-span-1">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaSearch className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    value={pubQuery}
+                    onChange={(e) => setPubQuery(e.target.value)}
+                    placeholder={t('searchPubs')}
+                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+
+                {/* Year Filter */}
+                <FilterDropdown
+                  value={yearFilter}
+                  onChange={setYearFilter}
+                  options={yearOptions}
+                  placeholder={t('allYears')}
+                  icon={FaCalendarAlt}
+                />
+
+                {/* Type/Kind Filter */}
+                <FilterDropdown
+                  value={kindFilter}
+                  onChange={setKindFilter}
+                  options={kindOptions}
+                  placeholder={t('allTypes')}
+                  icon={FaTag}
+                />
+
+                {/* Domain Filter */}
+                <FilterDropdown
+                  value={domainFilter}
+                  onChange={setDomainFilter}
+                  options={pubDomainOptions}
+                  placeholder={t('allDomains')}
+                  icon={FaGlobe}
+                />
+
+                {/* Source Filter */}
+                {sourceOptions.length > 1 && (
+                  <FilterDropdown
+                    value={sourceFilter}
+                    onChange={setSourceFilter}
+                    options={sourceOptions}
+                    placeholder="All Sources"
+                    icon={FaDatabase}
+                  />
+                )}
+              </div>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center text-xs">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Showing {filteredPubs.length} of {publications.length} publications
+                  </span>
+                  <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <FaTimes className="w-3 h-3" />
+                    <span>{t('clear')}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Publications List */}
             {filteredPubs.length > 0 ? (
               <motion.div
                 initial="hidden"

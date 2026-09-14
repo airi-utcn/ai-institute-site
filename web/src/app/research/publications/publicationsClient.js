@@ -8,7 +8,6 @@ import { slugify, toPublicationSlug } from "@/lib/slug";
 import { getPublicationSourceLabel, normalizePublicationSourceKind } from "@/lib/publication";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown, FaExternalLinkAlt } from "react-icons/fa";
 import { containerVariants, itemVariants } from "@/lib/animations";
-import { useTranslations } from "next-intl";
 
 const buildStaffLookup = (staffJson) => {
   const arr = Array.isArray(staffJson) ? staffJson : Object.values(staffJson || {}).flat();
@@ -79,9 +78,34 @@ const normalizePublication = (p, bySlugMap) => {
   };
 };
 
-export default function PublicationsClient({ publications: pubData, staff: staffData }) {
+export default function PublicationsClient({ publications: pubData, staff: staffData, pageData }) {
   const searchParams = useSearchParams();
-  const t = useTranslations("research.publications");
+  const t = (key, params) => {
+    switch (key) {
+      case "title": return pageData?.publicationsTitle || "Publications";
+      case "subtitle": return pageData?.publicationsSubtitle || "Explore our research publications across top venues and journals";
+      case "searchPlaceholder": return pageData?.publicationsSearchPlaceholder || "Search publications by title, abstract, or keywords...";
+      case "filters": return "Filters";
+      case "year": return "Year";
+      case "allYears": return pageData?.publicationsAllYears || "All years";
+      case "author": return "Author";
+      case "allAuthors": return pageData?.publicationsAllAuthors || "All authors";
+      case "department": return "Department";
+      case "allDepartments": return "All departments";
+      case "type": return "Type";
+      case "allTypes": return pageData?.publicationsAllTypes || "All types";
+      case "filterByTheme": return "Filter by theme...";
+      case "publicationsFound": return (pageData?.publicationsResultsSingular || "Found {count} publication").replace("{count}", params?.count ?? 0);
+      case "publicationsFoundPlural": return (pageData?.publicationsResultsPlural || "Found {count} publications").replace("{count}", params?.count ?? 0);
+      case "clearAllFilters": return "Clear all filters";
+      case "authorsLabel": return "Authors:";
+      case "viewDetails": return "View Details";
+      case "openPdf": return "PDF";
+      case "noPublications": return pageData?.publicationsEmptyState || "No publications found matching your criteria.";
+      case "clearFilters": return "Clear filters";
+      default: return key;
+    }
+  };
 
   // TODO: This can be replaced with Strapi function
   const staffBySlug = useMemo(() => buildStaffLookup(staffData), [staffData]);

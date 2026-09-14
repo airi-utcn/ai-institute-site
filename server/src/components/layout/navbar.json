@@ -1,0 +1,308 @@
+{
+  "collectionName": "components_layout_navbars",
+  "info": {
+    "displayName": "Navbar",
+    "description": "Navigation bar links, menus, and search labels",
+    "icon": "bars"
+  },
+  "options": {},
+  "attributes": {
+    "navResearch": {
+      "type": "string",
+      "default": "Research",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "navEngagement": {
+      "type": "string",
+      "default": "Engagement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "navPeople": {
+      "type": "string",
+      "default": "People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "navNews": {
+      "type": "string",
+      "default": "News & Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "navAbout": {
+      "type": "string",
+      "default": "About",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuDepartments": {
+      "type": "string",
+      "default": "Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuThemes": {
+      "type": "string",
+      "default": "Themes",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuPublications": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuThesis": {
+      "type": "string",
+      "default": "Thesis",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuResources": {
+      "type": "string",
+      "default": "Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuPaperGraph": {
+      "type": "string",
+      "default": "Paper Graph",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuPeopleGraph": {
+      "type": "string",
+      "default": "People Graph",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuNews": {
+      "type": "string",
+      "default": "News",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuEvents": {
+      "type": "string",
+      "default": "Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuSeminars": {
+      "type": "string",
+      "default": "Seminars",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuCalls": {
+      "type": "string",
+      "default": "Calls for Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuAwards": {
+      "type": "string",
+      "default": "Awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuCareers": {
+      "type": "string",
+      "default": "Career Opportunities",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuMission": {
+      "type": "string",
+      "default": "Mission",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuOrganigram": {
+      "type": "string",
+      "default": "Organigram",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuSitemap": {
+      "type": "string",
+      "default": "Sitemap",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuReports": {
+      "type": "string",
+      "default": "Reports",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuRegulations": {
+      "type": "string",
+      "default": "Regulations",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuGuidelines": {
+      "type": "string",
+      "default": "Guidelines",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuTour": {
+      "type": "string",
+      "default": "Virtual Tour",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuRooms": {
+      "type": "string",
+      "default": "Rooms & calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "menuContact": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchMobilePlaceholder": {
+      "type": "string",
+      "default": "Search the site...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchButton": {
+      "type": "string",
+      "default": "Search",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "chatbotLabel": {
+      "type": "string",
+      "default": "AIRi chatbot",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "knowledgeGraphLabel": {
+      "type": "string",
+      "default": "Knowledge graphs",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -1,12 +1,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { cookies } from "next/headers";
 import ThemeProvider from "@/components/ThemeProvider";
 import RouteShell from "@/components/RouteShell";
 import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
-
-// 1. Import next-intl requirements
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { getGlobal } from "@/lib/strapi";
+import { LocaleProvider } from "@/context/LocaleContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,57 +17,66 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  metadataBase: new URL("https://airi.utcluj.ro"),
-  title: {
-    template: "%s | AIRi @ UTCN",
-    default: "AIRi @ UTCN – Artificial Intelligence Research Institute",
-  },
-  description:
-    "The Artificial Intelligence Research Institute (AIRi) at the Technical University of Cluj-Napoca advances research, innovation, and interdisciplinary collaboration in AI across healthcare, industry, energy, and education.",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    siteName: "AIRi @ UTCN",
-    title: "AIRi @ UTCN – Artificial Intelligence Research Institute",
-    description:
-      "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.",
-    url: "https://airi.utcluj.ro",
-    images: [
-      {
-        url: "/homepage/hero5.png",
-        width: 1200,
-        height: 630,
-        alt: "AIRi – Artificial Intelligence Research Institute at UTCN",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "AIRi @ UTCN – Artificial Intelligence Research Institute",
-    description:
-      "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.",
-    images: ["/homepage/hero5.png"],
-  },
-  alternates: {
-    canonical: "/",
-  },
-};
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const globalData = await getGlobal(locale);
+
+  const title = globalData?.siteName || "AIRi @ UTCN";
+  const description =
+    globalData?.siteDescription ||
+    "The Artificial Intelligence Research Institute (AIRi) at the Technical University of Cluj-Napoca advances research, innovation, and interdisciplinary collaboration in AI across healthcare, industry, energy, and education.";
+
+  return {
+    metadataBase: new URL("https://airi.utcluj.ro"),
+    title: {
+      template: `%s | ${title}`,
+      default: `${title} – Artificial Intelligence Research Institute`,
+    },
+    description,
+    openGraph: {
+      type: "website",
+      locale: locale === 'en' ? 'en_US' : `${locale}_${locale.toUpperCase()}`,
+      siteName: title,
+      title: `${title} – Artificial Intelligence Research Institute`,
+      description,
+      url: "https://airi.utcluj.ro",
+      images: [
+        {
+          url: "/homepage/hero5.png",
+          width: 1200,
+          height: 630,
+          alt: `${title} – Artificial Intelligence Research Institute at UTCN`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} – Artificial Intelligence Research Institute`,
+      description,
+      images: ["/homepage/hero5.png"],
+    },
+    alternates: {
+      canonical: "/",
+    },
+  };
+}
 
 // Always render routes on-demand so Strapi data is fetched at first access.
 export const dynamic = "force-dynamic";
 // Allow individual fetches to opt into caching (we set force-cache in fetchAPI by default).
 export const fetchCache = "force-cache";
 
-// 2. Make the layout async
 export default async function RootLayout({ children }) {
-  // 3. Fetch the locale and messages on the server side
-  const locale = await getLocale();
-  const messages = await getMessages();
+  const cookieStore = await cookies();
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+
+  // Fetch Strapi global data for navbar, footer, metadata
+  const globalData = await getGlobal(locale);
 
   return (
     <html
-      lang={locale} // 4. Use the dynamic locale here
+      lang={locale}
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
@@ -88,16 +96,15 @@ export default async function RootLayout({ children }) {
           }}
         />
 
-        {/* Structured Data for SEO from master branch */}
+        {/* Structured Data for SEO */}
         <JsonLd data={organizationJsonLd()} />
         <JsonLd data={websiteJsonLd()} />
 
-        {/* 5. Wrap the app with NextIntlClientProvider from localization branch */}
-        <NextIntlClientProvider messages={messages}>
+        <LocaleProvider locale={locale} globalData={globalData}>
           <ThemeProvider>
             <RouteShell>{children}</RouteShell>
           </ThemeProvider>
-        </NextIntlClientProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

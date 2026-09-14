@@ -189,16 +189,29 @@ const appendFilters = (params, value, prefix = 'filters') => {
   });
 };
 
-const createParams = ({ fields = [], populate = {}, filters = null, sort = null, pagination = null, publicationState = null }) => {
+const createParams = ({
+  fields = [],
+  populate = {},
+  filters = null,
+  sort = null,
+  pagination = null,
+  publicationState = null,
+  locale = null,
+}) => {
   const params = new URLSearchParams();
+  if (locale) params.set('locale', locale);
   appendFields(params, fields);
   appendSort(params, sort);
   appendPagination(params, pagination || {});
   if (publicationState) params.set('publicationState', publicationState);
   if (filters) appendFilters(params, filters);
-  Object.entries(populate || {}).forEach(([relation, relationConfig]) => {
-    setPopulate(params, `populate[${relation}]`, relationConfig || {});
-  });
+  if (typeof populate === 'string') {
+    params.set('populate', populate);
+  } else if (populate && typeof populate === 'object') {
+    Object.entries(populate).forEach(([relation, relationConfig]) => {
+      setPopulate(params, `populate[${relation}]`, relationConfig || {});
+    });
+  }
   return params;
 };
 
@@ -2626,4 +2639,105 @@ export function transformPartnerData(strapiPartners) {
       _strapi: partner,
     };
   });
+}
+
+/* --- Global & Page Single Type Fetchers --- */
+
+export const DEFAULT_GLOBAL = {
+  siteName: "AIRi @ UTCN",
+  siteDescription: "Artificial Intelligence Research Institute at Technical University of Cluj-Napoca",
+  navbar: {
+    navResearch: "Research",
+    navEngagement: "Engagement",
+    navPeople: "People",
+    navNews: "News",
+    navAbout: "About",
+    researchDepartments: "Departments",
+    researchThemes: "Research Themes",
+    researchProjects: "Projects",
+    researchPublications: "Publications",
+    researchThesis: "Thesis",
+    researchResources: "Resources",
+    researchPaperGraph: "Paper Graph",
+    researchPeopleGraph: "People Graph",
+    newsNews: "News",
+    newsEvents: "Events",
+    newsSeminars: "Seminars",
+    newsCalls: "Calls for Projects",
+    newsAwards: "Awards",
+    newsCareers: "Careers",
+    aboutMission: "Mission",
+    aboutOrganigram: "Organigram",
+    aboutSitemap: "Sitemap",
+    aboutReports: "Reports",
+    aboutRegulations: "Regulations",
+    aboutGuidelines: "Guidelines",
+    aboutTour: "Virtual Tour",
+    aboutRooms: "Rooms & Calendar",
+    aboutContact: "Contact",
+    searchPlaceholder: "Type to search pages…",
+    searchMobilePlaceholder: "Search…",
+    searchButton: "Search",
+    searchChatbot: "Chatbot",
+    searchKnowledgeGraph: "Knowledge Graph",
+  },
+  footer: {
+    contactTitle: "Contact Us",
+    addressLine1: "Strada Observatorului 2",
+    addressLine2: "Cluj-Napoca 400347, Romania",
+    quickLinksTitle: "Quick Links",
+    quickLinkProjects: "Projects",
+    quickLinkSitemap: "Sitemap",
+    quickLinkRooms: "Rooms & Calendar",
+    quickLinkDissemination: "Dissemination Materials",
+    quickLinkContactUs: "Contact Us",
+    copyright: "© {year} Artificial Intelligence Research Institute. All rights reserved.",
+  },
+};
+
+export async function getGlobal(locale = "en") {
+  try {
+    const params = createParams({
+      locale,
+      populate: {
+        navbar: true,
+        footer: true,
+        favicon: true,
+        defaultSeo: true,
+      },
+    });
+    const res = await fetchAPI(`/global?${params.toString()}`);
+    if (res?.data) {
+      const data = res.data;
+      return {
+        ...DEFAULT_GLOBAL,
+        ...data,
+        navbar: {
+          ...DEFAULT_GLOBAL.navbar,
+          ...(data.navbar || {}),
+        },
+        footer: {
+          ...DEFAULT_GLOBAL.footer,
+          ...(data.footer || {}),
+        },
+      };
+    }
+  } catch (error) {
+    console.error(`Failed to fetch global settings for locale [${locale}]:`, error);
+  }
+  return DEFAULT_GLOBAL;
+}
+
+export async function getSingleType(endpoint, locale = "en", populate = "*") {
+  try {
+    const params = createParams({
+      locale,
+      populate,
+    });
+    const res = await fetchAPI(`/${endpoint}?${params.toString()}`);
+    return res?.data || null;
+  } catch (error) {
+    console.error(`Failed to fetch single type [${endpoint}] for locale [${locale}]:`, error);
+    return null;
+  }
 }

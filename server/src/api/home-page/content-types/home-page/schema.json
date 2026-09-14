@@ -1,0 +1,232 @@
+{
+  "kind": "singleType",
+  "collectionName": "home_pages",
+  "info": {
+    "singularName": "home-page",
+    "pluralName": "home-pages",
+    "displayName": "Home Page",
+    "description": "Content for the home page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "metaTitle": {
+      "type": "string",
+      "default": "AIRI - Home",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "metaDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroTitle": {
+      "type": "string",
+      "default": "Artificial Intelligence Research Institute",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroLearnMore": {
+      "type": "string",
+      "default": "Learn More",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroAltHero": {
+      "type": "string",
+      "default": "AI Research Hero",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "heroAltQr": {
+      "type": "string",
+      "default": "Sign up QR code",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noticeText": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "aboutTitle": {
+      "type": "string",
+      "default": "About Us",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "aboutDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "researchCardTitle": {
+      "type": "string",
+      "default": "Research",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "researchCardDescription": {
+      "type": "string",
+      "default": "Explore our research units and projects.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "peopleCardTitle": {
+      "type": "string",
+      "default": "People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "peopleCardDescription": {
+      "type": "string",
+      "default": "Meet our researchers and staff.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resourcesCardTitle": {
+      "type": "string",
+      "default": "Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resourcesCardDescription": {
+      "type": "string",
+      "default": "Tools, resources, and learning materials.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsTitle": {
+      "type": "string",
+      "default": "Latest News",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsViewAll": {
+      "type": "string",
+      "default": "View All News →",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsViewArticle": {
+      "type": "string",
+      "default": "View article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsReadMore": {
+      "type": "string",
+      "default": "Read more",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsEmptyState": {
+      "type": "string",
+      "default": "News articles will appear here once published.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "latestNewsVisitNews": {
+      "type": "string",
+      "default": "Visit News & Events →",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "socialTitle": {
+      "type": "string",
+      "default": "Follow Us on LinkedIn",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "socialVisit": {
+      "type": "string",
+      "default": "Visit LinkedIn →",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

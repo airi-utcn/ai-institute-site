@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaFlask, FaBook, FaArrowRight } from "react-icons/fa";
 import { containerVariants, itemVariants } from "@/lib/animations";
-import { useTranslations } from "next-intl";
 
 // Default colors for themes without a specified color
 const DEFAULT_COLORS = [
@@ -19,9 +18,13 @@ const DEFAULT_COLORS = [
   "#6366F1", // indigo
 ];
 
-export default function ThemesClient({ themes = [] }) {
+export default function ThemesClient({ themes = [], pageData }) {
   const [hoveredTheme, setHoveredTheme] = useState(null);
-  const t = useTranslations("research.themes");
+
+  const title = pageData?.themesTitle || "Research Themes";
+  const subtitle = pageData?.themesSubtitle || "Explore the core research themes and focus areas of the AI Research Institute at UTCN.";
+  const viewProjects = "View Projects";
+  const viewPublications = "View Publications";
 
   const normalizedThemes = useMemo(() => {
     const map = new Map();
@@ -51,9 +54,9 @@ export default function ThemesClient({ themes = [] }) {
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">{t("title")}</h1>
+            <h1 className="page-header-title">{title}</h1>
             <p className="page-header-subtitle">
-              {t("subtitle")}
+              {subtitle}
             </p>
           </motion.div>
 
@@ -98,7 +101,7 @@ export default function ThemesClient({ themes = [] }) {
                         className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-accent-400 transition-all"
                       >
                         <FaFlask className="text-xs" />
-                        {t("viewProjects")}
+                        {viewProjects}
                         <FaArrowRight className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                       <Link
@@ -106,7 +109,7 @@ export default function ThemesClient({ themes = [] }) {
                         className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-gray-700 dark:hover:text-accent-400 transition-all"
                       >
                         <FaBook className="text-xs" />
-                        {t("viewPublications")}
+                        {viewPublications}
                         <FaArrowRight className="text-xs opacity-0 group-hover:opacity-100 transition-opacity" />
                       </Link>
                     </div>
@@ -123,11 +126,7 @@ export default function ThemesClient({ themes = [] }) {
                 </motion.div>
               ))}
             </div>
-          ) : (
-            <div className="empty-state">
-              <p>{t("noThemes")}</p>
-            </div>
-          )}
+          ) : null}
         </motion.div>
       </div>
     </div>

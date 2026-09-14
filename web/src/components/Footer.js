@@ -5,7 +5,7 @@ import LogoLight from "../../public/media/Logos/LogoLight.svg";
 import LogoDark from "../../public/media/Logos/LogoDark.svg";
 import EUT_Logo from '../../public/media/Logos/EUT_Logo.png';
 import { useTheme } from "@/components/ThemeProvider";
-import { useTranslations } from "next-intl";
+import { useGlobalData } from "@/context/LocaleContext";
 import { FaLinkedin, FaFlickr, FaYoutube, FaGithub, FaMicrosoft } from "react-icons/fa";
 import { SiHuggingface } from "react-icons/si";
 
@@ -42,24 +42,27 @@ const socialLinks = [
   },
 ];
 
-export default function Footer() {
+export default function Footer({ footerData: customFooterData }) {
   const { isDark } = useTheme();
-  const t = useTranslations("footer");
+  const globalData = useGlobalData();
+  const footer = customFooterData || globalData?.footer || {};
 
-  // Moved inside the component to access the `t` hook
   const quickLinks = [
-    { href: '/research/projects', label: t('quickLinks.projects') },
-    { href: '/about/sitemap', label: t('quickLinks.sitemap') },
-    { href: 'https://didatec.sharepoint.com/sites/UTCNRooms/SitePages/UTCN-AIRI---Artificial-Intelligence-Research-Institute.aspx', label: t('quickLinks.rooms'), external: true },
-    { href: 'https://didatec-my.sharepoint.com/:f:/g/personal/airi_campus_utcluj_ro/IgBfIIZeG9p5SJ_Pde6NBWT5AU_tSajIkfRPaloVwavKIJ4', label: t('quickLinks.dissemination'), external: true },
-    { href: '/contact', label: t('quickLinks.contactUs') },
+    { href: '/research/projects', label: footer.quickLinkProjects || 'Projects' },
+    { href: '/about/sitemap', label: footer.quickLinkSitemap || 'Sitemap' },
+    { href: 'https://didatec.sharepoint.com/sites/UTCNRooms/SitePages/UTCN-AIRI---Artificial-Intelligence-Research-Institute.aspx', label: footer.quickLinkRooms || 'Rooms & Calendar', external: true },
+    { href: 'https://didatec-my.sharepoint.com/:f:/g/personal/airi_campus_utcluj_ro/IgBfIIZeG9p5SJ_Pde6NBWT5AU_tSajIkfRPaloVwavKIJ4', label: footer.quickLinkDissemination || 'Dissemination Materials', external: true },
+    { href: '/contact', label: footer.quickLinkContactUs || 'Contact Us' },
   ];
+
+  const copyrightText = (footer.copyright || '© {year} Artificial Intelligence Research Institute. All rights reserved.')
+    .replace('{year}', new Date().getFullYear());
 
   return (
     <footer className="bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
-                    {/* Logo & Social */}
+          {/* Logo & Social */}
           <div className="flex flex-col items-center gap-6">
             <a href="/" aria-label="Home">
               <Image
@@ -105,7 +108,9 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div className="flex flex-col items-center gap-4 text-center">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{t('contact.title')}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              {footer.contactTitle || 'Contact'}
+            </h3>
             <a
               href="https://www.google.com/maps/dir//Laboratoarele+UTC-N+Strada+Observatorului+2+Cluj-Napoca+400347"
               target="_blank"
@@ -116,9 +121,8 @@ export default function Footer() {
                 <path d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z" />
               </svg>
               <span>
-                {t('contact.addressLine1')}<br />
-                {t('contact.addressLine2')}<br />
-                {t('contact.addressLine3')}
+                {footer.addressLine1 || 'Strada Observatorului 2'}<br />
+                {footer.addressLine2 || 'Cluj-Napoca 400347, Romania'}
               </span>
             </a>
             <a
@@ -134,7 +138,9 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="flex flex-col items-center gap-4 text-center">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{t('quickLinks.title')}</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              {footer.quickLinksTitle || 'Quick Links'}
+            </h3>
             <ul className="space-y-2 text-center">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -157,7 +163,7 @@ export default function Footer() {
       <div className="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center">
           <p className="text-sm text-muted">
-            {t('copyright', { year: new Date().getFullYear() })}
+            {copyrightText}
           </p>
         </div>
       </div>

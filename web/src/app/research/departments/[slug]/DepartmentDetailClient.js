@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog, FaUserTie } from "react-icons/fa";
-import { useTranslations } from "next-intl";
 import ExpandableMarkdown from "@/components/shared/ExpandableMarkdown";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 
@@ -13,6 +12,35 @@ const PHASE_STYLES = {
   planned:   'bg-blue-100   dark:bg-blue-900/30   text-blue-700   dark:text-blue-300',
   ended:     'bg-gray-100   dark:bg-gray-700      text-gray-600   dark:text-gray-300',
   archived:  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300',
+};
+
+const DEFAULT_TEXTS = {
+  backToDepartments: "Back to Departments",
+  notFound: "Department not found.",
+  membersCount: "Members",
+  projectsCount: "Projects",
+  publicationsCount: "Publications",
+  "tabs.overview": "Overview",
+  "tabs.members": "People & Teams",
+  "tabs.projects": "Projects",
+  "tabs.publications": "Publications",
+  "overview.about": "About",
+  "overview.coordinator": "Coordinator",
+  "overview.contact": "Contact",
+  "members.teams": "Teams",
+  "members.member": "member",
+  "members.membersPlural": "members",
+  "members.independentResearchers": "Independent Researchers",
+  "members.noMembers": "No members found for this department.",
+  "members.projects": "Projects",
+  "projects.lead": "Lead:",
+  "projects.noProjects": "No projects found for this department.",
+  "publications.noPublications": "No publications found for this department.",
+  "phases.completed": "Completed",
+  "phases.planned": "Planned",
+  "phases.ongoing": "Ongoing",
+  "phases.ended": "Ended",
+  "phases.archived": "Archived",
 };
 
 /* ── Person avatar + name (reusable) ─────────────────────── */
@@ -62,7 +90,7 @@ function TeamCard({ team, staffLookup, t }) {
   const getTranslatedPhase = (phase) => {
     if (!phase) return "";
     const lowerPhase = phase.toLowerCase();
-    return t.has(`phases.${lowerPhase}`) ? t(`phases.${lowerPhase}`) : phase;
+    return t(`phases.${lowerPhase}`) || phase;
   };
 
   return (
@@ -170,9 +198,22 @@ export default function DepartmentDetailClient({
   publications = [], 
   staff = [],
   teams = [],
+  pageData,
 }) {
   const [activeTab, setActiveTab] = useState("overview");
-  const t = useTranslations("research.departments.departmentDetails");
+
+  const t = (key) => {
+    if (key === "backToDepartments") return pageData?.depBackToDepartments || DEFAULT_TEXTS.backToDepartments;
+    if (key === "notFound") return pageData?.depNotFound || DEFAULT_TEXTS.notFound;
+    if (key === "tabs.overview") return pageData?.depTabOverview || DEFAULT_TEXTS["tabs.overview"];
+    if (key === "tabs.members") return pageData?.depTabMembers || DEFAULT_TEXTS["tabs.members"];
+    if (key === "tabs.projects") return pageData?.depTabProjects || DEFAULT_TEXTS["tabs.projects"];
+    if (key === "tabs.publications") return pageData?.depTabPublications || DEFAULT_TEXTS["tabs.publications"];
+    if (key === "members.noMembers") return pageData?.depNoMembers || DEFAULT_TEXTS["members.noMembers"];
+    if (key === "projects.noProjects") return pageData?.depNoProjects || DEFAULT_TEXTS["projects.noProjects"];
+    if (key === "publications.noPublications") return pageData?.depNoPublications || DEFAULT_TEXTS["publications.noPublications"];
+    return DEFAULT_TEXTS[key] || key;
+  };
 
   const TABS = [
     { id: "overview", label: t("tabs.overview"), icon: FaInfoCircle },
@@ -195,8 +236,7 @@ export default function DepartmentDetailClient({
     const slugs = new Set();
     for (const team of teams) {
       for (const m of team.members || []) {
-        const s = m.person?.slug;
-        if (s) slugs.add(s);
+        if (m.person?.slug) slugs.add(m.person.slug);
       }
     }
     const independent = staff.filter((p) => p.slug && !slugs.has(p.slug));
@@ -298,11 +338,11 @@ export default function DepartmentDetailClient({
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                  px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200
-                  flex items-center gap-2
+                  flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
+                  transition-all duration-200 border
                   ${isActive 
-                    ? "bg-primary-600 text-white shadow-md dark:bg-accent-500" 
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                    ? "bg-primary-600 text-white border-primary-600 shadow-sm" 
+                    : "bg-surface text-foreground border-transparent hover:border-border hover:bg-hover"
                   }
                 `}
               >
@@ -310,10 +350,10 @@ export default function DepartmentDetailClient({
                 <span>{tab.label}</span>
                 {count !== undefined && (
                   <span className={`
-                    text-xs px-1.5 py-0.5 rounded-full
+                    ml-1 px-1.5 py-0.5 text-xs rounded-full
                     ${isActive 
-                      ? "bg-white/20 text-white" 
-                      : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                      ? "bg-primary-700/50 text-white" 
+                      : "bg-muted-background text-muted"
                     }
                   `}>
                     {count}
@@ -415,7 +455,7 @@ export default function DepartmentDetailClient({
               exit={{ opacity: 0 }}
               className="space-y-8"
             >
-              {/* ── Teams ────────────────────────────────── */}
+              {/* ── Teams ──────────────────────────────────── */}
               {teams.length > 0 && (
                 <div>
                   <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
@@ -449,29 +489,17 @@ export default function DepartmentDetailClient({
                       {independentStaff.length}
                     </span>
                   </motion.div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {independentStaff.map((person) => (
-                      <motion.div
-                        key={person.slug}
-                        variants={itemVariants}
-                        className="card card-hover p-4"
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {independentStaff.map((p, i) => (
+                      <div
+                        key={p.slug || i}
+                        className="card p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                       >
-                        <Link href={`/people/${person.slug}`} className="block text-center group">
-                          <div className="w-20 h-20 mx-auto mb-3">
-                            <img
-                              src={person.image || "/people/Basic_avatar_image.png"}
-                              alt={person.name}
-                              className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
-                            />
-                          </div>
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
-                            {person.name}
-                          </h3>
-                          {person.title && (
-                            <p className="text-xs text-muted mt-1 line-clamp-1">{person.title}</p>
-                          )}
-                        </Link>
-                      </motion.div>
+                        <PersonChip
+                          person={{ name: p.name, slug: p.slug, title: p.title }}
+                          image={p.image}
+                        />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -538,14 +566,16 @@ export default function DepartmentDetailClient({
                 <div className="space-y-4">
                   {publications.map((pub, idx) => (
                     <motion.div
-                      key={pub.slug || idx}
+                      key={pub.id || idx}
                       variants={itemVariants}
-                      className="card card-hover p-5"
+                      className="card p-5"
                     >
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {pub.slug ? (
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {pub.doi ? (
                           <Link 
-                            href={`/research/publications/${pub.slug}`}
+                            href={`https://doi.org/${pub.doi}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
                           >
                             {pub.title}

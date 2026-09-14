@@ -1,0 +1,280 @@
+{
+  "kind": "singleType",
+  "collectionName": "about_pages",
+  "info": {
+    "singularName": "about-page",
+    "pluralName": "about-pages",
+    "displayName": "About Page",
+    "description": "Content for the about sub-pages"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "missionTitle": {
+      "type": "string",
+      "default": "Mission",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "missionText": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "historyTitle": {
+      "type": "string",
+      "default": "AIRI Timeline",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timelineEvents": {
+      "type": "component",
+      "repeatable": true,
+      "component": "about.timeline-item",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "guidelinesTitle": {
+      "type": "string",
+      "default": "Just for you",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "guidelinesStudents": {
+      "type": "string",
+      "default": "Students",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "guidelinesFaculty": {
+      "type": "string",
+      "default": "Faculty",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "guidelinesResearchers": {
+      "type": "string",
+      "default": "Researchers",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "guidelinesStaff": {
+      "type": "string",
+      "default": "Staff",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramTitle": {
+      "type": "string",
+      "default": "Organigram",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramDescription": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramDirectorCommittee": {
+      "type": "string",
+      "default": "Director Committee",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramViewDirectorStructure": {
+      "type": "string",
+      "default": "View the structure of the Director Committee:",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramScientificCommittee": {
+      "type": "string",
+      "default": "Scientific Committee",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramViewScientificStructure": {
+      "type": "string",
+      "default": "View the structure of the Scientific Committee:",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramDownloadPdf": {
+      "type": "string",
+      "default": "Download PDF",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "organigramViewPng": {
+      "type": "string",
+      "default": "View PNG",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "regulationsTitle": {
+      "type": "string",
+      "default": "Regulations",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "regulationsComingSoon": {
+      "type": "string",
+      "default": "Content coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "reportsTitle": {
+      "type": "string",
+      "default": "Reports",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "reportsComingSoon": {
+      "type": "string",
+      "default": "Content coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "roomsCalendarTitle": {
+      "type": "string",
+      "default": "Rooms & Calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "roomsCalendarComingSoon": {
+      "type": "string",
+      "default": "Content coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sitemapTitle": {
+      "type": "string",
+      "default": "Sitemap",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sitemapFilterPlaceholder": {
+      "type": "string",
+      "default": "Filter pages…",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sitemapClear": {
+      "type": "string",
+      "default": "Clear",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "sitemapNoResults": {
+      "type": "string",
+      "default": "No results for “{query}”.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "virtualTourTitle": {
+      "type": "string",
+      "default": "Virtual Tour",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "virtualTourComingSoon": {
+      "type": "string",
+      "default": "Content coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; 
-import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TABS = [
   {
@@ -41,6 +40,69 @@ const TABS = [
     ],
   },
 ];
+
+const ACADEMIC_STRINGS = {
+  "title": "Academic engagement",
+  "description": "Collaborations with universities and institutes: co-tutoring, joint courses, workshops, research visits, mobility.",
+  "contactButton": "Contact the academic team",
+  "selectTopic": "Select a topic from the left menu.",
+  "Tabs.Overview.label": "Overview",
+  "Tabs.Overview.subtabs.partnerships": "Academic partnerships",
+  "Tabs.Overview.subtabs.teaching": "Teaching & training",
+  "Tabs.Overview.subtabs.mobility": "Mobility",
+  "Tabs.Initiatives.label": "Initiatives",
+  "Tabs.Initiatives.subtabs.schools": "Summer schools & workshops",
+  "Tabs.Initiatives.subtabs.seminars": "Joint seminars",
+  "Tabs.Initiatives.subtabs.visits": "Research visits",
+  "Tabs.Courses.label": "Courses & Workshops",
+  "Tabs.Courses.subtabs.ml": "Machine Learning",
+  "Tabs.Courses.subtabs.robotics": "Robotics & Vision",
+  "Tabs.Courses.subtabs.hpc": "HPC for AI",
+  "Tabs.Courses.subtabs.ethics": "AI Ethics & Safety",
+  "Tabs.Mobility.label": "Co-tutoring & Mobility",
+  "Tabs.Mobility.subtabs.phd": "Co-supervision",
+  "Tabs.Mobility.subtabs.grants": "Mobility grants",
+  "Tabs.Mobility.subtabs.placements": "Placements & exchanges",
+  "Content.Overview.partnerships.title": "Academic partnerships",
+  "Content.Overview.partnerships.desc": "A network of collaborations and joint activities.",
+  "Content.Overview.teaching.title": "Teaching & training",
+  "Content.Overview.teaching.desc": "Courses, summer schools, and workshops.",
+  "Content.Overview.mobility.title": "Mobility",
+  "Content.Overview.mobility.desc": "Co-tutoring, visits, internships, exchanges.",
+  "Content.Initiatives.schools.title": "Summer schools & workshops",
+  "Content.Initiatives.schools.desc": "International and local events for students and researchers.",
+  "Content.Initiatives.seminars.title": "Joint seminars",
+  "Content.Initiatives.seminars.desc": "Collaborative talks & invited speakers.",
+  "Content.Initiatives.visits.title": "Research visits",
+  "Content.Initiatives.visits.desc": "Short-term & long-term research stays.",
+  "Content.Courses.ml.title": "Machine Learning",
+  "Content.Courses.ml.desc": "Joint courses, applied modules, projects.",
+  "Content.Courses.robotics.title": "Robotics & Vision",
+  "Content.Courses.robotics.desc": "Hands-on labs, automation, and vision systems.",
+  "Content.Courses.hpc.title": "HPC for AI",
+  "Content.Courses.hpc.desc": "GPU programming & large-scale AI training.",
+  "Content.Courses.ethics.title": "AI Ethics & Safety",
+  "Content.Courses.ethics.desc": "Fairness, explainability & governance in AI.",
+  "Content.Mobility.phd.title": "Co-supervision",
+  "Content.Mobility.phd.desc": "Joint PhD supervision with international partners.",
+  "Content.Mobility.grants.title": "Mobility grants",
+  "Content.Mobility.grants.desc": "Funding for exchanges & research stays.",
+  "Content.Mobility.placements.title": "Placements & exchanges",
+  "Content.Mobility.placements.desc": "Internships, visits, and staff exchanges.",
+  "Event.title": "“Progress and Innovation in Ophthalmology” Forum 2025",
+  "Event.desc1": "The 3rd edition of “Eye and AI” workshop is jointly organized by the Department of Ophthalmology, “Iuliu Hațieganu” University of Medicine and Pharmacy, the Cluj County Emergency Clinical Hospital, and the Artificial Intelligence Research Institute (AIRi@UTCN), Technical University of Cluj-Napoca, Romania. Bringing together clinicians, researchers, and industry practitioners, the event explores how artificial intelligence is transforming ophthalmic care—from imaging and screening to decision support and workflow optimization.",
+  "Event.moderators": "Moderators:",
+  "Event.moderatorsNames": "Adrian GROZA, Anca MĂRGINEAN, Radu-Răzvan SLĂVESCU",
+  "Event.paper1Title": "Reconstructing Compact 3D OCT Volumes from B-scans: a Comparative Study of U-Net Architectures",
+  "Event.paper1Authors": "Adrian POP — Technical University, Cluj-Napoca",
+  "Event.paper2Title": "3D Reconstruction Based on the AROI Set",
+  "Event.paper2Authors": "Cristian Raul MOLDOVAN, Radu-Răzvan SLĂVESCU — Technical University, Cluj-Napoca",
+  "Event.paper3Title": "Adapting Vision Foundation Models for OCT and Eye Fundus",
+  "Event.paper3Authors": "Anca MĂRGINEAN — Technical University, Cluj-Napoca",
+  "Event.paper4Title": "Segmentation of the Retinal Vascular Network and Biomarker Quantification in OCTA Imaging",
+  "Event.paper4Authors": "Darius STAN, Raluca BREHAR — Technical University, Cluj-Napoca",
+  "Event.linkText": "View full event details →",
+};
 
 const containerVariants = {
   hidden: { opacity: 0.9 },
@@ -81,8 +143,8 @@ export default function Client() {
   const router = useRouter();
   const sp = useSearchParams();
   const tab = sp.get("tab") || "Overview";
-  
-  const t = useTranslations("engagement.academic");
+
+  const t = (key) => ACADEMIC_STRINGS[key] || key;
 
   const setTab = useCallback(
     (t) => router.replace(`?tab=${encodeURIComponent(t)}`, { scroll: false }),
@@ -159,7 +221,7 @@ export default function Client() {
       );
     }
 
-    if (t.has(`Content.${tab}.${sub}.title`)) {
+    if (ACADEMIC_STRINGS[`Content.${tab}.${sub}.title`]) {
       return (
         <SectionTitle 
           title={t(`Content.${tab}.${sub}.title`)} 
@@ -207,7 +269,6 @@ export default function Client() {
                           : "bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900")
                       }
                     >
-                      {/* Dynamic Tab Label */}
                       {t(`Tabs.${tObj.key}.label`)}
                     </button>
                   );

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Head from "next/head";
-import { useTranslations } from "next-intl";
 import {
   FacebookShareButton,
   TwitterShareButton,
@@ -30,14 +29,6 @@ const mediaItems = [
     alt: "ICIA Research Team",
     title: "Research Team at Work",
   },
-  // Easter egg
-  // {
-  //   type: "video",
-  //   src: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-  //   alt: "ICIA Presentation",
-  //   title: "ICIA Institute Presentation",
-  // },
-  // TESTING
   {
     type: "pdf",
     src: "/media/Brosura Prezentare ICIA.pdf",
@@ -69,15 +60,13 @@ const itemVariants = {
   },
 };
 
-export default function MediaClient() {
-  const t = useTranslations("media");
+export default function MediaClient({ mediaData }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
-  // If the code is running in the browser (window is defined), it uses the current page URL (window.location.href).
-  // If not (like during server-side rendering), it falls back to "localhost:3000".
+  const headerTitle = mediaData?.headerTitle || "Media Gallery";
+  const headerSubtitle = mediaData?.headerSubtitle || "Explore photos, documents, and media resources from the Artificial Intelligence Research Institute.";
+
   const shareUrl = typeof window !== "undefined" ? window.location.href : "localhost:3000"; 
-  
-  // This sets the title for sharing (from the social buttons)
   const title = selectedMedia ? selectedMedia.title : "ICIA Media"; 
 
   return (
@@ -93,9 +82,9 @@ export default function MediaClient() {
           animate="visible"
         >
           <motion.div className="page-header" variants={itemVariants}>
-            <h1 className="page-header-title"> {t("header-title")} </h1>
+            <h1 className="page-header-title"> {headerTitle} </h1>
             <p className="page-header-subtitle">
-              {t("header-subtitle")}
+              {headerSubtitle}
             </p>
           </motion.div>
 
@@ -104,7 +93,6 @@ export default function MediaClient() {
             className="grid-cards"
             variants={containerVariants}
           >
-              {/* Mapping over the items from the start of the page, easier to edit */}
               {mediaItems.map((item, index) => (
                 <motion.div
                   key={index}
@@ -130,124 +118,93 @@ export default function MediaClient() {
                       unoptimized
                       className="w-full h-full object-cover object-center"
                     />
+                  ) : item.type === "pdf" ? (
+                    <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">📄 PDF Document</span>
+                    </div>
                   ) : (
-                    <div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                      <span className="heading-accent font-semibold">
-                        {item.title}
-                      </span>
+                    <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">🎬 Video</span>
                     </div>
                   )}
+                  <div className="p-4">
+                    <h3 className="heading-3 mb-2">{item.title}</h3>
+                  </div>
                 </motion.div>
               ))}
-            </motion.div>
+          </motion.div>
         </motion.div>
-
-        {/* Animating the images when they're selected */}
-        <AnimatePresence>
-          {selectedMedia && (
-            <motion.div
-              className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50"
-              onClick={() => setSelectedMedia(null)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {/* The actual white rectangle with the image, after clicking an item */}
-              <motion.div
-                className="bg-white dark:bg-gray-900 p-6 rounded-3xl max-w-6xl w-full relative"
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.95 }}
-                transition={{ duration: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* The X button, but clicking outside the image will also work. */}
-                <button
-                  className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition-colors duration-200"
-                  onClick={() => setSelectedMedia(null)}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                    stroke="currentColor"
-                    className="w-6 h-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-
-                {selectedMedia.type === "image" ? (
-                  <>
-                    <Image
-                      src={selectedMedia.src}
-                      alt={selectedMedia.alt}
-                      width={1920}
-                      height={1080}
-                      unoptimized
-                      className="w-full h-full object-cover object-center rounded-2xl"
-                    />
-                    {/* <div className="absolute bottom-4 right-4 flex space-x-2"> */}
-                    <div className="flex justify-center mt-4 space-x-2">
-                      <FacebookShareButton
-                        url={shareUrl}
-                        title={title}
-                      >
-                        <FacebookIcon size={32} round />
-                      </FacebookShareButton>
-                      <TwitterShareButton
-                        url={shareUrl}
-                        title={title}
-                      >
-                        <TwitterIcon size={32} round />
-                      </TwitterShareButton>
-                      <LinkedinShareButton
-                        url={shareUrl}
-                        title={title}
-                      >
-                        <LinkedinIcon size={32} round />
-                      </LinkedinShareButton>
-                      <PinterestShareButton
-                        url={shareUrl}
-                        title={title}
-                        media={`${shareUrl}${selectedMedia.src}`}
-                      >
-                        <PinterestIcon size={32} round />
-                      </PinterestShareButton>
-                      <EmailShareButton
-                        url={shareUrl}
-                        title={title}
-                      >
-                        <EmailIcon size={32} round />
-                      </EmailShareButton>
-                    </div>
-                  </>
-                ) : (
-                  <iframe
-                    width="100%"
-                    height="800"
-                    src={selectedMedia.src}
-                    title={selectedMedia.title}
-                    style={{ border: 0 }}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="rounded-2xl"
-                  ></iframe>
-                )}
-                <p className="mt-4 text-center font-semibold heading-accent text-lg break-words">
-                  {selectedMedia.title}
-                </p>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {selectedMedia && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedMedia(null)}
+          >
+            <motion.div
+              className="relative max-w-4xl w-full bg-white dark:bg-gray-900 rounded-2xl overflow-hidden shadow-2xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedMedia(null)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                aria-label="Close"
+              >
+                ✕
+              </button>
+              {selectedMedia.type === "image" && (
+                <div className="relative h-[60vh]">
+                  <Image
+                    src={selectedMedia.src}
+                    alt={selectedMedia.alt}
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
+                </div>
+              )}
+              {selectedMedia.type === "pdf" && (
+                <div className="p-8 text-center">
+                  <h3 className="heading-2 mb-4">{selectedMedia.title}</h3>
+                  <a
+                    href={selectedMedia.src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-accent"
+                  >
+                    Open PDF in new tab
+                  </a>
+                </div>
+              )}
+              <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="heading-3">{selectedMedia.title}</h3>
+                <div className="flex gap-2">
+                  <FacebookShareButton url={shareUrl} quote={title}>
+                    <FacebookIcon size={32} round />
+                  </FacebookShareButton>
+                  <TwitterShareButton url={shareUrl} title={title}>
+                    <TwitterIcon size={32} round />
+                  </TwitterShareButton>
+                  <LinkedinShareButton url={shareUrl} title={title}>
+                    <LinkedinIcon size={32} round />
+                  </LinkedinShareButton>
+                  <EmailShareButton url={shareUrl} subject={title}>
+                    <EmailIcon size={32} round />
+                  </EmailShareButton>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

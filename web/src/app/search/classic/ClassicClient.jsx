@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -104,10 +103,15 @@ function isExternalRoute(route) {
   return /^https?:\/\//i.test(route || "");
 }
 
-export default function ClassicClient() {
+export default function ClassicClient({ searchData }) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
-  const t = useTranslations("search.classic");
+
+  const titleText = searchData?.classicTitle || "Classic Search";
+  const placeholderText = searchData?.classicPlaceholder || "Search...";
+  const singularTemplate = searchData?.classicResultsSingular || "Found {count} result for";
+  const pluralTemplate = searchData?.classicResultsPlural || "Found {count} results for";
+  const noMatchesText = searchData?.classicNoMatches || "No results found matching your search.";
 
   const [idx, setIdx] = useState([]);
   const [q, setQ] = useState(initialQuery);
@@ -177,13 +181,17 @@ export default function ClassicClient() {
     return { results: deduped, terms };
   }, [q, idx]);
 
+  const countText = results.length === 1
+    ? singularTemplate.replace("{count}", results.length)
+    : pluralTemplate.replace("{count}", results.length);
+
   return (
     <motion.div variants={container} initial="hidden" animate="visible">
       <motion.h1
         className="text-2xl md:text-3xl font-extrabold mb-6 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
         variants={item}
       >
-        {t("title")}
+        {titleText}
       </motion.h1>
 
       <div className="card p-4 md:p-5">
@@ -191,7 +199,7 @@ export default function ClassicClient() {
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder={t("placeholder")}
+          placeholder={placeholderText}
           className="w-full rounded-xl border px-4 py-3 bg-white dark:bg-slate-900 outline-none focus:ring-2 ring-blue-500"
         />
       </div>
@@ -199,10 +207,7 @@ export default function ClassicClient() {
       {ready && q.trim() && (
         <>
           <motion.div className="text-sm text-slate-500 mb-3" variants={item}>
-            {results.length === 1 
-              ? t("resultsSingular", { count: results.length }) 
-              : t("resultsPlural", { count: results.length })
-            } <strong>“{q.trim()}”</strong>
+            {countText} <strong>“{q.trim()}”</strong>
           </motion.div>
 
           <ul className="space-y-3">
@@ -249,7 +254,7 @@ export default function ClassicClient() {
 
           {results.length === 0 && (
             <motion.div className="text-slate-600 dark:text-slate-300" variants={item}>
-              {t("noMatches")}
+              {noMatchesText}
             </motion.div>
           )}
         </>

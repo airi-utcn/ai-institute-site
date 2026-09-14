@@ -26,7 +26,77 @@ import {
   FaLink,
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
-import { useTranslations } from 'next-intl';
+const PROJECT_DETAIL_DEFAULTS = {
+  notFound: "Project not found",
+  backToProjects: "Back to Projects",
+  region: "Region",
+  phase: "Phase",
+  partners: "Partners",
+  partnerCount: "{count} partner",
+  partnerCountPlural: "{count} partners",
+  officialWebsite: "Official Website",
+  documentation: "Documentation",
+  start: "Start",
+  end: "End",
+  phaseNoDate: "Not set",
+  phaseOpenEnded: "No end date",
+  phaseProgress: "Timeline progress",
+  timeline: "Timeline",
+  timelineEventFallback: "Project milestone",
+  noTimeline: "No timeline events available yet.",
+  "timelineStates.past": "Completed",
+  "timelineStates.current": "Current",
+  "timelineStates.upcoming": "Upcoming",
+  "tabs.about": "About",
+  "tabs.team": "Team",
+  "tabs.research": "Research",
+  "tabs.publications": "Publications",
+  "tabs.results": "Results",
+  "tabs.news": "News",
+  "tabs.partners": "Partners",
+  "tabs.contact": "Contact",
+  "tabs.resources": "Resources",
+  abstract: "Abstract",
+  researchDomains: "Research Domains",
+  teams: "Teams",
+  memberCount: "{count} member",
+  memberCountPlural: "{count} members",
+  lead: "Lead",
+  noTeamMembers: "No members listed for this team.",
+  individualContributors: "Individual Contributors",
+  contributors: "Contributors",
+  noPeople: "No people assigned to this project.",
+  platform: "Platform:",
+  noResources: "No resources available for this project.",
+  publicationCount: "{count} publication",
+  publicationCountPlural: "{count} publications",
+  noPublications: "No publications available for this project.",
+  authors: "Authors:",
+  viewDetails: "View details",
+  pdf: "PDF",
+  teamProjects: "Projects",
+  noResearch: "No research content available",
+  noResults: "No results available",
+  noNews: "No news linked to this project yet.",
+  openArticle: "Open article",
+  "newsCategories.announcement": "Announcement",
+  "newsCategories.construction": "Construction",
+  "newsCategories.collaboration": "Collaboration",
+  "newsCategories.award": "Award",
+  "newsCategories.press": "Press",
+  "newsCategories.other": "Update",
+  noPartners: "No partners listed",
+  noContact: "No contact information available",
+  contactInformation: "Contact Information",
+  contactMethods: "Contact Methods",
+  "phases.completed": "Completed",
+  "phases.planned": "Planned",
+  "phases.ongoing": "Ongoing",
+  "phases.ended": "Ended",
+  "phases.archived": "Archived",
+  visitResource: "Visit Resource",
+  viewArticle: "View Article",
+};
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
@@ -510,7 +580,16 @@ function NewsCard({ item, t }) {
 
 export default function ProjectDetails({ project }) {
   const [activeTab, setActiveTab] = useState('about');
-  const t = useTranslations("research.projectDetails");
+  const t = (key, params) => {
+    let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
+    if (params && typeof params === "object") {
+      Object.entries(params).forEach(([k, v]) => {
+        val = val.replace(`{${k}}`, v);
+      });
+    }
+    return val;
+  };
+  t.has = (key) => key in PROJECT_DETAIL_DEFAULTS;
 
   if (!project) {
     return (

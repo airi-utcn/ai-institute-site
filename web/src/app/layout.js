@@ -7,10 +7,6 @@ import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { getGlobal } from "@/lib/strapi";
 import { LocaleProvider } from "@/context/LocaleContext";
 
-// Keep next-intl client provider during incremental migration until all individual pages are migrated
-import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -73,24 +69,10 @@ export const fetchCache = "force-cache";
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
-  let locale = cookieStore.get('NEXT_LOCALE')?.value;
-
-  if (!locale) {
-    try {
-      locale = await getLocale();
-    } catch {
-      locale = 'en';
-    }
-  }
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
 
   // Fetch Strapi global data for navbar, footer, metadata
   const globalData = await getGlobal(locale);
-
-  // Temporary fallback for pages still using next-intl
-  let messages = {};
-  try {
-    messages = await getMessages();
-  } catch {}
 
   return (
     <html
@@ -109,7 +91,8 @@ export default async function RootLayout({ children }) {
                 const isDark = stored ? stored === 'dark' : prefersDark;
                 document.documentElement.classList.toggle('dark', isDark);
                 document.documentElement.dataset.theme = isDark ? 'dark' : 'light';
-              } catch (e) {}\n            `,
+              } catch (e) {}
+            `,
           }}
         />
 
@@ -117,13 +100,11 @@ export default async function RootLayout({ children }) {
         <JsonLd data={organizationJsonLd()} />
         <JsonLd data={websiteJsonLd()} />
 
-        <NextIntlClientProvider messages={messages}>
-          <LocaleProvider locale={locale} globalData={globalData}>
-            <ThemeProvider>
-              <RouteShell>{children}</RouteShell>
-            </ThemeProvider>
-          </LocaleProvider>
-        </NextIntlClientProvider>
+        <LocaleProvider locale={locale} globalData={globalData}>
+          <ThemeProvider>
+            <RouteShell>{children}</RouteShell>
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   );

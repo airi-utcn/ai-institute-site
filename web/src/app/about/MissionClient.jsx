@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
 
 const container = {
   hidden: { opacity: 0 },
@@ -12,8 +11,9 @@ const item = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
-export default function MissionClient() {
-  const t = useTranslations("about.mission");
+export default function MissionClient({ aboutData }) {
+  const title = aboutData?.missionTitle || "Mission";
+  const text = aboutData?.missionText || "The Artificial Intelligence Research Institute (AIRi) serves as a hub for collaborative research across the Technical University of Cluj-Napoca.";
 
   return (
     <motion.section id="mission" className="mb-10" variants={container} initial="hidden" animate="visible">
@@ -21,11 +21,11 @@ export default function MissionClient() {
         className="heading-1 heading-accent text-center mb-3"
         variants={item}
       >
-        {t("title")}
+        {title}
       </motion.h1>
 
       <motion.p className="text-body text-center max-w-3xl mx-auto" variants={item}>
-        {t("text")}
+        {text}
       </motion.p>
     </motion.section>
   );

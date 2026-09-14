@@ -5,25 +5,35 @@
  * Google Scholar citation counts, then hands everything to PeopleClient.
  */
 
-export const metadata = {
-  title: "People",
-  description:
-    "Meet the researchers, staff, and visiting scholars of the Artificial Intelligence Research Institute at UTCN.",
-};
-
-import { getStaff, transformStaffData, PERSON_TYPE_FILTERS } from "@/lib/strapi";
+import { cookies } from "next/headers";
+import { getStaff, transformStaffData, PERSON_TYPE_FILTERS, getSingleType } from "@/lib/strapi";
 import { attachScholarCitationCounts } from "@/lib/googleScholar";
 import PeopleClient from "./PeopleClient";
 
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const people = await getSingleType("people-page", locale);
+
+  return {
+    title: people?.title || "People",
+    description: people?.subtitle || "Meet the researchers, staff, and visiting scholars of the Artificial Intelligence Research Institute at UTCN.",
+  };
+}
+
 export default async function PeoplePage() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+
   try {
-    const [staffData, researchersData, visitingData, studentsData, externalData, alumniData] = await Promise.all([
-      getStaff({ types: PERSON_TYPE_FILTERS.staff }),
-      getStaff({ types: PERSON_TYPE_FILTERS.researchers }),
-      getStaff({ types: PERSON_TYPE_FILTERS.visiting }),
-      getStaff({ types: PERSON_TYPE_FILTERS.students }),
-      getStaff({ types: PERSON_TYPE_FILTERS.external }),
-      getStaff({ types: PERSON_TYPE_FILTERS.alumni }),
+    const [staffData, researchersData, visitingData, studentsData, externalData, alumniData, pageData] = await Promise.all([
+      getStaff({ types: PERSON_TYPE_FILTERS.staff, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.researchers, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.visiting, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.students, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.external, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.alumni, locale }),
+      getSingleType("people-page", locale),
     ]);
 
     const staff = transformStaffData(staffData);
@@ -43,6 +53,7 @@ export default async function PeoplePage() {
         students={students}
         external={external}
         alumni={alumni}
+        pageData={pageData}
       />
     );
   } catch (error) {

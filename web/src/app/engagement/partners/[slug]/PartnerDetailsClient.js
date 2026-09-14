@@ -2,14 +2,11 @@
 
 import Link from 'next/link';
 import { FaArrowLeft, FaExternalLinkAlt, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
-import { useTranslations } from 'next-intl';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 
 export default function PartnerDetailsClient({ partner }) {
-  const t = useTranslations('engagement.basic');
-  const tr = (key, fallback, values) =>
-    (t.has(`PartnerDetails.${key}`) ? t(`PartnerDetails.${key}`, values) : fallback);
+  const tr = (key, fallback) => fallback;
   const projects = Array.isArray(partner?.projects) ? partner.projects : [];
   const bodyBlocks = Array.isArray(partner?.body) ? partner.body : [];
   const markdownClassName = 'prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300';
@@ -39,186 +36,194 @@ export default function PartnerDetailsClient({ partner }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24">
           
-          {/* LEFT COLUMN: STICKY METADATA */}
-          <aside className="lg:col-span-4 flex flex-col gap-8">
-            <div className="sticky top-24">
-              {/* Logo Box */}
+          {/* Left Column - Metadata & Sidebar */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="space-y-6">
               {partner.logo ? (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 mb-8 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm p-3 flex items-center justify-center">
-                  <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-gray-800 p-4 flex items-center justify-center">
+                  <img
+                    src={partner.logo}
+                    alt={`${partner.name} Logo`}
+                    className="max-w-full max-h-full object-contain"
+                  />
                 </div>
-              ) : null}
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <FaGlobe className="w-8 h-8 text-gray-400" />
+                </div>
+              )}
 
-              {/* Name & Country */}
-              <div className="space-y-4">
-                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.1]">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-black dark:text-white mb-2">
                   {partner.name}
                 </h1>
-                
                 {partner.country && (
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-medium">
-                    <FaMapMarkerAlt className="w-4 h-4" />
+                  <div className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <FaMapMarkerAlt className="w-3.5 h-3.5" />
                     <span>{partner.country}</span>
                   </div>
                 )}
               </div>
-
-              <div className="w-full h-px bg-gray-100 dark:bg-gray-800 my-8" />
-
-              {/* Short Bio / Description */}
-              {partner.descriptionMarkdown && (
-                <div className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                  <RichMarkdown content={partner.descriptionMarkdown} className={markdownClassName} />
-                </div>
-              )}
-
-              {/* Website Button */}
-              {partner.url && (
-                <a
-                  href={partner.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-3 w-full py-4 px-6 rounded-xl bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200 font-medium transition-all shadow-sm"
-                >
-                  <FaGlobe className="w-5 h-5" />
-                  {tr('visitOfficialWebsite', 'Visit Official Website')}
-                  <FaExternalLinkAlt className="w-3.5 h-3.5 ml-auto" />
-                </a>
-              )}
             </div>
-          </aside>
 
-          {/* RIGHT COLUMN: MAIN CONTENT */}
-          <main className="lg:col-span-8 flex flex-col gap-16 xl:gap-24">
-            
-            {/* Dynamic Content Blocks */}
-            {bodyBlocks.length > 0 && (
-              <section className="space-y-12">
-                {bodyBlocks.map((block, index) => {
-                  if (!block || typeof block !== 'object') return null;
-
-                  if (block.__component === 'shared.rich-text') {
-                    return (
-                      <div key={`rich-${index}`} className="prose-wrapper">
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                      </div>
-                    );
-                  }
-
-                  if (block.__component === 'shared.section') {
-                    return (
-                      <article key={`section-${index}`} className="space-y-6">
-                        <header>
-                          {block.heading && <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">{block.heading}</h3>}
-                          {block.subheading && <p className="text-lg text-gray-500 dark:text-gray-400">{block.subheading}</p>}
-                        </header>
-                        
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                        
-                        {block.media && (
-                          <div className="mt-8 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                            <BodyContentImage
-                              src={block.media}
-                              alt={block.heading || partner.name}
-                              className="w-full"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                              landscapeClassName="w-full max-h-[36rem] object-cover"
-                            />
-                          </div>
-                        )}
-                      </article>
-                    );
-                  }
-
-                  if (block.__component === 'shared.media' && block.file) {
-                    return (
-                      <figure key={`media-${index}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-4">
-                        <BodyContentImage
-                          src={block.file}
-                          alt={partner.name}
-                          className="rounded-xl"
-                          portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                          landscapeClassName="w-full max-h-[40rem] object-contain"
-                        />
-                      </figure>
-                    );
-                  }
-
-                  if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
-                    return (
-                      <div key={`slider-${index}`} className="grid gap-4 sm:grid-cols-2">
-                        {block.files.map((file, fileIndex) => (
-                          <figure key={`slider-file-${index}-${fileIndex}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900">
-                            <BodyContentImage
-                              src={file}
-                              alt={`${partner.name} media ${fileIndex + 1}`}
-                              landscapeClassName="aspect-video w-full object-cover"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            />
-                          </figure>
-                        ))}
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
-              </section>
+            {partner.description && (
+              <div className="text-base text-gray-600 dark:text-gray-300 leading-relaxed font-normal">
+                {partner.description}
+              </div>
             )}
 
-            {/* Related Projects - Sleek List Style */}
-            <section className="pt-10 border-t border-gray-100 dark:border-gray-800">
-              <header className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            {partner.website && (
+              <div className="pt-2">
+                <a
+                  href={partner.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black font-medium text-sm hover:opacity-90 transition-opacity"
+                >
+                  <span>{tr('visitOfficialWebsite', 'Visit Official Website')}</span>
+                  <FaExternalLinkAlt className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Deep Content & Projects */}
+          <div className="lg:col-span-8 space-y-12 lg:space-y-16">
+            
+            {/* Dynamic Body Blocks */}
+            {bodyBlocks.length > 0 ? (
+              <div className="space-y-8">
+                {bodyBlocks.map((block, index) => {
+                  if (!block) return null;
+
+                  switch (block.__component) {
+                    case 'shared.rich-text':
+                      return (
+                        <RichMarkdown
+                          key={`rich-${index}`}
+                          content={block.body}
+                          className={markdownClassName}
+                        />
+                      );
+
+                    case 'shared.section':
+                      return (
+                        <section key={`section-${index}`} className="my-8 first:mt-0">
+                          {block.heading && (
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                              {block.heading}
+                            </h2>
+                          )}
+                          <RichMarkdown
+                            content={block.body}
+                            className={markdownClassName}
+                          />
+                        </section>
+                      );
+
+                    case 'shared.media':
+                      return (
+                        <BodyContentImage
+                          key={`media-${index}`}
+                          block={block}
+                          className="my-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
+                        />
+                      );
+
+                    case 'shared.slider':
+                      return (
+                        <div key={`slider-${index}`} className="my-8 space-y-4">
+                          {Array.isArray(block.files) &&
+                            block.files.map((file, fileIndex) => (
+                              <BodyContentImage
+                                key={`slide-${index}-${fileIndex}`}
+                                block={{ file }}
+                                className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
+                              />
+                            ))}
+                        </div>
+                      );
+
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ) : (
+              /* Fallback rich text if no dynamic blocks */
+              partner.descriptionMarkdown && (
+                <div className="space-y-4">
+                  <RichMarkdown
+                    content={partner.descriptionMarkdown}
+                    className={markdownClassName}
+                  />
+                </div>
+              )
+            )}
+
+            {/* Linked Projects */}
+            <div className="pt-8 border-t border-gray-100 dark:border-gray-900">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold tracking-tight text-black dark:text-white">
                   {tr('collaborativeProjects', 'Collaborative Projects')}
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {tr(
-                    'collaborativeProjectsSubtitle',
-                    `Research and initiatives featuring ${partner.name || ''}.`,
-                    { partnerName: partner.name || '' }
-                  )}
+                    'collaborativeProjectsDesc',
+                    'Research initiatives and industry engagements developed in partnership with'
+                  )}{' '}
+                  {partner.name}.
                 </p>
-              </header>
+              </div>
 
               {projects.length > 0 ? (
-                <div className="flex flex-col gap-4">
-                  {projects.map((project) => {
-                    const projectSlug = project.slug ? encodeURIComponent(project.slug) : '';
-                    return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {projects.map((project, idx) => {
+                    const projectSlug = typeof project === 'object' ? project.slug : null;
+                    const projectTitle = typeof project === 'string' ? project : project.title;
+
+                    return projectSlug ? (
                       <Link
-                        key={project.slug || project.title}
-                        href={projectSlug ? `/research/projects/${projectSlug}` : '/research/projects'}
-                        className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 transition-colors"
+                        key={projectSlug || idx}
+                        href={`/research/projects/${encodeURIComponent(projectSlug)}`}
+                        className="group p-5 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-black dark:hover:border-white transition-all bg-white dark:bg-[#0f0f0f]"
                       >
-                        <div className="flex-1 max-w-2xl">
-                          <h3 className="font-semibold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-1 pr-4">
-                            {project.title}
-                          </h3>
-                          {project.abstract && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-                              {project.abstract}
-                            </p>
-                          )}
-                        </div>
-                        <div className="shrink-0">
-                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all group-hover:translate-x-1">
-                            <FaArrowLeft className="w-3.5 h-3.5 rotate-180" />
-                          </span>
+                        <h3 className="font-semibold text-base text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                          {projectTitle}
+                        </h3>
+                        {project.abstract && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 line-clamp-2">
+                            {project.abstract}
+                          </p>
+                        )}
+                        <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400">
+                          <span>View Project</span>
+                          <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                         </div>
                       </Link>
+                    ) : (
+                      <div
+                        key={projectTitle || idx}
+                        className="p-5 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#0f0f0f]"
+                      >
+                        <h3 className="font-semibold text-base text-gray-900 dark:text-white">
+                          {projectTitle}
+                        </h3>
+                      </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="py-12 px-6 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-800 text-center">
+                <div className="p-8 rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 text-center">
                   <p className="text-gray-500 dark:text-gray-400">{tr('noLinkedProjects', 'No linked projects available yet.')}</p>
                 </div>
               )}
-            </section>
+            </div>
 
-          </main>
+          </div>
+
         </div>
+
       </div>
     </div>
   );

@@ -3,14 +3,43 @@
 import Link from "next/link";
 import { useMemo, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; 
-import { useTranslations } from "next-intl";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TABS = [
   { key: "Overview" },
   { key: "Projects" },
   { key: "Engagement" },
 ];
+
+const INDUSTRY_STRINGS = {
+  "ProjectsTab.searchPlaceholder": "Search by project, lead, partner…",
+  "ProjectsTab.allDomains": "All domains",
+  "ProjectsTab.cardLead": "Lead",
+  "ProjectsTab.cardDetails": "Details",
+  "ProjectsTab.cardSite": "Website",
+  "ProjectsTab.cardDocs": "Documentation",
+  "ProjectsTab.noProjects": "No projects match your filters yet.",
+  "EngagementTab.title": "How We Work with Industry",
+  "EngagementTab.listItem1": "Collaborative R&D and Technology Transfer",
+  "EngagementTab.listItem2": "Contract Research and Feasibility Studies",
+  "EngagementTab.listItem3": "Talent Pipeline and Co-Supervised Theses",
+  "OverviewTab.feature1Title": "Applied AI Research",
+  "OverviewTab.feature1Desc": "Developing state-of-the-art models for real-world industrial challenges.",
+  "OverviewTab.feature2Title": "Technology Transfer",
+  "OverviewTab.feature2Desc": "Accelerating deployment from lab prototypes into production environments.",
+  "OverviewTab.feature3Title": "High Performance Infrastructure",
+  "OverviewTab.feature3Desc": "Cutting-edge GPU computing resources to train and evaluate large-scale AI models.",
+  "OverviewTab.statsProjects": "Industry Projects",
+  "OverviewTab.statsDomains": "Research Domains",
+  "OverviewTab.statsPartners": "Partners",
+  "title": "Industry engagement",
+  "description": "Partner with AIRi on applied research and technology transfer, from discovery to deployment.",
+  "Tabs.Overview": "Overview",
+  "Tabs.Projects": "Projects",
+  "Tabs.Engagement": "How we work",
+  "Buttons.contact": "Contact the Industry Team",
+  "Buttons.explore": "Explore Projects",
+};
 
 const containerVariants = {
   hidden: { opacity: 0.9 },
@@ -38,30 +67,26 @@ const toProjectSummary = (project) => {
   const domains = Array.isArray(project?.domain)
     ? project.domain.filter(Boolean)
     : Array.isArray(project?.domains)
-    ? project.domains.map((d) => d?.name).filter(Boolean)
+    ? project.domains.filter(Boolean)
     : [];
 
   const partners = Array.isArray(project?.partners)
-    ? project.partners.filter(Boolean)
-    : Array.isArray(project?.partnersData)
-    ? project.partnersData.map((p) => p?.name).filter(Boolean)
+    ? project.partners
+        .map((p) => (typeof p === "string" ? p : p?.name))
+        .filter(Boolean)
     : [];
-
-  const expandedPartners = Array.isArray(project?.partnersData) ? project.partnersData : [];
 
   return {
     id: project?.id ?? null,
-    title: project?.title || "",
     slug: project?.slug || "",
+    title: project?.title || "",
     abstract: project?.abstract || "",
-    phase: project?.phase || "",
-    lead: project?.leadName || project?.lead || "",
+    lead: project?.lead || "",
+    isIndustryEngagement: Boolean(project?.isIndustryEngagement),
     domains,
     partners,
-    expandedPartners,
-    docUrl: project?.docUrl || "",
-    officialUrl: project?.oficialUrl || project?.officialUrl || "",
-    isIndustryEngagement: project?.isIndustryEngagement || false,
+    websiteUrl: project?.websiteUrl || null,
+    documentationUrl: project?.documentationUrl || null,
     heroImage: project?.heroImage || null,
   };
 };
@@ -70,7 +95,7 @@ export default function Client({ projects: rawProjects = [] }) {
   const router = useRouter();
   const sp = useSearchParams();
   const tab = sp.get("tab") || "Overview";
-  const t = useTranslations("engagement.industry");
+  const t = (key) => INDUSTRY_STRINGS[key] || key;
 
   const [query, setQuery] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
@@ -120,196 +145,196 @@ export default function Client({ projects: rawProjects = [] }) {
     };
   }, [projects]);
 
-  const content = useMemo(() => {
-    switch (tab) {
-      case "Projects":
-        return (
-          <motion.section 
-            key="Projects" 
-            className="space-y-6" 
-            variants={containerVariants} 
-            initial="hidden" 
-            animate="visible"
-            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }} 
-          >
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("ProjectsTab.searchPlaceholder")}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-              />
-              <select
-                value={domainFilter}
-                onChange={(e) => setDomainFilter(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm"
-              >
-                <option value="">{t("ProjectsTab.allDomains")}</option>
-                {domainOptions.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
+  let content = null;
 
-            {filteredProjects.length ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredProjects.map((p) => (
-                  <motion.article
-                    key={p.id || p.slug || p.title}
-                    variants={itemVariants}
-                    className="flex flex-col h-full rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-                  >
-                    <div className="relative h-48 bg-gray-50 dark:bg-gray-800 flex items-center justify-center p-6 border-b border-gray-100 dark:border-gray-800">
-                      {p.heroImage ? (
-                        <div className="absolute inset-0">
-                          <img
-                            src={p.heroImage}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent" />
-                        </div>
+  if (tab === "Projects") {
+    content = (
+      <motion.div
+        key="Projects"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        className="space-y-6"
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("ProjectsTab.searchPlaceholder")}
+            className="flex-1 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <select
+            value={domainFilter}
+            onChange={(e) => setDomainFilter(e.target.value)}
+            className="rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">{t("ProjectsTab.allDomains")}</option>
+            {domainOptions.map((domain) => (
+              <option key={domain} value={domain}>
+                {domain}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {filteredProjects.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filteredProjects.map((p) => {
+              return (
+                <motion.div
+                  key={p.id ?? p.slug}
+                  variants={itemVariants}
+                  className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    {p.heroImage ? (
+                      <div className="relative mb-3 h-36 w-full overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800">
+                        <img
+                          src={p.heroImage}
+                          alt={p.title}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.domains.map((dom) => (
+                        <span
+                          key={dom}
+                          className="inline-block rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-0.5 text-xs font-semibold"
+                        >
+                          {dom}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                      {p.title}
+                    </h3>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+                      {p.abstract}
+                    </p>
+                    {p.partners.length > 0 ? (
+                      <div className="pt-2 text-xs text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold text-gray-700 dark:text-gray-300">
+                          Partners:
+                        </span>{" "}
+                        {p.partners.join(", ")}
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800 text-xs text-gray-500">
+                    <span>
+                      {p.lead ? `${t("ProjectsTab.cardLead")}: ${p.lead}` : null}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      {p.slug ? (
+                        <Link
+                          href={`/research/projects/${encodeURIComponent(p.slug)}`}
+                          className="font-semibold text-blue-600 dark:text-yellow-400 hover:underline"
+                        >
+                          {t("ProjectsTab.cardDetails")}
+                        </Link>
                       ) : null}
-
-                      <div className="relative z-10 flex gap-4">
-                        {p.expandedPartners.map((partner) =>
-                          partner.logo ? (
-                            <div key={partner.name} className="h-12 w-12 sm:h-16 sm:w-16 bg-white dark:bg-[#0a0a0a] rounded-xl p-2.5 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-center" title={partner.name}>
-                              <img src={partner.logo} alt={partner.name} className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal" />
-                            </div>
-                          ) : null
-                        )}
-                      </div>
+                      {p.websiteUrl ? (
+                        <a
+                          href={p.websiteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline"
+                        >
+                          {t("ProjectsTab.cardSite")}
+                        </a>
+                      ) : null}
+                      {p.documentationUrl ? (
+                        <a
+                          href={p.documentationUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:underline"
+                        >
+                          {t("ProjectsTab.cardDocs")}
+                        </a>
+                      ) : null}
                     </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-gray-300 dark:border-gray-800 p-8 text-center">
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t("ProjectsTab.noProjects")}</p>
+          </div>
+        )}
+      </motion.div>
+    );
+  } else if (tab === "Engagement") {
+    content = (
+      <motion.div
+        key="Engagement"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        className="space-y-4"
+      >
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            {t("EngagementTab.title")}
+          </h2>
+          <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700 dark:text-gray-300">
+            <li>{t("EngagementTab.listItem1")}</li>
+            <li>{t("EngagementTab.listItem2")}</li>
+            <li>{t("EngagementTab.listItem3")}</li>
+          </ul>
+        </div>
+      </motion.div>
+    );
+  } else {
+    content = (
+      <motion.div
+        key="Overview"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+        className="space-y-6"
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Feature title={t("OverviewTab.feature1Title")} desc={t("OverviewTab.feature1Desc")} />
+          <Feature title={t("OverviewTab.feature2Title")} desc={t("OverviewTab.feature2Desc")} />
+          <Feature title={t("OverviewTab.feature3Title")} desc={t("OverviewTab.feature3Desc")} />
+        </div>
 
-                    <div className="flex flex-col flex-1 p-5 gap-3">
-                      <div className="flex-1">
-                        <div className="mb-2 flex flex-wrap gap-2 text-xs">
-                          {p.domains.map((d) => (
-                            <span key={`${p.title}-${d}`} className="rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 font-medium border border-blue-100 dark:border-blue-800">
-                              {d}
-                            </span>
-                          ))}
-                        </div>
-
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
-                          {p.title}
-                        </h3>
-                        
-                        {p.abstract ? (
-                          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-3">
-                            {p.abstract}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                         <div className="text-xs text-gray-500 dark:text-gray-500">
-                           {p.lead ? `${t("ProjectsTab.cardLead")}: ${p.lead}` : null}
-                         </div>
-                         <div className="flex gap-3 text-sm font-medium">
-                          {p.slug ? (
-                            <Link
-                              href={`/research/projects/${encodeURIComponent(p.slug)}`}
-                              className="text-blue-600 dark:text-yellow-400 hover:underline"
-                            >
-                              {t("ProjectsTab.cardDetails")}
-                            </Link>
-                          ) : null}
-                          {p.officialUrl ? (
-                            <a
-                              href={p.officialUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 dark:text-yellow-400 hover:underline"
-                            >
-                              {t("ProjectsTab.cardSite")}
-                            </a>
-                          ) : null}
-                          {p.docUrl ? (
-                            <a
-                              href={p.docUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 dark:text-yellow-400 hover:underline"
-                            >
-                              {t("ProjectsTab.cardDocs")}
-                            </a>
-                          ) : null}
-                         </div>
-                      </div>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">{t("ProjectsTab.noProjects")}</p>
-            )}
-          </motion.section>
-        );
-      case "Engagement":
-        return (
-          <motion.section 
-            key="Engagement"
-            className="space-y-4" 
-            variants={containerVariants} 
-            initial="hidden" 
-            animate="visible"
-            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
-          >
-            <motion.h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100" variants={itemVariants}>
-              {t("EngagementTab.title")}
-            </motion.h2>
-            <motion.div
-              className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm"
-              variants={itemVariants}
-            >
-              <ul className="list-disc pl-6 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                <li>{t("EngagementTab.listItem1")}</li>
-                <li>{t("EngagementTab.listItem2")}</li>
-                <li>{t("EngagementTab.listItem3")}</li>
-              </ul>
-            </motion.div>
-          </motion.section>
-        );
-      default:
-        return (
-          <motion.section 
-            key="Overview" 
-            className="space-y-6" 
-            variants={containerVariants} 
-            initial="hidden" 
-            animate="visible"
-            exit={{ opacity: 0, y: -10, transition: { duration: 0.15 } }}
-          >
-            <div className="grid gap-4 md:grid-cols-3">
-              <Feature title={t("OverviewTab.feature1Title")} desc={t("OverviewTab.feature1Desc")} />
-              <Feature title={t("OverviewTab.feature2Title")} desc={t("OverviewTab.feature2Desc")} />
-              <Feature title={t("OverviewTab.feature3Title")} desc={t("OverviewTab.feature3Desc")} />
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsProjects")}</div>
-                <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.projectCount}</div>
-              </motion.div>
-              <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsDomains")}</div>
-                <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.domainCount}</div>
-              </motion.div>
-              <motion.div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm" variants={itemVariants}>
-                <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsPartners")}</div>
-                <div className="text-3xl font-bold text-blue-600 dark:text-yellow-400">{stats.partnerCount}</div>
-              </motion.div>
-            </div>
-          </motion.section>
-        );
-    }
-  }, [tab, query, domainFilter, domainOptions, filteredProjects, stats, t]);
+        <div className="grid gap-4 sm:grid-cols-3 pt-2">
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 text-center bg-white dark:bg-gray-900">
+            <div className="text-2xl font-extrabold text-blue-600 dark:text-yellow-400">{stats.projectCount}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsProjects")}</div>
+          </div>
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 text-center bg-white dark:bg-gray-900">
+            <div className="text-2xl font-extrabold text-blue-600 dark:text-yellow-400">{stats.domainCount}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsDomains")}</div>
+          </div>
+          <div className="rounded-xl border border-gray-200 dark:border-gray-800 p-4 text-center bg-white dark:bg-gray-900">
+            <div className="text-2xl font-extrabold text-blue-600 dark:text-yellow-400">{stats.partnerCount}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">{t("OverviewTab.statsPartners")}</div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container max-w-6xl mx-auto bg-white dark:bg-gray-950 rounded-2xl shadow-xl p-6 md:p-10">
-        <motion.div key="main-container" variants={containerVariants} initial="hidden" animate="visible">
+        <motion.div
+          key="industry-container"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <motion.h1
             variants={itemVariants}
             className="text-2xl md:text-3xl font-extrabold mb-2 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
@@ -323,9 +348,9 @@ export default function Client({ projects: rawProjects = [] }) {
             {t("description")}
           </motion.p>
 
-          <div className="mt-6 md:mt-8">
-            <div className="flex justify-start">
-              <div className="inline-flex rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden max-w-full overflow-x-auto whitespace-nowrap">
+          <div className="mt-8">
+            <div className="flex justify-center">
+              <div className="inline-flex rounded-xl p-1 bg-gray-100 dark:bg-gray-800">
                 {TABS.map((tObj) => {
                   const active = tab === tObj.key;
                   return (
@@ -335,10 +360,10 @@ export default function Client({ projects: rawProjects = [] }) {
                       onClick={() => setTab(tObj.key)}
                       aria-pressed={active}
                       className={
-                        "px-4 py-2 text-sm font-medium focus:outline-none " +
+                        "px-4 py-2 text-sm font-medium focus:outline-none rounded-lg transition-colors " +
                         (active
                           ? "bg-blue-600 text-white dark:bg-blue-500"
-                          : "bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900")
+                          : "bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-200/60 dark:hover:bg-gray-700/60")
                       }
                     >
                       {t(`Tabs.${tObj.key}`)}

@@ -4,15 +4,14 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/lib/animations";
-import { useTranslations } from "next-intl";
 
 export default function DepartmentsClient({
   staffData = [],
   departments = [],
   projects = [],
   publications = [],
+  pageData,
 }) {
-  const t = useTranslations("research.departments");
   const departmentList = Array.isArray(departments) ? departments : [];
   
   const departmentGroups = useMemo(() => {
@@ -28,7 +27,16 @@ export default function DepartmentsClient({
   }, [departmentList]);
 
   const typeLabel = (type) => {
-    return t.has(`types.${type}`) ? t(`types.${type}`) : t("types.other");
+    switch (type) {
+      case "research":
+        return pageData?.departmentTypeResearch || "Research Departments";
+      case "networks":
+        return pageData?.departmentTypeNetworks || "Research Networks";
+      case "support":
+        return pageData?.departmentTypeSupport || "Support Departments";
+      default:
+        return pageData?.departmentTypeOther || "Departments";
+    }
   };
 
   // Count projects and staff for each department
@@ -53,14 +61,19 @@ export default function DepartmentsClient({
     return { projectCount, memberCount };
   };
 
+  const title = pageData?.departmentsTitle || "Departments";
+  const subtitle = pageData?.departmentsSubtitle || "Discover our research departments, centers, and specialized units advancing artificial intelligence.";
+  const membersTemplate = pageData?.departmentsMembersCount || "{count} members";
+  const projectsTemplate = pageData?.departmentsProjectsCount || "{count} projects";
+
   return (
     <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
           <motion.div variants={itemVariants} className="page-header">
-            <h1 className="page-header-title">{t("title")}</h1>
+            <h1 className="page-header-title">{title}</h1>
             <p className="page-header-subtitle">
-              {t("subtitle")}
+              {subtitle}
             </p>
           </motion.div>
 
@@ -95,8 +108,8 @@ export default function DepartmentsClient({
                           </p>
                         )}
                         <div className="flex gap-4 mt-3 text-xs text-muted">
-                          <span>{t("members", { count: stats.memberCount })}</span>
-                          <span>{t("projects", { count: stats.projectCount })}</span>
+                          <span>{membersTemplate.replace("{count}", stats.memberCount)}</span>
+                          <span>{projectsTemplate.replace("{count}", stats.projectCount)}</span>
                         </div>
                       </Link>
                     </motion.div>

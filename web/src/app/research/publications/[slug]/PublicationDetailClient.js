@@ -3,10 +3,29 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+const PUBLICATION_DETAIL_DEFAULTS = {
+  notFound: "Publication not found.",
+  backToPublications: "← Back to publications",
+  openPdf: "Open PDF",
+  downloadBibtex: "Download BibTeX",
+  authors: "Authors",
+  noAuthors: "No authors listed.",
+  relatedProjects: "Related projects",
+  noProjects: "No projects linked.",
+  themes: "Themes",
+  noThemes: "No themes linked.",
+  resources: "Resources",
+  noResources: "No resources linked.",
+  viewResource: "View resource",
+  attachments: "Attachments",
+  noAttachments: "No attachments yet.",
+  images: "Images",
+  files: "Files",
+  download: "Download",
+};
 
 export default function PublicationDetailClient({ publication }) {
-  const t = useTranslations("research.publicationDetails");
+  const t = (key) => PUBLICATION_DETAIL_DEFAULTS[key] || key;
   const router = useRouter();
 
   if (!publication) return <div className="p-6">{t("notFound")}</div>;

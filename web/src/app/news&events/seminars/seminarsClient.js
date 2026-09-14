@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslations } from "next-intl";
 
 /* Animations */
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.15 },},
+  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
 };
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -39,9 +38,8 @@ function SectionToggle({ label, children, defaultOpen = false }) {
     <div className="mt-4">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="w-full flex items-center justify-between px-4 py-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 text-sm font-medium transition hover:bg-gray-200 dark:hover:bg-gray-700"
+        onClick={() => setOpen((prev) => !prev)}
+        className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
       >
         <span>{label}</span>
         <Chevron open={open} />
@@ -54,10 +52,10 @@ function SectionToggle({ label, children, defaultOpen = false }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="px-5 py-3">{children}</div>
+            <div className="pt-2">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -65,9 +63,13 @@ function SectionToggle({ label, children, defaultOpen = false }) {
   );
 }
 
-export default function SeminarsClient({ seminars = [] }) {
+export default function SeminarsClient({ seminars = [], pageData }) {
   const items = Array.isArray(seminars) ? seminars : [];
-  const t = useTranslations("news&events.seminars");
+  const title = pageData?.tabSeminars || "Seminars";
+  const subtitle = "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.";
+  const emptyState = "No seminars scheduled at this time.";
+  const whatYouWillLearn = "What you'll learn";
+  const modules = "Modules";
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
@@ -77,7 +79,7 @@ export default function SeminarsClient({ seminars = [] }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        {t("title")}
+        {title}
       </motion.h1>
 
       <motion.p
@@ -86,7 +88,7 @@ export default function SeminarsClient({ seminars = [] }) {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.6 }}
       >
-        {t("subtitle")}
+        {subtitle}
       </motion.p>
 
       {items.length === 0 ? (
@@ -96,7 +98,7 @@ export default function SeminarsClient({ seminars = [] }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.25, duration: 0.6 }}
         >
-          {t("emptyState")}
+          {emptyState}
         </motion.p>
       ) : (
         <motion.ul
@@ -112,7 +114,6 @@ export default function SeminarsClient({ seminars = [] }) {
               variants={itemVariants}
             >
               <div className="p-5">
-                {/* Title (clickable, opens in new tab) */}
                 <a
                   href={s.url}
                   target="_blank"
@@ -122,9 +123,8 @@ export default function SeminarsClient({ seminars = [] }) {
                   {s.title}
                 </a>
 
-                {/* Collapsible: What you'll learn */}
                 {Array.isArray(s.about) && s.about.length > 0 && (
-                  <SectionToggle label={t("whatYouWillLearn")}>
+                  <SectionToggle label={whatYouWillLearn}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.about.map((point, i) => (
                         <li key={`about-${idx}-${i}`}>{point}</li>
@@ -133,9 +133,8 @@ export default function SeminarsClient({ seminars = [] }) {
                   </SectionToggle>
                 )}
 
-                {/* Collapsible: Modules */}
                 {Array.isArray(s.modules) && s.modules.length > 0 && (
-                  <SectionToggle label={t("modules")}>
+                  <SectionToggle label={modules}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.modules.map((m, i) => (
                         <li key={`module-${idx}-${i}`}>{m}</li>

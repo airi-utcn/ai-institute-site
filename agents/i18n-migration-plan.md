@@ -47,10 +47,17 @@ Currently, components use `next-intl` via `useTranslations()`. This will be full
 - Delete `web/src/i18n.js`.
 - Remove localization provider wrappers (`<NextIntlClientProvider>`) from `layout.js` entirely.
 
-## 3. Step-by-Step Execution Plan
+## 3. Step-by-Step Execution Plan & Status
 
-1. **Setup Phase:** Define Strapi Single Types and components via schema setup (`src/api/*` and components in `/components`). Enable i18n for each required content field. Publish schema changes.
-2. **Backend Data Migration:** Test and run `migrate-i18n.js` to move all pre-existing text structures from legacy JSONs directly into the fresh Strapi fields across all configured Locales.
-3. **Frontend Phase - Global & Base Structure:** Refactor `layout.js`, updating the layout, headers, footers to request from Strapi instead of local static files.
-4. **Frontend Phase - Page Refactor:** Iterate through each Next.js directory (`home`, `about`, `contact`, `news&events`, etc.), substituting `t('path.to.string')` with native properties driven straight from `/api/[pageType]` requests.
-5. **Final Cleanup:** Purge the old `messages` subfolder, related local libraries, and redundant references to formally conclude the migration process.
+1. **[COMPLETED] Setup Phase:** Defined Strapi Single Types (`global`, `home-page`, `about-page`, `contact-page`, `engagement-page`, `research-page`, `people-page`, `resources-page`, `timeline-page`, `media-page`, `search-page`, `news-events-page`). Enabled i18n for all fields.
+2. **[COMPLETED] Backend Data Migration:** Developed and executed `server/scripts/migrate-i18n.js`, migrating all 11 locales (`en`, `ro`, `bg`, `de`, `el`, `es`, `fr`, `it`, `lv`, `tr`, `zh`) into Strapi.
+3. **[COMPLETED] Frontend Phase - Global & Base Structure:** Implemented `LocaleContext.js`, updated `Navbar`, `Footer`, `LanguageSwitcher`, and `layout.js`.
+4. **[COMPLETED] Frontend Phase - Page Refactor:** Refactored 100% of routes across Home, About, Contact, Engagement, People, News & Events, Media, Resources, Search, Timeline, and Research (Departments, Projects, Publications, Themes, Thesis, Results). All routes fetch dynamic Strapi content or rely on local static fallbacks.
+5. **[COMPLETED] Final Cleanup & Verification:**
+   - Purged `web/src/messages/` folder (all 11 json files removed).
+   - Deleted `web/src/i18n.js`.
+   - Removed `<NextIntlClientProvider>` and Next-Intl server helpers from `web/src/app/layout.js`.
+   - Removed `withNextIntl` from `web/next.config.mjs`.
+   - Uninstalled `next-intl` from `web/package.json`.
+   - Verified 0 remaining occurrences of `next-intl` in the entire project.
+   - Ran `npm run build` with complete Turbopack compile and SSG page generation success (exit code 0).

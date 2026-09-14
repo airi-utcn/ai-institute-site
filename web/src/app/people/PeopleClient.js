@@ -14,7 +14,6 @@ import {
   FaHandshake,
   FaTrophy,
 } from "react-icons/fa";
-import { useTranslations } from "next-intl";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -68,145 +67,120 @@ function getCitationCount(person) {
 const getRoleConfig = (type) => {
   const configs = {
     researcher: {
-      label: "Researcher",
+      label: "Researchers",
       icon: FaFlask,
-      color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
-      chipColor: "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
+      color: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border-blue-200 dark:border-blue-800",
+      chipColor: "bg-blue-600 hover:bg-blue-700",
     },
     staff: {
       label: "Staff",
       icon: FaUserTie,
-      color: "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300",
-      chipColor: "bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700",
+      color: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300 border-purple-200 dark:border-purple-800",
+      chipColor: "bg-purple-600 hover:bg-purple-700",
     },
     student: {
-      label: "Student",
+      label: "Students",
       icon: FaGraduationCap,
-      color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-      chipColor: "bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700",
+      color: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 border-amber-200 dark:border-amber-800",
+      chipColor: "bg-amber-600 hover:bg-amber-700",
     },
     visiting: {
       label: "Visiting",
       icon: FaGlobe,
-      color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-      chipColor: "bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700",
+      color: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-300 border-teal-200 dark:border-teal-800",
+      chipColor: "bg-teal-600 hover:bg-teal-700",
     },
     external: {
       label: "External",
       icon: FaHandshake,
-      color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
-      chipColor: "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700",
+      color: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300 border-rose-200 dark:border-rose-800",
+      chipColor: "bg-rose-600 hover:bg-rose-700",
     },
     alumni: {
       label: "Alumni",
       icon: FaTrophy,
-      color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300",
-      chipColor: "bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700",
+      color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+      chipColor: "bg-indigo-600 hover:bg-indigo-700",
     },
   };
-
-  return configs[type] || configs.researcher;
+  return configs[type] || configs.staff;
 };
 
-const formatSubtypeLabel = (subtype) => {
-  if (!subtype) return null;
+const RESEARCHER_SORT_OPTIONS = [
+  { value: "most-citations", label: "Citations: High to Low" },
+  { value: "least-citations", label: "Citations: Low to High" },
+  { value: "name-asc", label: "Name: A to Z" },
+  { value: "name-desc", label: "Name: Z to A" },
+];
 
-  return subtype
-    .replace(/_/g, " ")
-    .replace(/([A-Z])/g, " $1")
-    .trim()
+function PersonCard({ person, basePath = "/people", showRoleBadge = true, activeFilter = "all" }) {
+  const roleConfig = getRoleConfig(person.type);
+  const initials = (person.name || "?")
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-};
+    .join(" ")
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2);
 
-function PersonCard({ person, basePath = "/people", showRoleBadge = false, activeFilter = "all" }) {
   const citationCount = getCitationCount(person);
-  const subtypeLabel = formatSubtypeLabel(person.subtype);
-  const roleConfig = getRoleConfig(person.type);
-  const RoleIcon = roleConfig.icon;
-
-  const getBadgeLabel = () => {
-    if (activeFilter === "all") {
-      if (subtypeLabel) return `${roleConfig.label} • ${subtypeLabel}`;
-      return roleConfig.label;
-    }
-    if (subtypeLabel) return subtypeLabel;
-    return roleConfig.label;
-  };
-
-  const shouldShowBadge = showRoleBadge && (subtypeLabel || (activeFilter === "all" && showRoleBadge));
+  const showCitationBadge = person.type === "researcher" && activeFilter !== "staff" && activeFilter !== "student";
 
   return (
-    <motion.article
-      className="card card-hover p-5 transition-all duration-200 hover:shadow-lg dark:hover:shadow-lg/50"
+    <motion.div
       variants={itemVariants}
-      layout
+      className="card card-hover flex flex-col items-center text-center p-4 relative group"
     >
+      {showRoleBadge && (
+        <span
+          className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${roleConfig.color}`}
+        >
+          {roleConfig.label}
+        </span>
+      )}
+
+      {showCitationBadge && (
+        <span
+          className="absolute top-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+          title={`${citationCount} Google Scholar citation${citationCount !== 1 ? "s" : ""}`}
+        >
+          {citationCount.toLocaleString()} {citationCount === 1 ? "cit." : "cits."}
+        </span>
+      )}
+
       <Link href={`${basePath}/${encodeURIComponent(person.slug)}`} className="block text-center">
-        <div className="relative w-28 h-28 mx-auto mb-3">
-          <img
-            src={person.image || "/people/Basic_avatar_image.png"}
-            alt={person.name}
-            width={112}
-            height={112}
-            loading="lazy"
-            className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
-          />
+        <div className="w-20 h-20 rounded-full mx-auto mb-3 bg-gradient-to-br from-primary-500 to-primary-700 dark:from-primary-600 dark:to-accent-500 flex items-center justify-center text-white text-xl font-bold shadow-md group-hover:scale-105 transition-transform">
+          {person.image ? (
+            <img
+              src={person.image}
+              alt={person.name}
+              className="w-full h-full rounded-full object-cover"
+            />
+          ) : (
+            <span>{initials}</span>
+          )}
         </div>
 
-        <h2 className="text-base font-semibold text-gray-900 dark:text-white leading-tight">{person.name}</h2>
-
-        {shouldShowBadge && (
-          <div className="flex items-center justify-center gap-1 mt-2 px-2">
-            <span
-              className={`inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${roleConfig.color}`}
-            >
-              <RoleIcon className="w-2.5 h-2.5 flex-shrink-0" />
-              <span className="whitespace-nowrap">{getBadgeLabel()}</span>
-            </span>
-          </div>
-        )}
+        <h3 className="heading-3 text-sm font-semibold text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
+          {person.name}
+        </h3>
 
         {person.title && (
-          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">{person.title}</p>
+          <p className="text-xs text-muted line-clamp-1 mt-0.5">
+            {person.title}
+          </p>
         )}
 
         {person.department && (
-          <p className="text-xs text-primary-600 dark:text-accent-400 mt-1 font-medium">{person.department}</p>
-        )}
-
-        {person.googleScholarUrl && (
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-            {citationCount > 0 ? (
-              <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20">
-                <svg
-                  className="w-3 h-3 text-blue-500 dark:text-blue-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
-                </svg>
-                <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">
-                  {citationCount.toLocaleString()} citations
-                </span>
-              </div>
-            ) : (
-              <p className="text-xs text-gray-400 dark:text-gray-500 italic">Scholar profile</p>
-            )}
-          </div>
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1 mt-0.5">
+            {person.department.name}
+          </p>
         )}
       </Link>
-    </motion.article>
+    </motion.div>
   );
 }
-
-const RESEARCHER_SORT_OPTIONS = [
-  { value: "default", label: "Default order (A–Z)" },
-  { value: "most-citations", label: "Most cited on Google Scholar (↓ highest first)" },
-  { value: "fewest-citations", label: "Fewest citations on Google Scholar (↑ lowest first)" },
-];
 
 const SORT_OPTIONS = RESEARCHER_SORT_OPTIONS;
 
@@ -217,12 +191,21 @@ export default function PeopleClient({
   students = [],
   external = [],
   alumni = [],
+  pageData,
 }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [allSort, setAllSort] = useState("default");
   const [researcherSort, setResearcherSort] = useState("most-citations");
-  const t = useTranslations("people");
+
+  const title = pageData?.title || "People";
+  const subtitle = pageData?.subtitle || "Meet the researchers, faculty, and collaborative teams shaping AI innovation at AIRi.";
+  const tabResearchers = pageData?.tabResearchers || "Researchers";
+  const tabStaff = pageData?.tabStaff || "Staff";
+  const tabStudents = pageData?.tabStudents || "Students";
+  const tabVisiting = pageData?.tabVisiting || "Visiting Scholars";
+  const tabExternal = pageData?.tabExternal || "External Collaborators";
+  const tabAlumni = pageData?.tabAlumni || "Alumni";
 
   const allPeopleFlat = useMemo(() => {
     const merged = [
@@ -251,14 +234,14 @@ export default function PeopleClient({
 
     return [
       { id: "all", label: "All", icon: null, count: allPeopleFlat.length },
-      { id: "researcher", label: t("tabs.researchers"), ...getRoleConfig("researcher"), count: counts.researcher || 0 },
-      { id: "staff", label: t("tabs.staff"), ...getRoleConfig("staff"), count: counts.staff || 0 },
-      { id: "student", label: t("tabs.students"), ...getRoleConfig("student"), count: counts.student || 0 },
-      { id: "visiting", label: t("tabs.visiting"), ...getRoleConfig("visiting"), count: counts.visiting || 0 },
-      { id: "external", label: t("tabs.external"), ...getRoleConfig("external"), count: counts.external || 0 },
-      { id: "alumni", label: t("tabs.alumni"), ...getRoleConfig("alumni"), count: counts.alumni || 0 },
+      { id: "researcher", label: tabResearchers, ...getRoleConfig("researcher"), count: counts.researcher || 0 },
+      { id: "staff", label: tabStaff, ...getRoleConfig("staff"), count: counts.staff || 0 },
+      { id: "student", label: tabStudents, ...getRoleConfig("student"), count: counts.student || 0 },
+      { id: "visiting", label: tabVisiting, ...getRoleConfig("visiting"), count: counts.visiting || 0 },
+      { id: "external", label: tabExternal, ...getRoleConfig("external"), count: counts.external || 0 },
+      { id: "alumni", label: tabAlumni, ...getRoleConfig("alumni"), count: counts.alumni || 0 },
     ].filter((option) => option.count > 0 || option.id === "all");
-  }, [allPeopleFlat, t]);
+  }, [allPeopleFlat, tabResearchers, tabStaff, tabStudents, tabVisiting, tabExternal, tabAlumni]);
 
   const displayedPeople = useMemo(() => {
     const terms = parseSearchTerms(searchQuery);
@@ -268,67 +251,55 @@ export default function PeopleClient({
     if (terms.length > 0) {
       searchResults = allPeopleFlat.filter((p) => {
         const searchable = normalizeSearchText(
-          [p.name, p.firstName, p.lastName, p.title, p.department, p.email].filter(Boolean).join(" ")
+          [p.name, p.title, p.email, p.department?.name, p.type].filter(Boolean).join(" ")
         );
         return terms.every((term) => searchable.includes(term));
       });
     }
 
-    let filtered = searchResults;
-    if (activeFilter !== "all") {
-      filtered = searchResults.filter((p) => p.type === activeFilter);
-    }
+    const filtered = activeFilter === "all"
+      ? searchResults
+      : searchResults.filter((p) => p.type === activeFilter);
 
     return [...filtered].sort((a, b) => {
       if (currentSort === "most-citations") {
         const countA = getCitationCount(a);
         const countB = getCitationCount(b);
-        if (countA !== countB) return countB - countA;
+        if (countB !== countA) return countB - countA;
       }
-
-      if (currentSort === "fewest-citations") {
+      if (currentSort === "least-citations") {
         const countA = getCitationCount(a);
         const countB = getCitationCount(b);
         if (countA !== countB) return countA - countB;
       }
-
-      // Sort by lastName first, then firstName (last-name-first sorting)
-      const lastNameA = normalizeSortName(a?.lastName || '');
-      const lastNameB = normalizeSortName(b?.lastName || '');
-      const lastNameCompare = lastNameA.localeCompare(lastNameB, "ro", {
-        sensitivity: "base",
-        numeric: true,
-      });
-      if (lastNameCompare !== 0) return lastNameCompare;
-
-      // Tiebreaker: sort by firstName
-      const firstNameA = normalizeSortName(a?.firstName || '');
-      const firstNameB = normalizeSortName(b?.firstName || '');
-      return firstNameA.localeCompare(firstNameB, "ro", {
-        sensitivity: "base",
-        numeric: true,
-      });
+      if (currentSort === "name-asc") {
+        return normalizeSortName(a.name).localeCompare(normalizeSortName(b.name));
+      }
+      if (currentSort === "name-desc") {
+        return normalizeSortName(b.name).localeCompare(normalizeSortName(a.name));
+      }
+      return 0;
     });
   }, [allPeopleFlat, activeFilter, searchQuery, allSort, researcherSort]);
 
-  const handleFilterChange = (id) => {
-    setActiveFilter(id);
+  const handleFilterChange = (filterId) => {
+    setActiveFilter(filterId);
   };
 
   const currentSort = activeFilter === "researcher" ? researcherSort : allSort;
   const setCurrentSort = activeFilter === "researcher" ? setResearcherSort : setAllSort;
 
   return (
-    <div className="page-container">
+    <div className="page-container py-12">
       <div className="content-wrapper content-padding">
         <motion.div
-          className="page-header"
+          className="page-header text-center mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="page-header-title">{t("title")}</h1>
-          <p className="page-header-subtitle">{t("subtitle")}</p>
+          <h1 className="page-header-title">{title}</h1>
+          <p className="page-header-subtitle">{subtitle}</p>
         </motion.div>
 
         <motion.div

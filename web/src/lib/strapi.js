@@ -189,16 +189,29 @@ const appendFilters = (params, value, prefix = 'filters') => {
   });
 };
 
-const createParams = ({ fields = [], populate = {}, filters = null, sort = null, pagination = null, publicationState = null }) => {
+const createParams = ({
+  fields = [],
+  populate = {},
+  filters = null,
+  sort = null,
+  pagination = null,
+  publicationState = null,
+  locale = null,
+}) => {
   const params = new URLSearchParams();
+  if (locale) params.set('locale', locale);
   appendFields(params, fields);
   appendSort(params, sort);
   appendPagination(params, pagination || {});
   if (publicationState) params.set('publicationState', publicationState);
   if (filters) appendFilters(params, filters);
-  Object.entries(populate || {}).forEach(([relation, relationConfig]) => {
-    setPopulate(params, `populate[${relation}]`, relationConfig || {});
-  });
+  if (typeof populate === 'string') {
+    params.set('populate', populate);
+  } else if (populate && typeof populate === 'object') {
+    Object.entries(populate).forEach(([relation, relationConfig]) => {
+      setPopulate(params, `populate[${relation}]`, relationConfig || {});
+    });
+  }
   return params;
 };
 

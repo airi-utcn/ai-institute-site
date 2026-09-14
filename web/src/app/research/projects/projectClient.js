@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown } from "react-icons/fa";
 import { slugify } from "@/lib/slug";
 import { containerVariants, itemVariants } from "@/lib/animations";
-import { useTranslations } from "next-intl";
 
 const normalizeTeams = (proj) =>
   Array.isArray(proj?.teams)
@@ -103,9 +102,35 @@ const normalizeProject = (p) => {
   };
 };
 
-export default function ProjectsClient({ projects: rawProjects = [] }) {
+export default function ProjectsClient({ projects: rawProjects = [], pageData }) {
   const searchParams = useSearchParams();
-  const t = useTranslations("research.projects");
+
+  const t = (key, params) => {
+    switch (key) {
+      case "title": return pageData?.projectsTitle || "Projects";
+      case "subtitle": return pageData?.projectsSubtitle || "Explore our research projects across various domains";
+      case "searchPlaceholder": return pageData?.projectsSearchPlaceholder || "Search projects by title, lead, department...";
+      case "filters": return "Filters";
+      case "region": return "Region";
+      case "allRegions": return pageData?.projectsAllRegions || "All regions";
+      case "department": return "Department";
+      case "allDepartments": return pageData?.projectsAllDepartments || "All departments";
+      case "lead": return "Lead";
+      case "allLeads": return pageData?.projectsAllLeads || "All leads";
+      case "member": return "Member";
+      case "allMembers": return pageData?.projectsAllMembers || "All members";
+      case "theme": return "Theme";
+      case "filterByTheme": return "Filter by theme...";
+      case "projectsFound": return (pageData?.projectsResultsSingular || "Found {count} project").replace("{count}", params?.count ?? 0);
+      case "projectsFoundPlural": return (pageData?.projectsResultsPlural || "Found {count} projects").replace("{count}", params?.count ?? 0);
+      case "clearAllFilters": return "Clear all filters";
+      case "leadLabel": return "Lead:";
+      case "dept": return "Dept:";
+      case "noProjects": return pageData?.projectsEmptyState || "No projects match your search criteria.";
+      case "clearFilters": return "Clear filters";
+      default: return key;
+    }
+  };
   
   // ---- State filters ----
   const [q, setQ] = useState("");
@@ -128,53 +153,67 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
   const projects = useMemo(() => {
     const src = Array.isArray(rawProjects) ? rawProjects : [];
     return src
-      .map(normalizeProject)
-      .filter((p) => p.title && !p.isIndustryEngagement);
+      .map((p) => normalizeProject(p))
+      .filter((p) => p.title);
   }, [rawProjects]);
 
-  const { regionOptions, domainOptions, leadOptions, memberOptions } = useMemo(() => {
+  const { allRegions, allDomains, allLeads, allMembers } = useMemo(() => {
     const regions = new Set();
     const domains = new Set();
     const leads = new Set();
     const members = new Set();
 
-    for (const p of projects) {
-      p.regions.forEach((r) => r && regions.add(r));
-      p.domainNames.forEach((d) => d && domains.add(d));
+    projects.forEach((p) => {
+      (p.regions || []).forEach((r) => r && regions.add(r));
+      (p.domainNames || []).forEach((d) => d && domains.add(d));
       if (p.lead) leads.add(p.lead);
-      p.members.forEach((m) => m && members.add(m));
-    }
+      (p.members || []).forEach((m) => m && members.add(m));
+    });
 
     return {
-      regionOptions: sortStrings(regions),
-      domainOptions: sortStrings(domains),
-      leadOptions: sortStrings(leads),
-      memberOptions: sortStrings(members),
+      allRegions: sortStrings(regions),
+      allDomains: sortStrings(domains),
+      allLeads: sortStrings(leads),
+      allMembers: sortStrings(members),
     };
   }, [projects]);
 
-  // filtering
   const filtered = useMemo(() => {
     const terms = parseSearchTerms(q);
+    const normalizedTheme = normalizeSearchText(themeFilter);
+
     return projects.filter((p) => {
       const haystack = normalizeSearchText(
-        [p.title, p.lead, ...p.domainNames, ...p.regions, ...p.members, ...(p.themes || [])].join(" ")
+        [
+          p.title,
+          p.lead,
+          ...p.regions,
+          ...p.domainNames,
+          ...p.members,
+          ...p.themes,
+        ].join(" ")
       );
 
-      const matchesQ = !terms.length || terms.every((term) => haystack.includes(term));
-      const matchesRegion = !regionFilter || p.regions.includes(regionFilter);
-      const matchesDomain = !domainFilter || p.domainNames.includes(domainFilter);
+      const matchesSearch =
+        terms.length === 0 || terms.every((term) => haystack.includes(term));
+
+      const matchesRegion = !regionFilter || (p.regions || []).includes(regionFilter);
+      const matchesDomain = !domainFilter || (p.domainNames || []).includes(domainFilter);
       const matchesLead = !leadFilter || p.lead === leadFilter;
-      const matchesMember = !memberFilter || p.members.includes(memberFilter);
-      // Theme filter - check if project has themes and if the theme matches
-      const normalizedThemeFilter = themeFilter.trim().toLowerCase();
-
+      const matchesMember = !memberFilter || (p.members || []).includes(memberFilter);
       const matchesTheme =
-        !normalizedThemeFilter ||
-        p.themes?.some((t) => t.toLowerCase().includes(normalizedThemeFilter)) ||
-        p.themeSlugs?.some((s) => s.toLowerCase() === normalizedThemeFilter);
+        !themeFilter ||
+        p.themes.some((t) => normalizeSearchText(t).includes(normalizedTheme)) ||
+        p.themeSlugs.some((t) => normalizeSearchText(t).includes(normalizedTheme));
 
-      return matchesQ && matchesRegion && matchesDomain && matchesLead && matchesMember && matchesTheme;
+      return (
+        matchesSearch &&
+        matchesRegion &&
+        matchesDomain &&
+        matchesLead &&
+        matchesMember &&
+        matchesTheme
+      );
     });
   }, [projects, q, regionFilter, domainFilter, leadFilter, memberFilter, themeFilter]);
 
@@ -238,26 +277,29 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
               <FaFilter className="text-xs" />
               {t("filters")}
               {hasActiveFilters && (
-                <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary-600 text-white">
-                  {[regionFilter, domainFilter, leadFilter, memberFilter, themeFilter].filter(Boolean).length}
-                </span>
+                <span className="w-2 h-2 rounded-full bg-primary-600 dark:bg-accent-400" />
               )}
-              <FaChevronDown className={`text-xs transition-transform ${showFilters ? "rotate-180" : ""}`} />
+              <FaChevronDown
+                className={`text-xs transition-transform duration-200 ${
+                  showFilters ? "rotate-180" : ""
+                }`}
+              />
             </button>
           </motion.div>
 
-          {/* Collapsible filters */}
+          {/* Collapsible filters panel */}
           <AnimatePresence>
             {showFilters && (
               <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden mb-8"
               >
-                <div className="card p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="card p-6 border border-gray-200 dark:border-gray-700">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* Region */}
                     <div>
                       <label className="label">{t("region")}</label>
                       <select
@@ -266,12 +308,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                         className="select"
                       >
                         <option value="">{t("allRegions")}</option>
-                        {regionOptions.map((r) => (
+                        {allRegions.map((r) => (
                           <option key={r} value={r}>{r}</option>
                         ))}
                       </select>
                     </div>
 
+                    {/* Department */}
                     <div>
                       <label className="label">{t("department")}</label>
                       <select
@@ -280,12 +323,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                         className="select"
                       >
                         <option value="">{t("allDepartments")}</option>
-                        {domainOptions.map((d) => (
+                        {allDomains.map((d) => (
                           <option key={d} value={d}>{d}</option>
                         ))}
                       </select>
                     </div>
 
+                    {/* Lead */}
                     <div>
                       <label className="label">{t("lead")}</label>
                       <select
@@ -294,12 +338,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                         className="select"
                       >
                         <option value="">{t("allLeads")}</option>
-                        {leadOptions.map((l) => (
+                        {allLeads.map((l) => (
                           <option key={l} value={l}>{l}</option>
                         ))}
                       </select>
                     </div>
 
+                    {/* Member */}
                     <div>
                       <label className="label">{t("member")}</label>
                       <select
@@ -308,12 +353,13 @@ export default function ProjectsClient({ projects: rawProjects = [] }) {
                         className="select"
                       >
                         <option value="">{t("allMembers")}</option>
-                        {memberOptions.map((m) => (
+                        {allMembers.map((m) => (
                           <option key={m} value={m}>{m}</option>
                         ))}
                       </select>
                     </div>
 
+                    {/* Theme */}
                     <div>
                       <label className="label">{t("theme")}</label>
                       <input

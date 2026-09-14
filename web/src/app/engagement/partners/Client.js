@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -17,7 +16,8 @@ const itemVariants = {
 };
 
 export default function PartnersClient({ partners, CollaboratorsClient }) {
-  const t = useTranslations("engagement.partners");
+  const title = "Our Partners & Collaborators";
+  const mapTitle = "Global Collaboration Network";
 
   return (
     <div className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-900 py-12">
@@ -32,7 +32,7 @@ export default function PartnersClient({ partners, CollaboratorsClient }) {
           className="text-2xl md:text-3xl font-extrabold mb-8 text-blue-600 dark:text-yellow-400 tracking-tight text-center"
           variants={itemVariants}
         >
-          {t("title")}
+          {title}
         </motion.h1>
 
         <motion.div
@@ -56,7 +56,7 @@ export default function PartnersClient({ partners, CollaboratorsClient }) {
 
         <motion.section className="mt-12" variants={itemVariants}>
           <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-            {t("mapTitle")}
+            {mapTitle}
           </h2>
           <CollaboratorsClient partners={partners} />
         </motion.section>

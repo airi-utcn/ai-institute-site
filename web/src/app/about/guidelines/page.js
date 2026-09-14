@@ -1,10 +1,22 @@
+import { cookies } from "next/headers";
+import { getSingleType } from "@/lib/strapi";
 import Client from "./Client";
 
-export const metadata = {
-  title: "Guidelines – Onboarding",
-  description: "Onboarding guidelines and resources for new members of AIRi at UTCN.",
-};
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const about = await getSingleType("about-page", locale);
 
-export default function GuidelinesPage() {
-  return <Client />;
+  return {
+    title: about?.guidelinesTitle || "Guidelines – Onboarding",
+    description: "Onboarding guidelines and resources for new members of AIRi at UTCN.",
+  };
+}
+
+export default async function GuidelinesPage() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const about = await getSingleType("about-page", locale);
+
+  return <Client aboutData={about} />;
 }

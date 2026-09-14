@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useLocale } from "@/context/LocaleContext";
 
 const LANGUAGES = [
@@ -19,15 +18,14 @@ const LANGUAGES = [
 ];
 
 export default function LanguageSwitcher({ compact = false }) {
-  const router = useRouter();
   const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const handleLanguageChange = (e) => {
     const nextLocale = e.target.value;
-    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
-    router.refresh();
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    window.location.reload();
   };
 
   const currentLang = LANGUAGES.find((l) => l.code === locale) || LANGUAGES[0];
@@ -44,9 +42,9 @@ export default function LanguageSwitcher({ compact = false }) {
   }, []);
 
   const handleCompactSelect = (nextLocale) => {
-    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
     setIsOpen(false);
-    router.refresh();
+    window.location.reload();
   };
 
   if (compact) {

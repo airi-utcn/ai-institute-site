@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { FaArrowLeft, FaDownload, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
-import { useTranslations } from 'next-intl';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
+import { useLocale } from '@/context/LocaleContext';
 
 export default function ResultDetailsClient({ result }) {
-  const t = useTranslations('research.resultDetails');
+  const locale = useLocale();
   const projects = Array.isArray(result?.projects) ? result.projects : [];
   const attachments = Array.isArray(result?.attachments) ? result.attachments : [];
   const bodyBlocks = Array.isArray(result?.body) ? result.body : [];
@@ -19,7 +19,7 @@ export default function ResultDetailsClient({ result }) {
     : '/research/projects';
   const backLabel = projects.length === 1 && projects[0].title
     ? projects[0].title
-    : t('backToProjects');
+    : 'Back to Projects';
 
   const formatFileSize = (bytes) => {
     if (!bytes) return '';
@@ -66,33 +66,77 @@ export default function ResultDetailsClient({ result }) {
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 font-medium">
                     <FaCalendarAlt className="w-4 h-4" />
                     <span>
-                      {new Date(result.publishedDate).toLocaleDateString('en-US', { 
+                      {new Date(result.publishedDate).toLocaleDateString(locale === 'ro' ? 'ro-RO' : 'en-US', { 
                         year: 'numeric', 
-                        month: 'long',
-                        day: 'numeric'
+                        month: 'long', 
+                        day: 'numeric' 
                       })}
                     </span>
                   </div>
                 )}
               </div>
 
-              <div className="w-full h-px bg-gray-100 dark:bg-gray-800 my-8" />
-
-              {/* Description */}
-              {result.description && (
-                <div className="text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
-                  <p>{result.description}</p>
+              {/* Related Project */}
+              {projects.length > 0 && (
+                <div className="p-6 rounded-2xl bg-gray-50 dark:bg-[#141414] border border-gray-100 dark:border-gray-800 space-y-3 mb-8">
+                  <span className="text-xs font-semibold tracking-wider text-gray-400 dark:text-gray-500 uppercase">
+                    Part of Project
+                  </span>
+                  <div className="space-y-2">
+                    {projects.map((proj) => (
+                      <div key={proj.slug || proj.id}>
+                        <Link
+                          href={`/research/projects/${encodeURIComponent(proj.slug)}`}
+                          className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2"
+                        >
+                          {proj.title}
+                        </Link>
+                        {proj.description && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
+                            {proj.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* Attachments Summary */}
+              {/* Quick Downloads Card (Desktop) */}
               {attachments.length > 0 && (
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                  <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                    <FaFolderOpen className="w-4 h-4" />
-                    <span>
-                      {attachments.length} {attachments.length === 1 ? t('attachment') : t('attachments')}
+                <div className="hidden lg:block p-6 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/80 dark:border-blue-900/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-semibold tracking-wider text-blue-900 dark:text-blue-300 uppercase">
+                      Downloads
                     </span>
+                    <span className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                      {attachments.length} {attachments.length === 1 ? 'attachment' : 'attachments'}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {attachments.map((file, i) => (
+                      <a
+                        key={file.id || i}
+                        href={file.url}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="group flex items-center justify-between p-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-blue-100 dark:border-gray-800 shadow-sm hover:shadow transition-all"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 pr-2">
+                          <span className="text-lg">{getFileIcon(file.mime)}</span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {formatFileSize(file.size)}
+                            </p>
+                          </div>
+                        </div>
+                        <FaDownload className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
+                      </a>
+                    ))}
                   </div>
                 </div>
               )}
@@ -100,17 +144,22 @@ export default function ResultDetailsClient({ result }) {
           </aside>
 
           {/* RIGHT COLUMN: MAIN CONTENT */}
-          <main className="lg:col-span-8 flex flex-col gap-16 xl:gap-24">
+          <main className="lg:col-span-8 flex flex-col gap-12">
             
-            {/* Dynamic Content Blocks */}
-            {bodyBlocks.length > 0 && (
-              <section className="space-y-12">
-                {bodyBlocks.map((block, index) => {
-                  if (!block || typeof block !== 'object') return null;
+            {/* Description/Abstract */}
+            {result.description && (
+              <div className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-normal leading-relaxed">
+                {result.description}
+              </div>
+            )}
 
+            {/* Dynamic Body Blocks */}
+            {bodyBlocks.length > 0 && (
+              <div className="space-y-12">
+                {bodyBlocks.map((block, index) => {
                   if (block.__component === 'shared.rich-text') {
                     return (
-                      <div key={`rich-${index}`} className="prose-wrapper">
+                      <div key={`richtext-${index}`} className="border-t border-gray-100 dark:border-gray-800/80 pt-8 first:border-0 first:pt-0">
                         <RichMarkdown content={block.body} className={markdownClassName} />
                       </div>
                     );
@@ -118,112 +167,89 @@ export default function ResultDetailsClient({ result }) {
 
                   if (block.__component === 'shared.section') {
                     return (
-                      <article key={`section-${index}`} className="space-y-6">
-                        <header>
-                          {block.heading && <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">{block.heading}</h3>}
-                          {block.subheading && <p className="text-lg text-gray-500 dark:text-gray-400">{block.subheading}</p>}
-                        </header>
-                        
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                        
-                        {block.media?.url && (
-                          <div className="mt-8 rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
+                      <section key={`section-${index}`} className="border-t border-gray-100 dark:border-gray-800/80 pt-10 first:border-0 first:pt-0 space-y-4">
+                        {block.heading && (
+                          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            {block.heading}
+                          </h2>
+                        )}
+                        {block.subheading && (
+                          <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">
+                            {block.subheading}
+                          </h3>
+                        )}
+                        {block.body && (
+                          <RichMarkdown content={block.body} className={markdownClassName} />
+                        )}
+                        {block.media && (
+                          <div className="mt-6 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
                             <BodyContentImage
-                              src={block.media.url}
-                              alt={block.media.alt || block.heading || result.title}
+                              src={block.media}
+                              alt={block.heading || result.title}
                               className="w-full"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                              landscapeClassName="w-full max-h-[36rem] object-cover"
+                              loading="lazy"
                             />
                           </div>
                         )}
-                      </article>
+                      </section>
                     );
                   }
 
-                  if (block.__component === 'shared.media' && block.file?.url) {
+                  if (block.__component === 'shared.media' && block.file) {
                     return (
-                      <figure key={`media-${index}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-4">
+                      <div key={`media-${index}`} className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm">
                         <BodyContentImage
-                          src={block.file.url}
-                          alt={block.file.alt || result.title}
-                          className="rounded-xl"
-                          portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                          landscapeClassName="w-full max-h-[40rem] object-contain"
+                          src={block.file}
+                          alt={result.title}
+                          className="w-full"
+                          loading="lazy"
                         />
-                      </figure>
-                    );
-                  }
-
-                  if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
-                    return (
-                      <div key={`slider-${index}`} className="grid gap-4 sm:grid-cols-2">
-                        {block.files.map((file, fileIndex) => (
-                          <figure key={`slider-file-${index}-${fileIndex}`} className="rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900">
-                            <BodyContentImage
-                              src={file.url}
-                              alt={file.alt || `${result.title} media ${fileIndex + 1}`}
-                              landscapeClassName="aspect-video w-full object-cover"
-                              portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            />
-                          </figure>
-                        ))}
                       </div>
                     );
                   }
 
                   return null;
                 })}
-              </section>
+              </div>
             )}
 
-            {/* Attachments */}
+            {/* Attachments Section (Mobile & Tablet Fallback / Bottom Section) */}
             {attachments.length > 0 && (
-              <section className="pt-10 border-t border-gray-100 dark:border-gray-800">
-                <header className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-                    {t('attachments')}
-                  </h2>
-                  <p className="text-gray-500 dark:text-gray-400 mt-2">
-                    Download files and resources related to this result
-                  </p>
-                </header>
-
-                <div className="flex flex-col gap-3">
-                  {attachments.map((file, idx) => (
+              <div className="lg:hidden border-t border-gray-100 dark:border-gray-800 pt-8">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <FaFolderOpen className="text-blue-600 dark:text-blue-400" />
+                  Attachments
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {attachments.map((file, i) => (
                     <a
-                      key={idx}
+                      key={file.id || i}
                       href={file.url}
+                      download
                       target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center justify-between gap-4 py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 transition-colors"
+                      rel="noreferrer"
+                      className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all"
                     >
-                      <div className="flex items-center gap-4 flex-1 min-w-0">
-                        <span className="text-2xl flex-shrink-0">{getFileIcon(file.mime)}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <div className="flex items-center gap-3 min-w-0 pr-2">
+                        <span className="text-xl">{getFileIcon(file.mime)}</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                             {file.name}
-                          </div>
-                          {(file.size || file.ext) && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                              {file.ext?.toUpperCase().replace('.', '')}
-                              {file.size && ` • ${formatFileSize(file.size)}`}
-                            </div>
-                          )}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {formatFileSize(file.size)}
+                          </p>
                         </div>
                       </div>
-                      <div className="shrink-0">
-                        <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-black border border-gray-200 dark:border-gray-700 shadow-sm text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all">
-                          <FaDownload className="w-4 h-4" />
-                        </span>
-                      </div>
+                      <FaDownload className="w-4 h-4 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
                     </a>
                   ))}
                 </div>
-              </section>
+              </div>
             )}
 
           </main>
+
         </div>
       </div>
     </div>

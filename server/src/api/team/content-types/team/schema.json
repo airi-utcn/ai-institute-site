@@ -29,7 +29,7 @@
     "slug": {
       "type": "uid",
       "targetField": "name",
-      "required": true
+      "required": false
     },
     "description": {
       "type": "richtext",

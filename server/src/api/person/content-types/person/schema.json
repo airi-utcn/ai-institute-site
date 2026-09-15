@@ -34,7 +34,7 @@
     "slug": {
       "type": "uid",
       "targetField": "lastName",
-      "required": true
+      "required": false
     },
     "type": {
       "type": "enumeration",

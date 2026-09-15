@@ -1243,7 +1243,20 @@ export async function getPublicationBySlug(slug, locale = null) {
     setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    const data = await fetchAPI(`/publications?${params.toString()}`);
+    let data = await fetchAPI(`/publications?${params.toString()}`);
+    if (!data.data?.length && locale) {
+      // Fallback: The requested locale might not exist by this locale-specific slug.
+      // Search for the entity by slug ignoring locale, get its documentId, then fetch that documentId in the required locale.
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.delete("locale");
+      const fallbackData = await fetchAPI(`/publications?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]?.documentId) {
+        const docIdParams = new URLSearchParams(params);
+        docIdParams.delete("filters[slug][$eq]");
+        docIdParams.set("filters[documentId][$eq]", fallbackData.data[0].documentId);
+        data = await fetchAPI(`/publications?${docIdParams.toString()}`);
+      }
+    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch publication by slug:', error);

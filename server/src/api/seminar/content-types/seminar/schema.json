@@ -27,7 +27,7 @@
     "slug": {
       "type": "uid",
       "targetField": "title",
-      "required": true
+      "required": false
     },
     "provider": {
       "type": "string",

@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import {
   FaEnvelope,
@@ -42,8 +43,10 @@ export async function generateMetadata({ params }) {
   const slug = Array.isArray(resolvedParams?.slug) ? resolvedParams.slug[0] : resolvedParams?.slug;
   if (!slug) return { title: "Person Not Found" };
 
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   try {
-    const strapiPerson = await getStaffMember(slug);
+    const strapiPerson = await getStaffMember(slug, locale);
     if (!strapiPerson) return { title: "Person Not Found" };
     const [person] = transformStaffData([strapiPerson]);
     if (!person) return { title: "Person Not Found" };
@@ -74,9 +77,11 @@ export default async function PersonDetailPage({ params }) {
     notFound();
   }
 
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const [strapiPerson, personTeamsRaw] = await Promise.all([
-    getStaffMember(slug),
-    getPersonTeams(slug),
+    getStaffMember(slug, locale),
+    getPersonTeams(slug, locale),
   ]);
 
   if (!strapiPerson) {

@@ -9,11 +9,20 @@
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {},
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
   "attributes": {
     "title": {
       "type": "string",
-      "required": true
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "slug": {
       "type": "uid",
@@ -21,7 +30,12 @@
       "required": true
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "startDate": {
       "type": "datetime"
@@ -30,15 +44,30 @@
       "type": "datetime"
     },
     "location": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "category": {
       "type": "enumeration",
-      "enum": ["event", "workshop", "talk", "other"],
+      "enum": [
+        "event",
+        "workshop",
+        "talk",
+        "other"
+      ],
       "default": "event"
     },
     "ctaLabel": {
-      "type": "string"
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "ctaUrl": {
       "type": "string"
@@ -46,7 +75,9 @@
     "heroImage": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": ["images"]
+      "allowedTypes": [
+        "images"
+      ]
     },
     "body": {
       "type": "dynamiczone",
@@ -54,7 +85,12 @@
         "shared.section",
         "shared.rich-text",
         "shared.media"
-      ]
+      ],
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "organizers": {
       "type": "relation",

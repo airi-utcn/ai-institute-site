@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getPublications, getPublicationBySlug, transformPublicationData } from "@/lib/strapi";
 import PublicationDetailClient from "./PublicationDetailClient";
@@ -20,8 +21,10 @@ export async function generateMetadata({ params }) {
   if (!slug) return { title: "Publication Not Found" };
   const canonicalUrl = `/research/publications/${encodeURIComponent(slug)}`;
 
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   try {
-    const pubEntry = await getPublicationBySlug(slug);
+    const pubEntry = await getPublicationBySlug(slug, locale);
     if (!pubEntry) return { title: "Publication Not Found" };
     const [publication] = transformPublicationData([pubEntry]);
     if (!publication) return { title: "Publication Not Found" };
@@ -72,7 +75,9 @@ export default async function PublicationDetailPage({ params }) {
   const { slug } = await params;
   if (!slug) notFound();
 
-  const pubEntry = await getPublicationBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const pubEntry = await getPublicationBySlug(slug, locale);
   if (!pubEntry) notFound();
 
   const [publication] = transformPublicationData([pubEntry]);

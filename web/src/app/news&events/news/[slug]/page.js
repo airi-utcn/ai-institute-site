@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getNewsArticleBySlug, getNewsArticles, transformNewsData } from '@/lib/strapi';
 import NewsArticleClient from './NewsArticleClient';
@@ -15,7 +16,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const articleRow = await getNewsArticleBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const articleRow = await getNewsArticleBySlug(slug, locale);
   const article = transformNewsData(articleRow ? [articleRow] : [])[0];
 
   if (!article) {
@@ -30,7 +33,9 @@ export async function generateMetadata({ params }) {
 
 export default async function NewsArticlePage({ params }) {
   const { slug } = await params;
-  const articleRow = await getNewsArticleBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const articleRow = await getNewsArticleBySlug(slug, locale);
 
   if (!articleRow) {
     notFound();

@@ -12,8 +12,8 @@ export default async function PublicationPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [pubsData, staffData, pageData] = await Promise.all([
-    getPublications(),
-    getStaff(),
+    getPublications({ locale }),
+    getStaff({ locale }),
     getSingleType("research-page", locale),
   ]);
 

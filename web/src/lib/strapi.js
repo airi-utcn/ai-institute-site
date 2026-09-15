@@ -425,6 +425,7 @@ export async function getStaff(options = {}) {
       includeBio = true,
       page,
       pageSize = 100,
+      locale,
     } = options;
 
     const filters = {};
@@ -441,6 +442,7 @@ export async function getStaff(options = {}) {
       fields,
       sort: 'lastName:asc,firstName:asc',
       filters: Object.keys(filters).length ? filters : null,
+      locale,
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {
@@ -470,11 +472,12 @@ export async function getStaff(options = {}) {
  * @param {string} slug - The staff member's slug
  * @returns {Promise<Object|null>} Staff member object or null
  */
-export async function getStaffMember(slug) {
+export async function getStaffMember(slug, locale = null) {
   try {
     if (!slug) return null;
     const params = createParams({
       filters: { slug: { $eq: slug } },
+      locale,
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: { fields: ['url', 'formats', 'alternativeText'] },
@@ -573,11 +576,12 @@ export async function getPersonTeams(slug) {
  * @param {string} departmentSlug - The department's slug
  * @returns {Promise<Array>} Array of team entries
  */
-export async function getDepartmentTeams(departmentSlug) {
+export async function getDepartmentTeams(departmentSlug, locale = null) {
   try {
     if (!departmentSlug) return [];
     const params = createParams({
       publicationState: 'preview',
+      locale,
       filters: { department: { slug: { $eq: departmentSlug } } },
       sort: 'name:asc',
       populate: {
@@ -601,7 +605,7 @@ export async function getDepartmentTeams(departmentSlug) {
  */
 export async function getProjects(options = {}) {
   try {
-    const { domainSlug, themeSlug, publicationState = 'preview' } = options;
+    const { domainSlug, themeSlug, publicationState = 'preview', locale } = options;
 
     const filters = {};
     if (domainSlug) filters.domains = { slug: { $eq: domainSlug } };
@@ -610,6 +614,7 @@ export async function getProjects(options = {}) {
     const params = createParams({
       sort: 'title:asc',
       publicationState,
+      locale,
       filters: Object.keys(filters).length ? filters : null,
       fields: PROJECT_POPULATE.fields,
       populate: {
@@ -632,7 +637,7 @@ export async function getProjects(options = {}) {
  * @param {string} slug - The project's slug
  * @returns {Promise<Object|null>} Project object or null
  */
-export async function getProjectBySlug(slug) {
+export async function getProjectBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
 
@@ -641,6 +646,7 @@ export async function getProjectBySlug(slug) {
     const projectParams = createParams({
       filters: { slug: { $eq: slug } },
       publicationState: 'preview',
+      locale,
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
@@ -747,7 +753,8 @@ export async function getProjectBySlug(slug) {
  * Get all partners from Strapi
  * @returns {Promise<Array>} Array of partners
  */
-export async function getPartners() {
+export async function getPartners(options = {}) {
+  const locale = typeof options === 'string' ? options : options?.locale;
   const PARTNER_POPULATE = {
     fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
     populate: {
@@ -767,7 +774,8 @@ export async function getPartners() {
     return await fetchAllEntries('/partners', {
       fields: PARTNER_POPULATE.fields,
       populate: PARTNER_POPULATE.populate,
-      sort: 'name:asc', 
+      sort: 'name:asc',
+      locale,
     });
   } catch (error) {
     console.error("Failed to fetch partners from Strapi: ", error);
@@ -780,12 +788,13 @@ export async function getPartners() {
  * @param {string} slug - Partner slug
  * @returns {Promise<Object|null>} Partner entry or null
  */
-export async function getPartnerBySlug(slug) {
+export async function getPartnerBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
 
     const params = createParams({
       publicationState: 'preview',
+      locale,
       filters: { slug: { $eq: slug } },
       fields: ['name', 'slug', 'website', 'country', 'partnershipStatus', 'description'],
       populate: {
@@ -1170,6 +1179,7 @@ export async function getPublications(options = {}) {
       includeUnlisted = false,
       graphEligibleOnly = false,
       sourceKind,
+      locale,
     } = options;
     const filters = {};
 
@@ -1187,6 +1197,7 @@ export async function getPublications(options = {}) {
     const params = createParams({
       sort: 'year:desc',
       filters: Object.keys(filters).length ? filters : null,
+      locale,
     });
 
     // Kept for API compatibility with existing callers.
@@ -1212,10 +1223,11 @@ export async function getPublications(options = {}) {
  * @param {string} slug - The publication slug
  * @returns {Promise<Object|null>} Publication entry or null
  */
-export async function getPublicationBySlug(slug) {
+export async function getPublicationBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
     const params = new URLSearchParams();
+    if (locale) params.set('locale', locale);
     params.set('filters[slug][$eq]', slug);
     params.set('sort', 'year:desc');
     setPopulate(params, 'populate[authors]', PERSON_WITH_DEPARTMENT_POPULATE);
@@ -1246,13 +1258,14 @@ export async function getPublicationBySlug(slug) {
  * @returns {Promise<Array>} Array of news articles
  */
 export async function getNewsArticles(options = {}) {
-  const { pageSize } = options;
+  const { pageSize, locale } = options;
   
   try {
     const params = createParams({
       sort: 'publishedDate:desc',
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
       pagination: pageSize ? { pageSize } : null,
+      locale,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },
         author: PERSON_FLAT_POPULATE,
@@ -1271,12 +1284,13 @@ export async function getNewsArticles(options = {}) {
  * @param {string} slug - The article's slug
  * @returns {Promise<Object|null>} The news article or null if not found
  */
-export async function getNewsArticleBySlug(slug) {
+export async function getNewsArticleBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
 
     const params = createParams({
       publicationState: 'preview',
+      locale,
       filters: { slug: { $eq: slug } },
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
       populate: {
@@ -1325,8 +1339,10 @@ export async function getNewsArticleBySlug(slug) {
  */
 export async function getResults(options = {}) {
   try {
+    const { locale } = options;
     const params = createParams({
       sort: 'publishedDate:desc',
+      locale,
       fields: ['title', 'slug', 'description', 'publishedDate'],
       populate: {
         attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats'] },
@@ -1346,13 +1362,14 @@ export async function getResults(options = {}) {
  * @param {string} slug - The result's slug
  * @returns {Promise<Object|null>} The result or null
  */
-export async function getResultBySlug(slug) {
+export async function getResultBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
     
     const params = createParams({
       filters: { slug: { $eq: slug } },
       publicationState: 'preview',
+      locale,
       fields: ['title', 'slug', 'description', 'publishedDate'],
       populate: {
         attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText'] },
@@ -1444,7 +1461,7 @@ export async function getProjectsByMember(memberSlug) {
 
 export async function getDepartments(options = {}) {
   try {
-    const { type, page, pageSize = 100, slim = false } = options;
+    const { type, page, pageSize = 100, slim = false, locale } = options;
     const filters = type ? { type: { $eq: type } } : null;
 
     // slim=true: only fetch the fields needed for list/card views (name, slug, summary, type).
@@ -1453,10 +1470,12 @@ export async function getDepartments(options = {}) {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'type'],
       filters,
+      locale,
     } : {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
+      locale,
       populate: {
         focusItems: {},
         contactLinks: {},
@@ -1480,11 +1499,13 @@ export async function getDepartments(options = {}) {
   }
 }
 
-export async function getResearchThemes() {
+export async function getResearchThemes(options = {}) {
   try {
+    const locale = typeof options === 'string' ? options : options?.locale;
     const params = createParams({
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'color'],
+      locale,
     });
     const data = await fetchAPI(`/research-themes?${params.toString()}`);
     return data.data || [];
@@ -1496,12 +1517,14 @@ export async function getResearchThemes() {
 
 /* --- Added Fetchers for Migration --- */
 
-export async function getEvents() {
+export async function getEvents(options = {}) {
   try {
+    const locale = typeof options === 'string' ? options : options?.locale;
     return await fetchAllEntries('/events', {
       fields: EVENT_FIELDS,
       populate: EVENT_POPULATE,
       sort: 'startDate:desc',
+      locale,
     });
   } catch (error) {
     console.error('Failed to fetch events:', error);
@@ -1509,12 +1532,14 @@ export async function getEvents() {
   }
 }
 
-export async function getSeminars() {
+export async function getSeminars(options = {}) {
   try {
+    const locale = typeof options === 'string' ? options : options?.locale;
     return await fetchAllEntries('/seminars', {
       fields: SEMINAR_FIELDS,
       populate: SEMINAR_POPULATE,
       sort: 'title:asc',
+      locale,
     });
   } catch (error) {
     console.error('Failed to fetch seminars:', error);
@@ -2481,7 +2506,7 @@ const SEMINAR_POPULATE = {
 
 export async function getResources(options = {}) {
   try {
-    const { category, featured } = options;
+    const { category, featured, locale } = options;
     
     const filters = {};
     if (category) {
@@ -2496,6 +2521,7 @@ export async function getResources(options = {}) {
       populate: RESOURCE_POPULATE,
       filters: Object.keys(filters).length ? filters : null,
       sort: 'title:asc',
+      locale,
     });
   } catch (error) {
     console.error('Failed to fetch resources:', error);

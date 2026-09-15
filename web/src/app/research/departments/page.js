@@ -22,10 +22,10 @@ export default async function ResearchPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [staffData, departmentData, projectsData, publicationsData, pageData] = await Promise.all([
-    getStaff(),
-    getDepartments({ slim: true }),
-    getProjects(),
-    getPublications(),
+    getStaff({ locale }),
+    getDepartments({ slim: true, locale }),
+    getProjects({ locale }),
+    getPublications({ locale }),
     getSingleType("research-page", locale),
   ]);
 

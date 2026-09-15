@@ -12,7 +12,7 @@ export default async function ThemesPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [themes, pageData] = await Promise.all([
-    getResearchThemes(),
+    getResearchThemes({ locale }),
     getSingleType("research-page", locale),
   ]);
 

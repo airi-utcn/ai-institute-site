@@ -12,7 +12,7 @@ export default async function ProjectPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [strapiProjects, pageData] = await Promise.all([
-    getProjects(),
+    getProjects({ locale }),
     getSingleType("research-page", locale),
   ]);
 

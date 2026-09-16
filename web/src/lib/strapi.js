@@ -2072,6 +2072,7 @@ export function transformNewsData(strapiNews) {
         date: normalizeDate(attributes.publishedDate),
         linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
+        focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
         tags,
         // Full article data
         author: normalizePerson(rawAuthor),
@@ -2499,6 +2500,7 @@ export function transformEventData(strapiEvents) {
       ctaLabel: attributes.ctaLabel || '',
       url: attributes.ctaUrl || '',
       image: resolveMediaUrl(attributes.heroImage),
+        focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
       _strapi: evt,
     };
   });

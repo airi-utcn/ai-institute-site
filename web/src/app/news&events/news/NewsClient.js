@@ -249,7 +249,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
             >
               <div className="lg:col-span-5 relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                 {hero.image ? (
-                  <img src={hero.image} alt={hero.title} className="w-full h-80 object-cover" loading="lazy" />
+                  <img src={hero.image} alt={hero.title} style={hero.focalPoint ? { objectPosition: `${hero.focalPoint.x || 50}% ${hero.focalPoint.y || 25}%` } : undefined} className="w-full h-80 object-cover object-[center_25%]" loading="lazy" />
                 ) : (
                   <div className="w-full h-80 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600" />
                 )}
@@ -323,7 +323,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
                 >
                   <div className="relative">
                     {item.image ? (
-                      <img src={item.image} alt={item.title} className="w-full h-48 object-cover" loading="lazy" />
+                      <img src={item.image} alt={item.title} style={item.focalPoint ? { objectPosition: `${item.focalPoint.x || 50}% ${item.focalPoint.y || 25}%` } : undefined} className="w-full h-48 object-cover object-[center_25%]" loading="lazy" />
                     ) : (
                       <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">{t("noImage")}</div>
                     )}

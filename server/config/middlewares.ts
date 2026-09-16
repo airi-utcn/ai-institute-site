@@ -5,8 +5,16 @@ export default [
   'strapi::cors',
   'strapi::poweredBy',
   'strapi::query',
-  'strapi::body',
+  {
+    name: 'strapi::body',
+    config: {
+      formidable: {
+        maxFileSize: 10 * 1024 * 1024, // 10MB limit
+      },
+    }
+  },
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  'global::upload-security',
 ];

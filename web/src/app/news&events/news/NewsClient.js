@@ -36,6 +36,28 @@ const categoryLabels = {
   all: "All",
 };
 
+const Highlight = ({ text = "", highlight = "" }) => {
+  if (!highlight.trim() || !text) return <>{text}</>;
+  const terms = parseSearchTerms(highlight).filter(Boolean);
+  if (!terms.length) return <>{text}</>;
+
+  const regex = new RegExp("(" + terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")", "gi");
+  const splitted = text.toString().split(regex);
+  return (
+    <>
+      {splitted.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-yellow-200 dark:bg-yellow-900/50 text-inherit px-1 rounded-sm">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+};
+
 export default function NewsClient({ newsItems = [], pageData }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
   const [category, setCategory] = useState("all");
@@ -61,6 +83,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
       emptyState: "No news found matching your criteria.",
       noImage: "No image available",
       "categories.all": "All",
+      goToArchive: "View News Archive",
     };
     return map[key] || key;
   };
@@ -133,7 +156,13 @@ export default function NewsClient({ newsItems = [], pageData }) {
   }, [items, category, query]);
 
   const hero = filtered[0] || null;
-  const gridItems = filtered.slice(1);
+
+  const heroKey = hero ? hero.id ?? hero.slug ?? hero.title : null;
+  const allGridItems = heroKey ? filtered.filter((it) => (it.id ?? it.slug ?? it.title) !== heroKey) : filtered;
+  const DISPLAY_LIMIT = 16;
+
+  const gridItems = query.trim() ? allGridItems : allGridItems.slice(0, DISPLAY_LIMIT - 1);
+  const hasMore = !query.trim() && allGridItems.length > (DISPLAY_LIMIT - 1);
 
   return (
     <div className="space-y-12">
@@ -218,9 +247,9 @@ export default function NewsClient({ newsItems = [], pageData }) {
               transition={{ duration: 0.45 }}
               className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-10"
             >
-              <div className="lg:col-span-3 relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+              <div className="lg:col-span-5 relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
                 {hero.image ? (
-                  <img src={hero.image} alt={hero.title} className="w-full h-80 object-cover" loading="lazy" />
+                  <img src={hero.image} alt={hero.title} style={hero.focalPoint ? { objectPosition: `${hero.focalPoint.x || 50}% ${hero.focalPoint.y || 25}%` } : undefined} className="w-full h-80 object-cover object-[center_25%]" loading="lazy" />
                 ) : (
                   <div className="w-full h-80 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600" />
                 )}
@@ -233,8 +262,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
                     {hero.date && <span className="text-white/80">{formatDate(hero.date)}</span>}
                   </div>
                   {hero.author && <div className="text-sm">{renderAuthor(hero.author, "text-white/80")}</div>}
-                  <h2 className="text-2xl font-semibold leading-snug">{hero.title}</h2>
-                  {hero.summary && <p className="text-white/85 text-sm max-w-2xl line-clamp-2">{hero.summary}</p>}
+                  <h2 className="text-2xl font-semibold leading-snug"><Highlight text={hero.title} highlight={query} /></h2>
+                  {hero.summary && <p className="text-white/85 text-sm max-w-2xl line-clamp-2"><Highlight text={hero.summary} highlight={query} /></p>}
                   <div className="flex flex-wrap gap-2 pt-2">
                     {Array.isArray(hero.tags) && hero.tags.length > 0 &&
                       hero.tags.slice(0, 4).map((tag) => (
@@ -272,50 +301,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
                 </div>
               </div>
 
-              <div className="lg:col-span-2 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{t("spotlight")}</h3>
-                  {hero.date && <span className="text-sm text-gray-500 dark:text-gray-400">{formatDate(hero.date)}</span>}
-                </div>
-                <p className="text-gray-700 dark:text-gray-200 leading-relaxed line-clamp-5">{hero.summary || t("noSummary")}</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200 text-xs font-semibold">
-                    {getCategoryLabel(hero.category)}
-                  </span>
-                  {Array.isArray(hero.tags) && hero.tags.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-800 text-xs text-gray-800 dark:text-gray-200">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex flex-wrap items-center gap-4 pt-2">
-                  {hero.slug && (
-                    <Link
-                      href={`/news&events/news/${hero.slug}`}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      {t("viewArticle")}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
-                      </svg>
-                    </Link>
-                  )}
-                  {hasNewsLink(hero.linkUrl) && (
-                    <a
-                      href={hero.linkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-yellow-600 dark:text-yellow-400 hover:underline"
-                    >
-                      {t("openArticle")}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
           ) : (
             <CatalogNotice
             isEmpty={true}
@@ -337,7 +323,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
                 >
                   <div className="relative">
                     {item.image ? (
-                      <img src={item.image} alt={item.title} className="w-full h-48 object-cover" loading="lazy" />
+                      <img src={item.image} alt={item.title} style={item.focalPoint ? { objectPosition: `${item.focalPoint.x || 50}% ${item.focalPoint.y || 25}%` } : undefined} className="w-full h-48 object-cover object-[center_25%]" loading="lazy" />
                     ) : (
                       <div className="w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">{t("noImage")}</div>
                     )}
@@ -351,8 +337,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
                   <div className="flex-1 p-5 space-y-3">
                     {item.date && <div className="text-xs uppercase tracking-[0.15em] text-gray-500">{formatDate(item.date)}</div>}
                     {item.author && <div className="text-sm text-gray-500 dark:text-gray-400">{renderAuthor(item.author, "text-gray-500 dark:text-gray-400")}</div>}
-                    <h3 className="text-lg font-semibold leading-snug line-clamp-2">{item.title}</h3>
-                    {item.summary && <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">{item.summary}</p>}
+                    <h3 className="text-lg font-semibold leading-snug line-clamp-2"><Highlight text={item.title} highlight={query} /></h3>
+                    {item.summary && <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3"><Highlight text={item.summary} highlight={query} /></p>}
                     <div className="flex flex-wrap gap-2 pt-1">
                       {Array.isArray(item.tags) && item.tags.slice(0, 3).map((tag) => (
                         <span key={tag} className="badge-gray">
@@ -392,7 +378,22 @@ export default function NewsClient({ newsItems = [], pageData }) {
               ))}
             </div>
           )}
+
+          {hasMore && (
+            <div className="mt-12 text-center">
+              <Link
+                href="/news&events/news/archive"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors"
+              >
+                {t("goToArchive")}
+                <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                  <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                </svg>
+              </Link>
+            </div>
+          )}
         </div>
+
       </div>
     </div>
   );

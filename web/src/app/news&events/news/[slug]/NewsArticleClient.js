@@ -42,7 +42,8 @@ export default function NewsArticleClient({ article }) {
           <img
             src={article.image}
             alt={article.title}
-            className="w-full h-full object-cover"
+            style={article.focalPoint ? { objectPosition: `${article.focalPoint.x || 50}% ${article.focalPoint.y || 25}%` } : undefined}
+            className="w-full h-full object-cover object-[center_25%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         </div>

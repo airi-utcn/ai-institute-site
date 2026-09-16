@@ -40,11 +40,11 @@ export default async function DepartmentPage({ params }) {
   
   // Fetch department data and filtered data in parallel
   const [departmentData, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
-    getDepartments(),
-    getProjects({ domainSlug: slug }),
-    getPublications({ domainSlug: slug }),
+    getDepartments({ locale }),
+    getProjects({ domainSlug: slug, locale }),
+    getPublications({ domainSlug: slug, locale }),
     getStaff({ departmentSlug: slug }),
-    getDepartmentTeams(slug),
+    getDepartmentTeams(slug, locale),
     getSingleType("research-page", locale),
   ]);
 

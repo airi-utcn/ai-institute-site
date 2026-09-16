@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -76,6 +77,10 @@ export default function DepartmentsClient({
               {subtitle}
             </p>
           </motion.div>
+
+          <CatalogNotice className="mb-8" />
+
+          {departmentList.length === 0 && <CatalogNotice isEmpty={true} />}
 
           {/* Research Departments */}
           {Object.entries(departmentGroups).map(([type, units]) => (

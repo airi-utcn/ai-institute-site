@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -368,6 +369,8 @@ export default function PublicationsClient({ publications: pubData, staff: staff
             )}
           </AnimatePresence>
 
+          <CatalogNotice className="mb-6" />
+
           {/* Publications list */}
           <div>
             {filtered.length ? (
@@ -453,14 +456,12 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 ))}
               </div>
             ) : (
-              <div className="empty-state">
-                <p>{t("noPublications")}</p>
-                {hasActiveFilters && (
-                  <button onClick={clearFilters} className="btn btn-secondary mt-4">
-                    {t("clearFilters")}
-                  </button>
-                )}
-              </div>
+              <CatalogNotice
+                isEmpty={true}
+                emptyMessage={t("noPublications")}
+                hasActiveFilters={hasActiveFilters}
+                onClearFilters={clearFilters}
+              />
             )}
           </div>
         </motion.div>

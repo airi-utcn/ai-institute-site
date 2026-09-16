@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 /**
  * app/people/page.js
  *
@@ -46,6 +47,8 @@ export default async function PeoplePage() {
     const enrichedResearchers = await attachScholarCitationCounts(researchers);
 
     return (
+    <>
+      <FallbackDisclaimer isFallback={pageData?._isFallback} />
       <PeopleClient
         staff={staff}
         researchers={enrichedResearchers}
@@ -55,7 +58,7 @@ export default async function PeoplePage() {
         alumni={alumni}
         pageData={pageData}
       />
-    );
+    </>
   } catch (error) {
     console.error("Error fetching people data:", error);
     return <div>Error loading data. Please try again later.</div>;

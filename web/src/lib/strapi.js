@@ -495,6 +495,14 @@ export async function getStaffMember(slug, locale = null) {
     });
 
     const data = await fetchAPI(`/people?${params.toString()}`);
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set("locale", "en");
+      const fallbackData = await fetchAPI(`/people?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch staff member:', error);
@@ -724,8 +732,16 @@ export async function getProjectBySlug(slug, locale = null) {
     });
 
     const projectData = await fetchAPI(`/projects?${projectParams.toString()}`);
-
-    const project = projectData.data?.[0];
+    let project = projectData.data?.[0];
+    if (!project && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(projectParams);
+      fallbackParams.set("locale", "en");
+      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        project = fallbackData.data[0];
+        project._isFallback = true;
+      }
+    }
     if (!project) return null;
 
     // Publications are optional for this view; do not block project rendering if this call fails.
@@ -832,6 +848,14 @@ export async function getPartnerBySlug(slug, locale = null) {
     });
 
     const data = await fetchAPI(`/partners?${params.toString()}`);
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set("locale", "en");
+      const fallbackData = await fetchAPI(`/partners?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch partner by slug:', error);
@@ -1244,17 +1268,15 @@ export async function getPublicationBySlug(slug, locale = null) {
     setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     let data = await fetchAPI(`/publications?${params.toString()}`);
-    if (!data.data?.length && locale) {
-      // Fallback: The requested locale might not exist by this locale-specific slug.
-      // Search for the entity by slug ignoring locale, get its documentId, then fetch that documentId in the required locale.
+    if (!data.data?.length && locale && locale !== 'en') {
+      // Fallback: The localized version doesn't exist at all.
+      // Fetch the default English version instead so the user doesn't get a 404 blank page.
       const fallbackParams = new URLSearchParams(params);
-      fallbackParams.delete("locale");
+      fallbackParams.set("locale", "en"); // explicitly request the default locale
       const fallbackData = await fetchAPI(`/publications?${fallbackParams.toString()}`);
-      if (fallbackData.data?.[0]?.documentId) {
-        const docIdParams = new URLSearchParams(params);
-        docIdParams.delete("filters[slug][$eq]");
-        docIdParams.set("filters[documentId][$eq]", fallbackData.data[0].documentId);
-        data = await fetchAPI(`/publications?${docIdParams.toString()}`);
+      
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
       }
     }
     return data.data?.[0] || null;
@@ -1338,6 +1360,14 @@ export async function getNewsArticleBySlug(slug, locale = null) {
     });
 
     const data = await fetchAPI(`/news-articles?${params.toString()}`);
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set("locale", "en");
+      const fallbackData = await fetchAPI(`/news-articles?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch news article by slug:', error);
@@ -1412,6 +1442,14 @@ export async function getResultBySlug(slug, locale = null) {
     });
 
     const data = await fetchAPI(`/results?${params.toString()}`);
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set("locale", "en");
+      const fallbackData = await fetchAPI(`/results?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch result by slug:', error);
@@ -1858,6 +1896,7 @@ export function transformPublicationData(strapiPubs) {
       attachments,
       projects,
       _strapi: pub,
+      _isFallback: pub._isFallback || false,
     };
   });
 }
@@ -2066,6 +2105,8 @@ export function transformNewsData(strapiNews) {
         }),
         featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
         _strapi: item,
+      _isFallback: item._isFallback || false,
+      _isFallback: item._isFallback || false,
       };
     });
 }
@@ -2584,6 +2625,11 @@ export function transformResourceData(strapiResources) {
       maintainers,
       department,
       _strapi: res,
+      _isFallback: res._isFallback || false,
+      _isFallback: res._isFallback || false,
+      _isFallback: res._isFallback || false,
+      _isFallback: res._isFallback || false,
+      _isFallback: res._isFallback || false,
     };
   });
 }
@@ -2676,6 +2722,7 @@ export function transformPartnerData(strapiPartners) {
       partnerStatus: status,
       isCurrentPartner: status === 'current',
       _strapi: partner,
+      _isFallback: partner._isFallback || false,
     };
   });
 }
@@ -2773,7 +2820,16 @@ export async function getSingleType(endpoint, locale = "en", populate = "*") {
       locale,
       populate,
     });
-    const res = await fetchAPI(`/${endpoint}?${params.toString()}`);
+    let res = await fetchAPI(`/${endpoint}?${params.toString()}`);
+    if (!res?.data && locale && locale !== "en") {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set("locale", "en");
+      const fallbackRes = await fetchAPI(`/${endpoint}?${fallbackParams.toString()}`);
+      if (fallbackRes?.data) {
+        res = fallbackRes;
+        res.data._isFallback = true;
+      }
+    }
     return res?.data || null;
   } catch (error) {
     console.error(`Failed to fetch single type [${endpoint}] for locale [${locale}]:`, error);

@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getPublications, getPublicationBySlug, transformPublicationData } from "@/lib/strapi";
@@ -85,6 +86,7 @@ export default async function PublicationDetailPage({ params }) {
 
   return (
     <>
+      <FallbackDisclaimer isFallback={publication._isFallback} />
       <JsonLd data={publicationJsonLd(publication)} />
       <PublicationDetailClient publication={publication} />
     </>

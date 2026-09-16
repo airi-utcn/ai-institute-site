@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getProjects, getProjectBySlug, transformProjectData } from "@/lib/strapi";
 import ProjectDetailsClient from "./ProjectDetails";
@@ -39,6 +40,7 @@ export default async function ProjectPage({ params }) {
 
   return (
     <>
+      <FallbackDisclaimer isFallback={project._isFallback} />
       <JsonLd data={projectJsonLd(project)} />
       <ProjectDetailsClient project={project} />
     </>

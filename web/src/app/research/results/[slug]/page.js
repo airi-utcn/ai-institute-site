@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getResultBySlug, getResults, transformResultData } from '@/lib/strapi';

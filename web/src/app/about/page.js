@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import { FaRegCalendarAlt } from "react-icons/fa";
@@ -21,7 +22,9 @@ export default async function AboutPage() {
   const about = await getSingleType("about-page", locale, "timelineEvents");
 
   return (
-    <div className="page-container">
+    <>
+      <FallbackDisclaimer isFallback={about?._isFallback} />
+      <div className="page-container">
       <div className="content-wrapper content-padding">
         <section className="card p-8 md:p-10">
           <div className="flex flex-col items-center mb-8">
@@ -39,5 +42,6 @@ export default async function AboutPage() {
         </section>
       </div>
     </div>
+    </>
   );
 }

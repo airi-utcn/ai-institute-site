@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocale } from "@/context/LocaleContext";
@@ -208,6 +209,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
             </div>
           </div>
 
+          <CatalogNotice className="mb-6" />
+
           {hero ? (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -314,7 +317,12 @@ export default function NewsClient({ newsItems = [], pageData }) {
               </div>
             </motion.div>
           ) : (
-            <p className="text-center text-gray-600 dark:text-gray-400 py-10">{t("emptyState")}</p>
+            <CatalogNotice
+            isEmpty={true}
+            emptyMessage={t("emptyState")}
+            hasActiveFilters={Boolean(query || category !== "all")}
+            onClearFilters={() => { setQuery(""); setCategory("all"); }}
+          />
           )}
 
           {gridItems.length > 0 && (

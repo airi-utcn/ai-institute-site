@@ -13,7 +13,7 @@ export default async function PublicationPage() {
 
   const [pubsData, staffData, pageData] = await Promise.all([
     getPublications({ locale }),
-    getStaff({ locale }),
+    getStaff(),
     getSingleType("research-page", locale),
   ]);
 

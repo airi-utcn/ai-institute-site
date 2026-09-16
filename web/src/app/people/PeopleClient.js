@@ -427,39 +427,25 @@ export default function PeopleClient({
           {displayedPeople.length === 0 ? (
             <motion.div
               key="empty"
-              className="empty-state py-16 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <svg
-                className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20h12a6 6 0 00-6-6 6 6 0 00-6 6z"
-                />
-              </svg>
-              <p className="text-lg">
-                {searchQuery
-                  ? `No people found matching "${searchQuery}"`
-                  : `No ${filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"} available yet.`}
-              </p>
-              {searchQuery && (
-                <motion.button
-                  onClick={() => setSearchQuery("")}
-                  className="btn btn-secondary mt-4 inline-block"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Clear search
-                </motion.button>
-              )}
+              <div className="text-center py-16">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  {searchQuery
+                    ? `No people found matching "${searchQuery}"`
+                    : `No ${filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"} available.`}
+                </p>
+                {(searchQuery || activeFilter !== "all") && (
+                  <button
+                    onClick={() => { setSearchQuery(""); setActiveFilter("all"); }}
+                    className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
             </motion.div>
           ) : (
             <motion.div

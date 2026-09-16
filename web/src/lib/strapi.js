@@ -425,7 +425,6 @@ export async function getStaff(options = {}) {
       includeBio = true,
       page,
       pageSize = 100,
-      locale,
     } = options;
 
     const filters = {};
@@ -442,7 +441,6 @@ export async function getStaff(options = {}) {
       fields,
       sort: 'lastName:asc,firstName:asc',
       filters: Object.keys(filters).length ? filters : null,
-      locale,
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {
@@ -472,12 +470,11 @@ export async function getStaff(options = {}) {
  * @param {string} slug - The staff member's slug
  * @returns {Promise<Object|null>} Staff member object or null
  */
-export async function getStaffMember(slug, locale = null) {
+export async function getStaffMember(slug, _locale = null) {
   try {
     if (!slug) return null;
     const params = createParams({
       filters: { slug: { $eq: slug } },
-      locale,
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: { fields: ['url', 'formats', 'alternativeText'] },
@@ -495,14 +492,6 @@ export async function getStaffMember(slug, locale = null) {
     });
 
     const data = await fetchAPI(`/people?${params.toString()}`);
-    if (!data.data?.length && locale && locale !== 'en') {
-      const fallbackParams = new URLSearchParams(params);
-      fallbackParams.set("locale", "en");
-      const fallbackData = await fetchAPI(`/people?${fallbackParams.toString()}`);
-      if (fallbackData.data?.[0]) {
-        return { ...fallbackData.data[0], _isFallback: true };
-      }
-    }
     return data.data?.[0] || null;
   } catch (error) {
     console.error('Failed to fetch staff member:', error);

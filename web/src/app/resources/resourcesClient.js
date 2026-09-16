@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -239,6 +240,8 @@ export default function ResourcesClient({ resources = [], pageData }) {
           </p>
         </motion.div>
 
+        <CatalogNotice className="mb-8 max-w-2xl mx-auto" dismissKey="resources-catalog-notice-dismissed" />
+
         {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -337,31 +340,12 @@ export default function ResourcesClient({ resources = [], pageData }) {
           </motion.section>
         ) : (
           filteredResources.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-24 bg-white dark:bg-gray-950 rounded-2xl border border-gray-200 dark:border-gray-800 border-dashed"
-            >
-              <div className="text-gray-400 dark:text-gray-600 mb-6 bg-gray-50 dark:bg-gray-900 w-24 h-24 rounded-full mx-auto flex items-center justify-center">
-                <FaDatabase className="w-10 h-10" />
-              </div>
-              <h3 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                {noResourcesFoundText}
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                {hasActiveFilters
-                  ? noResourcesFilterMatchText
-                  : noResourcesYetText}
-              </p>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
-                >
-                  {clearAllFiltersText}
-                </button>
-              )}
-            </motion.div>
+            <CatalogNotice
+              isEmpty={true}
+              hasActiveFilters={hasActiveFilters}
+              onClearFilters={clearFilters}
+              emptyMessage={hasActiveFilters ? noResourcesFilterMatchText : noResourcesYetText}
+            />
           )
         )}
       </div>

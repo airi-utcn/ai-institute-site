@@ -10,11 +10,6 @@
   "options": {
     "draftAndPublish": true
   },
-  "pluginOptions": {
-    "i18n": {
-      "localized": true
-    }
-  },
   "attributes": {
     "firstName": {
       "type": "string",
@@ -141,12 +136,7 @@
       "type": "string"
     },
     "bio": {
-      "type": "richtext",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "type": "richtext"
     },
     "portrait": {
       "type": "media",

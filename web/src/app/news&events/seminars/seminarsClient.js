@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -91,15 +92,10 @@ export default function SeminarsClient({ seminars = [], pageData }) {
         {subtitle}
       </motion.p>
 
+      <CatalogNotice className="mt-6 max-w-2xl mx-auto" />
+
       {items.length === 0 ? (
-        <motion.p
-          className="mt-10 text-center text-gray-600 dark:text-gray-400"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.25, duration: 0.6 }}
-        >
-          {emptyState}
-        </motion.p>
+        <CatalogNotice isEmpty={true} emptyMessage={emptyState} className="mt-8 max-w-2xl mx-auto" />
       ) : (
         <motion.ul
           className="mt-10 space-y-4"

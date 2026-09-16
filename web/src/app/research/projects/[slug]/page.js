@@ -1,3 +1,5 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
+import { cookies } from "next/headers";
 import { getProjects, getProjectBySlug, transformProjectData } from "@/lib/strapi";
 import ProjectDetailsClient from "./ProjectDetails";
 import { JsonLd, projectJsonLd } from "@/lib/jsonld";
@@ -15,8 +17,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   try {
-    const projectData = await getProjectBySlug(slug);
+    const projectData = await getProjectBySlug(slug, locale);
     const project = transformProjectData([projectData])[0];
     return {
       title: project?.title || "Project Details",
@@ -29,11 +33,14 @@ export async function generateMetadata({ params }) {
 
 export default async function ProjectPage({ params }) {
   const { slug } = await params;
-  const projectData = await getProjectBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const projectData = await getProjectBySlug(slug, locale);
   const project = transformProjectData([projectData])[0];
 
   return (
     <>
+      <FallbackDisclaimer isFallback={project._isFallback} />
       <JsonLd data={projectJsonLd(project)} />
       <ProjectDetailsClient project={project} />
     </>

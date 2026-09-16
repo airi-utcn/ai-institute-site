@@ -23,9 +23,9 @@ export default async function ResearchPage() {
 
   const [staffData, departmentData, projectsData, publicationsData, pageData] = await Promise.all([
     getStaff(),
-    getDepartments({ slim: true }),
-    getProjects(),
-    getPublications(),
+    getDepartments({ slim: true, locale }),
+    getProjects({ locale }),
+    getPublications({ locale }),
     getSingleType("research-page", locale),
   ]);
 

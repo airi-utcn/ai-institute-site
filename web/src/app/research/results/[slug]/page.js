@@ -1,3 +1,5 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
+import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getResultBySlug, getResults, transformResultData } from '@/lib/strapi';
 import ResultDetailsClient from './ResultDetailsClient';
@@ -15,7 +17,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const resultRow = await getResultBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const resultRow = await getResultBySlug(slug, locale);
   const result = transformResultData(resultRow ? [resultRow] : [])[0];
 
   if (!result) {
@@ -37,7 +41,9 @@ export async function generateMetadata({ params }) {
 
 export default async function ResultPage({ params }) {
   const { slug } = await params;
-  const resultRow = await getResultBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const resultRow = await getResultBySlug(slug, locale);
 
   if (!resultRow) {
     notFound();

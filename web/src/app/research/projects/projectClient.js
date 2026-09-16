@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -392,6 +393,8 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
             )}
           </AnimatePresence>
 
+          <CatalogNotice className="mb-6" />
+
           {/* Project list */}
           <div>
             {filtered.length ? (
@@ -457,14 +460,12 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
                 })}
               </div>
             ) : (
-              <div className="empty-state">
-                <p>{t("noProjects")}</p>
-                {hasActiveFilters && (
-                  <button onClick={clearFilters} className="btn btn-secondary mt-4">
-                    {t("clearFilters")}
-                  </button>
-                )}
-              </div>
+              <CatalogNotice
+                isEmpty={true}
+                emptyMessage={t("noProjects")}
+                hasActiveFilters={hasActiveFilters}
+                onClearFilters={clearFilters}
+              />
             )}
           </div>
         </motion.div>

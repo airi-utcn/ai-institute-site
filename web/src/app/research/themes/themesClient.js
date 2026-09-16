@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -59,6 +60,8 @@ export default function ThemesClient({ themes = [], pageData }) {
               {subtitle}
             </p>
           </motion.div>
+
+          <CatalogNotice className="mb-8" dismissKey="themes-catalog-notice-dismissed" />
 
           {normalizedThemes.length ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -126,7 +129,9 @@ export default function ThemesClient({ themes = [], pageData }) {
                 </motion.div>
               ))}
             </div>
-          ) : null}
+          ) : (
+            <CatalogNotice isEmpty={true} />
+          )}
         </motion.div>
       </div>
     </div>

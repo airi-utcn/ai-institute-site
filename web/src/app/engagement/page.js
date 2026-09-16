@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
 import EngagementClient from "./EngagementClient";
@@ -29,7 +30,9 @@ export default async function EngagementPage() {
   const partners = transformPartnerData(partnerRows);
 
   return (
-    <Suspense fallback={null}>
+    <>
+      <FallbackDisclaimer isFallback={pageData?._isFallback} />
+      <Suspense fallback={null}>
       <EngagementClient
         projects={projects}
         partners={partners}
@@ -37,5 +40,6 @@ export default async function EngagementPage() {
         pageData={pageData}
       />
     </Suspense>
+    </>
   );
 }

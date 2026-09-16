@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { motion } from "framer-motion";
 import PageHeader from "@/components/PageHeader";
 
@@ -65,11 +66,11 @@ export default function EventsClient({ events = [], pageData }) {
           </div>
         </section>
 
+        <CatalogNotice className="mb-6" />
+
         {/* Events List */}
         {items.length === 0 ? (
-          <div className="empty-state">
-            <p>{noEvents}</p>
-          </div>
+          <CatalogNotice isEmpty={true} emptyMessage={noEvents} />
         ) : (
           <motion.ul
             className="space-y-3"

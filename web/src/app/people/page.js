@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 /**
  * app/people/page.js
  *
@@ -27,12 +28,12 @@ export default async function PeoplePage() {
 
   try {
     const [staffData, researchersData, visitingData, studentsData, externalData, alumniData, pageData] = await Promise.all([
-      getStaff({ types: PERSON_TYPE_FILTERS.staff, locale }),
-      getStaff({ types: PERSON_TYPE_FILTERS.researchers, locale }),
-      getStaff({ types: PERSON_TYPE_FILTERS.visiting, locale }),
-      getStaff({ types: PERSON_TYPE_FILTERS.students, locale }),
-      getStaff({ types: PERSON_TYPE_FILTERS.external, locale }),
-      getStaff({ types: PERSON_TYPE_FILTERS.alumni, locale }),
+      getStaff({ types: PERSON_TYPE_FILTERS.staff }),
+      getStaff({ types: PERSON_TYPE_FILTERS.researchers }),
+      getStaff({ types: PERSON_TYPE_FILTERS.visiting }),
+      getStaff({ types: PERSON_TYPE_FILTERS.students }),
+      getStaff({ types: PERSON_TYPE_FILTERS.external }),
+      getStaff({ types: PERSON_TYPE_FILTERS.alumni }),
       getSingleType("people-page", locale),
     ]);
 
@@ -46,6 +47,8 @@ export default async function PeoplePage() {
     const enrichedResearchers = await attachScholarCitationCounts(researchers);
 
     return (
+    <>
+      <FallbackDisclaimer isFallback={pageData?._isFallback} />
       <PeopleClient
         staff={staff}
         researchers={enrichedResearchers}
@@ -55,6 +58,7 @@ export default async function PeoplePage() {
         alumni={alumni}
         pageData={pageData}
       />
+    </>
     );
   } catch (error) {
     console.error("Error fetching people data:", error);

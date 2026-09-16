@@ -1,5 +1,6 @@
 "use client";
 
+import CatalogNotice from "@/components/CatalogNotice";
 import { motion } from "framer-motion";
 
 const containerVariants = {
@@ -34,6 +35,10 @@ export default function PartnersClient({ partners, CollaboratorsClient }) {
         >
           {title}
         </motion.h1>
+
+        <CatalogNotice className="mb-8 max-w-3xl mx-auto" />
+
+        {partners.length === 0 && <CatalogNotice isEmpty={true} className="max-w-3xl mx-auto" />}
 
         <motion.div
           className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"

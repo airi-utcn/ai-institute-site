@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import ChatbotClient from "./ChatbotClient";
@@ -19,12 +20,15 @@ export default async function ChatbotSoon() {
   const searchData = await getSingleType("search-page", locale);
 
   return (
-    <div className="page-container">
+    <>
+      <FallbackDisclaimer isFallback={searchData?._isFallback} />
+      <div className="page-container">
       <div className="content-wrapper content-padding">
         <section className="card p-6 md:p-10">
           <ChatbotClient searchData={searchData} />
         </section>
       </div>
     </div>
+    </>
   );
 }

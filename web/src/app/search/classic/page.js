@@ -1,3 +1,4 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
@@ -20,7 +21,9 @@ export default async function Page() {
   const searchData = await getSingleType("search-page", locale);
 
   return (
-    <div className="page-container">
+    <>
+      <FallbackDisclaimer isFallback={searchData?._isFallback} />
+      <div className="page-container">
       <div className="content-wrapper content-padding">
         <section className="card p-6 md:p-10">
           <Suspense fallback={<div className="text-center py-8 text-gray-500">Loading search...</div>}>
@@ -29,5 +32,6 @@ export default async function Page() {
         </section>
       </div>
     </div>
+    </>
   );
 }

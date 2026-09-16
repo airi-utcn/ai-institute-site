@@ -1,3 +1,5 @@
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
+import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getPartnerBySlug, getPartners, transformPartnerData } from '@/lib/strapi';
 import PartnerDetailsClient from './PartnerDetailsClient';
@@ -15,7 +17,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const partnerRow = await getPartnerBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const partnerRow = await getPartnerBySlug(slug, locale);
   const partner = transformPartnerData(partnerRow ? [partnerRow] : [])[0];
 
   if (!partner) {
@@ -30,7 +34,9 @@ export async function generateMetadata({ params }) {
 
 export default async function PartnerPage({ params }) {
   const { slug } = await params;
-  const partnerRow = await getPartnerBySlug(slug);
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const partnerRow = await getPartnerBySlug(slug, locale);
 
   if (!partnerRow) {
     notFound();

@@ -14,7 +14,12 @@
     },
     "role": {
       "type": "string",
-      "required": true
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     },
     "isLead": {
       "type": "boolean",

@@ -38,7 +38,6 @@ export default async function sitemap() {
     { url: `${SITE_URL}/research/projects`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/research/publications`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/research/themes`, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/research/thesis`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/news&events/news`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/news&events/events`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/news&events/seminars`, changeFrequency: "weekly", priority: 0.6 },

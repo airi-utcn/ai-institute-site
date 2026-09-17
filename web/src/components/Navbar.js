@@ -163,7 +163,6 @@ export default function Navbar({ navbarData: customNavbarData }) {
     { href: '/research/themes', label: nav.menuThemes || 'Research Themes' },
     { href: '/research/projects', label: nav.menuProjects || 'Projects' },
     { href: '/research/publications', label: nav.menuPublications || 'Publications' },
-    { href: '/research/thesis', label: nav.menuThesis || 'Thesis' },
     { href: '/resources', label: nav.menuResources || 'Resources' },
     { href: '/research/paper-graph', label: nav.menuPaperGraph || 'Paper Graph' },
     { href: '/research/people-graph', label: nav.menuPeopleGraph || 'People Graph' },

@@ -131,7 +131,7 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
 export default function Navbar({ navbarData: customNavbarData }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  
+
   const globalData = useGlobalData();
   const nav = customNavbarData || globalData?.navbar || {};
 
@@ -152,7 +152,6 @@ export default function Navbar({ navbarData: customNavbarData }) {
 
   const navLinks = [
     { href: '/research', label: nav.navResearch || 'Research' },
-    { href: '/equipment', label: 'Equipment' },
     { href: '/engagement', label: nav.navEngagement || 'Engagement' },
     { href: '/people', label: nav.navPeople || 'People' },
     { href: '/news', label: nav.navNews || 'News' },

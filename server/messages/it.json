@@ -99,7 +99,6 @@
       "viewAll": "Vedi Tutte le Notizie →",
       "viewArticle": "Vedi articolo",
       "readMore": "Leggi di più",
-      "viewArticle": "Vedi articolo",
       "emptyState": "Gli articoli di notizie appariranno qui una volta pubblicati.",
       "visitNews": "Visita Notizie ed Eventi →"
     },
@@ -1001,7 +1000,44 @@
       "noResults": "Nessun risultato disponibile",
       "resultCount": "{count} risultato",
       "resultCountPlural": "{count} risultati",
-      "visitResource": "Visit Resource"
+      "visitResource": "Visit Resource",
+      "start": "Inizio",
+      "end": "Fine",
+      "phaseNoDate": "Non specificato",
+      "phaseOpenEnded": "Nessuna data di fine",
+      "phaseProgress": "Avanzamento cronologia",
+      "timeline": "Percorso e Cronologia del Progetto",
+      "timelineEventFallback": "Pietra miliare del progetto",
+      "noTimeline": "Nessun programma ancora pubblicato.",
+      "kickoff": "Avvio del Progetto",
+      "kickoffDesc": "Lancio ufficiale delle attività di ricerca del progetto.",
+      "completion": "Completamento Previsto",
+      "completionDesc": "Consegna programmata dei traguardi e degli obiettivi finali.",
+      "completed": "Completato",
+      "concluded": "Progetto Concluso",
+      "concludedDesc": "Tutti gli obiettivi e i risultati del progetto sono stati raggiunti.",
+      "upcoming": "In arrivo",
+      "inProgress": "In corso",
+      "planned": "Pianificato",
+      "today": "Oggi",
+      "currentPosition": "Posizione Attuale",
+      "milestonesTracking": "Monitoraggio del calendario del progetto dall'avvio fino al completamento.",
+      "continuousOperations": "Attività Continue",
+      "continuousOperationsDesc": "Ricerca attiva e continuativa con tabella di marcia aperta.",
+      "timelineStates": {
+        "past": "Completato",
+        "current": "In corso",
+        "upcoming": "In arrivo"
+      },
+      "openArticle": "Apri articolo",
+      "newsCategories": {
+        "announcement": "Annuncio",
+        "construction": "Costruzione",
+        "collaboration": "Collaborazione",
+        "award": "Premio",
+        "press": "Stampa",
+        "other": "Aggiornamento"
+      }
     },
     "publications": {
       "title": "Pubblicazioni",

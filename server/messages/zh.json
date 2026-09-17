@@ -961,13 +961,13 @@
       "end": "结束",
       "phaseNoDate": "未设置",
       "phaseOpenEnded": "无结束日期",
-      "phaseProgress": "进度一览",
-      "timeline": "时间线",
+      "phaseProgress": "进度时间线",
+      "timeline": "项目历程与时间线",
       "timelineEventFallback": "项目里程碑",
-      "noTimeline": "暂无时间线事件。",
+      "noTimeline": "暂无发布的时间线日程。",
       "timelineStates": {
         "past": "已完成",
-        "current": "当前",
+        "current": "进行中",
         "upcoming": "即将进行"
       },
       "tabs": {
@@ -1028,7 +1028,22 @@
         "completed": "已完成",
         "archived": "已归档"
       },
-      "visitResource": "访问资源"
+      "visitResource": "访问资源",
+      "kickoff": "项目启动",
+      "kickoffDesc": "项目研究活动的正式启动。",
+      "completion": "目标完成",
+      "completionDesc": "最终里程碑与目标的计划交付时间。",
+      "completed": "已完成",
+      "concluded": "项目结项",
+      "concludedDesc": "已成功达成所有项目目标与研究成果。",
+      "upcoming": "即将进行",
+      "inProgress": "进行中",
+      "planned": "计划中",
+      "today": "今天",
+      "currentPosition": "当前阶段",
+      "milestonesTracking": "全程跟踪项目从启动到结项的日程安排。",
+      "continuousOperations": "持续推进",
+      "continuousOperationsDesc": "具有开放式路线图的持续活跃研究项目。"
     },
     "publications": {
       "title": "学术出版物",

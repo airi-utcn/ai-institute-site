@@ -99,7 +99,6 @@
       "viewAll": "Вижте всички новини →",
       "viewArticle": "Вижте статията",
       "readMore": "Прочетете повече",
-      "viewArticle": "Вижте статията",
       "emptyState": "Новинарските статии ще се появят тук след публикуването им.",
       "visitNews": "Посетете Новини и Събития →"
     },
@@ -1001,7 +1000,44 @@
       "noResults": "Няма налични резултати",
       "resultCount": "{count} резултат",
       "resultCountPlural": "{count} резултати",
-      "visitResource": "Visit Resource"
+      "visitResource": "Visit Resource",
+      "start": "Начало",
+      "end": "Край",
+      "phaseNoDate": "Не е зададено",
+      "phaseOpenEnded": "Без крайна дата",
+      "phaseProgress": "Напредък по графика",
+      "timeline": "Развитие и График на Проекта",
+      "timelineEventFallback": "Етап на проекта",
+      "noTimeline": "Все още няма публикуван график.",
+      "kickoff": "Стартиране на Проекта",
+      "kickoffDesc": "Официално стартиране на изследователските дейности.",
+      "completion": "Очаквано Завършване",
+      "completionDesc": "Планирано изпълнение на финалните етапи и цели.",
+      "completed": "Завършен",
+      "concluded": "Приключил Проект",
+      "concludedDesc": "Всички цели и резултати от проекта са постигнати.",
+      "upcoming": "Предстоящ",
+      "inProgress": "В процес на изпълнение",
+      "planned": "Планиран",
+      "today": "Днес",
+      "currentPosition": "Текуща Позиция",
+      "milestonesTracking": "Проследяване на графика на проекта от стартирането до завършването му.",
+      "continuousOperations": "Непрекъсната Дейност",
+      "continuousOperationsDesc": "Активни текущи изследвания с отворена пътна карта.",
+      "timelineStates": {
+        "past": "Завършен",
+        "current": "Текущ",
+        "upcoming": "Предстоящ"
+      },
+      "openArticle": "Отвори статията",
+      "newsCategories": {
+        "announcement": "Съобщение",
+        "construction": "Изграждане",
+        "collaboration": "Сътрудничество",
+        "award": "Награда",
+        "press": "Преса",
+        "other": "Актуализация"
+      }
     },
     "publications": {
       "title": "Публикации",

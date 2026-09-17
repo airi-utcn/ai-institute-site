@@ -1000,7 +1000,44 @@
         "completed": "Finalizat",
         "archived": "Arhivat"
       },
-      "visitResource": "Visit Resource"
+      "visitResource": "Visit Resource",
+      "start": "Început",
+      "end": "Sfârșit",
+      "phaseNoDate": "Nespecificat",
+      "phaseOpenEnded": "Fără dată de sfârșit",
+      "phaseProgress": "Progres calendar",
+      "timeline": "Parcurs și Calendar Proiect",
+      "timelineEventFallback": "Jalon proiect",
+      "noTimeline": "Niciun calendar publicat încă.",
+      "kickoff": "Lansare Proiect",
+      "kickoffDesc": "Lansarea oficială a activităților de cercetare.",
+      "completion": "Finalizare Estimată",
+      "completionDesc": "Livrarea programată a jaloanelor și obiectivelor finale.",
+      "completed": "Finalizat",
+      "concluded": "Proiect Încheiat",
+      "concludedDesc": "Toate obiectivele și livrabilele proiectului au fost atinse.",
+      "upcoming": "Viitor",
+      "inProgress": "În Desfășurare",
+      "planned": "Planificat",
+      "today": "Astăzi",
+      "currentPosition": "Poziție Curentă",
+      "milestonesTracking": "Monitorizarea parcursului proiectului de la lansare până la finalizare.",
+      "continuousOperations": "Operațiuni Continue",
+      "continuousOperationsDesc": "Cercetare continuă cu o foaie de parcurs deschisă.",
+      "timelineStates": {
+        "past": "Finalizat",
+        "current": "În Desfășurare",
+        "upcoming": "Viitor"
+      },
+      "openArticle": "Deschide articolul",
+      "newsCategories": {
+        "announcement": "Anunț",
+        "construction": "Construcție",
+        "collaboration": "Colaborare",
+        "award": "Premiu",
+        "press": "Presă",
+        "other": "Actualizare"
+      }
     },
     "publications": {
       "title": "Publicații",

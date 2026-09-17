@@ -36,7 +36,7 @@ export const PERSON_TYPE_FILTERS = {
   visiting: ['visiting'],
   students: ['student'],
   external: ['external', 'collaborator'],
-  alumni: ['alumni', 'alumnus'], 
+  alumni: ['alumni', 'alumnus'],
 };
 
 const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
@@ -91,8 +91,8 @@ const resolveMediaData = (media) => {
   const url = attrs.url;
   if (!url) return null;
 
-  const fullUrl = /^https?:\/\//i.test(url) 
-    ? url 
+  const fullUrl = /^https?:\/\//i.test(url)
+    ? url
     : `${getStrapiPublicUrl()}${url.startsWith('/') ? url : `/${url}`}`;
 
   return {
@@ -1263,7 +1263,7 @@ export async function getPublicationBySlug(slug, locale = null) {
       const fallbackParams = new URLSearchParams(params);
       fallbackParams.set("locale", "en"); // explicitly request the default locale
       const fallbackData = await fetchAPI(`/publications?${fallbackParams.toString()}`);
-      
+
       if (fallbackData.data?.[0]) {
         return { ...fallbackData.data[0], _isFallback: true };
       }
@@ -1283,7 +1283,7 @@ export async function getPublicationBySlug(slug, locale = null) {
  */
 export async function getNewsArticles(options = {}) {
   const { pageSize, locale } = options;
-  
+
   try {
     const params = createParams({
       sort: 'publishedDate:desc',
@@ -1397,7 +1397,7 @@ export async function getResults(options = {}) {
 export async function getResultBySlug(slug, locale = null) {
   try {
     if (!slug) return null;
-    
+
     const params = createParams({
       filters: { slug: { $eq: slug } },
       publicationState: 'preview',
@@ -1697,7 +1697,7 @@ export function transformStaffData(strapiStaff) {
     // in the data transformation layer. This prevents display issues but doesn't
     // clean the database.
     // ============================================================================
-    
+
     const getValidSubtype = () => {
       // Only include subtype if it matches the parent type
       if (typeKey === 'visiting' && attributes.type_visiting) {
@@ -2026,11 +2026,11 @@ export function transformNewsData(strapiNews) {
           case 'shared.section':
             return { ...block, media: resolveMediaData(block.media) || resolveMediaUrl(block.media) };
           case 'shared.slider':
-            return { 
-              ...block, 
+            return {
+              ...block,
               files: toArray(block.files)
                 .map(f => resolveMediaData(f) || resolveMediaUrl(f))
-                .filter(Boolean) 
+                .filter(Boolean)
             };
           default:
             return block;
@@ -2054,7 +2054,7 @@ export function transformNewsData(strapiNews) {
     .map((item) => {
       const attributes = item?.attributes ?? item ?? {};
       const tags = Array.isArray(attributes.tags) ? attributes.tags : [];
-      
+
       // Related data (may not be present in listing queries)
       const rawAuthor = attributes.author?.data ?? attributes.author ?? null;
       const rawDepartments = attributes.relatedDepartments?.data ?? attributes.relatedDepartments ?? [];
@@ -2172,7 +2172,7 @@ export function transformProjectData(strapiProjects) {
 
   const normalizeContactInfo = (contactInfo) => {
     if (!contactInfo) return null;
-    
+
     const contactData = contactInfo?.attributes ?? contactInfo ?? {};
     const contactEntries = toArray(contactData.contactEntries?.data ?? contactData.contactEntries)
       .map((entry) => {
@@ -2511,7 +2511,7 @@ export function transformSeminarData(strapiSeminars) {
   return list.map((sem) => {
     const attributes = sem?.attributes ?? sem ?? {};
     const modules = toArray(attributes.modules).map(m => m.title || m.heading || '');
-    
+
     return {
       id: sem?.id ?? null,
       title: attributes.title || '',
@@ -2552,7 +2552,7 @@ const SEMINAR_POPULATE = {
 export async function getResources(options = {}) {
   try {
     const { category, featured, locale } = options;
-    
+
     const filters = {};
     if (category) {
       filters.category = { $eq: category };
@@ -2560,7 +2560,7 @@ export async function getResources(options = {}) {
     if (featured !== undefined) {
       filters.featured = { $eq: featured };
     }
-    
+
     return await fetchAllEntries('/resources', {
       fields: RESOURCE_FIELDS,
       populate: RESOURCE_POPULATE,
@@ -2581,10 +2581,10 @@ export async function getResources(options = {}) {
  */
 export function transformResourceData(strapiResources) {
   const list = Array.isArray(strapiResources) ? strapiResources : strapiResources ? [strapiResources] : [];
-  
+
   return list.map((res) => {
     const attributes = res?.attributes ?? res ?? {};
-    
+
     const maintainers = toArray(attributes.maintainers?.data ?? attributes.maintainers).map((m) => {
       const mAttr = m?.attributes ?? m ?? {};
       return {
@@ -2592,7 +2592,7 @@ export function transformResourceData(strapiResources) {
         slug: mAttr.slug || '',
       };
     });
-    
+
     const department = (() => {
       const dept = attributes.department?.data ?? attributes.department;
       if (!dept) return null;
@@ -2602,7 +2602,7 @@ export function transformResourceData(strapiResources) {
         slug: deptAttr.slug || '',
       };
     })();
-    
+
     return {
       id: res?.id ?? null,
       title: attributes.title || '',
@@ -2695,7 +2695,7 @@ export function transformPartnerData(strapiPartners) {
     const plainDescription = stripHtml(markdownDescription);
     const blurb = plainDescription;
     const status = normalizePartnerStatus(attributes.partnershipStatus);
-    
+
     return {
       id: partner?.id ?? null,
       name: attributes.name || '',
@@ -2733,7 +2733,6 @@ export const DEFAULT_GLOBAL = {
     researchThemes: "Research Themes",
     researchProjects: "Projects",
     researchPublications: "Publications",
-    researchThesis: "Thesis",
     researchResources: "Resources",
     researchPaperGraph: "Paper Graph",
     researchPeopleGraph: "People Graph",

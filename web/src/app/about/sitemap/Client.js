@@ -29,7 +29,6 @@ export default function Client({ aboutData }) {
         { label: "Themes", href: "/research/themes" },
         { label: "Projects", href: "/research/projects" },
         { label: "Publications", href: "/research/publications" },
-        { label: "Thesis", href: "/research/thesis" },
         { label: "Resources", href: "/resources" },
       ],
     },

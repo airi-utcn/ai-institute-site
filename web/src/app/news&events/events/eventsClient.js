@@ -35,7 +35,7 @@ export default function EventsClient({ events = [], pageData }) {
         />
 
         {/* Calendar section */}
-        <section className="mb-10">
+        {/* <section className="mb-10">
           <div className="card overflow-hidden">
             <div className="p-5 border-b border-gray-100 dark:border-gray-800">
               <h2 className="heading-3">{calendarTitle}</h2>
@@ -64,7 +64,7 @@ export default function EventsClient({ events = [], pageData }) {
               </div>
             </div>
           </div>
-        </section>
+        </section>*/}
 
         <CatalogNotice className="mb-6" />
 

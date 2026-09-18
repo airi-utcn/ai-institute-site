@@ -1,0 +1,57 @@
+{
+  "collectionName": "components_event_participants",
+  "info": {
+    "displayName": "Participant",
+    "description": "Speaker, panelist, trainer, moderator, keynote speaker, host, or organizer",
+    "icon": "user"
+  },
+  "options": {},
+  "attributes": {
+    "role": {
+      "type": "enumeration",
+      "enum": [
+        "speaker",
+        "panelist",
+        "trainer",
+        "moderator",
+        "keynote_speaker",
+        "host",
+        "organizer",
+        "other"
+      ],
+      "default": "speaker",
+      "required": true
+    },
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "bio": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "photo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}

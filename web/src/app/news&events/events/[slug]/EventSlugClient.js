@@ -20,7 +20,7 @@ import {
   FaUserTie,
 } from "react-icons/fa";
 
-export default function EventSlugClient({ event }) {
+export default function EventSlugClient({ event, pageData }) {
   const [currentUrl, setCurrentUrl] = useState("");
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function EventSlugClient({ event }) {
           className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline mb-6 font-medium"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
-          Back to Events
+          {pageData?.backToEvents || "Back to Events"}
         </Link>
 
         {/* Event Header */}
@@ -146,7 +146,7 @@ export default function EventSlugClient({ event }) {
               <section className="space-y-6 pt-6 border-t border-gray-100 dark:border-gray-800">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                   <FaUserTie className="text-blue-600 dark:text-blue-400" />
-                  Speakers & Participants
+                  {pageData?.speakersAndParticipants || "Speakers & Participants"}
                 </h2>
                 <div className="grid grid-cols-1 gap-5">
                   {event.participants.map((p, idx) => {
@@ -225,7 +225,7 @@ export default function EventSlugClient({ event }) {
             {event.accessConditions && (
               <section className="bg-blue-50 dark:bg-blue-950/30 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/40">
                 <h3 className="font-bold flex items-center gap-2 mb-2 text-blue-900 dark:text-blue-200 text-base">
-                  <FaLock /> Registration & Access Conditions
+                  <FaLock /> {pageData?.registrationAndAccess || "Registration & Access Conditions"}
                 </h3>
                 <div className="prose dark:prose-invert prose-sm max-w-none text-blue-950 dark:text-blue-100">
                   <RichMarkdown content={event.accessConditions} />
@@ -237,7 +237,7 @@ export default function EventSlugClient({ event }) {
             {event.additionalNotes && (
               <section className="bg-amber-50 dark:bg-amber-950/30 p-6 rounded-2xl border border-amber-200/80 dark:border-amber-900/40">
                 <h3 className="font-bold flex items-center gap-2 mb-2 text-amber-900 dark:text-amber-200 text-base">
-                  <FaInfoCircle /> Additional Notes
+                  <FaInfoCircle /> {pageData?.additionalNotes || "Additional Notes"}
                 </h3>
                 <div className="prose dark:prose-invert prose-sm max-w-none text-amber-950 dark:text-amber-100">
                   <RichMarkdown content={event.additionalNotes} />
@@ -248,8 +248,8 @@ export default function EventSlugClient({ event }) {
             {/* Privacy / Recording Notice */}
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-12 pt-6 border-t border-gray-200 dark:border-gray-800 leading-relaxed">
               <p>
-                <strong>Privacy Notice:</strong>{" "}
-                {event.privacyNotice ||
+                <strong>{pageData?.privacyNoticeTitle || "Privacy Notice"}:</strong>{" "}
+                {event.privacyNotice || pageData?.privacyNoticeDefaultText ||
                   "By participating in this event, you acknowledge that photography, audio, and video recording may occur. By entering the event premises, you consent to interview(s), photography, audio recording, video recording and its/their release, publication, exhibition, or reproduction to be used for news, web casts, promotional purposes, telecasts, advertising, inclusion on websites, social media, or any other purpose by AIRi and its affiliates and representatives."}
               </p>
             </div>
@@ -259,7 +259,7 @@ export default function EventSlugClient({ event }) {
           <aside className="w-full lg:w-80 flex-shrink-0 space-y-6">
             <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 space-y-6 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                Event Details
+                {pageData?.eventDetails || "Event Details"}
               </h3>
 
               <div className="space-y-4 text-sm">
@@ -267,7 +267,7 @@ export default function EventSlugClient({ event }) {
                   <FaCalendar className="text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" />
                   <div>
                     <div className="font-semibold text-gray-900 dark:text-white">
-                      Date & Time
+                      {pageData?.dateAndTime || "Date & Time"}
                     </div>
                     <div className="text-gray-600 dark:text-gray-400">
                       {startStr ? (
@@ -275,12 +275,12 @@ export default function EventSlugClient({ event }) {
                           <div>{startStr}</div>
                           {endStr && event.endDate !== event.startDate && (
                             <div className="text-gray-500 text-xs mt-0.5">
-                              to {endStr}
+                              {pageData?.toLabel || "to"} {endStr}
                             </div>
                           )}
                         </>
                       ) : (
-                        "To be announced"
+                        pageData?.toBeAnnounced || "To be announced"
                       )}
                     </div>
                   </div>
@@ -290,7 +290,7 @@ export default function EventSlugClient({ event }) {
                   {getFormatIcon(event.format)}
                   <div>
                     <div className="font-semibold text-gray-900 dark:text-white pb-1">
-                      Location / Format
+                      {pageData?.locationFormat || "Location / Format"}
                     </div>
                     {event.format && (
                       <span className="inline-block mb-1 text-xs px-2.5 py-0.5 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 capitalize font-medium">
@@ -309,7 +309,7 @@ export default function EventSlugClient({ event }) {
                               rel="noopener noreferrer"
                               className="text-blue-600 dark:text-blue-400 hover:underline"
                             >
-                              Join Online Meeting
+                              {pageData?.joinOnline || "Join Online Meeting"}
                             </a>
                           ) : (
                             event.roomOrLink
@@ -325,7 +325,7 @@ export default function EventSlugClient({ event }) {
                     <FaUsers className="text-gray-400 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        Audience
+                        {pageData?.audienceLabel || "Audience"}
                       </div>
                       <div className="text-gray-600 dark:text-gray-400 capitalize">
                         {Array.isArray(event.audience)
@@ -343,7 +343,7 @@ export default function EventSlugClient({ event }) {
                     <FaLanguage className="text-gray-400 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        Language
+                        {pageData?.languageLabel || "Language"}
                       </div>
                       <div className="text-gray-600 dark:text-gray-400 capitalize">
                         {event.language.replace(/_/g, " ")}
@@ -357,7 +357,7 @@ export default function EventSlugClient({ event }) {
                     <FaBuilding className="text-gray-400 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        Partners
+                        {pageData?.partnersLabel || "Partners"}
                       </div>
                       <div className="text-gray-600 dark:text-gray-400">
                         {event.partnerInstitutions}
@@ -371,7 +371,7 @@ export default function EventSlugClient({ event }) {
                     <FaEnvelope className="text-gray-400 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        Contact
+                        {pageData?.contactLabel || "Contact"}
                       </div>
                       {event.contactName && (
                         <div className="text-gray-800 dark:text-gray-200">
@@ -395,7 +395,7 @@ export default function EventSlugClient({ event }) {
                     <FaCalendar className="text-orange-500 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        Registration Deadline
+                        {pageData?.registrationDeadline || "Registration Deadline"}
                       </div>
                       <div className="text-gray-600 dark:text-gray-400 text-xs">
                         {deadlineStr}
@@ -411,7 +411,7 @@ export default function EventSlugClient({ event }) {
                   href={`/api/events/${event.slug}/ics`}
                   className="block w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-xl font-semibold transition-colors shadow-sm"
                 >
-                  Add to Calendar (.ics)
+                  {pageData?.addToCalendarICS || "Add to Calendar (.ics)"}
                 </a>
 
                 {/* Google Calendar */}
@@ -431,7 +431,7 @@ export default function EventSlugClient({ event }) {
                           .replace(/\.\d{3}/, "")
                       : ""
                   }&details=${encodeURIComponent(
-                    "AIRi Event Details: " + currentUrl
+                    (pageData?.eventDetails || "Event Details") + ": " + currentUrl
                   )}&location=${encodeURIComponent(
                     event.address || event.roomOrLink || ""
                   )}`}
@@ -439,7 +439,7 @@ export default function EventSlugClient({ event }) {
                   rel="noopener noreferrer"
                   className="block w-full py-2.5 px-4 bg-white hover:bg-gray-100 border border-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700 text-gray-700 dark:text-gray-200 text-center rounded-xl font-medium transition-colors"
                 >
-                  Google Calendar
+                  {pageData?.googleCalendar || "Google Calendar"}
                 </a>
 
                 {event.registrationRequired &&
@@ -454,7 +454,7 @@ export default function EventSlugClient({ event }) {
                       rel="noopener noreferrer"
                       className="block w-full py-2.5 px-4 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 dark:text-gray-950 text-white text-center rounded-xl font-bold transition-colors mt-3"
                     >
-                      Register Now
+                      {pageData?.registerNow || "Register Now"}
                     </a>
                   )}
               </div>
@@ -463,7 +463,7 @@ export default function EventSlugClient({ event }) {
             {/* Social Share */}
             <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-6 border border-gray-200/80 dark:border-gray-800 shadow-sm">
               <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                <FaShareAlt className="text-gray-500" /> Share Event
+                <FaShareAlt className="text-gray-500" /> {pageData?.shareEvent || "Share Event"}
               </h3>
               <div className="flex gap-2">
                 <a

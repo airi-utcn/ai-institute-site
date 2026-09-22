@@ -1,7 +1,8 @@
-import { getEventBySlug, transformEventData, getEvents } from "@/lib/strapi";
+import { getEventBySlug, transformEventData, getEvents, getSingleType } from "@/lib/strapi";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import EventSlugClient from "./EventSlugClient";
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -19,7 +20,6 @@ export async function generateMetadata({ params }) {
   };
 }
 
-// Generate static params for existing events
 export async function generateStaticParams() {
   try {
     const events = await getEvents({ locale: "en" });
@@ -40,11 +40,19 @@ export default async function EventSlugPage({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
-  const data = await getEventBySlug(resolvedParams.slug, locale);
+  const [data, pageData] = await Promise.all([
+    getEventBySlug(resolvedParams.slug, locale),
+    getSingleType("events-page", locale),
+  ]);
 
   if (!data) notFound();
 
   const event = transformEventData([data])[0];
 
-  return <EventSlugClient event={event} />;
+  return (
+    <>
+      <FallbackDisclaimer isFallback={event._isFallback} />
+      <EventSlugClient event={event} pageData={pageData} />
+    </>
+  );
 }

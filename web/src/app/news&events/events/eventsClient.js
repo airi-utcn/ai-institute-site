@@ -18,9 +18,10 @@ const containerVariants = {
 
 export default function EventsClient({ events = [], pageData }) {
   const items = Array.isArray(events) ? events : [];
-  const title = pageData?.tabEvents || "Events";
-  const subtitle = "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.";
-  const noEvents = "No events available at the moment.";
+  const title = pageData?.title || "Events";
+  const subtitle = pageData?.subtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.";
+  const noEvents = pageData?.noEvents || "No events available at the moment.";
+  const viewDetailsLabel = pageData?.viewDetails || "View Details";
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null;
@@ -118,7 +119,7 @@ export default function EventsClient({ events = [], pageData }) {
                     href={`/news&events/events/${ev.slug}`}
                     className="inline-flex items-center justify-center gap-2 w-full py-2 bg-gray-100 hover:bg-blue-50 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-lg transition-colors"
                   >
-                    View Details
+                    {viewDetailsLabel}
                     <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
                       <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                     </svg>

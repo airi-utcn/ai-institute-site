@@ -94,16 +94,29 @@ export default function DynamicZone({ blocks, className = '' }) {
               const mediaSrc = resolveMediaUrl(mediaData);
               if (!mediaSrc) return null;
               
+              const mimeStr = mediaData.mime || mediaData.data?.attributes?.mime;
+              const isVideo = mimeStr?.startsWith('video/') || /\.(mp4|webm|ogg|mov)$/i.test(mediaSrc);
+              console.log("DYNAMICZONE: ", { isVideo, mediaSrc, mimeStr });
+
               return (
                 <div key={`media-${index}`} className="my-8 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-                  <BodyContentImage
-                    src={mediaSrc}
-                    alt={mediaData.alternativeText || block.caption || ''}
-                  />
-                  {(mediaData.caption || block.caption) && (
-                    <p className="text-sm text-center text-gray-500 p-3 bg-white dark:bg-gray-950/50 border-t border-gray-100 dark:border-gray-800">
-                      {mediaData.caption || block.caption}
-                    </p>
+                  {isVideo ? (
+                    <MediaPlayer 
+                      media={{ url: mediaSrc, mime: mimeStr, caption: mediaData.caption || block.caption }} 
+                      alt={mediaData.alternativeText || block.caption || ''} 
+                    />
+                  ) : (
+                    <>
+                      <BodyContentImage
+                        src={mediaSrc}
+                        alt={mediaData.alternativeText || block.caption || ''}
+                      />
+                      {(mediaData.caption || block.caption) && (
+                        <p className="text-sm text-center text-gray-500 p-3 bg-white dark:bg-gray-950/50 border-t border-gray-100 dark:border-gray-800">
+                          {mediaData.caption || block.caption}
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               );
@@ -111,11 +124,22 @@ export default function DynamicZone({ blocks, className = '' }) {
 
           case 'shared.media-player':
           case 'shared.video':
-            return (
-              <div key={`player-${index}`} className="my-8 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
-                <MediaPlayer block={block} />
-              </div>
-            );
+            {
+              const mediaData = block.file || block.media || block.video || block;
+              const mediaSrc = resolveMediaUrl(mediaData);
+              if (!mediaSrc) return null;
+              
+              const mimeStr = mediaData.mime || mediaData.data?.attributes?.mime;
+
+              return (
+                <div key={`player-${index}`} className="my-8 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+                  <MediaPlayer 
+                    media={{ url: mediaSrc, mime: mimeStr, caption: mediaData.caption || block.caption }} 
+                    alt={mediaData.alternativeText || block.caption || ''} 
+                  />
+                </div>
+              );
+            }
 
           case 'shared.slider':
             {
@@ -126,9 +150,11 @@ export default function DynamicZone({ blocks, className = '' }) {
               // Depending on requirements, we can use a Slideshow or Stack.
               // Let's use GallerySlideshow if there's more than one, else BodyContentImage
               if (images.length === 1) {
+                const singleFile = files[0];
+                const mimeStr = singleFile?.mime || singleFile?.data?.attributes?.mime;
                 return (
                   <div key={`slide-${index}`} className="my-8 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-                    <BodyContentImage src={images[0]} alt="Slide" />
+                    <MediaPlayer media={{ url: images[0], mime: mimeStr }} alt="Slide" />
                   </div>
                 );
               }

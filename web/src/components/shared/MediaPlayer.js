@@ -22,7 +22,7 @@ export default function MediaPlayer({
 
   if (!src) return null;
 
-  const isVideo = mime && (mime.startsWith('video/') || /\.(mp4|webm|ogg|mov)$/i.test(src));
+  const isVideo = mime?.startsWith('video/') || /\.(mp4|webm|ogg|mov)$/i.test(src);
   const isImage = !isVideo;
 
   const onLoad = (event) => {

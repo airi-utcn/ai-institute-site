@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaExternalLinkAlt, FaMapMarkerAlt, FaGlobe } from 'react-icons/fa';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
+import DynamicZone from '@/components/shared/DynamicZone';
 
 export default function PartnerDetailsClient({ partner }) {
   const tr = (key, fallback) => fallback;
@@ -93,61 +94,7 @@ export default function PartnerDetailsClient({ partner }) {
             {/* Dynamic Body Blocks */}
             {bodyBlocks.length > 0 ? (
               <div className="space-y-8">
-                {bodyBlocks.map((block, index) => {
-                  if (!block) return null;
-
-                  switch (block.__component) {
-                    case 'shared.rich-text':
-                      return (
-                        <RichMarkdown
-                          key={`rich-${index}`}
-                          content={block.body}
-                          className={markdownClassName}
-                        />
-                      );
-
-                    case 'shared.section':
-                      return (
-                        <section key={`section-${index}`} className="my-8 first:mt-0">
-                          {block.heading && (
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                              {block.heading}
-                            </h2>
-                          )}
-                          <RichMarkdown
-                            content={block.body}
-                            className={markdownClassName}
-                          />
-                        </section>
-                      );
-
-                    case 'shared.media':
-                      return (
-                        <BodyContentImage
-                          key={`media-${index}`}
-                          block={block}
-                          className="my-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-                        />
-                      );
-
-                    case 'shared.slider':
-                      return (
-                        <div key={`slider-${index}`} className="my-8 space-y-4">
-                          {Array.isArray(block.files) &&
-                            block.files.map((file, fileIndex) => (
-                              <BodyContentImage
-                                key={`slide-${index}-${fileIndex}`}
-                                block={{ file }}
-                                className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-                              />
-                            ))}
-                        </div>
-                      );
-
-                    default:
-                      return null;
-                  }
-                })}
+                <DynamicZone blocks={bodyBlocks} />
               </div>
             ) : (
               /* Fallback rich text if no dynamic blocks */

@@ -6,74 +6,81 @@ This plan outlines the steps necessary to enhance the Events feature in the AIRi
 ## Phase 1: Strapi Schema and Structure Updates
 *Priority: High*
 
-We currently have an vent content-type in server/src/api/event. This needs to be expanded to accommodate the new details.
+We have an `event` content-type in `server/src/api/event`. This was expanded to accommodate the new details.
 
-**1. Update vent Content Type Fields:**
-*   **Event Type / Category (category)**: Update the existing enumeration with: conference, workshop, iri_invited_lecture, seminar, oundtable, 	raining, public_debate, esearch_presentation, 
-etworking_event, iri_podcast.
-*   **Format (ormat)**: Add standard enumeration (onsite, online, hybrid).
+**1. Update Event Content Type Fields:**
+*   **Event Type / Category (category)**: Update the existing enumeration with: conference, workshop, airi_invited_lecture, seminar, roundtable, training, public_debate, research_presentation, networking_event, airi_podcast, talk, event, other.
+*   **Format (format)**: Add standard enumeration (onsite, online, hybrid).
 *   **Requirements & Access**: Add fields representing the "Registration / Access Information" section.
-    *   egistrationRequired (Boolean)
-    *   egistrationLinkOrEmail (String)
-    *   egistrationDeadline (Datetime)
-    *   ccessConditions (Text)
+    *   registrationRequired (Boolean)
+    *   registrationUrl (String)
+    *   registrationEmail (String)
+    *   registrationDeadline (Datetime)
+    *   accessConditions (Richtext)
 *   **Event Info Card Fields**: Expand location and logistical variables.
-    *   locationType (Enumeration: iri_at_utcn, hub_utcn, online, other)
-    *   ddress (String)
-    *   oomOrPlatformLink (String)
-    *   udience (JSON/Array of strings or Enum: public, students, esearchers, industry, invitation_only)
-    *   language (Enumeration: omanian, nglish, multiple)
-    *   contactEmail (String)
-    *   partnerInstitutions (Text or Relation to partners)
-    *   dditionalNotes (Text)
+    *   locationType (Enumeration: airi_utcn, hub_utcn, online, other)
+    *   address (String)
+    *   roomOrLink (String)
+    *   audience (Enumeration: public, students, researchers, industry, invitation_only)
+    *   audienceCustom (String)
+    *   language (Enumeration: romanian, english, romanian_english, other)
+    *   contactPerson (Relation to api::person.person)
+    *   contactName (String)
+    *   contactEmail (Email)
+    *   partnerInstitutionsText (String)
+    *   additionalNotes (Richtext)
+    *   privacyNotice (Text)
 *   **Image & Media metadata**:
     *   photoCredits (String) to accommodate attribution info.
 
-**2. Participants Structure (vent-participant Component):**
-Currently, the schema uses basic relations (speakers and organizers). To accommodate exact roles ("Speaker", "Panelist", "Trainer", "Moderator", "Keynote Speaker", "Host", "Organizer"), we will create a new generic Strapi Component:
-*   Component Name: shared.event-participant
+**2. Participants Structure (`event.participant` Component):**
+*   Component Name: `event.participant`
 *   Fields:
-    *   ole (Enumeration: speaker, panelist, 	rainer, moderator, keynote_speaker, host, organizer).
-    *   person (Relation to pi::person.person).
-*   Action: Add an ventParticipants repeating component zone to the vent schema to replace or run alongside the standalone attributes.
+    *   role (Enumeration: speaker, panelist, trainer, moderator, keynote_speaker, host, organizer, other).
+    *   person (Relation to api::person.person).
+    *   name (String)
+    *   title (String)
+    *   bio (Text)
+    *   photo (Media)
+*   Action: Added `participants` repeatable component to the `event` schema.
 
 ## Phase 2: Event Slug Pages Creation (Next.js)
 *Priority: High*
 
-Because the events were previously rendered only as external links or minimal entries within ventsClient.js, we need to implement dynamic page rendering for web/src/app/news&events/events/[slug].
+**1. Data Fetching helper (`lib/strapi.js`):**
+*   [x] Create `getEventBySlug(slug, locale)` helper matching actual Strapi schema (populating heroImage, participants.person, participants.photo, speakers, contactPerson, organizers, partners, body).
+*   [x] Ensure `EVENT_FIELDS` and `transformEventData` accurately reflect schema attributes (`roomOrLink`, `partnerInstitutionsText`, etc.).
 
-**1. Data Fetching helper (lib/strapi.js):**
-*   Create a getEventBySlug(slug, locale) helper similar to getNewsArticleBySlug and getProjectBySlug.
-*   Establish GraphQL/REST populate structures for newly added metadata (Participants, related Persons, components).
-
-**2. The Slug Page Component (web/src/app/news&events/events/[slug]/page.js):**
-*   Implement layout separating the **main content** and the **Event Info Sidebar**.
+**2. The Slug Page Component (`web/src/app/news&events/events/[slug]/page.js`):**
+*   [x] Implement layout separating the **main content** and the **Event Info Sidebar**.
 *   **Main Content Area:**
-    *   Featured Image (hero image) and photoCredits.
-    *   Event Title, Abstract / Event description (rendered via standard markdown/rich-text blocks).
-    *   Additional Notes block.
-    *   Privacy / Recording Notice appended at the bottom.
+    *   [x] Featured Image (hero image) and photoCredits.
+    *   [x] Event Title, Abstract / Event description (rendered via RichMarkdown).
+    *   [x] Speakers & Participants grid with roles, linked profiles, and bios.
+    *   [x] Registration & Access conditions block.
+    *   [x] Additional Notes block.
+    *   [x] Privacy / Recording Notice (custom or default fallback).
 *   **Event Info Sidebar:**
-    *   Display structured data accurately based on Strapi fields (Date/Time, Format, Location/Address, Room, Audience, Language, Contacts).
+    *   [x] Display structured data (Date/Time, Format, Location/Address, Room/Link, Audience, Language, Contact, Registration Deadline).
 *   **Share / Actions:**
-    *   Add LinkedIn share button using existing generic UI or 
-ext-share.
+    *   [x] Add LinkedIn and X share buttons.
 
 ## Phase 3: Add to Calendar Functionality (ICS Generation)
 *Priority: High*
 
-**1. ICS Endpoint (web/src/app/api/events/[slug]/ics/route.js)**
-*   Create a Next.js App Router API endpoint.
-*   Fetch event data via getEventBySlug.
-*   Programmatically construct a standard VCARD/ICS format text string including DTSTART, DTEND, SUMMARY, LOCATION, and DESCRIPTION.
-*   Return a response with headers: Content-Type: text/calendar; charset=utf-8 and Content-Disposition: attachment; filename="event-[slug].ics".
+**1. ICS Endpoint (`web/src/app/api/events/[slug]/ics/route.js`)**
+*   [x] Create a Next.js App Router API endpoint.
+*   [x] Fetch event data via `getEventBySlug`.
+*   [x] Programmatically construct a standard VCARD/ICS format text string including DTSTART, DTEND, SUMMARY, LOCATION, and DESCRIPTION.
+*   [x] Return a response with headers: `Content-Type: text/calendar; charset=utf-8` and `Content-Disposition: attachment; filename="event-[slug].ics"`.
 
 **2. Download Integration (Client component)**
-*   Build an AddToCalendar action button component in the Event sidebar that points to /api/events/\/ics, triggering the direct download for the visitor.
+*   [x] Add to Calendar (.ics) action button in the Event sidebar linking to `/api/events/${event.slug}/ics`.
+*   [x] Direct Google Calendar link with populated parameters.
 
 ## Phase 4: Remaining UI, Social Media, & Cleanup
 *Priority: Low (Tackled Later)*
 
-*   **Google/Outlook/Apple Calendar direct links:** Append direct URL generation alongside the .ics button.
-*   **Listing View Updates:** Wire /news&events/events cards to link into the new dynamically generated slug pages instead of an external URL (ctaUrl).
-*   Refining the dynamic layout specifically for multi-person panels to conditionally show Speaker Bios pulled from their Person relationships.
+*   [x] **Google Calendar direct link:** Added URL generation alongside the .ics button.
+*   [x] **Listing View Updates:** Wire `/news&events/events` cards to link into the new dynamically generated slug pages (`/news&events/events/[slug]`).
+*   [x] Multi-person panels conditionally showing Speaker Bios pulled from person relations or component fields.

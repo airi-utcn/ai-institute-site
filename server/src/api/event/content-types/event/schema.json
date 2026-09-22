@@ -64,10 +64,12 @@
       }
     },
     "startDate": {
+      "required": true,
       "type": "datetime"
     },
     "endDate": {
-      "type": "datetime"
+      "type": "datetime",
+      "required": true
     },
     "format": {
       "type": "enumeration",

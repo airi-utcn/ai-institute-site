@@ -150,11 +150,8 @@ export default function EventSlugClient({ event, pageData }) {
                 </h2>
                 <div className="grid grid-cols-1 gap-5">
                   {event.participants.map((p, idx) => {
-                    const person = p.person || p || {};
-                    const avatarImg = p.image || person.image;
-                    const displayName = p.name || person.name || "Speaker";
-                    const displayTitle = p.title || person.title;
-                    const displayBio = p.bio || person.bio;
+                    const { image: avatarImg, name, title: displayTitle, bio: displayBio, slug, role } = p;
+                    const displayName = name || "Speaker";
 
                     return (
                       <div
@@ -182,11 +179,9 @@ export default function EventSlugClient({ event, pageData }) {
                         <div className="flex-1 min-w-0 space-y-2">
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                              {person.slug ? (
+                              {slug ? (
                                 <Link
-                                  href={`/people/${encodeURIComponent(
-                                    person.slug
-                                  )}`}
+                                  href={`/people/${encodeURIComponent(slug)}`}
                                   className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                 >
                                   {displayName}
@@ -209,7 +204,7 @@ export default function EventSlugClient({ event, pageData }) {
                           )}
 
                           {displayBio && (
-                            <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line leading-relaxed pt-1">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 leading-relaxed pt-1">
                               {displayBio}
                             </p>
                           )}

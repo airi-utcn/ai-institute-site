@@ -2554,14 +2554,26 @@ export function transformEventData(strapiEvents) {
     
     const participants = (attributes.participants || []).map((p) => {
       const pPerson = p.person?.data?.attributes ?? p.person ?? null;
-      const personName = pPerson
-        ? pPerson.fullName || `${pPerson.firstName || ''} ${pPerson.lastName || ''}`.trim() || pPerson.name || ''
-        : p.name || '';
-      const personTitle = p.title || pPerson?.title || '';
-      const personBio = p.bio || pPerson?.bio || '';
-      const personImage = resolveMediaUrl(p.photo) || resolveMediaUrl(pPerson?.portrait);
-      const personSlug = pPerson?.slug || '';
-      const personEmail = pPerson?.email || '';
+      
+      let personName, personTitle, personBio, personImage, personSlug, personEmail;
+      
+      // If a relationship is selected, ONLY use data from the relationship
+      if (pPerson && (pPerson.firstName || pPerson.fullName || pPerson.name || pPerson.slug)) {
+        personName = pPerson.fullName || `${pPerson.firstName || ''} ${pPerson.lastName || ''}`.trim() || pPerson.name || '';
+        personTitle = pPerson.title || '';
+        personBio = pPerson.bio || '';
+        personImage = resolveMediaUrl(pPerson.portrait);
+        personSlug = pPerson.slug || '';
+        personEmail = pPerson.email || '';
+      } else {
+        // If no relationship is selected, use the manual frontend fields from the component
+        personName = p.name || '';
+        personTitle = p.title || '';
+        personBio = p.bio || '';
+        personImage = resolveMediaUrl(p.photo);
+        personSlug = '';
+        personEmail = '';
+      }
 
       return {
         role: p.role || 'speaker',

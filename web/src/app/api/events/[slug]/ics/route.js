@@ -25,7 +25,13 @@ export async function GET(request, { params }) {
   const event = transformEventData([data])[0];
 
   const dtstart = formatDateToICS(event.startDate) || formatDateToICS(new Date().toISOString());
-  const dtend = formatDateToICS(event.endDate) || dtstart;
+  let dtend = formatDateToICS(event.endDate) || dtstart;
+  
+  if (event.startDate && event.endDate) {
+    if (new Date(event.endDate) < new Date(event.startDate)) {
+      dtend = dtstart;
+    }
+  }
   const stamp = formatDateToICS(new Date().toISOString());
 
   const location = `${event.address || ''} ${event.roomOrPlatformLink || ''}`.trim();

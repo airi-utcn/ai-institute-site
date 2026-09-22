@@ -241,6 +241,15 @@ const PERSON_WITH_IMAGE_POPULATE = {
   },
 };
 
+const PERSON_FULL_POPULATE = {
+  fields: [...PERSON_FIELDS, 'bio', 'fullName'],
+  populate: {
+    portrait: {
+      fields: ['url', 'formats', 'alternativeText'],
+    },
+  },
+};
+
 // People-graph feature: keep relation payloads light. `fields: ['title']` on the
 // publication relation is important — without it Strapi would return heavy JSON
 // columns (abstract, embedding) for every authored paper. socialLinks is needed
@@ -1557,6 +1566,62 @@ export async function getResearchThemes(options = {}) {
 
 /* --- Added Fetchers for Migration --- */
 
+
+export async function getEventBySlug(slug, locale) {
+  try {
+    if (!slug) return null;
+    const params = createParams({
+      filters: { slug: { $eq: slug } },
+      populate: {
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
+        participants: {
+          populate: {
+            person: PERSON_FULL_POPULATE,
+            photo: { fields: ['url', 'formats', 'alternativeText'] }
+          }
+        },
+        contactPerson: PERSON_FULL_POPULATE,
+        speakers: PERSON_FULL_POPULATE,
+        organizers: DEPARTMENT_POPULATE,
+        partners: { fields: ['name', 'slug', 'website'] },
+        body: {
+          on: {
+            'shared.rich-text': { fields: ['body'] },
+            'shared.section': {
+              fields: ['heading', 'subheading', 'body'],
+              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.media': {
+              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.slider': {
+              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+            },
+            'shared.quote': { fields: ['title', 'body'] },
+          },
+        },
+      },
+      locale,
+    });
+    
+    let res = await fetchAPI(`/events?${params.toString()}`);
+    
+    if (!res?.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set('locale', 'en');
+      res = await fetchAPI(`/events?${fallbackParams.toString()}`);
+      if (res?.data?.[0]) {
+        return { ...res.data[0], _isFallback: true };
+      }
+    }
+    
+    return res?.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch event by slug:', error);
+    return null;
+  }
+}
+
 export async function getEvents(options = {}) {
   try {
     const locale = typeof options === 'string' ? options : options?.locale;
@@ -2486,6 +2551,96 @@ export function transformEventData(strapiEvents) {
   const list = Array.isArray(strapiEvents) ? strapiEvents : strapiEvents ? [strapiEvents] : [];
   return list.map((evt) => {
     const attributes = evt?.attributes ?? evt ?? {};
+    
+    const participants = (attributes.participants || []).map((p) => {
+      const pPerson = p.person?.data?.attributes ?? p.person ?? null;
+      
+      let personName, personTitle, personBio, personImage, personSlug, personEmail;
+      
+      // If a relationship is selected, ONLY use data from the relationship
+      if (pPerson && (pPerson.firstName || pPerson.fullName || pPerson.name || pPerson.slug)) {
+        personName = pPerson.fullName || `${pPerson.firstName || ''} ${pPerson.lastName || ''}`.trim() || pPerson.name || '';
+        personTitle = pPerson.title || '';
+        personBio = pPerson.bio || '';
+        personImage = resolveMediaUrl(pPerson.portrait);
+        personSlug = pPerson.slug || '';
+        personEmail = pPerson.email || '';
+      } else {
+        // If no relationship is selected, use the manual frontend fields from the component
+        personName = p.name || '';
+        personTitle = p.title || '';
+        personBio = p.bio || '';
+        personImage = resolveMediaUrl(p.photo);
+        personSlug = '';
+        personEmail = '';
+      }
+
+      return {
+        role: p.role || 'speaker',
+        name: personName,
+        title: personTitle,
+        bio: personBio,
+        image: personImage,
+        slug: personSlug,
+        email: personEmail,
+        person: {
+          name: personName,
+          title: personTitle,
+          slug: personSlug,
+          email: personEmail,
+          image: personImage,
+          bio: personBio,
+        },
+      };
+    });
+
+    const speakers = toArray(attributes.speakers?.data ?? attributes.speakers).map((sp) => {
+      const spData = sp?.attributes ?? sp ?? {};
+      const name = spData.fullName || `${spData.firstName || ''} ${spData.lastName || ''}`.trim() || spData.name || '';
+      const image = resolveMediaUrl(spData.portrait);
+      return {
+        role: 'speaker',
+        name,
+        title: spData.title || '',
+        slug: spData.slug || '',
+        email: spData.email || '',
+        image,
+        bio: spData.bio || '',
+        person: {
+          name,
+          title: spData.title || '',
+          slug: spData.slug || '',
+          email: spData.email || '',
+          image,
+          bio: spData.bio || '',
+        },
+      };
+    });
+
+    const allParticipants = participants.length > 0 ? participants : speakers;
+
+    const contactPersonData = attributes.contactPerson?.data?.attributes ?? attributes.contactPerson ?? null;
+    const contactPersonName = contactPersonData
+      ? `${contactPersonData.firstName || ''} ${contactPersonData.lastName || ''}`.trim() || contactPersonData.name || ''
+      : attributes.contactName || '';
+
+    const organizers = toArray(attributes.organizers?.data ?? attributes.organizers).map((org) => {
+      const orgData = org?.attributes ?? org ?? {};
+      return {
+        name: orgData.name || '',
+        slug: orgData.slug || '',
+      };
+    });
+
+    const partners = toArray(attributes.partners?.data ?? attributes.partners).map((part) => {
+      const partData = part?.attributes ?? part ?? {};
+      return {
+        name: partData.name || '',
+        slug: partData.slug || '',
+        website: partData.website || '',
+      };
+    });
+
     return {
       id: evt?.id ?? null,
       title: attributes.title || '',
@@ -2493,15 +2648,45 @@ export function transformEventData(strapiEvents) {
       description: attributes.description || '',
       category: attributes.category || 'event',
       location: attributes.location || '',
+      format: attributes.format || 'onsite',
+      locationType: attributes.locationType || 'airi_utcn',
+      address: attributes.address || attributes.location || '',
+      roomOrLink: attributes.roomOrLink || '',
+      roomOrPlatformLink: attributes.roomOrLink || '',
+      host: attributes.host || '',
+      audience: attributes.audienceCustom || attributes.audience || '',
+      language: attributes.language || 'english',
+      contactEmail: attributes.contactEmail || contactPersonData?.email || '',
+      contactName: contactPersonName,
+      contactPerson: contactPersonData ? {
+        name: contactPersonName,
+        slug: contactPersonData.slug || '',
+        email: contactPersonData.email || '',
+      } : null,
+      partnerInstitutions: attributes.partnerInstitutionsText || '',
+      partnerInstitutionsText: attributes.partnerInstitutionsText || '',
+      additionalNotes: attributes.additionalNotes || '',
+      privacyNotice: attributes.privacyNotice || '',
+      photoCredits: attributes.photoCredits || '',
+      registrationRequired: !!attributes.registrationRequired,
+      registrationUrl: attributes.registrationUrl || '',
+      registrationEmail: attributes.registrationEmail || '',
+      registrationLinkOrEmail: attributes.registrationUrl || attributes.registrationEmail || '',
+      registrationDeadline: attributes.registrationDeadline || null,
+      accessConditions: attributes.accessConditions || '',
+      participants: allParticipants,
+      organizers,
+      partners,
       startDate: attributes.startDate || null,
       endDate: attributes.endDate || null,
-      // keep 'date' as the primary sort key for backward-compat with the client
       date: attributes.startDate || null,
       ctaLabel: attributes.ctaLabel || '',
       url: attributes.ctaUrl || '',
       image: resolveMediaUrl(attributes.heroImage),
-        focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
+      focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
+      body: attributes.body || [],
       _strapi: evt,
+      _isFallback: evt._isFallback || false,
     };
   });
 }
@@ -2537,7 +2722,7 @@ const RESOURCE_POPULATE = {
   },
 };
 
-const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description'];
+const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description', 'format', 'locationType', 'address', 'roomOrLink', 'language', 'registrationRequired', 'registrationUrl', 'registrationEmail', 'registrationDeadline'];
 
 const EVENT_POPULATE = {
   heroImage: { fields: ['url', 'alternativeText'] },

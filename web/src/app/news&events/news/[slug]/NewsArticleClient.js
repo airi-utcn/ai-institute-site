@@ -7,6 +7,7 @@ import BodyContentImage from '@/components/shared/BodyContentImage';
 import MediaPlayer from '@/components/shared/MediaPlayer';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
+import DynamicZone from '@/components/shared/DynamicZone';
 
 export default function NewsArticleClient({ article }) {
   const locale = useLocale();
@@ -136,84 +137,8 @@ export default function NewsArticleClient({ article }) {
 
         {/* Dynamic Zone Body Content */}
         {bodyBlocks.length > 0 ? (
-          <div className="space-y-8 my-8">
-            {bodyBlocks.map((block, index) => {
-              if (!block) return null;
-
-              switch (block.__component) {
-                case 'shared.rich-text':
-                  return (
-                    <RichMarkdown
-                      key={`rich-${index}`}
-                      content={block.body}
-                      className={markdownClassName}
-                    />
-                  );
-
-                case 'shared.section':
-                  return (
-                    <section key={`section-${index}`} className="my-8 first:mt-0">
-                      {block.heading && (
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                          {block.heading}
-                        </h2>
-                      )}
-                      <RichMarkdown
-                        content={block.body}
-                        className={markdownClassName}
-                      />
-                    </section>
-                  );
-
-                case 'shared.media':
-                  return (
-                    <BodyContentImage
-                      key={`media-${index}`}
-                      block={block}
-                      className="my-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-                    />
-                  );
-
-                case 'shared.media-player':
-                  return (
-                    <div key={`player-${index}`} className="my-8">
-                      <MediaPlayer block={block} />
-                    </div>
-                  );
-
-                case 'shared.slider':
-                  return (
-                    <div key={`slider-${index}`} className="my-8 space-y-4">
-                      {Array.isArray(block.files) &&
-                        block.files.map((file, fileIndex) => (
-                          <BodyContentImage
-                            key={`slide-${index}-${fileIndex}`}
-                            block={{ file }}
-                            className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-                          />
-                        ))}
-                    </div>
-                  );
-
-                case 'shared.quote':
-                  return (
-                    <blockquote
-                      key={`quote-${index}`}
-                      className="my-8 pl-6 border-l-4 border-blue-600 dark:border-blue-400 italic text-xl text-gray-800 dark:text-gray-200"
-                    >
-                      <p>{block.quote}</p>
-                      {block.author && (
-                        <footer className="mt-2 text-sm not-italic font-semibold text-gray-600 dark:text-gray-400">
-                          — {block.author}
-                        </footer>
-                      )}
-                    </blockquote>
-                  );
-
-                default:
-                  return null;
-              }
-            })}
+          <div className="my-8">
+            <DynamicZone blocks={bodyBlocks} />
           </div>
         ) : (
           /* Fallback content if no body blocks */

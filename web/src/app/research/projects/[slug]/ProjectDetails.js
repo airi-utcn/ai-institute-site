@@ -114,6 +114,7 @@ const PROJECT_DETAIL_DEFAULTS = {
 };
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
+import DynamicZone from '@/components/shared/DynamicZone';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
 import { getProjectPhase, getPhaseColorClasses } from '@/lib/projectPhase';
 import ProjectTimeline from '@/components/project/ProjectTimeline';
@@ -835,75 +836,7 @@ export default function ProjectDetails({ project }) {
                   variants={itemVariants}
                   className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
                 >
-                  {project.body.map((block, index) => {
-                    if (block.__component === 'shared.rich-text') {
-                      return (
-                        <RichMarkdown
-                          key={`rich-${index}`}
-                          content={block.body}
-                          className={markdownClassName}
-                        />
-                      );
-                    }
-                    if (block.__component === 'shared.section') {
-                      return (
-                        <div key={`section-${index}`} className="mb-6 last:mb-0">
-                          {block.heading && (
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                              {block.heading}
-                            </h3>
-                          )}
-                          {block.subheading && (
-                            <h4 className="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">
-                              {block.subheading}
-                            </h4>
-                          )}
-                          <RichMarkdown content={block.body} className={markdownClassName} />
-                          {block.media && (
-                            <div className="mt-4 rounded-xl overflow-hidden shadow-md">
-                              <BodyContentImage
-                                src={block.media}
-                                alt={block.heading || project.title || 'Project section media'}
-                                className="w-full"
-                                loading="lazy"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                    if (block.__component === 'shared.media' && block.file) {
-                      return (
-                        <div key={`media-${index}`} className="mb-6 last:mb-0 rounded-xl overflow-hidden shadow-md">
-                          <BodyContentImage
-                            src={block.file}
-                            alt={project.title || 'Project media'}
-                            className="w-full"
-                            loading="lazy"
-                          />
-                        </div>
-                      );
-                    }
-                    if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
-                      return (
-                        <div key={`slider-${index}`} className="mb-6 last:mb-0 grid gap-4 sm:grid-cols-2">
-                          {block.files.map((file, fileIndex) => (
-                            <div key={`slide-${index}-${fileIndex}`} className="rounded-xl overflow-hidden shadow-sm">
-                              <BodyContentImage
-                                src={file}
-                                alt={`${project.title || 'Project'} slide ${fileIndex + 1}`}
-                                className="w-full"
-                                landscapeClassName="w-full aspect-video object-cover"
-                                portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                                loading="lazy"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <DynamicZone blocks={project.body} />
                 </motion.div>
               )}
 
@@ -1136,134 +1069,7 @@ export default function ProjectDetails({ project }) {
                   variants={containerVariants}
                   className="space-y-8"
                 >
-                  {project.researchContent.map((block, index) => {
-                    if (block.__component === 'shared.rich-text') {
-                      return (
-                        <motion.div
-                          key={index}
-                          variants={itemVariants}
-                          className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
-                        >
-                          <RichMarkdown
-                            className={markdownClassName}
-                            content={block.body}
-                          />
-                        </motion.div>
-                      );
-                    }
-                    if (block.__component === 'shared.section') {
-                      return (
-                        <motion.div
-                          key={index}
-                          variants={itemVariants}
-                          className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6"
-                        >
-                          {block.heading && (
-                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                              {block.heading}
-                            </h2>
-                          )}
-                          {block.subheading && (
-                            <h3 className="text-lg text-gray-600 dark:text-gray-400 mb-3">
-                              {block.subheading}
-                            </h3>
-                          )}
-                          {block.body && (
-                            <RichMarkdown className={markdownClassName} content={block.body} />
-                          )}
-                          {block.media && (
-                            <div className="mt-6 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                              <BodyContentImage
-                                src={block.media}
-                                alt={block.heading || project.title || 'Research media'}
-                                className="w-full"
-                                portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                                landscapeClassName="w-full max-h-[36rem] object-contain"
-                              />
-                            </div>
-                          )}
-                        </motion.div>
-                      );
-                    }
-                    if (block.__component === 'shared.media' && block.file) {
-                      const mediaSrc = resolveMediaSource(block.file);
-                      if (!mediaSrc) return null;
-                      return (
-                        <motion.figure
-                          key={index}
-                          variants={itemVariants}
-                          className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
-                        >
-                          <BodyContentImage
-                            src={mediaSrc}
-                            alt={project.title || 'Research media'}
-                            className="w-full"
-                            portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            landscapeClassName="w-full max-h-[40rem] object-contain"
-                          />
-                        </motion.figure>
-                      );
-                    }
-                    if (block.__component === 'shared.media' && block.media) {
-                      const mediaSrc = resolveMediaSource(block.media);
-                      if (!mediaSrc) return null;
-                      return (
-                        <motion.figure
-                          key={index}
-                          variants={itemVariants}
-                          className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
-                        >
-                          <BodyContentImage
-                            src={mediaSrc}
-                            alt={project.title || 'Research media'}
-                            className="w-full"
-                            portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            landscapeClassName="w-full max-h-[40rem] object-contain"
-                          />
-                        </motion.figure>
-                      );
-                    }
-                    if (block.__component === 'shared.media') {
-                      const mediaSrc = resolveMediaSource(block.url || block.src || block.image);
-                      if (!mediaSrc) return null;
-                      return (
-                        <motion.figure
-                          key={index}
-                          variants={itemVariants}
-                          className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800"
-                        >
-                          <BodyContentImage
-                            src={mediaSrc}
-                            alt={project.title || 'Research media'}
-                            className="w-full"
-                            portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                            landscapeClassName="w-full max-h-[40rem] object-contain"
-                          />
-                        </motion.figure>
-                      );
-                    }
-                    if (block.__component === 'shared.slider' && Array.isArray(block.files) && block.files.length > 0) {
-                      return (
-                        <motion.div
-                          key={index}
-                          variants={itemVariants}
-                          className="grid gap-4 sm:grid-cols-2"
-                        >
-                          {block.files.map((file, fileIndex) => (
-                            <figure key={fileIndex} className="rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800">
-                              <BodyContentImage
-                                src={file}
-                                alt={`${project.title || 'Project'} research media ${fileIndex + 1}`}
-                                landscapeClassName="w-full max-h-[24rem] object-cover"
-                                portraitClassName="mx-auto w-auto max-w-full max-h-[60vh] object-contain"
-                              />
-                            </figure>
-                          ))}
-                        </motion.div>
-                      );
-                    }
-                    return null;
-                  })}
+                  <DynamicZone blocks={project.researchContent} />
                 </motion.div>
               ) : (
                 <div className="text-center py-12">

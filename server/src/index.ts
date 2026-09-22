@@ -33,6 +33,23 @@ export default {
   register({ strapi }: any) {
     if (!strapi.documents) return;
 
+    // Document Service middleware: Validate Event Dates
+    strapi.documents.use(async (ctx: any, next: any) => {
+      if (ctx.uid === "api::event.event" && (ctx.action === "create" || ctx.action === "update")) {
+        const { startDate, endDate } = ctx.params.data || {};
+        
+        // Ensure endDate is after startDate
+        if (startDate && endDate) {
+          if (new Date(endDate) <= new Date(startDate)) {
+            const { ValidationError } = require("@strapi/utils").errors;
+            throw new ValidationError("End Date must be after Start Date.");
+          }
+        }
+      }
+      return next();
+    });
+
+
     // Document Service middleware: Force all localizations to inherit and share the canonical slug of the default locale (en)
     strapi.documents.use(async (ctx: any, next: any) => {
       if (ctx.action !== "create" && ctx.action !== "update") {
@@ -141,6 +158,7 @@ export default {
         "api::media-page.media-page",
         "api::search-page.search-page",
         "api::timeline-page.timeline-page",
+        "api::events-page.events-page",
       ];
 
       let addedCount = 0;

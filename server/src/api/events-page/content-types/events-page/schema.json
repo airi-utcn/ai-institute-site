@@ -1,0 +1,307 @@
+{
+  "kind": "singleType",
+  "collectionName": "events_pages",
+  "info": {
+    "singularName": "events-page",
+    "pluralName": "events-pages",
+    "displayName": "Events Page",
+    "description": "Content for the Events section"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "calendarTitle": {
+      "type": "string",
+      "default": "Institute Calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noEvents": {
+      "type": "string",
+      "default": "No events available at the moment.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search events...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "categoryAll": {
+      "type": "string",
+      "default": "All Events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "readMore": {
+      "type": "string",
+      "default": "View details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "backToEvents": {
+      "type": "string",
+      "default": "Back to events",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "registrationLabel": {
+      "type": "string",
+      "default": "Registration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "registerNow": {
+      "type": "string",
+      "default": "Register Now",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "addToCalendar": {
+      "type": "string",
+      "default": "Add to Calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "eventDetails": {
+      "type": "string",
+      "default": "Event Details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "participantsTitle": {
+      "type": "string",
+      "default": "Participants",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "speakersAndParticipants": {
+      "type": "string",
+      "default": "Speakers & Participants",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "registrationAndAccess": {
+      "type": "string",
+      "default": "Registration & Access Conditions",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "additionalNotes": {
+      "type": "string",
+      "default": "Additional Notes",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "privacyNoticeTitle": {
+      "type": "string",
+      "default": "Privacy Notice",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "privacyNoticeDefaultText": {
+      "type": "text",
+      "default": "By participating in this event, you acknowledge that photography, audio, and video recording may occur. By entering the event premises, you consent to interview(s), photography, audio recording, video recording and its/their release, publication, exhibition, or reproduction to be used for news, web casts, promotional purposes, telecasts, advertising, inclusion on websites, social media, or any other purpose by AIRi and its affiliates and representatives.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "dateAndTime": {
+      "type": "string",
+      "default": "Date & Time",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "toBeAnnounced": {
+      "type": "string",
+      "default": "To be announced",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "toLabel": {
+      "type": "string",
+      "default": "to",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "locationFormat": {
+      "type": "string",
+      "default": "Location / Format",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "joinOnline": {
+      "type": "string",
+      "default": "Join Online Meeting",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "audienceLabel": {
+      "type": "string",
+      "default": "Audience",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "languageLabel": {
+      "type": "string",
+      "default": "Language",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partnersLabel": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "contactLabel": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "registrationDeadline": {
+      "type": "string",
+      "default": "Registration Deadline",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "addToCalendarICS": {
+      "type": "string",
+      "default": "Add to Calendar (.ics)",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "googleCalendar": {
+      "type": "string",
+      "default": "Google Calendar",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "shareEvent": {
+      "type": "string",
+      "default": "Share Event",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "viewDetails": {
+      "type": "string",
+      "default": "View Details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

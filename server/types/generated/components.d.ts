@@ -31,6 +31,46 @@ export interface AboutTimelineItem extends Struct.ComponentSchema {
   };
 }
 
+export interface EventParticipant extends Struct.ComponentSchema {
+  collectionName: 'components_event_participants';
+  info: {
+    description: 'Speaker, panelist, trainer, moderator, keynote speaker, host, or organizer';
+    displayName: 'Participant';
+    icon: 'user';
+  };
+  attributes: {
+    bio: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    name: Schema.Attribute.String;
+    person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
+    photo: Schema.Attribute.Media<'images'>;
+    role: Schema.Attribute.Enumeration<
+      [
+        'speaker',
+        'panelist',
+        'trainer',
+        'moderator',
+        'keynote_speaker',
+        'host',
+        'organizer',
+        'other',
+      ]
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'speaker'>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+  };
+}
+
 export interface LayoutFooter extends Struct.ComponentSchema {
   collectionName: 'components_layout_footers';
   info: {
@@ -369,8 +409,19 @@ export interface ProjectContactEntry extends Struct.ComponentSchema {
     icon: 'envelope';
   };
   attributes: {
-    description: Schema.Attribute.Text;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     type: Schema.Attribute.Enumeration<
       ['email', 'phone', 'address', 'website', 'social', 'other']
     > &
@@ -389,7 +440,12 @@ export interface ProjectContactInfo extends Struct.ComponentSchema {
   };
   attributes: {
     contactEntries: Schema.Attribute.Component<'project.contact-entry', true>;
-    generalInfo: Schema.Attribute.RichText;
+    generalInfo: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -403,7 +459,13 @@ export interface ProjectTeamMember extends Struct.ComponentSchema {
   attributes: {
     isLead: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
-    role: Schema.Attribute.String & Schema.Attribute.Required;
+    role: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -416,8 +478,19 @@ export interface ProjectTimelineEntry extends Struct.ComponentSchema {
   };
   attributes: {
     date: Schema.Attribute.Date & Schema.Attribute.Required;
-    description: Schema.Attribute.Text;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -433,7 +506,13 @@ export interface SharedContactLink extends Struct.ComponentSchema {
       ['mail', 'phone', 'location', 'link', 'calendar', 'external']
     > &
       Schema.Attribute.DefaultTo<'link'>;
-    label: Schema.Attribute.String & Schema.Attribute.Required;
+    label: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     url: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
@@ -446,9 +525,25 @@ export interface SharedFocusItem extends Struct.ComponentSchema {
     icon: 'bullseye';
   };
   attributes: {
-    description: Schema.Attribute.Text;
-    richContent: Schema.Attribute.RichText;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    description: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    richContent: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -470,8 +565,18 @@ export interface SharedQuote extends Struct.ComponentSchema {
     icon: 'indent';
   };
   attributes: {
-    body: Schema.Attribute.Text;
-    title: Schema.Attribute.String;
+    body: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -483,7 +588,12 @@ export interface SharedRichText extends Struct.ComponentSchema {
     icon: 'align-justify';
   };
   attributes: {
-    body: Schema.Attribute.RichText;
+    body: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -495,10 +605,26 @@ export interface SharedSection extends Struct.ComponentSchema {
     icon: 'window-restore';
   };
   attributes: {
-    body: Schema.Attribute.RichText;
-    heading: Schema.Attribute.String & Schema.Attribute.Required;
+    body: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    heading: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     media: Schema.Attribute.Media<'images' | 'files' | 'videos'>;
-    subheading: Schema.Attribute.String;
+    subheading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
@@ -511,8 +637,20 @@ export interface SharedSeo extends Struct.ComponentSchema {
     name: 'Seo';
   };
   attributes: {
-    metaDescription: Schema.Attribute.Text & Schema.Attribute.Required;
-    metaTitle: Schema.Attribute.String & Schema.Attribute.Required;
+    metaDescription: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    metaTitle: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
     shareImage: Schema.Attribute.Media<'images'>;
   };
 }
@@ -539,14 +677,21 @@ export interface TeamMembership extends Struct.ComponentSchema {
   attributes: {
     isLead: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
-    role: Schema.Attribute.String & Schema.Attribute.Required;
+    role: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
   };
 }
 
 declare module '@strapi/strapi' {
-  export namespace Public {
+  export module Public {
     export interface ComponentSchemas {
       'about.timeline-item': AboutTimelineItem;
+      'event.participant': EventParticipant;
       'layout.footer': LayoutFooter;
       'layout.navbar': LayoutNavbar;
       'project.contact-entry': ProjectContactEntry;

@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { FaArrowLeft, FaDownload, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
 import BodyContentImage from '@/components/shared/BodyContentImage';
+import DynamicZone from '@/components/shared/DynamicZone';
+
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import { useLocale } from '@/context/LocaleContext';
 
@@ -156,60 +158,7 @@ export default function ResultDetailsClient({ result }) {
             {/* Dynamic Body Blocks */}
             {bodyBlocks.length > 0 && (
               <div className="space-y-12">
-                {bodyBlocks.map((block, index) => {
-                  if (block.__component === 'shared.rich-text') {
-                    return (
-                      <div key={`richtext-${index}`} className="border-t border-gray-100 dark:border-gray-800/80 pt-8 first:border-0 first:pt-0">
-                        <RichMarkdown content={block.body} className={markdownClassName} />
-                      </div>
-                    );
-                  }
-
-                  if (block.__component === 'shared.section') {
-                    return (
-                      <section key={`section-${index}`} className="border-t border-gray-100 dark:border-gray-800/80 pt-10 first:border-0 first:pt-0 space-y-4">
-                        {block.heading && (
-                          <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            {block.heading}
-                          </h2>
-                        )}
-                        {block.subheading && (
-                          <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">
-                            {block.subheading}
-                          </h3>
-                        )}
-                        {block.body && (
-                          <RichMarkdown content={block.body} className={markdownClassName} />
-                        )}
-                        {block.media && (
-                          <div className="mt-6 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
-                            <BodyContentImage
-                              src={block.media}
-                              alt={block.heading || result.title}
-                              className="w-full"
-                              loading="lazy"
-                            />
-                          </div>
-                        )}
-                      </section>
-                    );
-                  }
-
-                  if (block.__component === 'shared.media' && block.file) {
-                    return (
-                      <div key={`media-${index}`} className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800 shadow-sm">
-                        <BodyContentImage
-                          src={block.file}
-                          alt={result.title}
-                          className="w-full"
-                          loading="lazy"
-                        />
-                      </div>
-                    );
-                  }
-
-                  return null;
-                })}
+                <DynamicZone blocks={bodyBlocks} />
               </div>
             )}
 

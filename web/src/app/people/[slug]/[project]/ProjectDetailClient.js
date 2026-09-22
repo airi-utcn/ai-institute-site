@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { toPublicationSlug } from "@/lib/slug";
 import BodyContentImage from "@/components/shared/BodyContentImage";
+import DynamicZone from "@/components/shared/DynamicZone";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 import { getPhaseColorClasses, getProjectPhase } from "@/lib/projectPhase";
 
@@ -105,56 +106,7 @@ export default function ProjectDetailClient({
   };
   const markdownClassName = "prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300";
 
-  const renderBlock = (block, index) => {
-    if (!block) return null;
-    switch (block.__component) {
-      case "shared.rich-text":
-        return (
-          <RichMarkdown
-            key={`rich-${index}`}
-            content={block.body}
-            className={markdownClassName}
-          />
-        );
-      case "shared.section":
-        return (
-          <section key={`section-${index}`} className="my-8 first:mt-0">
-            {block.heading && (
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                {block.heading}
-              </h2>
-            )}
-            <RichMarkdown
-              content={block.body}
-              className={markdownClassName}
-            />
-          </section>
-        );
-      case "shared.media":
-        return (
-          <BodyContentImage
-            key={`media-${index}`}
-            block={block}
-            className="my-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-          />
-        );
-      case "shared.slider":
-        return (
-          <div key={`slider-${index}`} className="my-8 space-y-4">
-            {Array.isArray(block.files) &&
-              block.files.map((file, fileIndex) => (
-                <BodyContentImage
-                  key={`slide-${index}-${fileIndex}`}
-                  block={{ file }}
-                  className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800"
-                />
-              ))}
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+
 
   const projectPhase = getProjectPhase(project?.startDate, project?.endDate);
   const phaseColors = getPhaseColorClasses(projectPhase);
@@ -234,7 +186,7 @@ export default function ProjectDetailClient({
             {/* Dynamic Body Content */}
             {hasBody && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 p-8">
-                {bodyBlocks.map(renderBlock)}
+                <DynamicZone blocks={bodyBlocks} />
               </div>
             )}
 

@@ -9,11 +9,22 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 
-export default function AwardArticleClient({ article }) {
+export default function AwardArticleClient({ article, pageData }) {
   const locale = useLocale();
   const authorLabel = 'By';
 
-  const tr = (key, fallback) => fallback;
+  const tr = (key, fallback) => {
+    const map = {
+      backToNews: pageData?.awardsBackToAwards || "Back to Awards",
+      readOnLinkedIn: pageData?.articleReadOnLinkedIn || "Read on LinkedIn",
+      gallery: pageData?.articleGallery || "Gallery",
+      tags: pageData?.articleTags || "Tags",
+      relatedProjects: pageData?.articleRelatedProjects || "Related Projects",
+      featuredPeople: pageData?.articleFeaturedPeople || "Featured People",
+      relatedDepartments: pageData?.articleRelatedDepartments || "Related Departments",
+    };
+    return map[key] || fallback;
+  };
 
   const getCategoryLabel = (value) => {
     return value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Other';

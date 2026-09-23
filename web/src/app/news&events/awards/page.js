@@ -5,7 +5,7 @@ import { getSingleType, getNewsArticles, transformNewsData } from "@/lib/strapi"
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const newsPage = await getSingleType("news-page", locale);
+  const newsPage = await getSingleType("awards-page", locale);
 
   return {
     title: newsPage?.tabAwards || "Awards",
@@ -19,7 +19,7 @@ export default async function AwardsPage() {
 
   const [awards, pageData] = await Promise.all([
     getNewsArticles({ locale, filters: { category: { $eq: "award" } } }),
-    getSingleType("news-page", locale),
+    getSingleType("awards-page", locale),
   ]);
 
   const awardsItems = transformNewsData(awards);

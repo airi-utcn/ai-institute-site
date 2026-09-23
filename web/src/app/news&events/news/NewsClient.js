@@ -26,14 +26,6 @@ const parseSearchTerms = (query) =>
 
 const hasNewsLink = (value) => typeof value === "string" && value.trim().length > 0;
 
-const categoryLabels = {
-  announcement: "Announcement",
-  construction: "Construction",
-  collaboration: "Collaboration",
-  press: "Press",
-  other: "Other",
-  all: "All",
-};
 
 const Highlight = ({ text = "", highlight = "" }) => {
   if (!highlight.trim() || !text) return <>{text}</>;
@@ -67,21 +59,21 @@ export default function NewsClient({ newsItems = [], pageData }) {
 
   const t = (key) => {
     const map = {
-      latest: "Latest from AIRi",
-      title: pageData?.title || "News & Stories",
-      subtitle: pageData?.subtitle || "Updates, breakthroughs, and community highlights from the Artificial Intelligence Research Institute.",
-      quickFilters: "Filter by topic",
-      searchLabel: "Search stories",
-      searchPlaceholder: "Search by keyword, author, or tag...",
-      stories: "stories",
-      spotlight: "Spotlight Story",
-      noSummary: "No summary provided.",
-      viewArticle: pageData?.readMore || "Read full article",
-      readStory: "Read full story",
-      openArticle: "Open Article",
-      emptyState: "No news found matching your criteria.",
-      noImage: "No image available",
-      "categories.all": "All",
+      latest: pageData?.newsLatest || "Latest from AIRi",
+      title: pageData?.newsTitle || "News & Stories",
+      subtitle: pageData?.newsSubtitle || "Updates, breakthroughs, and community highlights from the Artificial Intelligence Research Institute.",
+      quickFilters: pageData?.newsQuickFilters || "Filter by topic",
+      searchLabel: pageData?.newsSearchLabel || "Search stories",
+      searchPlaceholder: pageData?.newsSearchPlaceholder || "Search by keyword, author, or tag...",
+      stories: pageData?.newsStories || "stories",
+      spotlight: pageData?.newsSpotlight || "Spotlight Story",
+      noSummary: pageData?.newsNoSummary || "No summary provided.",
+      viewArticle: pageData?.newsViewArticle || pageData?.newsReadMore || "Read full article",
+      readStory: pageData?.newsReadStory || "Read full story",
+      openArticle: pageData?.newsOpenArticle || "Open Article",
+      emptyState: pageData?.newsEmptyState || "No news found matching your criteria.",
+      noImage: pageData?.newsNoImage || "No image available",
+      "categories.all": pageData?.categoryAll || "All",
       goToArchive: "View News Archive",
     };
     return map[key] || key;
@@ -95,7 +87,16 @@ export default function NewsClient({ newsItems = [], pageData }) {
   };
 
   const getCategoryLabel = (value) => {
-    return categoryLabels[value] || (value ? value.charAt(0).toUpperCase() + value.slice(1) : "Other");
+    const labels = {
+      announcement: pageData?.categoryAnnouncement || "Announcement",
+      construction: pageData?.categoryConstruction || "Construction",
+      collaboration: pageData?.categoryCollaboration || "Collaboration",
+      award: pageData?.categoryAward || "Award",
+      press: pageData?.categoryPress || "Press",
+      other: pageData?.categoryOther || "Other",
+      all: pageData?.categoryAll || "All",
+    };
+    return labels[value] || (value ? value.charAt(0).toUpperCase() + value.slice(1) : "Other");
   };
 
   const renderAuthor = (author, textClassName) => {

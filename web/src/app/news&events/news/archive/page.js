@@ -4,9 +4,14 @@ export const metadata = {
 };
 
 import ArchiveClient from "./ArchiveClient";
-import { getNewsArticles, transformNewsData } from "@/lib/strapi";
+import { getNewsArticles, transformNewsData, getSingleType } from "@/lib/strapi";
+
+import { cookies } from "next/headers";
 
 export default async function ArchivePage() {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
+  const pageData = await getSingleType("news-page", locale);
   const news = await getNewsArticles({ filters: { category: { $ne: "award" } } });
   const newsItems = transformNewsData(news);
 
@@ -16,5 +21,5 @@ export default async function ArchivePage() {
   const archiveItems = newsItems.slice(16);
   // To be perfectly aligned with main page, we used allGridItems.slice(0, 14) + 1 hero = 15. So we skip 15.
 
-  return <ArchiveClient newsItems={archiveItems} />;
+  return <ArchiveClient newsItems={archiveItems} pageData={pageData} />;
 }

@@ -41,18 +41,18 @@ const Highlight = ({ text = "", highlight = "" }) => {
   );
 };
 
-export default function ArchiveClient({ newsItems = [] }) {
+export default function ArchiveClient({ newsItems = [], pageData }) {
   const locale = useLocale();
   const [query, setQuery] = useState("");
 
   const t = (key) => {
     const map = {
-      "article.backToNews": "Back to News",
-      archiveTitle: "News Archive",
-      searchPlaceholder: "Search archive stories...",
-      viewArticle: "Read full article",
-      readMore: "Read external story",
-      emptyState: "No archived news found matching your criteria.",
+      "article.backToNews": pageData?.articleBackToNews || "Back to News",
+      archiveTitle: pageData?.newsTitle ? `${pageData.newsTitle} Archive` : "News Archive",
+      searchPlaceholder: pageData?.newsSearchPlaceholder || "Search archive stories...",
+      viewArticle: pageData?.newsViewArticle || "Read full article",
+      readMore: pageData?.newsReadMore || "Read external story",
+      emptyState: pageData?.newsEmptyState || "No archived news found matching your criteria.",
     };
     return map[key] || key;
   };

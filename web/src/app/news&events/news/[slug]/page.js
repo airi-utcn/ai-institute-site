@@ -1,7 +1,7 @@
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
-import { getNewsArticleBySlug, getNewsArticles, transformNewsData } from '@/lib/strapi';
+import { getNewsArticleBySlug, getNewsArticles, transformNewsData, getSingleType } from '@/lib/strapi';
 import NewsArticleClient from './NewsArticleClient';
 
 export async function generateStaticParams() {
@@ -20,10 +20,11 @@ export async function generateMetadata({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const articleRow = await getNewsArticleBySlug(slug, locale);
+  const pageData = await getSingleType("news-page", locale);
   const article = transformNewsData(articleRow ? [articleRow] : [])[0];
 
   if (!article) {
-    return { title: 'News Article' };
+    return { title: pageData?.newsTitle || 'News Article' };
   }
 
   return {
@@ -36,7 +37,10 @@ export default async function NewsArticlePage({ params }) {
   const { slug } = await params;
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const articleRow = await getNewsArticleBySlug(slug, locale);
+  const [articleRow, pageData] = await Promise.all([
+    getNewsArticleBySlug(slug, locale),
+    getSingleType("news-page", locale),
+  ]);
 
   if (!articleRow) {
     notFound();
@@ -48,5 +52,5 @@ export default async function NewsArticlePage({ params }) {
     notFound();
   }
 
-  return <NewsArticleClient article={article} />;
+  return <NewsArticleClient article={article} pageData={pageData} />;
 }

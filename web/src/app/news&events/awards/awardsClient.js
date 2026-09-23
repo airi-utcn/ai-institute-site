@@ -57,16 +57,16 @@ export default function AwardsClient({ awardsItems = [], pageData }) {
 
   const t = (key) => {
     const map = {
-      latest: "Latest from AIRi",
-      title: pageData?.tabAwards || "Awards",
-      subtitle: "Recognizing excellence, impactful contributions, and research achievements across the Artificial Intelligence Research Institute.",
-      searchLabel: "Search awards",
-      searchPlaceholder: "Search by keyword, recipient, or tag...",
-      awards: "awards",
-      viewArticle: pageData?.readMore || "Read full article",
-      readStory: "Read full story",
-      emptyState: "No awards found matching your criteria.",
-      noImage: "No image available",
+      latest: pageData?.newsLatest || "Latest from AIRi",
+      title: pageData?.awardsTitle || "Awards",
+      subtitle: pageData?.awardsSubtitle || "Recognizing excellence, impactful contributions, and research achievements across the Artificial Intelligence Research Institute.",
+      searchLabel: pageData?.awardsSearchLabel || "Search awards",
+      searchPlaceholder: pageData?.awardsSearchPlaceholder || "Search by keyword, recipient, or tag...",
+      awards: pageData?.awardsStories || "awards",
+      viewArticle: pageData?.awardsViewArticle || "Read full article",
+      readStory: pageData?.awardsReadStory || "Read full story",
+      emptyState: pageData?.awardsEmptyState || "No awards found matching your criteria.",
+      noImage: pageData?.awardsNoImage || "No image available",
     };
     return map[key] || key;
   };

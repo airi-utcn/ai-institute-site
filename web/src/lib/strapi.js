@@ -377,6 +377,10 @@ export async function fetchAPI(endpoint, options = {}) {
     const response = await fetch(url, fetchInit);
 
     if (!response.ok) {
+      if (response.status === 404) {
+        // Do not throw on 404 to immediately stop log spam and allow getSingleType's fallback localization logic.
+        return { data: null, meta: {} };
+      }
       // try to capture response body for better diagnostics
       let bodyText = '';
       try { bodyText = await response.text(); } catch (e) { /* ignore */ }

@@ -7,7 +7,7 @@ import ArchiveClient from "./ArchiveClient";
 import { getNewsArticles, transformNewsData } from "@/lib/strapi";
 
 export default async function ArchivePage() {
-  const news = await getNewsArticles();
+  const news = await getNewsArticles({ filters: { category: { $ne: "award" } } });
   const newsItems = transformNewsData(news);
 
   // As per the requirement, we want the older news here.

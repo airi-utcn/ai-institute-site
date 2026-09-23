@@ -30,7 +30,6 @@ const categoryLabels = {
   announcement: "Announcement",
   construction: "Construction",
   collaboration: "Collaboration",
-  award: "Award",
   press: "Press",
   other: "Other",
   all: "All",

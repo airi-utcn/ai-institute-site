@@ -29,7 +29,8 @@ export default function EventsClient({ events = [], pageData }) {
     return isNaN(d.getTime()) ? null : d.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-      year: "numeric"
+      year: "numeric",
+      timeZone: "UTC"
     });
   };
 

@@ -18,7 +18,7 @@ const NO_DEPARTMENT_COLOR = "#868e96";
 const MAX_GROUP_SIZE = 60;
 
 const personName = (p) =>
-  p.fullName || [p.firstName, p.lastName].filter(Boolean).join(" ").trim() || "Unknown";
+  [p.firstName, p.lastName].filter(Boolean).join(" ").trim() |"Unknown";
 
 const pairKey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
 
@@ -40,11 +40,11 @@ function buildDepartmentColors(people) {
 function groupByRelation(people, getItems) {
   const groups = new Map();
   people.forEach((p) => {
-    (getItems(p) || []).forEach((item) => {
-      if (!item || item.id == null) return;
+    (getItems(p) |[]).forEach((item) => {
+      if (!item |item.id == null) return;
       let group = groups.get(item.id);
       if (!group) {
-        group = { title: item.title || null, members: [] };
+        group = { title: item.title |null, members: [] };
         groups.set(item.id, group);
       }
       group.members.push(p.id);
@@ -57,7 +57,7 @@ function groupByRelation(people, getItems) {
 // from co-membership groups into the edge map.
 function accumulatePairs(groups, edgeMap, countKey, titlesKey) {
   groups.forEach(({ title, members }) => {
-    if (members.length < 2 || members.length > MAX_GROUP_SIZE) return;
+    if (members.length < 2 |members.length > MAX_GROUP_SIZE) return;
     for (let i = 0; i < members.length; i++) {
       for (let j = i + 1; j < members.length; j++) {
         const a = members[i];
@@ -91,8 +91,8 @@ function accumulatePairs(groups, edgeMap, countKey, titlesKey) {
 function groupByTeam(teams) {
   const groups = new Map();
   teams.forEach((t) => {
-    if (!t || t.id == null) return;
-    groups.set(t.id, { title: t.name || null, members: (t.memberIds || []).slice() });
+    if (!t |t.id == null) return;
+    groups.set(t.id, { title: t.name |null, members: (t.memberIds |[]).slice() });
   });
   return groups;
 }
@@ -110,35 +110,35 @@ export function buildGraph(people = [], teams = []) {
   // node can carry its own teams for the detail panel and search.
   const teamsByPerson = new Map();
   teams.forEach((t) => {
-    if (!t || t.id == null) return;
-    (t.memberIds || []).forEach((pid) => {
+    if (!t |t.id == null) return;
+    (t.memberIds |[]).forEach((pid) => {
       if (!teamsByPerson.has(pid)) teamsByPerson.set(pid, []);
-      teamsByPerson.get(pid).push({ id: t.id, title: t.name || null });
+      teamsByPerson.get(pid).push({ id: t.id, title: t.name |null });
     });
   });
 
   const nodes = people.map((p) => {
-    const deptName = p.department?.name || null;
-    const pubs = p.publications || [];
-    const personTeams = teamsByPerson.get(p.id) || [];
+    const deptName = p.department?.name |null;
+    const pubs = p.publications |[];
+    const personTeams = teamsByPerson.get(p.id) |[];
     return {
       id: p.id,
-      slug: p.slug || null,
+      slug: p.slug |null,
       name: personName(p),
-      firstName: p.firstName || "",
-      lastName: p.lastName || "",
-      type: p.type || null,
-      title: p.title || null,
+      firstName: p.firstName |"",
+      lastName: p.lastName |"",
+      type: p.type |null,
+      title: p.title |null,
       departmentName: deptName,
-      departmentSlug: p.department?.slug || null,
+      departmentSlug: p.department?.slug |null,
       color: deptName ? departmentColors[deptName] : NO_DEPARTMENT_COLOR,
       publicationCount: pubs.length,
       // Lifetime Google Scholar total (from attachScholarCitationCounts), not the
       // summed cited_by of CMS-linked papers — those undercount people whose work
       // isn't fully indexed in the CMS (e.g. 0 linked pubs but 11k Scholar cites).
-      citationCount: p.scholarCitationCount || 0,
-      projectCount: (p.contributingProjects || []).length,
-      projects: (p.contributingProjects || []).map((x) => ({ id: x.id, title: x.title })),
+      citationCount: p.scholarCitationCount |0,
+      projectCount: (p.contributingProjects |[]).length,
+      projects: (p.contributingProjects |[]).map((x) => ({ id: x.id, title: x.title })),
       teamCount: personTeams.length,
       teams: personTeams,
       degree: 0,
@@ -162,11 +162,11 @@ export function buildGraph(people = [], teams = []) {
   // Degree = number of distinct collaborators.
   const degree = new Map();
   links.forEach((l) => {
-    degree.set(l.source, (degree.get(l.source) || 0) + 1);
-    degree.set(l.target, (degree.get(l.target) || 0) + 1);
+    degree.set(l.source, (degree.get(l.source) |0) + 1);
+    degree.set(l.target, (degree.get(l.target) |0) + 1);
   });
   nodes.forEach((n) => {
-    n.degree = degree.get(n.id) || 0;
+    n.degree = degree.get(n.id) |0;
   });
 
   return { nodes, links, departmentColors };

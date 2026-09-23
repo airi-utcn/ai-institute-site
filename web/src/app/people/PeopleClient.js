@@ -195,7 +195,7 @@ export default function PeopleClient({
 }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [allSort, setAllSort] = useState("default");
+  const [allSort, setAllSort] = useState("most-citations");
   const [researcherSort, setResearcherSort] = useState("most-citations");
 
   const title = pageData?.title || "People";

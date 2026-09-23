@@ -27,7 +27,8 @@
       "relation": "oneToOne",
       "target": "api::person.person"
     },
-    "name": {
+    "firstName": { "type": "string" },
+    "lastName": {
       "type": "string"
     },
     "title": {

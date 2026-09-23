@@ -242,7 +242,7 @@ const PERSON_WITH_IMAGE_POPULATE = {
 };
 
 const PERSON_FULL_POPULATE = {
-  fields: [...PERSON_FIELDS, 'bio', 'fullName'],
+  fields: [...PERSON_FIELDS, 'bio'],
   populate: {
     portrait: {
       fields: ['url', 'formats', 'alternativeText'],
@@ -518,7 +518,7 @@ export async function getStaffMember(slug, _locale = null) {
 export async function getPeopleGraphData() {
   try {
     return await fetchAllEntries('/people', {
-      fields: ['firstName', 'lastName', 'fullName', 'slug', 'type', 'title', 'scholarId'],
+      fields: ['firstName', 'lastName', 'slug', 'type', 'title', 'scholarId'],
       sort: 'lastName:asc,firstName:asc',
       populate: PEOPLE_GRAPH_POPULATE,
     });
@@ -1031,7 +1031,7 @@ export function transformGraphPublicationData(strapiPublications) {
       const authors = authorEntries
         .map((author) => {
           const authorData = author?.attributes ?? author ?? {};
-          return authorData.fullName || authorData.name || '';
+          return `${authorData.firstName || ''} ${authorData.lastName || ''}`.trim() || '';
         })
         .filter(Boolean);
 
@@ -2108,7 +2108,7 @@ export function transformNewsData(strapiNews) {
     const attrs = person?.attributes ?? person ?? {};
     return {
       id: person?.id ?? null,
-      name: `${attrs.firstName || ''} ${attrs.lastName || ''}`.trim() || attrs.name || '',
+      name: `${attrs.firstName || ''} ${attrs.lastName || ''}`.trim() || '',
       slug: attrs.slug || '',
       title: attrs.title || '',
       image: resolveMediaUrl(attrs.portrait || attrs.profileImage),
@@ -2211,7 +2211,7 @@ export function transformProjectData(strapiProjects) {
             ? {
                 id: personEntry?.id ?? null,
                 slug: personAttr.slug || '',
-                name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || personAttr.name || '',
+                name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || '',
                 title: personAttr.title || '',
                 type: personAttr.type || '',
                 email: personAttr.email || '',
@@ -2322,7 +2322,7 @@ export function transformProjectData(strapiProjects) {
             person: personEntry ? {
               id: personEntry?.id ?? null,
               slug: personAttr.slug || '',
-              name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || personAttr.name || '',
+              name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || '',
               title: personAttr.title || '',
               type: personAttr.type || '',
               email: personAttr.email || '',
@@ -2338,7 +2338,7 @@ export function transformProjectData(strapiProjects) {
       return {
         id: c?.id ?? null,
         slug: personData.slug || '',
-        name: `${personData.firstName || ''} ${personData.lastName || ''}`.trim() || personData.name || '',
+        name: `${personData.firstName || ''} ${personData.lastName || ''}`.trim() || '',
         title: personData.title || '',
         type: personData.type || '',
         email: personData.email || '',
@@ -2351,7 +2351,7 @@ export function transformProjectData(strapiProjects) {
 
       const pubAuthors = toArray(pubData.authors?.data ?? pubData.authors).map((a) => {
         const aData = a?.attributes ?? a ?? {};
-        return `${aData.firstName || ''} ${aData.lastName || ''}`.trim() || aData.name || '';
+        return `${aData.firstName || ''} ${aData.lastName || ''}`.trim() || '';
       }).filter(Boolean);
 
       const pubDomainEntry = pubData.domain?.data ?? pubData.domain;
@@ -2504,12 +2504,10 @@ export function transformDepartmentData(strapiDepartments) {
 
     const coordinator =
       `${coordinatorData.firstName || ''} ${coordinatorData.lastName || ''}`.trim() ||
-      coordinatorData.name ||
       (typeof attributes.coordinator === 'string' ? attributes.coordinator : '') ||
       '';
     const coCoordinator =
       `${coCoordinatorData.firstName || ''} ${coCoordinatorData.lastName || ''}`.trim() ||
-      coCoordinatorData.name ||
       (typeof attributes.coCoordinator === 'string' ? attributes.coCoordinator : '') ||
       '';
 
@@ -2558,8 +2556,8 @@ export function transformEventData(strapiEvents) {
       let personName, personTitle, personBio, personImage, personSlug, personEmail;
       
       // If a relationship is selected, ONLY use data from the relationship
-      if (pPerson && (pPerson.firstName || pPerson.fullName || pPerson.name || pPerson.slug)) {
-        personName = pPerson.fullName || `${pPerson.firstName || ''} ${pPerson.lastName || ''}`.trim() || pPerson.name || '';
+      if (pPerson && (pPerson.firstName || pPerson.slug)) {
+        personName = `${pPerson.firstName || ''} ${pPerson.lastName || ''}`.trim() || '';
         personTitle = pPerson.title || '';
         personBio = pPerson.bio || '';
         personImage = resolveMediaUrl(pPerson.portrait);
@@ -2567,7 +2565,7 @@ export function transformEventData(strapiEvents) {
         personEmail = pPerson.email || '';
       } else {
         // If no relationship is selected, use the manual frontend fields from the component
-        personName = p.name || '';
+        personName = `${p.firstName || ''} ${p.lastName || ''}`.trim() || '';
         personTitle = p.title || '';
         personBio = p.bio || '';
         personImage = resolveMediaUrl(p.photo);
@@ -2596,7 +2594,7 @@ export function transformEventData(strapiEvents) {
 
     const speakers = toArray(attributes.speakers?.data ?? attributes.speakers).map((sp) => {
       const spData = sp?.attributes ?? sp ?? {};
-      const name = spData.fullName || `${spData.firstName || ''} ${spData.lastName || ''}`.trim() || spData.name || '';
+      const name = `${spData.firstName || ''} ${spData.lastName || ''}`.trim() || '';
       const image = resolveMediaUrl(spData.portrait);
       return {
         role: 'speaker',
@@ -2621,7 +2619,7 @@ export function transformEventData(strapiEvents) {
 
     const contactPersonData = attributes.contactPerson?.data?.attributes ?? attributes.contactPerson ?? null;
     const contactPersonName = contactPersonData
-      ? `${contactPersonData.firstName || ''} ${contactPersonData.lastName || ''}`.trim() || contactPersonData.name || ''
+      ? `${contactPersonData.firstName || ''} ${contactPersonData.lastName || ''}`.trim() || ''
       : attributes.contactName || '';
 
     const organizers = toArray(attributes.organizers?.data ?? attributes.organizers).map((org) => {
@@ -2773,7 +2771,7 @@ export function transformResourceData(strapiResources) {
     const maintainers = toArray(attributes.maintainers?.data ?? attributes.maintainers).map((m) => {
       const mAttr = m?.attributes ?? m ?? {};
       return {
-        name: `${mAttr.firstName || ''} ${mAttr.lastName || ''}`.trim() || mAttr.name || '',
+        name: `${mAttr.firstName || ''} ${mAttr.lastName || ''}`.trim() || '',
         slug: mAttr.slug || '',
       };
     });

@@ -9,13 +9,13 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 
-export default function NewsArticleClient({ article, pageData }) {
+export default function AwardArticleClient({ article, pageData }) {
   const locale = useLocale();
   const authorLabel = 'By';
 
   const tr = (key, fallback) => {
     const map = {
-      backToNews: pageData?.articleBackToNews || "Back to News",
+      backToNews: pageData?.awardsBackToAwards || "Back to Awards",
       readOnLinkedIn: pageData?.articleReadOnLinkedIn || "Read on LinkedIn",
       gallery: pageData?.articleGallery || "Gallery",
       tags: pageData?.articleTags || "Tags",
@@ -65,11 +65,11 @@ export default function NewsArticleClient({ article, pageData }) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Back Link */}
         <Link
-          href="/news&events/news"
+          href="/news&events/awards"
           className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline mb-6 font-medium"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
-          {tr('backToNews', 'Back to News')}
+          {tr('backToNews', 'Back to Awards')}
         </Link>
 
         {/* Article Header */}

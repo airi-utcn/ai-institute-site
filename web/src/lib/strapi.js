@@ -1301,7 +1301,7 @@ export async function getNewsArticles(options = {}) {
     const params = createParams({
       sort: 'publishedDate:desc',
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
-      pagination: pageSize ? { pageSize } : null,
+      pagination: pageSize ? { pageSize } : null, filters: options.filters || null,
       locale,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },

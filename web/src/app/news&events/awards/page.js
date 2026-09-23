@@ -1,11 +1,11 @@
 import { cookies } from "next/headers";
 import AwardsClient from "./awardsClient";
-import { getSingleType } from "@/lib/strapi";
+import { getSingleType, getNewsArticles, transformNewsData } from "@/lib/strapi";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const newsPage = await getSingleType("news-page", locale);
+  const newsPage = await getSingleType("awards-page", locale);
 
   return {
     title: newsPage?.tabAwards || "Awards",
@@ -16,7 +16,13 @@ export async function generateMetadata() {
 export default async function AwardsPage() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const pageData = await getSingleType("news-page", locale);
 
-  return <AwardsClient pageData={pageData} />;
+  const [awards, pageData] = await Promise.all([
+    getNewsArticles({ locale, filters: { category: { $eq: "award" } } }),
+    getSingleType("awards-page", locale),
+  ]);
+
+  const awardsItems = transformNewsData(awards);
+  
+  return <AwardsClient awardsItems={awardsItems} pageData={pageData} />;
 }

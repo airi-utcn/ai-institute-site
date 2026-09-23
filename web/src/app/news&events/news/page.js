@@ -18,7 +18,7 @@ export default async function NewsPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [news, pageData] = await Promise.all([
-    getNewsArticles({ locale }),
+    getNewsArticles({ locale, filters: { category: { $ne: "award" } } }),
     getSingleType("news-page", locale),
   ]);
 

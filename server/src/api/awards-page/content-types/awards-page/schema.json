@@ -1,0 +1,164 @@
+{
+  "kind": "singleType",
+  "collectionName": "awards_pages",
+  "info": {
+    "singularName": "awards-page",
+    "pluralName": "awards-pages",
+    "displayName": "Awards Page",
+    "description": "Content for News, Events, Seminars, Awards, Careers"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "awardsTitle": {
+      "type": "string",
+      "default": "Awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsSubtitle": {
+      "type": "text",
+      "default": "Recognizing excellence",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsSearchLabel": {
+      "type": "string",
+      "default": "Search awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsSearchPlaceholder": {
+      "type": "string",
+      "default": "Search by keyword, recipient, or tag...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsStories": {
+      "type": "string",
+      "default": "awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsReadStory": {
+      "type": "string",
+      "default": "Read full story",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsViewArticle": {
+      "type": "string",
+      "default": "View article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsEmptyState": {
+      "type": "string",
+      "default": "No awards found matching your criteria.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsNoImage": {
+      "type": "string",
+      "default": "No image available",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "awardsBackToAwards": {
+      "type": "string",
+      "default": "Back to Awards",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleReadOnLinkedIn": {
+      "type": "string",
+      "default": "Read on LinkedIn",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleGallery": {
+      "type": "string",
+      "default": "Gallery",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleTags": {
+      "type": "string",
+      "default": "Tags",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleRelatedProjects": {
+      "type": "string",
+      "default": "Related Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleFeaturedPeople": {
+      "type": "string",
+      "default": "Featured People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "articleRelatedDepartments": {
+      "type": "string",
+      "default": "Related Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

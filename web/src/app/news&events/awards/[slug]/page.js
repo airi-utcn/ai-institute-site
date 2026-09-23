@@ -2,7 +2,7 @@ import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getNewsArticleBySlug, getNewsArticles, transformNewsData, getSingleType } from '@/lib/strapi';
-import NewsArticleClient from './NewsArticleClient';
+import AwardArticleClient from './AwardArticleClient';
 
 export async function generateStaticParams() {
   try {
@@ -20,15 +20,15 @@ export async function generateMetadata({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const articleRow = await getNewsArticleBySlug(slug, locale);
-  const pageData = await getSingleType("news-page", locale);
+  const pageData = await getSingleType("awards-page", locale);
   const article = transformNewsData(articleRow ? [articleRow] : [])[0];
 
   if (!article) {
-    return { title: pageData?.newsTitle || 'News Article' };
+    return { title: pageData?.awardsTitle || 'Awards Article' };
   }
 
   return {
-    title: `${article.title} | News`,
+    title: `${article.title} | Awards`,
     description: article.summary || 'Read the latest news from AIRI.',
   };
 }
@@ -39,7 +39,7 @@ export default async function NewsArticlePage({ params }) {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const [articleRow, pageData] = await Promise.all([
     getNewsArticleBySlug(slug, locale),
-    getSingleType("news-page", locale),
+    getSingleType("awards-page", locale),
   ]);
 
   if (!articleRow) {
@@ -52,5 +52,5 @@ export default async function NewsArticlePage({ params }) {
     notFound();
   }
 
-  return <NewsArticleClient article={article} pageData={pageData} />;
+  return <AwardArticleClient article={article} pageData={pageData} />;
 }

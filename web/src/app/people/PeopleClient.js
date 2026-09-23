@@ -114,7 +114,22 @@ const RESEARCHER_SORT_OPTIONS = [
 ];
 
 function PersonCard({ person, basePath = "/people", showRoleBadge = true, activeFilter = "all" }) {
-  const roleConfig = getRoleConfig(person.type);
+    const roleConfig = getRoleConfig(person.type);
+  
+  const formatSubtype = (typeStr) => {
+    if (!typeStr) return null;
+    return typeStr
+      .split('_')
+      .map(w => (w === 'UTCN' || w === 'AIRI') ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  };
+
+  let displayRole = roleConfig.label;
+  const subType = person[`type_${person.type}`];
+  if (subType) {
+     displayRole = formatSubtype(subType);
+  }
+
   const initials = (person.name || "?")
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -134,9 +149,9 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = true, active
     >
       {showRoleBadge && (
         <span
-          className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${roleConfig.color}`}
+          className={`absolute top-2 left-2 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${roleConfig.color}`}
         >
-          {roleConfig.label}
+          {displayRole}
         </span>
       )}
 

@@ -29,7 +29,6 @@
       "themes": "Temi",
       "projects": "Progetti",
       "publications": "Pubblicazioni",
-      "thesis": "Tesi",
       "resources": "Risorse",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Grafo delle Persone"
@@ -669,7 +668,6 @@
             "themes": "Temi",
             "projects": "Progetti",
             "publications": "Pubblicazioni",
-            "thesis": "Tesi",
             "tools": "Strumenti",
             "resources": "Risorse"
           }
@@ -1089,19 +1087,6 @@
       "viewProjects": "Visualizza Progetti",
       "viewPublications": "Visualizza Pubblicazioni",
       "noThemes": "Nessun tema trovato."
-    },
-    "thesis": {
-      "title": "Tesi",
-      "tabs": {
-        "phd": "Dottorato",
-        "master": "Laurea Magistrale",
-        "bachelor": "Laurea Triennale"
-      },
-      "messages": {
-        "phd": "Ulteriori aggiornamenti in arrivo per la sezione Dottorato.",
-        "master": "Ulteriori aggiornamenti in arrivo per la sezione Magistrale.",
-        "bachelor": "Ulteriori aggiornamenti in arrivo per la sezione Triennale."
-      }
     },
     "resultDetails": {
       "notFound": "Risultato non trovato",

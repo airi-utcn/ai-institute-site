@@ -29,7 +29,6 @@
       "themes": "Teme de cercetare",
       "projects": "Proiecte",
       "publications": "Publicații",
-      "thesis": "Teze",
       "resources": "Resurse",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Graful Persoanelor"
@@ -669,7 +668,6 @@
             "themes": "Teme",
             "projects": "Proiecte",
             "publications": "Publicații",
-            "thesis": "Teze",
             "tools": "Instrumente",
             "resources": "Resurse"
           }
@@ -1089,19 +1087,6 @@
       "viewProjects": "Vezi Proiecte",
       "viewPublications": "Vezi Publicații",
       "noThemes": "Nicio temă găsită."
-    },
-    "thesis": {
-      "title": "Teze",
-      "tabs": {
-        "phd": "Doctorat",
-        "master": "Masterat",
-        "bachelor": "Licență"
-      },
-      "messages": {
-        "phd": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Doctorat.",
-        "master": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Masterat.",
-        "bachelor": "Mai multe actualizări vor fi disponibile în curând pentru secțiunea de Licență."
-      }
     },
     "resultDetails": {
       "notFound": "Rezultatul nu a fost găsit",

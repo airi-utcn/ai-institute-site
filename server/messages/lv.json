@@ -29,7 +29,6 @@
       "themes": "Tēmas",
       "projects": "Projekti",
       "publications": "Publikācijas",
-      "thesis": "Disertācijas",
       "resources": "Resursi",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Cilvēku grafs"
@@ -669,7 +668,6 @@
             "themes": "Tēmas",
             "projects": "Projekti",
             "publications": "Publikācijas",
-            "thesis": "Disertācijas",
             "tools": "Rīki",
             "resources": "Resursi"
           }
@@ -1089,19 +1087,6 @@
       "viewProjects": "Skatīt projektus",
       "viewPublications": "Skatīt publikācijas",
       "noThemes": "Nav atrastas tēmas."
-    },
-    "thesis": {
-      "title": "Disertācijas",
-      "tabs": {
-        "phd": "Doktorantūra",
-        "master": "Maģistrantūra",
-        "bachelor": "Bakalaura līmenis"
-      },
-      "messages": {
-        "phd": "Drīzumā būs pieejami papildinājumi Doktorantūras sadaļā.",
-        "master": "Drīzumā būs pieejami papildinājumi Maģistrantūras sadaļā.",
-        "bachelor": "Drīzumā būs pieejami papildinājumi Bakalaura līmeņa sadaļā."
-      }
     },
     "resultDetails": {
       "notFound": "Rezultāts nav atrasts",

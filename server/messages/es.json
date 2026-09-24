@@ -29,7 +29,6 @@
       "themes": "Temas",
       "projects": "Proyectos",
       "publications": "Publicaciones",
-      "thesis": "Tesis",
       "resources": "Recursos",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Grafo de Personas"
@@ -669,7 +668,6 @@
             "themes": "Temas",
             "projects": "Proyectos",
             "publications": "Publicaciones",
-            "thesis": "Tesis",
             "tools": "Herramientas",
             "resources": "Recursos"
           }
@@ -1090,19 +1088,6 @@
       "viewProjects": "Ver Proyectos",
       "viewPublications": "Ver Publicaciones",
       "noThemes": "No se encontraron temas."
-    },
-    "thesis": {
-      "title": "Tesis",
-      "tabs": {
-        "phd": "Doctorado",
-        "master": "Máster",
-        "bachelor": "Grado"
-      },
-      "messages": {
-        "phd": "Próximamente habrá más actualizaciones para la sección de Doctorado.",
-        "master": "Próximamente habrá más actualizaciones para la sección de Máster.",
-        "bachelor": "Próximamente habrá más actualizaciones para la sección de Grado."
-      }
     },
     "resultDetails": {
       "notFound": "Resultado no encontrado",

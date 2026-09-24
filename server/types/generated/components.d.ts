@@ -45,7 +45,8 @@ export interface EventParticipant extends Struct.ComponentSchema {
           localized: true;
         };
       }>;
-    name: Schema.Attribute.String;
+    firstName: Schema.Attribute.String;
+    lastName: Schema.Attribute.String;
     person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
     photo: Schema.Attribute.Media<'images'>;
     role: Schema.Attribute.Enumeration<
@@ -328,13 +329,6 @@ export interface LayoutNavbar extends Struct.ComponentSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Themes'>;
-    menuThesis: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'Thesis'>;
     menuTour: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -688,7 +682,7 @@ export interface TeamMembership extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'about.timeline-item': AboutTimelineItem;
       'event.participant': EventParticipant;

@@ -77,7 +77,6 @@ function mapGlobal(msg) {
       menuThemes: rm.themes || 'Research Themes',
       menuProjects: rm.projects || 'Projects',
       menuPublications: rm.publications || 'Publications',
-      menuThesis: rm.thesis || 'Thesis',
       menuResources: rm.resources || 'Resources',
       menuPaperGraph: rm.paperGraph || 'Paper Graph',
       menuPeopleGraph: rm.peopleGraph || 'People Graph',
@@ -170,11 +169,11 @@ function mapAboutPage(msg) {
 
   const timelineEvents = Object.entries(hs)
     .filter(([k]) => k.startsWith('event'))
-    .sort(([k1], [k2]) => k1.localeCompare(k2))
-    .map(([_, e]) => ({
-      date: e.date || '',
-      title: e.title || '',
-      description: e.description || [e.descriptionPart1, e.descriptionPart2].filter(Boolean).join(' ') || '',
+    .sort(([k1], [k2]) => k1.localeCompare(k2))\
+    .map(([_, e]) => ({\
+      date: e.date || '',\
+      title: e.title || '',\
+      description: e.description || [e.descriptionPart1, e.descriptionPart2].filter(Boolean).join(' ') || '',\
     }));
 
   return {
@@ -418,8 +417,6 @@ function mapResearchPage(msg) {
   const pr = r.projects || {};
   const pb = r.publications || {};
   const th = r.themes || {};
-  const ts = r.thesis || {};
-  const tsMsg = ts.messages || {};
 
   return {
     departmentsTitle: d.title || 'Departments',
@@ -464,9 +461,6 @@ function mapResearchPage(msg) {
     themesTitle: th.title || 'Research Themes',
     themesSubtitle: th.subtitle || '',
     themesSearchPlaceholder: pr.searchPlaceholder || 'Search themes...',
-    thesisTitle: ts.title || 'Thesis',
-    thesisSubtitle: ts.subtitle || '',
-    thesisComingSoon: tsMsg.phd || ts.comingSoon || 'Content coming soon.',
   };
 }
 

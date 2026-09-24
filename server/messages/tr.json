@@ -29,7 +29,6 @@
       "themes": "Temalar",
       "projects": "Projeler",
       "publications": "Yayınlar",
-      "thesis": "Tezler",
       "resources": "Kaynaklar",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Kişiler Grafiği"
@@ -669,7 +668,6 @@
             "themes": "Temalar",
             "projects": "Projeler",
             "publications": "Yayınlar",
-            "thesis": "Tezler",
             "tools": "Araçlar",
             "resources": "Kaynaklar"
           }
@@ -1089,19 +1087,6 @@
       "viewProjects": "Projeleri Görüntüle",
       "viewPublications": "Yayınları Görüntüle",
       "noThemes": "Tema bulunamadı."
-    },
-    "thesis": {
-      "title": "Tezler",
-      "tabs": {
-        "phd": "Doktora",
-        "master": "Yüksek Lisans",
-        "bachelor": "Lisans"
-      },
-      "messages": {
-        "phd": "Doktora bölümü için daha fazla güncelleme yakında geliyor.",
-        "master": "Yüksek Lisans bölümü için daha fazla güncelleme yakında geliyor.",
-        "bachelor": "Lisans bölümü için daha fazla güncelleme yakında geliyor."
-      }
     },
     "resultDetails": {
       "notFound": "Sonuç bulunamadı",

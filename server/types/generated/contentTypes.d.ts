@@ -806,6 +806,94 @@ export interface ApiAwardsPageAwardsPage extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiCareersPageCareersPage extends Struct.SingleTypeSchema {
+  collectionName: 'careers_pages';
+  info: {
+    description: 'Content for Careers Page';
+    displayName: 'Careers Page';
+    pluralName: 'careers-pages';
+    singularName: 'careers-page';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    careersComingSoon: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'More information coming soon.'>;
+    careersPostdoc: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'As a Postdoctoral Researcher'>;
+    careersPostgrad: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'As a Post-Graduate Student'>;
+    careersSoftwareEngineer: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'As a Software Engineer'>;
+    careersSubtitle: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<''>;
+    careersTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Career Opportunities'>;
+    careersUndergrad: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'As an Undergraduate Student'>;
+    careersVisiting: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'As a Visiting Researcher'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::careers-page.careers-page'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiContactPageContactPage extends Struct.SingleTypeSchema {
   collectionName: 'contact_pages';
   info: {
@@ -2268,61 +2356,6 @@ export interface ApiNewsPageNewsPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Tags'>;
-    careersComingSoon: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'More information coming soon.'>;
-    careersPostdoc: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'As a Postdoctoral Researcher'>;
-    careersPostgrad: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'As a Post-Graduate Student'>;
-    careersSoftwareEngineer: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'As a Software Engineer'>;
-    careersSubtitle: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }>;
-    careersTitle: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'Career Opportunities'>;
-    careersUndergrad: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'As an Undergraduate Student'>;
-    careersVisiting: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'As a Visiting Researcher'>;
     categoryAll: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2484,19 +2517,52 @@ export interface ApiNewsPageNewsPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'View article'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiOpenCallsPageOpenCallsPage extends Struct.SingleTypeSchema {
+  collectionName: 'open_calls_pages';
+  info: {
+    description: 'Content for Open Calls Page';
+    displayName: 'Open Calls Page';
+    pluralName: 'open-calls-pages';
+    singularName: 'open-calls-page';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::open-calls-page.open-calls-page'
+    >;
     openCallsComingSoon: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'More updates on this section coming soon.'>;
+      Schema.Attribute.DefaultTo<'More updates coming soon.'>;
     openCallsSubtitle: Schema.Attribute.Text &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
-      }>;
+      }> &
+      Schema.Attribute.DefaultTo<''>;
     openCallsTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2505,40 +2571,6 @@ export interface ApiNewsPageNewsPage extends Struct.SingleTypeSchema {
       }> &
       Schema.Attribute.DefaultTo<'Calls for Projects'>;
     publishedAt: Schema.Attribute.DateTime;
-    seminarsEmptyState: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'No seminars available at the moment.'>;
-    seminarsModules: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'Modules'>;
-    seminarsSubtitle: Schema.Attribute.Text &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }>;
-    seminarsTitle: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'Seminars'>;
-    seminarsWhatYouWillLearn: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'What you\u2019ll learn'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -4150,6 +4182,73 @@ export interface ApiSeminarSeminar extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiSeminarsPageSeminarsPage extends Struct.SingleTypeSchema {
+  collectionName: 'seminars_pages';
+  info: {
+    description: 'Content for Seminars Page';
+    displayName: 'Seminars Page';
+    pluralName: 'seminars-pages';
+    singularName: 'seminars-page';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::seminars-page.seminars-page'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    seminarsEmptyState: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'No seminars available.'>;
+    seminarsModules: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Modules'>;
+    seminarsSubtitle: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<''>;
+    seminarsTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Seminars'>;
+    seminarsWhatYouWillLearn: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'What you will learn'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
   collectionName: 'teams';
   info: {
@@ -4759,6 +4858,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::about-page.about-page': ApiAboutPageAboutPage;
       'api::awards-page.awards-page': ApiAwardsPageAwardsPage;
+      'api::careers-page.careers-page': ApiCareersPageCareersPage;
       'api::contact-page.contact-page': ApiContactPageContactPage;
       'api::department.department': ApiDepartmentDepartment;
       'api::engagement-page.engagement-page': ApiEngagementPageEngagementPage;
@@ -4772,6 +4872,7 @@ declare module '@strapi/strapi' {
       'api::media-page.media-page': ApiMediaPageMediaPage;
       'api::news-article.news-article': ApiNewsArticleNewsArticle;
       'api::news-page.news-page': ApiNewsPageNewsPage;
+      'api::open-calls-page.open-calls-page': ApiOpenCallsPageOpenCallsPage;
       'api::partner.partner': ApiPartnerPartner;
       'api::people-page.people-page': ApiPeoplePagePeoplePage;
       'api::person.person': ApiPersonPerson;
@@ -4785,6 +4886,7 @@ declare module '@strapi/strapi' {
       'api::result.result': ApiResultResult;
       'api::search-page.search-page': ApiSearchPageSearchPage;
       'api::seminar.seminar': ApiSeminarSeminar;
+      'api::seminars-page.seminars-page': ApiSeminarsPageSeminarsPage;
       'api::team.team': ApiTeamTeam;
       'api::timeline-page.timeline-page': ApiTimelinePageTimelinePage;
       'plugin::content-releases.release': PluginContentReleasesRelease;

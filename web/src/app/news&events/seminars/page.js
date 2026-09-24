@@ -5,11 +5,11 @@ import { getSeminars, transformSeminarData, getSingleType } from "@/lib/strapi";
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const newsPage = await getSingleType("news-page", locale);
+  const seminarsPage = await getSingleType("seminars-page", locale);
 
   return {
-    title: newsPage?.tabSeminars || "Seminars",
-    description: "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.",
+    title: seminarsPage?.seminarsTitle || "Seminars",
+    description: seminarsPage?.seminarsSubtitle || "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.",
   };
 }
 
@@ -19,7 +19,7 @@ export default async function SeminarsPage() {
 
   const [seminarsData, pageData] = await Promise.all([
     getSeminars({ locale }),
-    getSingleType("news-page", locale),
+    getSingleType("seminars-page", locale),
   ]);
 
   const seminars = transformSeminarData(seminarsData);

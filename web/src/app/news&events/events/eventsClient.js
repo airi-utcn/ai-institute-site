@@ -18,10 +18,10 @@ const containerVariants = {
 
 export default function EventsClient({ events = [], pageData }) {
   const items = Array.isArray(events) ? events : [];
-  const title = pageData?.title || "Events";
-  const subtitle = pageData?.subtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.";
-  const noEvents = pageData?.noEvents || "No events available at the moment.";
-  const viewDetailsLabel = pageData?.viewDetails || "View Details";
+  const title = pageData?.eventsTitle || "Events";
+  const subtitle = pageData?.eventsSubtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.";
+  const noEvents = pageData?.eventsNoEvents || "No events available at the moment.";
+  const viewDetailsLabel = pageData?.eventsViewDetails || "View Details";
 
   const formatDate = (dateStr) => {
     if (!dateStr) return null;

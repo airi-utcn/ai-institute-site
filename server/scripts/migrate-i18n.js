@@ -275,11 +275,6 @@ function mapNewsPage(msg) {
   const nw = ne.news || {};
   const cat = nw.categories || {};
   const art = nw.article || {};
-  const aw = ne.awards || {};
-  const cr = ne.careers || {};
-  const ev = ne.events || {};
-  const op = ne['open-project-calls'] || ne.openCalls || {};
-  const sm = ne.seminars || {};
 
   return {
     newsTitle: nw.title || 'News & Events',
@@ -311,6 +306,58 @@ function mapNewsPage(msg) {
     articleRelatedProjects: art.relatedProjects || 'Related Projects',
     articleFeaturedPeople: art.featuredPeople || 'Featured People',
     articleRelatedDepartments: art.relatedDepartments || 'Related Departments',
+  };
+}
+
+function mapAwardsPage(msg) {
+  const ne = msg?.['news&events'] || {};
+  const aw = ne.awards || {};
+  const art = ne.news?.article || {};
+  return {
+    awardsTitle: aw.title || 'Awards',
+    awardsSubtitle: aw.subtitle || '',
+    awardsSearchLabel: 'Search awards',
+    awardsSearchPlaceholder: 'Search by keyword, recipient, or tag...',
+    awardsStories: 'awards',
+    awardsReadStory: 'Read full story',
+    awardsViewArticle: 'View article',
+    awardsEmptyState: 'No awards found matching your criteria.',
+    awardsNoImage: 'No image available',
+    awardsBackToAwards: 'Back to Awards',
+    articleReadOnLinkedIn: art.readOnLinkedIn || 'Read on LinkedIn',
+    articleGallery: art.gallery || 'Gallery',
+    articleTags: art.tags || 'Tags',
+    articleRelatedProjects: art.relatedProjects || 'Related Projects',
+    articleFeaturedPeople: art.featuredPeople || 'Featured People',
+    articleRelatedDepartments: art.relatedDepartments || 'Related Departments',
+  };
+}
+
+function mapEventsPage(msg) {
+  const ne = msg?.['news&events'] || {};
+  const ev = ne.events || {};
+  return {
+    eventsTitle: ev.title || 'Events',
+    eventsSubtitle: ev.subtitle || '',
+    eventsCalendarTitle: ev['calendar-title'] || ev.calendarTitle || 'Institute Calendar',
+    eventsNoEvents: ev['no-events'] || ev.noEvents || 'No events available.',
+    eventsStartLabel: 'Start:',
+    eventsEndLabel: 'End:',
+    eventsLocationLabel: 'Location:',
+    eventsAgendaTitle: 'Event Agenda',
+    eventsSpeakersTitle: 'Speakers & Guests',
+    eventsResourcesTitle: 'Resources & Downloads',
+    eventsRegisterButton: 'Register Now',
+    eventsRegistrationClosed: 'Registration Closed',
+    eventsSaveToCalendar: 'Save to Calendar',
+    eventsBackToEvents: 'Back to Events'
+  };
+}
+
+function mapCareersPage(msg) {
+  const ne = msg?.['news&events'] || {};
+  const cr = ne.careers || {};
+  return {
     careersTitle: cr.title || 'Career Opportunities',
     careersSubtitle: cr.subtitle || '',
     careersComingSoon: cr['coming-soon'] || cr.comingSoon || 'More information coming soon.',
@@ -319,9 +366,23 @@ function mapNewsPage(msg) {
     careersPostdoc: cr.postdoctoral || cr.postdoc || 'As a Postdoctoral Researcher',
     careersVisiting: cr['visiting-researcher'] || cr.visiting || 'As a Visiting Researcher',
     careersSoftwareEngineer: cr['software-engineer'] || cr.softwareEngineer || 'As a Software Engineer',
+  };
+}
+
+function mapOpenCallsPage(msg) {
+  const ne = msg?.['news&events'] || {};
+  const op = ne['open-project-calls'] || ne.openCalls || {};
+  return {
     openCallsTitle: op.title || 'Calls for Projects',
     openCallsSubtitle: op.subtitle || '',
     openCallsComingSoon: op['coming-soon'] || op.comingSoon || 'More updates coming soon.',
+  };
+}
+
+function mapSeminarsPage(msg) {
+  const ne = msg?.['news&events'] || {};
+  const sm = ne.seminars || {};
+  return {
     seminarsTitle: sm.title || 'Seminars',
     seminarsSubtitle: sm.subtitle || '',
     seminarsEmptyState: sm.emptyState || 'No seminars available.',
@@ -525,6 +586,11 @@ const MAPPERS = {
   'api::contact-page.contact-page': mapContactPage,
   'api::engagement-page.engagement-page': mapEngagementPage,
   'api::news-page.news-page': mapNewsPage,
+  'api::awards-page.awards-page': mapAwardsPage,
+  'api::events-page.events-page': mapEventsPage,
+  'api::careers-page.careers-page': mapCareersPage,
+  'api::open-calls-page.open-calls-page': mapOpenCallsPage,
+  'api::seminars-page.seminars-page': mapSeminarsPage,
   'api::people-page.people-page': mapPeoplePage,
   'api::research-page.research-page': mapResearchPage,
   'api::resources-page.resources-page': mapResourcesPage,

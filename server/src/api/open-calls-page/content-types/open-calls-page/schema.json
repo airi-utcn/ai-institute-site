@@ -1,0 +1,47 @@
+{
+  "kind": "singleType",
+  "collectionName": "open_calls_pages",
+  "info": {
+    "singularName": "open-calls-page",
+    "pluralName": "open-calls-pages",
+    "displayName": "Open Calls Page",
+    "description": "Content for Open Calls Page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "openCallsTitle": {
+      "type": "string",
+      "default": "Calls for Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openCallsSubtitle": {
+      "type": "text",
+      "default": "",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openCallsComingSoon": {
+      "type": "string",
+      "default": "More updates coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

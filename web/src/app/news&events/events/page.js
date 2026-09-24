@@ -9,8 +9,8 @@ export async function generateMetadata() {
   const eventsPage = await getSingleType("events-page", locale);
 
   return {
-    title: eventsPage?.title || "Events",
-    description: eventsPage?.subtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.",
+    title: eventsPage?.eventsTitle || "Events",
+    description: eventsPage?.eventsSubtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.",
   };
 }
 

@@ -5,11 +5,11 @@ import { getSingleType, getNewsArticles, transformNewsData } from "@/lib/strapi"
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const newsPage = await getSingleType("awards-page", locale);
+  const awardsPage = await getSingleType("awards-page", locale);
 
   return {
-    title: newsPage?.tabAwards || "Awards",
-    description: "Awards and recognitions received by AIRi researchers and teams at UTCN.",
+    title: awardsPage?.awardsTitle || "Awards",
+    description: awardsPage?.awardsSubtitle || "Awards and recognitions received by AIRi researchers and teams at UTCN.",
   };
 }
 

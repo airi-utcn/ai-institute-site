@@ -1,0 +1,92 @@
+{
+  "kind": "singleType",
+  "collectionName": "careers_pages",
+  "info": {
+    "singularName": "careers-page",
+    "pluralName": "careers-pages",
+    "displayName": "Careers Page",
+    "description": "Content for Careers Page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "careersTitle": {
+      "type": "string",
+      "default": "Career Opportunities",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersSubtitle": {
+      "type": "text",
+      "default": "",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersComingSoon": {
+      "type": "string",
+      "default": "More information coming soon.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersUndergrad": {
+      "type": "string",
+      "default": "As an Undergraduate Student",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersPostgrad": {
+      "type": "string",
+      "default": "As a Post-Graduate Student",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersPostdoc": {
+      "type": "string",
+      "default": "As a Postdoctoral Researcher",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersVisiting": {
+      "type": "string",
+      "default": "As a Visiting Researcher",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "careersSoftwareEngineer": {
+      "type": "string",
+      "default": "As a Software Engineer",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

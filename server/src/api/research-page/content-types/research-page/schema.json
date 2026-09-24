@@ -5,7 +5,7 @@
     "singularName": "research-page",
     "pluralName": "research-pages",
     "displayName": "Research Page",
-    "description": "Content for Research departments, projects, publications, themes, and thesis"
+    "description": "Content for Research departments, projects, publications, and themes"
   },
   "options": {
     "draftAndPublish": false
@@ -382,32 +382,6 @@
     "themesSearchPlaceholder": {
       "type": "string",
       "default": "Search themes...",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "thesisTitle": {
-      "type": "string",
-      "default": "Thesis",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "thesisSubtitle": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "thesisComingSoon": {
-      "type": "string",
-      "default": "Content coming soon.",
       "pluginOptions": {
         "i18n": {
           "localized": true

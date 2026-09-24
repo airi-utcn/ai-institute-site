@@ -88,15 +88,6 @@
         }
       }
     },
-    "menuThesis": {
-      "type": "string",
-      "default": "Thesis",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "menuResources": {
       "type": "string",
       "default": "Resources",

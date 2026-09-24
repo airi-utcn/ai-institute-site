@@ -29,7 +29,6 @@
       "themes": "Themes",
       "projects": "Projects",
       "publications": "Publications",
-      "thesis": "Thesis",
       "resources": "Resources",
       "paperGraph": "Paper Graph",
       "peopleGraph": "People Graph"
@@ -676,7 +675,6 @@
             "themes": "Themes",
             "projects": "Projects",
             "publications": "Publications",
-            "thesis": "Thesis",
             "tools": "Tools",
             "resources": "Resources"
           }
@@ -749,23 +747,23 @@
     "awards": {
       "title": "Awards",
       "subtitle": "Recognitions and distinctions earned by AIRI and collaborators.",
-      "coming-soon": "More information coming soon."
+      "comingSoon": "More information coming soon."
     },
     "careers": {
       "title": "Career Opportunities",
       "subtitle": "Explore ways to work with AIRI across study levels and roles.",
-      "coming-soon": "More information coming soon.",
-      "undergraduate": "As an Undergraduate Student",
-      "postgraduate": "As a Post-Graduate Student",
-      "postdoctoral": "As a Postdoctoral Researcher",
-      "visiting-researcher": "As a Visiting Researcher",
-      "software-engineer": "As a Software Engineer"
+      "comingSoon": "More information coming soon.",
+      "undergrad": "As an Undergraduate Student",
+      "postgrad": "As a Post-Graduate Student",
+      "postdoc": "As a Postdoctoral Researcher",
+      "visiting": "As a Visiting Researcher",
+      "softwareEngineer": "As a Software Engineer"
     },
     "events": {
       "title": "Events",
       "subtitle": "Highlights and memorable moments from AIRI.",
-      "calendar-title": "Institute Calendar",
-      "no-events": "No events available at the moment."
+      "calendarTitle": "Institute Calendar",
+      "noEvents": "No events available at the moment."
     },
     "news": {
       "title": "News & Events",
@@ -805,11 +803,11 @@
     "open-project-calls": {
       "title": "Calls for Projects",
       "subtitle": "Calls for proposals and collaboration opportunities.",
-      "coming-soon": "More updates on this section coming soon."
+      "comingSoon": "More updates on this section coming soon."
     },
     "seminars": {
       "title": "Seminars",
-      "subtitle": "Academic seminars hosted by AIRI and guests.",
+      "subtitle": "Academic seminars hosted by AIRi@UTCN and guests.",
       "emptyState": "No seminars available at the moment.",
       "whatYouWillLearn": "What you’ll learn",
       "modules": "Modules"
@@ -1098,19 +1096,6 @@
       "viewPublications": "View Publications",
       "noThemes": "No themes found."
     },
-    "thesis": {
-      "title": "Thesis",
-      "tabs": {
-        "phd": "PhD",
-        "master": "Master",
-        "bachelor": "Bachelor"
-      },
-      "messages": {
-        "phd": "More updates coming soon for the PhD section.",
-        "master": "More updates coming soon for the Master section.",
-        "bachelor": "More updates coming soon for the Bachelor section."
-      }
-    },
     "resultDetails": {
       "notFound": "Result not found",
       "attachment": "attachment",
@@ -1165,32 +1150,37 @@
     }
   },
   "timeline": {
-    "title": "📅 AIRI Timeline",
+    "title": "AIR@UTCN Timeline",
     "events": {
       "event1": {
-        "date": "Jan 15, 2023",
+        "date": "2023-01-15",
         "title": "Announcement of AI Institute at UTCN",
         "description": "The Technical University of Cluj-Napoca announced plans to establish a dedicated Artificial Intelligence Institute to foster research and innovation in AI technologies."
       },
       "event2": {
-        "date": "Jun 10, 2023",
+        "date": "2023-06-10",
         "title": "Groundbreaking Ceremony",
         "description": "Official groundbreaking ceremony for the construction of the AI Institute building, attended by university officials and local dignitaries."
       },
       "event3": {
-        "date": "Sep 1, 2024",
+        "date": "2024-09-01",
         "title": "Completion of Construction",
         "description": "The construction of the AI Institute's state-of-the-art facility was completed, featuring modern laboratories and collaborative spaces."
       },
       "event4": {
-        "date": "Oct 15, 2024",
+        "date": "2024-10-15",
         "title": "Inaugural AI Symposium",
-        "description": "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in artificial intelligence."
+        "description": "The institute hosted its first symposium, bringing together AI researchers, industry experts, and students to discuss the latest advancements in AI."
       },
       "event5": {
+        "date": "2025-08-20",
         "title": "Current Building Progress",
-        "descriptionPart1": "Stay updated with the current building progress of the AI Institute.",
-        "descriptionPart2": "Watch live through our webcam:"
+        "description": "Stay updated with the current building progress of the AI Institute. Watch live through our webcam:"
+      },
+      "event6": {
+        "date": "2026-09-18",
+        "title": "Unveiling AIRi@UTCN ",
+        "description": "The unveiling of the Artificial Intelligence Research Institute at the Technical University of Cluj-Napoca marks the public introduction of a new home for AI research and innovation. Guests will discover AIRi@UTCN’s vision, meet the people and partners shaping the institute, and explore how its laboratories and computing infrastructure will support work across disciplines.\n\nThe moment will bring together academia, industry, and public institutions to open a conversation about what they can build together: from fundamental research to AI solutions developed and tested for real needs."
       }
     }
   }

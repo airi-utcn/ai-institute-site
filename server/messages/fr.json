@@ -29,7 +29,6 @@
       "themes": "Thèmes",
       "projects": "Projets",
       "publications": "Publications",
-      "thesis": "Thèses",
       "resources": "Ressources",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Graphe des Personnes"
@@ -669,7 +668,6 @@
             "themes": "Thèmes",
             "projects": "Projets",
             "publications": "Publications",
-            "thesis": "Thèses",
             "tools": "Outils",
             "resources": "Ressources"
           }
@@ -1090,19 +1088,6 @@
       "viewProjects": "Voir les projets",
       "viewPublications": "Voir les publications",
       "noThemes": "Aucun thème trouvé."
-    },
-    "thesis": {
-      "title": "Thèses",
-      "tabs": {
-        "phd": "Doctorat",
-        "master": "Master",
-        "bachelor": "Licence"
-      },
-      "messages": {
-        "phd": "Plus de mises à jour à venir pour la section Doctorat.",
-        "master": "Plus de mises à jour à venir pour la section Master.",
-        "bachelor": "Plus de mises à jour à venir pour la section Licence."
-      }
     },
     "resultDetails": {
       "notFound": "Résultat non trouvé",

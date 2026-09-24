@@ -66,16 +66,16 @@ function SectionToggle({ label, children, defaultOpen = false }) {
 
 export default function SeminarsClient({ seminars = [], pageData }) {
   const items = Array.isArray(seminars) ? seminars : [];
-  const title = pageData?.tabSeminars || "Seminars";
-  const subtitle = "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.";
-  const emptyState = "No seminars scheduled at this time.";
-  const whatYouWillLearn = "What you'll learn";
-  const modules = "Modules";
+  const title = pageData?.seminarsTitle || "Seminars";
+  const subtitle = pageData?.seminarsSubtitle || "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.";
+  const emptyState = pageData?.seminarsEmptyState || "No seminars scheduled at this time.";
+  const whatYouWillLearn = pageData?.seminarsWhatYouWillLearn || "What you'll learn";
+  const modules = pageData?.seminarsModules || "Modules";
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg">
+    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg border border-gray-100 dark:border-gray-800">
       <motion.h1
-        className="text-4xl font-extrabold text-center mb-8 text-blue-600 dark:text-yellow-400"
+        className="text-4xl font-extrabold text-center mb-8 text-primary-600 dark:text-accent-400"
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
@@ -84,7 +84,7 @@ export default function SeminarsClient({ seminars = [], pageData }) {
       </motion.h1>
 
       <motion.p
-        className="text-gray-800 dark:text-gray-200 text-center max-w-3xl mx-auto"
+        className="text-gray-800 dark:text-gray-200 text-center max-w-3xl mx-auto text-lg mb-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.6 }}

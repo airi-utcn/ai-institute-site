@@ -29,7 +29,6 @@
       "themes": "研究主题",
       "projects": "科研项目",
       "publications": "学术出版物",
-      "thesis": "学位论文",
       "resources": "学术资源",
       "peopleGraph": "人员关系图谱"
     },
@@ -675,7 +674,6 @@
             "themes": "研究主题",
             "projects": "科研项目",
             "publications": "学术出版物",
-            "thesis": "学位论文",
             "tools": "工具",
             "resources": "资源"
           }
@@ -1095,19 +1093,6 @@
       "viewProjects": "查看相关项目",
       "viewPublications": "查看出版物",
       "noThemes": "未找到研究主题。"
-    },
-    "thesis": {
-      "title": "学位论文",
-      "tabs": {
-        "phd": "博士",
-        "master": "硕士",
-        "bachelor": "学士"
-      },
-      "messages": {
-        "phd": "博士论文版块的更多更新即将推出。",
-        "master": "硕士论文版块的更多更新即将推出。",
-        "bachelor": "学士论文版块的更多更新即将推出。"
-      }
     },
     "resultDetails": {
       "notFound": "未找到结果",

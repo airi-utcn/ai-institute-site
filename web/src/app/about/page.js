@@ -19,7 +19,16 @@ export async function generateMetadata() {
 export default async function AboutPage() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const about = await getSingleType("about-page", locale, "timelineEvents");
+  const about = await getSingleType("about-page", locale);
+  // Fetch timeline separately now that they are decoupled
+  const timeline = await getSingleType("timeline-page", locale, "events");
+
+  // Map timeline-page fields into format expected by HistorySection
+  // (HistorySection expects either items array directly or an aboutData object with timelineEvents)
+  const syntheticAboutData = {
+    ...about,
+    timelineEvents: timeline?.events || [],
+  };
 
   return (
     <>
@@ -34,11 +43,11 @@ export default async function AboutPage() {
           <div className="flex flex-col items-center mb-8 border-t border-gray-200 dark:border-gray-700 pt-10 w-full">
             <FaRegCalendarAlt className="h-8 w-8 mb-2 text-primary-600 dark:text-accent-400" />
             <h2 className="heading-2 heading-accent">
-              {about?.historyTitle || "History & Milestones"}
+              {timeline?.title || "History & Milestones"}
             </h2>
           </div>
 
-          <HistorySection aboutData={about} />
+          <HistorySection aboutData={syntheticAboutData} />
         </section>
       </div>
     </div>

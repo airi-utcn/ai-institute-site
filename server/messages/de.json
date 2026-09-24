@@ -29,7 +29,6 @@
       "themes": "Themen",
       "projects": "Projekte",
       "publications": "Publikationen",
-      "thesis": "Abschlussarbeiten",
       "resources": "Ressourcen",
       "paperGraph": "Paper Graph",
       "peopleGraph": "Personengraph"
@@ -669,7 +668,6 @@
             "themes": "Themen",
             "projects": "Projekte",
             "publications": "Publikationen",
-            "thesis": "Abschlussarbeiten",
             "tools": "Werkzeuge",
             "resources": "Ressourcen"
           }
@@ -1089,19 +1087,6 @@
       "viewProjects": "Projekte ansehen",
       "viewPublications": "Publikationen ansehen",
       "noThemes": "Keine Themen gefunden."
-    },
-    "thesis": {
-      "title": "Abschlussarbeiten",
-      "tabs": {
-        "phd": "Promotion",
-        "master": "Master",
-        "bachelor": "Bachelor"
-      },
-      "messages": {
-        "phd": "Weitere Updates folgen.",
-        "master": "Weitere Updates folgen.",
-        "bachelor": "Weitere Updates folgen."
-      }
     },
     "resultDetails": {
       "notFound": "Ergebnis nicht gefunden",

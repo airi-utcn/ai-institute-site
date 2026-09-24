@@ -1,0 +1,65 @@
+{
+  "kind": "singleType",
+  "collectionName": "seminars_pages",
+  "info": {
+    "singularName": "seminars-page",
+    "pluralName": "seminars-pages",
+    "displayName": "Seminars Page",
+    "description": "Content for Seminars Page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "seminarsTitle": {
+      "type": "string",
+      "default": "Seminars",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsSubtitle": {
+      "type": "text",
+      "default": "",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsEmptyState": {
+      "type": "string",
+      "default": "No seminars available.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsWhatYouWillLearn": {
+      "type": "string",
+      "default": "What you will learn",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "seminarsModules": {
+      "type": "string",
+      "default": "Modules",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -158,7 +158,6 @@ function mapHomePage(msg) {
 function mapAboutPage(msg) {
   const a = msg?.about || {};
   const ms = a.mission || {};
-  const hs = a.history || {};
   const gl = a.guidelines || {};
   const og = a.organigram || {};
   const rg = a.regulations || {};
@@ -167,20 +166,9 @@ function mapAboutPage(msg) {
   const sm = a.sitemap || {};
   const vt = a.virtualTour || {};
 
-  const timelineEvents = Object.entries(hs)
-    .filter(([k]) => k.startsWith('event'))
-    .sort(([k1], [k2]) => k1.localeCompare(k2))\
-    .map(([_, e]) => ({\
-      date: e.date || '',\
-      title: e.title || '',\
-      description: e.description || [e.descriptionPart1, e.descriptionPart2].filter(Boolean).join(' ') || '',\
-    }));
-
   return {
     missionTitle: ms.title || a.missionTitle || 'Mission',
     missionText: ms.text || a.missionText || '',
-    historyTitle: hs.title || a.historyTitle || 'AIRI Timeline',
-    timelineEvents,
     guidelinesTitle: gl.title || a.guidelinesTitle || 'Just for you',
     guidelinesStudents: gl.students || a.guidelinesStudents || 'Students',
     guidelinesFaculty: gl.faculty || a.guidelinesFaculty || 'Faculty',
@@ -512,8 +500,8 @@ function mapSearchPage(msg) {
 }
 
 function mapTimelinePage(msg) {
-  const tl = msg?.timeline || {};
-  const rawEvents = tl.events || {};
+  const tl = msg?.timeline || msg?.about?.history || {};
+  const rawEvents = tl.events || (msg?.about?.history ? msg.about.history : {});
 
   const events = Object.entries(rawEvents)
     .filter(([k]) => k.startsWith('event'))

@@ -33,25 +33,6 @@
         }
       }
     },
-    "historyTitle": {
-      "type": "string",
-      "default": "AIRI Timeline",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "timelineEvents": {
-      "type": "component",
-      "repeatable": true,
-      "component": "about.timeline-item",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "guidelinesTitle": {
       "type": "string",
       "default": "Just for you",

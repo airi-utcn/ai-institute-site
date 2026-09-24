@@ -8,8 +8,7 @@ export interface AboutTimelineItem extends Struct.ComponentSchema {
     icon: 'calendar';
   };
   attributes: {
-    date: Schema.Attribute.String &
-      Schema.Attribute.Required &
+    date: Schema.Attribute.Date &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;

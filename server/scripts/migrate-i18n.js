@@ -53,6 +53,13 @@ function loadAllMessages() {
   return messages;
 }
 
+function parseDateForStrapi(d) {
+  if (!d) return null;
+  const pt = new Date(d);
+  if (isNaN(pt.getTime())) return null;
+  return pt.toISOString().split("T")[0];
+}
+
 function mapGlobal(msg) {
   const f = msg?.footer || {};
   const n = msg?.navbar || {};
@@ -568,7 +575,7 @@ function mapTimelinePage(msg) {
     .filter(([k]) => k.startsWith('event'))
     .sort(([k1], [k2]) => k1.localeCompare(k2))
     .map(([_, e]) => ({
-      date: e.date || '',
+      date: parseDateForStrapi(e.date),
       title: e.title || '',
       description: e.description || [e.descriptionPart1, e.descriptionPart2].filter(Boolean).join(' ') || '',
     }));

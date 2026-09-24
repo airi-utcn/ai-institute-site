@@ -8,8 +8,7 @@
   "options": {},
   "attributes": {
     "date": {
-      "type": "string",
-      "required": true,
+      "type": "date",
       "pluginOptions": {
         "i18n": {
           "localized": true

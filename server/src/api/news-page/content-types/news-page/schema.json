@@ -276,32 +276,6 @@
         }
       }
     },
-    "awardsTitle": {
-      "type": "string",
-      "default": "Awards",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "awardsSubtitle": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "awardsComingSoon": {
-      "type": "string",
-      "default": "More information coming soon.",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "careersTitle": {
       "type": "string",
       "default": "Career Opportunities",
@@ -367,41 +341,6 @@
     "careersSoftwareEngineer": {
       "type": "string",
       "default": "As a Software Engineer",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "eventsTitle": {
-      "type": "string",
-      "default": "Events",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "eventsSubtitle": {
-      "type": "text",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "eventsCalendarTitle": {
-      "type": "string",
-      "default": "Institute Calendar",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
-    "eventsNoEvents": {
-      "type": "string",
-      "default": "No events available at the moment.",
       "pluginOptions": {
         "i18n": {
           "localized": true

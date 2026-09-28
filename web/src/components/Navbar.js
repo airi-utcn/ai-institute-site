@@ -165,7 +165,6 @@ export default function Navbar({ navbarData: customNavbarData }) {
     { href: '/research/publications', label: nav.menuPublications || 'Publications' },
     { href: '/resources', label: nav.menuResources || 'Resources' },
     { href: '/research/paper-graph', label: nav.menuPaperGraph || 'Paper Graph' },
-    { href: '/research/people-graph', label: nav.menuPeopleGraph || 'People Graph' },
   ];
 
   const newsMenu = [

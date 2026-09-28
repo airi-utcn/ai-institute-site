@@ -442,7 +442,7 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
 
   return (
     <main
-      className="relative h-screen w-screen overflow-hidden"
+      className="relative w-full h-full overflow-hidden"
       style={{ background: BG_COLOR }}
     >
       {/* Title + hint */}

@@ -1062,7 +1062,8 @@
       "authorsLabel": "Auteurs :",
       "viewDetails": "Voir les détails",
       "openPdf": "Ouvrir le PDF",
-      "noPublications": "Aucune publication ne correspond à vos critères."
+      "noPublications": "Aucune publication ne correspond à vos critères.",
+      "graphButton": "Explorer le graphe de connaissances"
     },
     "publicationDetails": {
       "notFound": "Publication introuvable.",

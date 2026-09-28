@@ -1061,7 +1061,8 @@
       "authorsLabel": "Autori:",
       "viewDetails": "Vezi detalii",
       "openPdf": "Deschide PDF",
-      "noPublications": "Nicio publicație nu se potrivește criteriilor tale."
+      "noPublications": "Nicio publicație nu se potrivește criteriilor tale.",
+      "graphButton": "Explorează graful cunoașterii"
     },
     "publicationDetails": {
       "notFound": "Publicația nu a fost găsită.",

@@ -282,6 +282,15 @@
         }
       }
     },
+    "publicationsGraphButton": {
+      "type": "string",
+      "default": "Explore Output Graph",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "publicationsSubtitle": {
       "type": "text",
       "pluginOptions": {

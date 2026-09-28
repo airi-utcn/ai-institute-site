@@ -207,6 +207,22 @@ export default function PublicationsClient({ publications: pubData, staff: staff
             </p>
           </motion.div>
 
+          <div className="flex justify-center mb-8">
+            <Link
+              href="/research/paper-graph"
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full font-medium text-sm text-white shadow-lg shadow-primary-900/20 hover:shadow-primary-900/40 transition-all hover:-translate-y-0.5"
+              style={{
+                background: "linear-gradient(135deg, #1e3a8a 0%, #312e81 100%)",
+                border: "1px solid rgba(255,255,255,0.1)",
+              }}
+            >
+              <svg className="w-5 h-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+              </svg>
+              <span>{pageData?.publicationsGraphButton || "Explore Output Graph"}</span>
+            </Link>
+          </div>
+
           {/* Search bar - prominently placed at top */}
           <motion.div variants={itemVariants} className="mb-6">
             <div className="max-w-2xl mx-auto">

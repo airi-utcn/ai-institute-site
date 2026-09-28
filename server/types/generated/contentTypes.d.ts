@@ -3731,6 +3731,13 @@ export interface ApiResearchPageResearchPage extends Struct.SingleTypeSchema {
           localized: true;
         };
       }>;
+    publicationsGraphButton: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Explore Output Graph'>;
     publicationsTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

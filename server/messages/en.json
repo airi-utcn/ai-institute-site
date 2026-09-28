@@ -1069,7 +1069,8 @@
       "authorsLabel": "Authors:",
       "viewDetails": "View details",
       "openPdf": "Open PDF",
-      "noPublications": "No publications found matching your criteria."
+      "noPublications": "No publications found matching your criteria.",
+      "graphButton": "Explore Knowledge Graph"
     },
     "publicationDetails": {
       "notFound": "Publication not found.",

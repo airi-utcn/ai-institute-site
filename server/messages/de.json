@@ -1061,7 +1061,8 @@
       "authorsLabel": "Autoren:",
       "viewDetails": "Details ansehen",
       "openPdf": "PDF öffnen",
-      "noPublications": "Keine Publikationen gefunden."
+      "noPublications": "Keine Publikationen gefunden.",
+      "graphButton": "Wissensgraphen erkunden"
     },
     "publicationDetails": {
       "notFound": "Publikation nicht gefunden.",

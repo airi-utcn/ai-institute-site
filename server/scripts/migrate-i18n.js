@@ -500,6 +500,7 @@ function mapResearchPage(msg) {
     projectsResultsPlural: pr.projectsFoundPlural || pr.resultsPlural || 'Found {count} projects',
     projectsEmptyState: pr.noProjects || pr.emptyState || 'No projects match.',
     publicationsTitle: pb.title || 'Publications',
+    publicationsGraphButton: pb.graphButton || 'Explore Output Graph',
     publicationsSubtitle: pb.subtitle || '',
     publicationsSearchPlaceholder: pb.searchPlaceholder || 'Search publications...',
     publicationsAllYears: pb.allYears || 'All Years',

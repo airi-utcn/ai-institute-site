@@ -1061,7 +1061,8 @@
       "authorsLabel": "Autori:",
       "viewDetails": "Visualizza dettagli",
       "openPdf": "Apri PDF",
-      "noPublications": "Nessuna pubblicazione trovata che corrisponda ai tuoi criteri."
+      "noPublications": "Nessuna pubblicazione trovata che corrisponda ai tuoi criteri.",
+      "graphButton": "Esplora il grafo della conoscenza"
     },
     "publicationDetails": {
       "notFound": "Pubblicazione non trovata.",

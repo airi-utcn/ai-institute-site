@@ -1067,7 +1067,8 @@
       "authorsLabel": "作者：",
       "viewDetails": "查看详情",
       "openPdf": "打开 PDF",
-      "noPublications": "未找到符合条件的出版物。"
+      "noPublications": "未找到符合条件的出版物。",
+      "graphButton": "探索知识图谱"
     },
     "publicationDetails": {
       "notFound": "未找到该出版物。",

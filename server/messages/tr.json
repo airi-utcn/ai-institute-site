@@ -1061,7 +1061,8 @@
       "authorsLabel": "Yazarlar:",
       "viewDetails": "Ayrıntıları görüntüle",
       "openPdf": "PDF'yi Aç",
-      "noPublications": "Kriterlerinizle eşleşen yayın bulunamadı."
+      "noPublications": "Kriterlerinizle eşleşen yayın bulunamadı.",
+      "graphButton": "Bilgi Grafiğini Keşfet"
     },
     "publicationDetails": {
       "notFound": "Yayın bulunamadı.",

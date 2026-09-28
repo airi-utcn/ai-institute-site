@@ -16,7 +16,7 @@ export default async function ProjectPage() {
     getSingleType("research-page", locale),
   ]);
 
-  const projects = transformProjectData(strapiProjects);
+  const projects = transformProjectData(strapiProjects).filter(p => !p.isArchived);
 
   return <ProjectsClient projects={projects} pageData={pageData} />;
 }

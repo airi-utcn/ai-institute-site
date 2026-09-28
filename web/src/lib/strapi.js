@@ -2420,9 +2420,20 @@ export function transformProjectData(strapiProjects) {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       });
 
+    const isArchived = (() => {
+      if (!attributes.endDate) return false;
+      const end = new Date(attributes.endDate);
+      if (Number.isNaN(end.getTime())) return false;
+      // Start of today so it expires effectively the day after
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      return end.getTime() < now.getTime();
+    })();
+
     return {
       id: project?.id ?? null,
       slug: attributes.slug || '',
+      isArchived,
       title: attributes.title || '',
       abstract: attributes.abstract || '',
       body: normalizeBodyBlocks(attributes.body),

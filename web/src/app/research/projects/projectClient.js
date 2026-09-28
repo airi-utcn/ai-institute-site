@@ -103,13 +103,13 @@ const normalizeProject = (p) => {
   };
 };
 
-export default function ProjectsClient({ projects: rawProjects = [], pageData }) {
+export default function ProjectsClient({ projects: rawProjects = [], pageData, isArchive = false }) {
   const searchParams = useSearchParams();
 
   const t = (key, params) => {
     switch (key) {
-      case "title": return pageData?.projectsTitle || "Projects";
-      case "subtitle": return pageData?.projectsSubtitle || "Explore our research projects across various domains";
+      case "title": return isArchive ? (pageData?.projectsArchiveTitle || "Archived Projects") : (pageData?.projectsTitle || "Projects");
+      case "subtitle": return isArchive ? (pageData?.projectsArchiveSubtitle || "Explore past research projects.") : (pageData?.projectsSubtitle || "Explore our research projects across various domains");
       case "searchPlaceholder": return pageData?.projectsSearchPlaceholder || "Search projects by title, lead, department...";
       case "filters": return "Filters";
       case "region": return "Region";
@@ -233,7 +233,20 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
     <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.div variants={itemVariants} className="page-header">
+                              <motion.div variants={itemVariants} className="page-header">
+            {isArchive && (
+              <div className="mb-4">
+                <Link
+                  href="/research/projects"
+                  className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 rotate-180" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                  {pageData?.backToProjects || "Back to Projects"}
+                </Link>
+              </div>
+            )}
             <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
               {t("subtitle")}
@@ -467,6 +480,29 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
                 onClearFilters={clearFilters}
               />
             )}
+          </div>
+          {/* Bottom navigation link */}
+          <div className="mt-12 text-center">
+            <Link
+              href={isArchive ? "/research/projects" : "/research/projects/archive"}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors shadow-sm"
+            >
+              {isArchive ? (
+                <>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 rotate-180" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                  {pageData?.viewActiveProjects || "View Active Projects"}
+                </>
+              ) : (
+                <>
+                  {pageData?.viewArchivedProjects || "View Archived Projects"}
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                </>
+              )}
+            </Link>
           </div>
         </motion.div>
       </div>

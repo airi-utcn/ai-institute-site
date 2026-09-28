@@ -862,7 +862,9 @@
         "planned": "Planificado",
         "ongoing": "En curso"
       }
-    }
+    },
+    "cardsView": "Vista de tarjetas",
+    "graphView": "Vista de grafo"
   },
   "research": {
     "departments": {

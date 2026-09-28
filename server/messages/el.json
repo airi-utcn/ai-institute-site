@@ -862,7 +862,9 @@
         "planned": "Προγραμματισμένο",
         "ongoing": "Σε εξέλιξη"
       }
-    }
+    },
+    "cardsView": "Προβολή καρτών",
+    "graphView": "Προβολή γραφήματος"
   },
   "research": {
     "departments": {

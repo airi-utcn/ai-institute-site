@@ -498,6 +498,13 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Just for you'>;
+    graphView: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Graph View'>;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -2800,6 +2807,13 @@ export interface ApiPeoplePagePeoplePage extends Struct.SingleTypeSchema {
     };
   };
   attributes: {
+    cardsView: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Cards View'>;
     clearSearch: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

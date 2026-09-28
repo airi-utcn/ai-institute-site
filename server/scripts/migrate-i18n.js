@@ -410,6 +410,8 @@ function mapPeoplePage(msg) {
     subtitle: p.subtitle || 'Meet the team behind AIRi @ UTCN',
     searchPlaceholder: p.searchPlaceholder || 'Search by name...',
     clearSearch: p.clearSearch || 'Clear search',
+    cardsView: p.cardsView || 'Cards View',
+    graphView: p.graphView || 'Graph View',
     tabResearchers: t.researchers || 'Researchers',
     tabStaff: t.staff || 'Staff',
     tabStudents: t.students || 'Students',

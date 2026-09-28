@@ -52,6 +52,24 @@
         }
       }
     },
+    "cardsView": {
+      "type": "string",
+      "default": "Cards View",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "graphView": {
+      "type": "string",
+      "default": "Graph View",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "tabResearchers": {
       "type": "string",
       "default": "Researchers",

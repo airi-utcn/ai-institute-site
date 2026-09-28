@@ -862,7 +862,9 @@
         "planned": "Планиран",
         "ongoing": "В ход"
       }
-    }
+    },
+    "cardsView": "Изглед карти",
+    "graphView": "Изглед граф"
   },
   "research": {
     "departments": {

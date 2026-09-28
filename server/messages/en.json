@@ -869,7 +869,9 @@
         "planned": "Planned",
         "ongoing": "Ongoing"
       }
-    }
+    },
+    "cardsView": "Cards View",
+    "graphView": "Graph View"
   },
   "research": {
     "departments": {

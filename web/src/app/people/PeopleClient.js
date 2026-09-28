@@ -226,6 +226,8 @@ export default function PeopleClient({
   const tabVisiting = pageData?.tabVisiting || "Visiting Scholars";
   const tabExternal = pageData?.tabExternal || "External Collaborators";
   const tabAlumni = pageData?.tabAlumni || "Alumni";
+  const cardsViewLabel = pageData?.cardsView || "Cards View";
+  const graphViewLabel = pageData?.graphView || "Graph View";
 
   const allPeopleFlat = useMemo(() => {
     const merged = [
@@ -330,7 +332,7 @@ export default function PeopleClient({
                     : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 }`}
               >
-                Cards View
+                {cardsViewLabel}
               </button>
               <button
                 onClick={() => setViewMode("graph")}
@@ -340,7 +342,7 @@ export default function PeopleClient({
                     : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                 }`}
               >
-                Graph View
+                {graphViewLabel}
               </button>
             </div>
           </div>

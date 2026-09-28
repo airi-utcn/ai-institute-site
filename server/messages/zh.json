@@ -868,7 +868,9 @@
         "planned": "计划中",
         "ongoing": "进行中"
       }
-    }
+    },
+    "cardsView": "卡片视图",
+    "graphView": "图谱视图"
   },
   "research": {
     "departments": {

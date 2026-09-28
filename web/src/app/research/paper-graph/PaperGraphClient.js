@@ -137,29 +137,6 @@ export default function PaperGraphClient({
   // Hover state
   const [hovered, setHovered] = useState(null);
 
-  // Highlight state & search focus
-  const searchParams = useSearchParams();
-  const [highlightedId, setHighlightedId] = useState(null);
-
-  const focusPaper = useCallback((paperId) => {
-    if (!paperId) return;
-    setHighlightedId(paperId);
-    setHovered(paperId);
-    const pos = paperPositions[paperId];
-    const el = containerRef.current;
-    if (pos && el) {
-      const { width: cw, height: ch } = el.getBoundingClientRect();
-      const targetScale = 1.35;
-      setCamera(cw / 2 - pos.x * targetScale, ch / 2 - pos.y * targetScale, targetScale);
-    }
-  }, [paperPositions, setCamera]);
-
-  useEffect(() => {
-    const hl = searchParams?.get("highlight");
-    if (hl && paperPositions[hl]) {
-      focusPaper(hl);
-    }
-  }, [searchParams, paperPositions, focusPaper]);
 
   // ── Paper lookup ──────────────────────────────────────────────────────────
   const paperById = useMemo(() => {
@@ -225,6 +202,30 @@ export default function PaperGraphClient({
   useEffect(() => { txRef.current = tx; }, [tx]);
   useEffect(() => { tyRef.current = ty; }, [ty]);
   useEffect(() => { scaleRef.current = scale; }, [scale]);
+
+  // ── Highlight state & search focus ──────────────────────────────────────────
+  const searchParams = useSearchParams();
+  const [highlightedId, setHighlightedId] = useState(null);
+
+  const focusPaper = useCallback((paperId) => {
+    if (!paperId) return;
+    setHighlightedId(paperId);
+    setHovered(paperId);
+    const pos = paperPositions[paperId];
+    const el = containerRef.current;
+    if (pos && el) {
+      const { width: cw, height: ch } = el.getBoundingClientRect();
+      const targetScale = 1.35;
+      setCamera(cw / 2 - pos.x * targetScale, ch / 2 - pos.y * targetScale, targetScale);
+    }
+  }, [paperPositions, setCamera]);
+
+  useEffect(() => {
+    const hl = searchParams?.get("highlight");
+    if (hl && paperPositions[hl]) {
+      focusPaper(hl);
+    }
+  }, [searchParams, paperPositions, focusPaper]);
 
   // ── Fit to screen ─────────────────────────────────────────────────────────
   const fitToScreen = useCallback(() => {

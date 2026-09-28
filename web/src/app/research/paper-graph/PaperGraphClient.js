@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { GlobalGraphSearch } from "./globalSearch";
 
 // ─── Layout constants ────────────────────────────────────────────────────────
 const MAP_W = 2800;

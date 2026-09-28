@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { GlobalGraphSearch } from "./globalSearch";
 
 // ─── Seeded RNG ──────────────────────────────────────────────────────────────
 function makeRng(seed) {

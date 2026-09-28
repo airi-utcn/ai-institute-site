@@ -1220,24 +1220,21 @@ export async function getPublications(options = {}) {
     if (sourceKind) {
       filters.sourceKind = { $eq: sourceKind };
     }
-    const params = createParams({
+    const baseOptions = {
       sort: 'year:desc',
       filters: Object.keys(filters).length ? filters : null,
       locale,
-    });
-
-    // Kept for API compatibility with existing callers.
-    void includeUnlisted;
-
-    setPopulate(params, 'populate[authors]', PERSON_WITH_DEPARTMENT_POPULATE);
-    setPopulate(params, 'populate[projects]', { fields: ['title', 'slug'] });
-    setPopulate(params, 'populate[domain]', DEPARTMENT_POPULATE);
-    setPopulate(params, 'populate[themes]', { fields: ['name', 'slug'] });
-    setPopulate(params, 'populate[pdfFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    setPopulate(params, 'populate[bibFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    setPopulate(params, 'populate[attachments]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
-    const data = await fetchAPI(`/publications?${params.toString()}`);
-    return data.data || [];
+      populate: {
+        authors: PERSON_WITH_DEPARTMENT_POPULATE,
+        projects: { fields: ['title', 'slug'] },
+        domain: DEPARTMENT_POPULATE,
+        themes: { fields: ['name', 'slug'] },
+        pdfFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        bibFile: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+        attachments: { fields: ['name', 'url', 'mime', 'ext', 'size'] }
+      }
+    };
+    return await fetchAllEntries('/publications', baseOptions, 100);
   } catch (error) {
     console.error('Failed to fetch publications:', error);
     return [];

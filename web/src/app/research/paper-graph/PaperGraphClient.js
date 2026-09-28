@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { GlobalGraphSearch } from "./globalSearch";
 
 // ─── Layout constants ────────────────────────────────────────────────────────
 const MAP_W = 2800;
@@ -135,6 +137,7 @@ export default function PaperGraphClient({
   // Hover state
   const [hovered, setHovered] = useState(null);
 
+
   // ── Paper lookup ──────────────────────────────────────────────────────────
   const paperById = useMemo(() => {
     const m = {};
@@ -200,6 +203,57 @@ export default function PaperGraphClient({
   useEffect(() => { tyRef.current = ty; }, [ty]);
   useEffect(() => { scaleRef.current = scale; }, [scale]);
 
+  // ── Highlight state & search focus ──────────────────────────────────────────
+  const searchParams = useSearchParams();
+  const [highlightedId, setHighlightedId] = useState(null);
+  const highlightTimeoutRef = useRef(null);
+
+  const focusPaper = useCallback((paperId) => {
+    if (!paperId) return;
+    setHighlightedId(paperId);
+    setHovered(paperId);
+
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+
+    // Auto-expire highlight effect after 6 seconds
+    highlightTimeoutRef.current = setTimeout(() => {
+      setHighlightedId(null);
+      setHovered((curr) => (curr === paperId ? null : curr));
+    }, 6000);
+
+    const pos = paperPositions[paperId];
+    const el = containerRef.current;
+    if (pos && el) {
+      const { width: cw, height: ch } = el.getBoundingClientRect();
+      const targetScale = 1.35;
+      setCamera(cw / 2 - pos.x * targetScale, ch / 2 - pos.y * targetScale, targetScale);
+    }
+  }, [paperPositions, setCamera]);
+
+  useEffect(() => {
+    const hl = searchParams?.get("highlight");
+    if (hl && paperPositions[hl]) {
+      focusPaper(hl);
+
+      // Clean up URL query parameter without a full reload so refresh won't repeat highlight
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("highlight");
+        window.history.replaceState({}, "", url.pathname + url.search);
+      }
+    }
+  }, [searchParams, paperPositions, focusPaper]);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // ── Fit to screen ─────────────────────────────────────────────────────────
   const fitToScreen = useCallback(() => {
     const el = containerRef.current;
@@ -224,7 +278,16 @@ export default function PaperGraphClient({
     setTy(panOrigin.current.ty + e.clientY - panOrigin.current.my);
   }, [panning]);
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = useCallback((e) => {
+    if (panOrigin.current && e?.clientX !== undefined) {
+      const moved = Math.hypot(e.clientX - panOrigin.current.mx, e.clientY - panOrigin.current.my);
+      if (moved <= NODE_NAV_DRAG_TOLERANCE && !e.target.closest("[data-node]")) {
+        setHighlightedId(null);
+        if (highlightTimeoutRef.current) {
+          clearTimeout(highlightTimeoutRef.current);
+        }
+      }
+    }
     setPanning(false);
     panOrigin.current = null;
     nodePressRef.current = null;
@@ -497,6 +560,15 @@ export default function PaperGraphClient({
         <div>HOVER NODE FOR INTEL</div>
       </div>
 
+      {/* Global & In-Topic Search */}
+      <GlobalGraphSearch
+        currentPapers={papers}
+        fabClassName="bottom-56 right-5"
+        onSelectPaper={(paper) => {
+          focusPaper(paper.id);
+        }}
+      />
+
       {/* Filter controls */}
       <div
         className="absolute bottom-28 right-5 z-40 rounded-2xl border px-3 py-2 font-mono text-[9px]"
@@ -621,11 +693,12 @@ export default function PaperGraphClient({
           const pos = paperPositions[paper.id];
           if (!pos) return null;
           const isNavigable = !!paper.publicationHref;
-          const isHot = hovered === paper.id;
+          const isHighlighted = highlightedId === paper.id;
+          const isHot = hovered === paper.id || isHighlighted;
           const isNear = connectedSet?.has(paper.id) && !isHot;
-          const isDim = hovered && !isHot && !isNear;
+          const isDim = (hovered || highlightedId) && !isHot && !isNear;
           const r = nodeRadius(paper);
-          const showLabel = scale > 0.5 || isHot || isNear;
+          const showLabel = scale > 0.5 || isHot || isNear || isHighlighted;
 
           return (
             <g
@@ -642,6 +715,26 @@ export default function PaperGraphClient({
               onMouseUp={(e) => onNodeMouseUp(e, paper)}
               onKeyDown={(e) => onNodeKeyDown(e, paper)}
             >
+              {isHighlighted && (
+                <g className="sonar-beacon">
+                  {/* Expanding pulsing radar rings */}
+                  <circle r={r + 14} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="4 3">
+                    <animate attributeName="r" values={`${r + 12};${r + 55}`} dur="1.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="1;0" dur="1.8s" repeatCount="indefinite" />
+                  </circle>
+                  <circle r={r + 8} fill="none" stroke="#fbbf24" strokeWidth="1.8">
+                    <animate attributeName="r" values={`${r + 6};${r + 36}`} dur="1.8s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.9;0" dur="1.8s" repeatCount="indefinite" />
+                  </circle>
+                  {/* High-visibility Target Reticle Crosshairs */}
+                  <line x1={-r - 22} y1={0} x2={-r - 8} y2={0} stroke="#fbbf24" strokeWidth="2" />
+                  <line x1={r + 8} y1={0} x2={r + 22} y2={0} stroke="#fbbf24" strokeWidth="2" />
+                  <line x1={0} y1={-r - 22} x2={0} y2={-r - 8} stroke="#fbbf24" strokeWidth="2" />
+                  <line x1={0} y1={r + 8} x2={0} y2={r + 22} stroke="#fbbf24" strokeWidth="2" />
+                  {/* Outer target bracket circle */}
+                  <circle r={r + 16} fill="none" stroke="#f59e0b" strokeWidth="1.5" strokeDasharray="8 6" />
+                </g>
+              )}
               {(isHot || isNear) && (
                 <circle
                   r={r * 3.5}

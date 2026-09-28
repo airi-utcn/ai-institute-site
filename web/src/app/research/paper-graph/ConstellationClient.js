@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { GlobalGraphSearch } from "./globalSearch";
 
 // ─── Seeded RNG ──────────────────────────────────────────────────────────────
 function makeRng(seed) {
@@ -450,6 +451,8 @@ export default function ConstellationClient({
       ].map((cls) => (
         <div key={cls} aria-hidden className={`pointer-events-none absolute ${cls} w-8 h-8 z-20`} style={{ borderColor: color + "55" }} />
       ))}
+
+      <GlobalGraphSearch fabClassName="bottom-24 right-5" />
 
       {/* Top-left HUD */}
       <div className="pointer-events-none absolute top-5 left-6 z-20 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: `${color}22`, backdropFilter: "blur(8px)" }}>

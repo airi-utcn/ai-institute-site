@@ -862,7 +862,9 @@
         "planned": "Plānots",
         "ongoing": "Aktīvs"
       }
-    }
+    },
+    "cardsView": "Kartīšu skats",
+    "graphView": "Grafa skats"
   },
   "research": {
     "departments": {
@@ -1059,7 +1061,8 @@
       "authorsLabel": "Autori:",
       "viewDetails": "Skatīt informāciju",
       "openPdf": "Atvērt PDF",
-      "noPublications": "Nav atrastas publikācijas, kas atbilstu jūsu kritērijiem."
+      "noPublications": "Nav atrastas publikācijas, kas atbilstu jūsu kritērijiem.",
+      "graphButton": "Izpētīt zināšanu grafu"
     },
     "publicationDetails": {
       "notFound": "Publikācija nav atrasta.",

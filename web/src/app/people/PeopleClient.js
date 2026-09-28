@@ -14,6 +14,7 @@ import {
   FaHandshake,
   FaTrophy,
 } from "react-icons/fa";
+import PeopleGraphClient from "./PeopleGraphClient";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -115,7 +116,7 @@ const RESEARCHER_SORT_OPTIONS = [
 
 function PersonCard({ person, basePath = "/people", showRoleBadge = true, activeFilter = "all" }) {
     const roleConfig = getRoleConfig(person.type);
-  
+
   const formatSubtype = (typeStr) => {
     if (!typeStr) return null;
     return typeStr
@@ -207,9 +208,13 @@ export default function PeopleClient({
   external = [],
   alumni = [],
   pageData,
+  graphNodes = [],
+  graphLinks = [],
+  departmentColors = {},
 }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState("cards");
   const [allSort, setAllSort] = useState("most-citations");
   const [researcherSort, setResearcherSort] = useState("most-citations");
 
@@ -221,6 +226,8 @@ export default function PeopleClient({
   const tabVisiting = pageData?.tabVisiting || "Visiting Scholars";
   const tabExternal = pageData?.tabExternal || "External Collaborators";
   const tabAlumni = pageData?.tabAlumni || "Alumni";
+  const cardsViewLabel = pageData?.cardsView || "Cards View";
+  const graphViewLabel = pageData?.graphView || "Graph View";
 
   const allPeopleFlat = useMemo(() => {
     const merged = [
@@ -315,9 +322,36 @@ export default function PeopleClient({
         >
           <h1 className="page-header-title">{title}</h1>
           <p className="page-header-subtitle">{subtitle}</p>
+          <div className="mt-8 flex justify-center">
+            <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-1">
+              <button
+                onClick={() => setViewMode("cards")}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === "cards"
+                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+              >
+                {cardsViewLabel}
+              </button>
+              <button
+                onClick={() => setViewMode("graph")}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  viewMode === "graph"
+                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                }`}
+              >
+                {graphViewLabel}
+              </button>
+            </div>
+          </div>
         </motion.div>
 
-        <motion.div
+
+        {viewMode === "cards" && (
+          <>
+            <motion.div
           className="max-w-2xl mx-auto mb-6"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -483,6 +517,20 @@ export default function PeopleClient({
             </motion.div>
           )}
         </AnimatePresence>
+
+          </>
+        )}
+
+        {viewMode === "graph" && (
+           <motion.div
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             exit={{ opacity: 0 }}
+             className="w-full h-[75vh] min-h-[600px] rounded-2xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800 relative bg-[#0b0f17]"
+           >
+             <PeopleGraphClient nodes={graphNodes} links={graphLinks} departmentColors={departmentColors} />
+           </motion.div>
+        )}
       </div>
     </div>
   );

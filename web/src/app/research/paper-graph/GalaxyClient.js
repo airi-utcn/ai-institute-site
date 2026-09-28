@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { GlobalGraphSearch } from "./globalSearch";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const PARTICLE_COUNT_PER = 40; // particles per macro
@@ -548,6 +549,8 @@ export default function GalaxyClient({ macros, interLinks, crossClusterLinks = [
       ].map((cls) => (
          <div key={cls} aria-hidden className={`pointer-events-none absolute ${cls} border-amber-400/35 w-8 h-8 z-20`} />
       ))}
+
+      <GlobalGraphSearch />
 
       {/* Top-left HUD */}
       <div className="pointer-events-none absolute top-5 left-6 z-20 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.16)", backdropFilter: "blur(8px)" }}>

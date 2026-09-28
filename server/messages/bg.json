@@ -862,7 +862,9 @@
         "planned": "Планиран",
         "ongoing": "В ход"
       }
-    }
+    },
+    "cardsView": "Изглед карти",
+    "graphView": "Изглед граф"
   },
   "research": {
     "departments": {
@@ -1059,7 +1061,8 @@
       "authorsLabel": "Автори:",
       "viewDetails": "Преглед на подробности",
       "openPdf": "Отвори PDF",
-      "noPublications": "Не са намерени публикации, отговарящи на вашите критерии."
+      "noPublications": "Не са намерени публикации, отговарящи на вашите критерии.",
+      "graphButton": "Разгледайте графа на знанието"
     },
     "publicationDetails": {
       "notFound": "Публикацията не е намерена.",

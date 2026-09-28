@@ -862,7 +862,9 @@
         "planned": "Planlanan",
         "ongoing": "Devam Eden"
       }
-    }
+    },
+    "cardsView": "Kart Görünümü",
+    "graphView": "Grafik Görünümü"
   },
   "research": {
     "departments": {
@@ -1059,7 +1061,8 @@
       "authorsLabel": "Yazarlar:",
       "viewDetails": "Ayrıntıları görüntüle",
       "openPdf": "PDF'yi Aç",
-      "noPublications": "Kriterlerinizle eşleşen yayın bulunamadı."
+      "noPublications": "Kriterlerinizle eşleşen yayın bulunamadı.",
+      "graphButton": "Bilgi Grafiğini Keşfet"
     },
     "publicationDetails": {
       "notFound": "Yayın bulunamadı.",

@@ -862,7 +862,9 @@
         "planned": "Pianificato",
         "ongoing": "In corso"
       }
-    }
+    },
+    "cardsView": "Vista schede",
+    "graphView": "Vista grafo"
   },
   "research": {
     "departments": {
@@ -1059,7 +1061,8 @@
       "authorsLabel": "Autori:",
       "viewDetails": "Visualizza dettagli",
       "openPdf": "Apri PDF",
-      "noPublications": "Nessuna pubblicazione trovata che corrisponda ai tuoi criteri."
+      "noPublications": "Nessuna pubblicazione trovata che corrisponda ai tuoi criteri.",
+      "graphButton": "Esplora il grafo della conoscenza"
     },
     "publicationDetails": {
       "notFound": "Pubblicazione non trovata.",

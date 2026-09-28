@@ -206,11 +206,23 @@ export default function PaperGraphClient({
   // ── Highlight state & search focus ──────────────────────────────────────────
   const searchParams = useSearchParams();
   const [highlightedId, setHighlightedId] = useState(null);
+  const highlightTimeoutRef = useRef(null);
 
   const focusPaper = useCallback((paperId) => {
     if (!paperId) return;
     setHighlightedId(paperId);
     setHovered(paperId);
+
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+    }
+
+    // Auto-expire highlight effect after 6 seconds
+    highlightTimeoutRef.current = setTimeout(() => {
+      setHighlightedId(null);
+      setHovered((curr) => (curr === paperId ? null : curr));
+    }, 6000);
+
     const pos = paperPositions[paperId];
     const el = containerRef.current;
     if (pos && el) {
@@ -224,8 +236,23 @@ export default function PaperGraphClient({
     const hl = searchParams?.get("highlight");
     if (hl && paperPositions[hl]) {
       focusPaper(hl);
+
+      // Clean up URL query parameter without a full reload so refresh won't repeat highlight
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("highlight");
+        window.history.replaceState({}, "", url.pathname + url.search);
+      }
     }
   }, [searchParams, paperPositions, focusPaper]);
+
+  useEffect(() => {
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // ── Fit to screen ─────────────────────────────────────────────────────────
   const fitToScreen = useCallback(() => {
@@ -251,7 +278,16 @@ export default function PaperGraphClient({
     setTy(panOrigin.current.ty + e.clientY - panOrigin.current.my);
   }, [panning]);
 
-  const onMouseUp = useCallback(() => {
+  const onMouseUp = useCallback((e) => {
+    if (panOrigin.current && e?.clientX !== undefined) {
+      const moved = Math.hypot(e.clientX - panOrigin.current.mx, e.clientY - panOrigin.current.my);
+      if (moved <= NODE_NAV_DRAG_TOLERANCE && !e.target.closest("[data-node]")) {
+        setHighlightedId(null);
+        if (highlightTimeoutRef.current) {
+          clearTimeout(highlightTimeoutRef.current);
+        }
+      }
+    }
     setPanning(false);
     panOrigin.current = null;
     nodePressRef.current = null;

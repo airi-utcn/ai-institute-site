@@ -25,6 +25,7 @@ import { getPublicationSourceLabel, normalizePublicationSourceKind } from '@/lib
 import { containerVariants, itemVariants } from '@/lib/animations';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
+import TeamCard from '@/components/TeamCard';
 
 const DEFAULT_TEXTS = {
   about: 'About',
@@ -198,93 +199,6 @@ function PublicationCard({ publication, t }) {
   );
 }
 
-// Team Card Component
-function TeamCard({ team, t }) {
-  return (
-    <motion.div
-      variants={itemVariants}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-5"
-    >
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              {team.name}
-            </h3>
-            {team.isLead && (
-              <span className="text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                {t('lead')}
-              </span>
-            )}
-          </div>
-          {team.role && (
-            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
-              {team.role}
-            </p>
-          )}
-        </div>
-        {team.type && (
-          <span className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-            {team.type}
-          </span>
-        )}
-      </div>
-
-      {team.department && (
-        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-3">
-          <FaBuilding className="w-3 h-3 text-gray-400" />
-          {team.department.slug ? (
-            <Link
-              href={`/research/departments/${encodeURIComponent(team.department.slug)}`}
-              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              {team.department.name}
-            </Link>
-          ) : (
-            <span>{team.department.name}</span>
-          )}
-        </div>
-      )}
-
-      {team.description && (
-        <ExpandableMarkdown
-          content={team.description}
-          className="text-xs text-gray-600 dark:text-gray-400 mb-3"
-          clampLines={2}
-        />
-      )}
-
-      {/* Projects */}
-      {team.projects && team.projects.length > 0 && (
-        <div className="pt-3 border-t border-gray-100 dark:border-gray-700">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-            <FaProjectDiagram className="w-3 h-3 text-blue-500" />
-            <span>{t('projects')} ({team.projects.length})</span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {team.projects.map((p, idx) => (
-              <span key={p.id || idx}>
-                {p.slug ? (
-                  <Link
-                    href={`/research/projects/${encodeURIComponent(p.slug)}`}
-                    className="inline-block text-xs px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-                  >
-                    {p.title}
-                  </Link>
-                ) : (
-                  <span className="inline-block text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
-                    {p.title}
-                  </span>
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-    </motion.div>
-  );
-}
-  
 export default function StaffDetailClient({ person, publications, teams, slug }) {
   const t = (k) => DEFAULT_TEXTS[k] || k;
   const tr = (key, fallback) => DEFAULT_TEXTS[key] || fallback;

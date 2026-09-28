@@ -13,7 +13,9 @@ import {
   FaGlobe,
   FaHandshake,
   FaTrophy,
+  FaUsers,
 } from "react-icons/fa";
+import TeamCard from "@/components/TeamCard";
 import PeopleGraphClient from "./PeopleGraphClient";
 
 const containerVariants = {
@@ -102,6 +104,12 @@ const getRoleConfig = (type) => {
       icon: FaTrophy,
       color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
       chipColor: "bg-indigo-600 hover:bg-indigo-700",
+    },
+    team: {
+      label: "Teams",
+      icon: FaUsers,
+      color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
+      chipColor: "bg-emerald-600 hover:bg-emerald-700",
     },
   };
   return configs[type] || configs.staff;
@@ -207,11 +215,14 @@ export default function PeopleClient({
   students = [],
   external = [],
   alumni = [],
+  teams = [],
+  archivedTeams = [],
   pageData,
   graphNodes = [],
   graphLinks = [],
   departmentColors = {},
 }) {
+  const [activeSection, setActiveSection] = useState("people"); // "people" | "teams"
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("cards");
@@ -226,6 +237,7 @@ export default function PeopleClient({
   const tabVisiting = pageData?.tabVisiting || "Visiting Scholars";
   const tabExternal = pageData?.tabExternal || "External Collaborators";
   const tabAlumni = pageData?.tabAlumni || "Alumni";
+  const tabTeams = pageData?.tabTeams || pageData?.detailsTeams || "Teams";
   const cardsViewLabel = pageData?.cardsView || "Cards View";
   const graphViewLabel = pageData?.graphView || "Graph View";
 
@@ -304,6 +316,20 @@ export default function PeopleClient({
     });
   }, [allPeopleFlat, activeFilter, searchQuery, allSort, researcherSort]);
 
+  const displayedTeams = useMemo(() => {
+    if (activeSection !== "teams") return [];
+    const terms = parseSearchTerms(searchQuery);
+    if (!terms.length) return teams;
+
+    return teams.filter((t) => {
+      const memberNames = (t.members || []).map((m) => m.person?.name || m.name || "").join(" ");
+      const projectTitles = (t.projects || []).map((p) => p.title || "").join(" ");
+      const deptName = t.department?.name || "";
+      const haystack = normalizeSearchText([t.name, t.description, deptName, memberNames, projectTitles].join(" "));
+      return terms.every((term) => haystack.includes(term));
+    });
+  }, [teams, activeSection, searchQuery]);
+
   const handleFilterChange = (filterId) => {
     setActiveFilter(filterId);
   };
@@ -322,158 +348,279 @@ export default function PeopleClient({
         >
           <h1 className="page-header-title">{title}</h1>
           <p className="page-header-subtitle">{subtitle}</p>
-          <div className="mt-8 flex justify-center">
-            <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-1">
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            {/* Sub-option switcher: People vs Teams */}
+            <div className="inline-flex rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-100/80 dark:bg-gray-900/60 p-1 shadow-inner">
               <button
-                onClick={() => setViewMode("cards")}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  viewMode === "cards"
-                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => {
+                  setActiveSection("people");
+                  setSearchQuery("");
+                }}
+                className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                  activeSection === "people"
+                    ? "bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >
-                {cardsViewLabel}
+                <FaUserTie className="w-3.5 h-3.5" />
+                <span>{pageData?.detailsPeople || "People"}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  activeSection === "people"
+                    ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                    : "bg-gray-200/70 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                }`}>
+                  {allPeopleFlat.length}
+                </span>
               </button>
               <button
-                onClick={() => setViewMode("graph")}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  viewMode === "graph"
-                    ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => {
+                  setActiveSection("teams");
+                  setSearchQuery("");
+                }}
+                className={`flex items-center gap-2 px-5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                  activeSection === "teams"
+                    ? "bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 shadow-sm"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                 }`}
               >
-                {graphViewLabel}
+                <FaUsers className="w-3.5 h-3.5" />
+                <span>{tabTeams}</span>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  activeSection === "teams"
+                    ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                    : "bg-gray-200/70 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                }`}>
+                  {teams.length}
+                </span>
               </button>
             </div>
-          </div>
-        </motion.div>
 
-
-        {viewMode === "cards" && (
-          <>
-            <motion.div
-          className="max-w-2xl mx-auto mb-6"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="relative">
-            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search all people by name, title, or department..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="input pl-11 pr-10 text-center md:text-left"
-              aria-label="Search people"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                aria-label="Clear search"
-              >
-                <FaTimes className="w-4 h-4" />
-              </button>
+            {/* View Mode switcher: Cards vs Graph (applicable to People section) */}
+            {activeSection === "people" && (
+              <div className="inline-flex rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-1">
+                <button
+                  onClick={() => setViewMode("cards")}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    viewMode === "cards"
+                      ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  }`}
+                >
+                  {cardsViewLabel}
+                </button>
+                <button
+                  onClick={() => setViewMode("graph")}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    viewMode === "graph"
+                      ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  }`}
+                >
+                  {graphViewLabel}
+                </button>
+              </div>
             )}
           </div>
-          {searchQuery && (
-            <p className="text-center text-xs text-muted mt-2">Searching across all {allPeopleFlat.length} people...</p>
-          )}
         </motion.div>
 
-        <motion.div
-          className="mb-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="text-center mb-3">
-            <span className="text-sm text-muted font-medium">Filter by role:</span>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2">
-            {filterOptions.map((filter) => {
-              const isActive = activeFilter === filter.id;
-              const Icon = filter.icon;
 
-              return (
+        {/* Search bar */}
+        {(activeSection === "teams" || viewMode === "cards") && (
+          <motion.div
+            className="max-w-2xl mx-auto mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="relative">
+              <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder={
+                  activeSection === "teams"
+                    ? "Search teams by name, department, member, or project..."
+                    : (pageData?.searchPlaceholder || "Search all people by name, title, or department...")
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input pl-11 pr-10 text-center md:text-left"
+                aria-label={activeSection === "teams" ? "Search teams" : "Search people"}
+              />
+              {searchQuery && (
                 <button
-                  key={filter.id}
-                  onClick={() => handleFilterChange(filter.id)}
-                  className={`
-                    px-4 py-2 rounded-full font-medium text-sm transition-all duration-200
-                    flex items-center gap-2
-                    ${
-                      isActive
-                        ? `${filter.chipColor || "bg-primary-600"} text-white shadow-lg`
-                        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
-                    }
-                  `}
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  aria-label="Clear search"
                 >
-                  {Icon && <Icon className="w-4 h-4" />}
-                  <span>{filter.label}</span>
-                  <span
-                    className={`
-                    text-xs px-1.5 py-0.5 rounded-full font-semibold
-                    ${isActive ? "bg-white/25 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}
-                  `}
-                  >
-                    {filter.count}
-                  </span>
+                  <FaTimes className="w-4 h-4" />
                 </button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        <AnimatePresence>
-          {(activeFilter === "all" || activeFilter === "researcher") && (
-            <motion.div
-              key="sort-dropdown"
-              className="flex justify-center mb-6"
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="relative w-full max-w-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaSortAmountDown className="w-4 h-4 text-primary-600 dark:text-accent-400" />
-                </div>
-                <select
-                  value={currentSort}
-                  onChange={(e) => setCurrentSort(e.target.value)}
-                  className="input pl-10 pr-10 appearance-none cursor-pointer bg-white dark:bg-gray-800 w-full"
-                  aria-label={activeFilter === "researcher" ? "Sort researchers by citations" : "Sort people"}
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {(searchQuery || activeFilter !== "all") && (
-          <motion.p className="text-center text-muted text-sm mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {searchQuery
-              ? `Found ${displayedPeople.length} result${displayedPeople.length !== 1 ? "s" : ""} for "${searchQuery}"`
-              : `Showing ${displayedPeople.length} ${
-                  filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"
-                }`}
-          </motion.p>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="text-center text-xs text-muted mt-2">
+                {activeSection === "teams"
+                  ? `Searching across all ${teams.length} teams...`
+                  : `Searching across all ${allPeopleFlat.length} people...`}
+              </p>
+            )}
+          </motion.div>
         )}
 
-        <AnimatePresence mode="wait">
-          {displayedPeople.length === 0 ? (
+        {/* ─── TEAMS SECTION ─── */}
+        {activeSection === "teams" && (
+          <>
+            {searchQuery && (
+              <motion.p className="text-center text-muted text-sm mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                Found {displayedTeams.length} team{displayedTeams.length !== 1 ? "s" : ""} for &quot;{searchQuery}&quot;
+              </motion.p>
+            )}
+
+            <AnimatePresence mode="wait">
+              {displayedTeams.length === 0 ? (
+                <motion.div
+                  key="empty-teams"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <div className="text-center py-16">
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      {searchQuery
+                        ? `No teams found matching "${searchQuery}"`
+                        : "No teams available."}
+                    </p>
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 underline"
+                      >
+                        Clear search
+                      </button>
+                    )}
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key={`teams-${searchQuery}`}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="show"
+                  exit={{ opacity: 0 }}
+                >
+                  {displayedTeams.map((team, idx) => (
+                    <TeamCard
+                      key={team.slug || team.id || idx}
+                      team={team}
+                      t={(k) => {
+                        if (k === 'lead') return 'Team Lead';
+                        if (k === 'members') return 'Members';
+                        if (k === 'projects') return 'Projects';
+                        return k;
+                      }}
+                    />
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
+
+        {/* ─── PEOPLE SECTION ─── */}
+        {activeSection === "people" && viewMode === "cards" && (
+          <>
+            <motion.div
+              className="mb-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="text-center mb-3">
+                <span className="text-sm text-muted font-medium">Filter by role:</span>
+              </div>
+              <div className="flex flex-wrap justify-center gap-2">
+                {filterOptions.map((filter) => {
+                  const isActive = activeFilter === filter.id;
+                  const Icon = filter.icon;
+
+                  return (
+                    <button
+                      key={filter.id}
+                      onClick={() => handleFilterChange(filter.id)}
+                      className={`
+                        px-4 py-2 rounded-full font-medium text-sm transition-all duration-200
+                        flex items-center gap-2
+                        ${
+                          isActive
+                            ? `${filter.chipColor || "bg-primary-600"} text-white shadow-lg`
+                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700"
+                        }
+                      `}
+                    >
+                      {Icon && <Icon className="w-4 h-4" />}
+                      <span>{filter.label}</span>
+                      <span
+                        className={`
+                        text-xs px-1.5 py-0.5 rounded-full font-semibold
+                        ${isActive ? "bg-white/25 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"}
+                      `}
+                      >
+                        {filter.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            <AnimatePresence>
+              {(activeFilter === "all" || activeFilter === "researcher") && (
+                <motion.div
+                  key="sort-dropdown"
+                  className="flex justify-center mb-6"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="relative w-full max-w-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FaSortAmountDown className="w-4 h-4 text-primary-600 dark:text-accent-400" />
+                    </div>
+                    <select
+                      value={currentSort}
+                      onChange={(e) => setCurrentSort(e.target.value)}
+                      className="input pl-10 pr-10 appearance-none cursor-pointer bg-white dark:bg-gray-800 w-full"
+                      aria-label={activeFilter === "researcher" ? "Sort researchers by citations" : "Sort list"}
+                    >
+                      {SORT_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {(searchQuery || activeFilter !== "all") && (
+              <motion.p className="text-center text-muted text-sm mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {searchQuery
+                  ? `Found ${displayedPeople.length} result${displayedPeople.length !== 1 ? "s" : ""} for "${searchQuery}"`
+                  : `Showing ${displayedPeople.length} ${
+                      filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"
+                    }`}
+              </motion.p>
+            )}
+
+            <AnimatePresence mode="wait">
+              {displayedPeople.length === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
@@ -521,7 +668,7 @@ export default function PeopleClient({
           </>
         )}
 
-        {viewMode === "graph" && (
+        {activeSection === "people" && viewMode === "graph" && (
            <motion.div
              initial={{ opacity: 0, y: 10 }}
              animate={{ opacity: 1, y: 0 }}

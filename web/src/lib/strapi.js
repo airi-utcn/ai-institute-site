@@ -582,10 +582,32 @@ export async function getPersonTeams(slug) {
 }
 
 /**
- * Get all teams belonging to a department
- * @param {string} departmentSlug - The department's slug
+ * Get all teams from Strapi
  * @returns {Promise<Array>} Array of team entries
  */
+export async function getTeams(options = {}) {
+  try {
+    const { publicationState = 'preview', locale } = options;
+    const params = createParams({
+      sort: 'name:asc',
+      publicationState,
+      locale,
+      populate: {
+        department: DEPARTMENT_POPULATE,
+        members: {
+          populate: { person: PERSON_FLAT_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch teams:', error);
+    return [];
+  }
+}
+
 export async function getDepartmentTeams(departmentSlug, locale = null) {
   try {
     if (!departmentSlug) return [];
@@ -2478,6 +2500,92 @@ export function transformProjectData(strapiProjects) {
       resources,
       news,
       _strapi: project,
+    };
+  });
+}
+
+export function isProjectArchived(proj) {
+  if (!proj) return false;
+  // If proj is a Strapi raw object or transformed object
+  const attributes = proj?.attributes ?? proj ?? {};
+  const endDate = attributes.endDate;
+  if (!endDate) return false;
+  const end = new Date(endDate);
+  if (Number.isNaN(end.getTime())) return false;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return end.getTime() < now.getTime();
+}
+
+export function isTeamArchived(team) {
+  if (!team) return false;
+  const projects = team.projects || [];
+  if (!projects.length) return false;
+  return projects.every((p) => isProjectArchived(p));
+}
+
+export function transformTeamData(strapiTeams) {
+  const list = Array.isArray(strapiTeams) ? strapiTeams : strapiTeams ? [strapiTeams] : [];
+
+  return list.map((team) => {
+    const attributes = team?.attributes ?? team ?? {};
+    const deptEntry = attributes.department?.data ?? attributes.department;
+    const deptAttr = deptEntry?.attributes ?? deptEntry ?? {};
+
+    const department = deptEntry
+      ? {
+          id: deptEntry?.id ?? null,
+          slug: deptAttr.slug || '',
+          name: deptAttr.name || '',
+        }
+      : null;
+
+    const members = toArray(attributes.members).map((m) => {
+      const personEntry = m?.person?.data ?? m?.person;
+      const personAttr = personEntry?.attributes ?? personEntry ?? {};
+      return {
+        role: m?.role || '',
+        isLead: !!m?.isLead,
+        person: personEntry
+          ? {
+              id: personEntry?.id ?? null,
+              slug: personAttr.slug || '',
+              name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || '',
+              title: personAttr.title || '',
+              type: personAttr.type || '',
+              email: personAttr.email || '',
+              image: resolveMediaUrl(personAttr.portrait),
+            }
+          : null,
+      };
+    }).filter((m) => m.person && (m.person.slug || m.person.name));
+
+    const projects = toArray(attributes.projects?.data ?? attributes.projects).map((proj) => {
+      const pAttr = proj?.attributes ?? proj ?? {};
+      return {
+        id: proj?.id ?? null,
+        slug: pAttr.slug || '',
+        title: pAttr.title || '',
+        abstract: pAttr.abstract || '',
+        startDate: pAttr.startDate || null,
+        endDate: pAttr.endDate || null,
+        isArchived: isProjectArchived(proj),
+      };
+    }).filter((p) => p.slug || p.title);
+
+    const isArchived = projects.length > 0 && projects.every((p) => p.isArchived);
+
+    return {
+      id: team?.id ?? null,
+      slug: attributes.slug || '',
+      name: attributes.name || '',
+      description: attributes.description || '',
+      type: attributes.type || '',
+      department,
+      members,
+      projects,
+      isArchived,
+      _strapi: team,
     };
   });
 }

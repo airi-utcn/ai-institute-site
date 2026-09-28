@@ -118,6 +118,7 @@ import DynamicZone from '@/components/shared/DynamicZone';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
 import { getProjectPhase, getPhaseColorClasses } from '@/lib/projectPhase';
 import ProjectTimeline from '@/components/project/ProjectTimeline';
+import TeamCard from '@/components/TeamCard';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -196,49 +197,6 @@ function TabButton({ active, onClick, icon: Icon, label, count }) {
         </span>
       )}
     </button>
-  );
-}
-
-// Person Card Component
-function PersonCard({ person, role }) {
-  const portraitUrl = person?.image || null;
-
-  return (
-    <Link href={getPersonPath(person)}>
-      <motion.div
-        variants={itemVariants}
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 flex items-center gap-4 group cursor-pointer"
-      >
-        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
-          {portraitUrl ? (
-            <img
-              src={portraitUrl}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <FaUsers className="w-6 h-6" />
-            </div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-            {person.name}
-          </h4>
-          {role && (
-            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-              {role}
-            </p>
-          )}
-          {person.title && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {person.title}
-            </p>
-          )}
-        </div>
-      </motion.div>
-    </Link>
   );
 }
 
@@ -879,47 +837,16 @@ export default function ProjectDetails({ project }) {
                       {teams.length}
                     </span>
                   </div>
-                  {teams.map((team) => (
-                    <div key={team.slug || team.id} className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{team.name}</h3>
-                        {team.department && (
-                          <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
-                            {team.department.name}
-                          </span>
-                        )}
-                      </div>
-                      {team.description && (
-                        <ExpandableMarkdown
-                          content={team.description}
-                          previewLength={190}
-                          collapsedTextClassName="text-sm text-gray-500 dark:text-gray-400 leading-relaxed"
-                          markdownClassName="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-p:my-1 prose-headings:my-2"
-                        />
-                      )}
-                      {team.members.length > 0 ? (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          variants={containerVariants}
-                          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                        >
-                          {team.members.map((m, i) => (
-                            <div key={m.person?.slug || i} className="relative">
-                              {m.isLead && (
-                                <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                                  {t("lead")}
-                                </span>
-                              )}
-                              <PersonCard person={m.person} role={m.role} />
-                            </div>
-                          ))}
-                        </motion.div>
-                      ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("noTeamMembers")}</p>
-                      )}
-                    </div>
-                  ))}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {teams.map((team, idx) => (
+                      <TeamCard
+                        key={team.slug || team.id || idx}
+                        team={team}
+                        showProjects={false}
+                        t={t}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 

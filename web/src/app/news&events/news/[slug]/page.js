@@ -52,5 +52,10 @@ export default async function NewsArticlePage({ params }) {
     notFound();
   }
 
-  return <NewsArticleClient article={article} pageData={pageData} />;
+  return (
+    <>
+      <FallbackDisclaimer isFallback={article._isFallback} />
+      <NewsArticleClient article={article} pageData={pageData} />
+    </>
+  );
 }

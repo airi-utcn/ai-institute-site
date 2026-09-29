@@ -1,5 +1,6 @@
 import { 
-  getDepartments, 
+  getDepartments,
+  getDepartmentBySlug, 
   getDepartmentTeams, 
   getProjects, 
   getPublications, 
@@ -13,6 +14,7 @@ import {
 } from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 
 // Generate static paths for all departments
@@ -50,17 +52,17 @@ export default async function DepartmentPage({ params }) {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   
   // Fetch department data and filtered data in parallel
-  const [departmentData, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
-    getDepartments({ locale }),
+  const [departmentStrapi, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
+    getDepartmentBySlug(slug, locale),
     getProjects({ domainSlug: slug, locale }),
     getPublications({ domainSlug: slug, locale }),
     getStaff({ departmentSlug: slug }),
     getDepartmentTeams(slug, locale),
     getSingleType("departments-page", locale),
   ]);
-
-  const departments = transformDepartmentData(departmentData);
-  const department = departments.find((u) => u.slug === slug);
+  
+  if (!departmentStrapi) notFound();
+  const department = transformDepartmentData([departmentStrapi])[0];
   if (!department) notFound();
 
   const projects = transformProjectData(projectsData);
@@ -69,7 +71,9 @@ export default async function DepartmentPage({ params }) {
   const teams = transformTeamData(rawTeams);
 
   return (
-    <DepartmentDetailClient
+    <>
+      <FallbackDisclaimer isFallback={department._isFallback || pageData?._isFallback} />
+      <DepartmentDetailClient
       department={department}
       projects={projects}
       publications={publications}
@@ -77,5 +81,6 @@ export default async function DepartmentPage({ params }) {
       teams={teams}
       pageData={pageData}
     />
+    </>
   );
 }

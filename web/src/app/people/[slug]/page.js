@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
   FaEnvelope,
   FaPhone,
@@ -252,7 +253,9 @@ export default async function PersonDetailPage({ params }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <>
+      <FallbackDisclaimer isFallback={strapiPerson?.attributes?._isFallback || strapiPerson?._isFallback} />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <JsonLd data={personJsonLd(person)} />
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-5xl mx-auto px-6 py-12">
@@ -345,5 +348,6 @@ export default async function PersonDetailPage({ params }) {
         <StaffDetailClient person={person} publications={publications} teams={teams} slug={slug} />
       </div>
     </div>
+    </>
   );
 }

@@ -1531,6 +1531,44 @@ export async function getProjectsByMember(memberSlug) {
   }
 }
 
+export async function getDepartmentBySlug(slug, locale = 'en') {
+  try {
+    if (!slug) return null;
+    const baseOptions = {
+      filters: { slug: { $eq: slug } },
+      locale,
+      fields: ['name', 'slug', 'summary', 'description', 'type'],
+      populate: {
+        focusItems: {},
+        contactLinks: {},
+        body: {},
+        heroImage: {},
+        coordinator: PERSON_FLAT_POPULATE,
+        coCoordinator: PERSON_FLAT_POPULATE,
+      },
+    };
+    
+    // Convert to query string
+    const params = createParams(baseOptions);
+    const data = await fetchAPI(`/departments?${params.toString()}`);
+    
+    // Fallback logic
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackOptions = { ...baseOptions, locale: 'en' };
+      const fallbackParams = createParams(fallbackOptions);
+      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
+    
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch department by slug:', error);
+    return null;
+  }
+}
+
 export async function getDepartments(options = {}) {
   try {
     const { type, page, pageSize = 100, slim = false, locale } = options;
@@ -1832,6 +1870,7 @@ export function transformStaffData(strapiStaff) {
       socialLinks,
       publications,
       _strapi: person,
+      _isFallback: person._isFallback || false,
     };
   });
 }
@@ -2075,6 +2114,7 @@ export function transformResultData(strapiResults) {
       attachments,
       body,
       _strapi: result,
+      _isFallback: result._isFallback || false,
     };
   });
 }
@@ -2182,9 +2222,7 @@ export function transformNewsData(strapiNews) {
           };
         }),
         featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
-        _strapi: item,
-      _isFallback: item._isFallback || false,
-      _isFallback: item._isFallback || false,
+        _strapi: item,      _isFallback: item._isFallback || false,
       };
     });
 }
@@ -2500,6 +2538,7 @@ export function transformProjectData(strapiProjects) {
       resources,
       news,
       _strapi: project,
+      _isFallback: project._isFallback || false,
     };
   });
 }
@@ -2586,6 +2625,7 @@ export function transformTeamData(strapiTeams) {
       projects,
       isArchived,
       _strapi: team,
+      _isFallback: team._isFallback || false,
     };
   });
 }
@@ -2661,6 +2701,7 @@ export function transformDepartmentData(strapiDepartments) {
       coCoordinatorSlug: coCoordinatorData.slug || '',
       coordinatorSlug: coordinatorData.slug || '',
       _strapi: department,
+      _isFallback: department._isFallback || false,
     };
   });
 }
@@ -2823,6 +2864,7 @@ export function transformSeminarData(strapiSeminars) {
       modules,
       url: attributes.ctaUrl || '',
       _strapi: sem,
+      _isFallback: sem._isFallback || false,
     };
   });
 }
@@ -2918,12 +2960,7 @@ export function transformResourceData(strapiResources) {
       featured: attributes.featured || false,
       maintainers,
       department,
-      _strapi: res,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
+      _strapi: res,      _isFallback: res._isFallback || false,
     };
   });
 }

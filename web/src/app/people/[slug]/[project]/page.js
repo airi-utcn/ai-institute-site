@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
   getProjectBySlug,
   getStaffMember,
@@ -107,11 +108,14 @@ export default async function ProjectDetailPage({ params }) {
   const teamSerializable = teamMembers.map(({ _strapi: _memberRaw, ...member }) => member);
 
   return (
-    <ProjectDetailClient
+    <>
+      <FallbackDisclaimer isFallback={projectStrapi?._isFallback || strapiPerson?._isFallback} />
+      <ProjectDetailClient
       staffSlug={person.slug}
       project={projectSerializable}
       publications={publications}
       teamMembers={teamSerializable}
     />
+    </>
   );
 }

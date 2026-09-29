@@ -21,6 +21,9 @@
       "minLength": 2,
       "required": true
     },
+    "fullName": {
+      "type": "string"
+    },
     "slug": {
       "type": "uid",
       "targetField": "lastName",

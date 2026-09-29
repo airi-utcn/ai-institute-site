@@ -82,7 +82,7 @@ export default async function PersonDetailPage({ params }) {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const [strapiPerson, personTeamsRaw] = await Promise.all([
     getStaffMember(slug, locale),
-    getPersonTeams(slug, locale),
+    getPersonTeams(slug),
   ]);
 
   if (!strapiPerson) {

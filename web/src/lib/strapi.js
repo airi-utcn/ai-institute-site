@@ -587,11 +587,10 @@ export async function getPersonTeams(slug) {
  */
 export async function getTeams(options = {}) {
   try {
-    const { publicationState = 'preview', locale } = options;
+    const { publicationState = 'preview' } = options;
     const params = createParams({
       sort: 'name:asc',
       publicationState,
-      locale,
       populate: {
         department: DEPARTMENT_POPULATE,
         members: {
@@ -608,12 +607,11 @@ export async function getTeams(options = {}) {
   }
 }
 
-export async function getDepartmentTeams(departmentSlug, locale = null) {
+export async function getDepartmentTeams(departmentSlug) {
   try {
     if (!departmentSlug) return [];
     const params = createParams({
       publicationState: 'preview',
-      locale,
       filters: { department: { slug: { $eq: departmentSlug } } },
       sort: 'name:asc',
       populate: {
@@ -2625,7 +2623,6 @@ export function transformTeamData(strapiTeams) {
       projects,
       isArchived,
       _strapi: team,
-      _isFallback: team._isFallback || false,
     };
   });
 }

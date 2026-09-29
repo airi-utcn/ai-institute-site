@@ -72,7 +72,7 @@ export default async function PeoplePage() {
       getSingleType("people-page", locale),
       getPeopleGraphData(),
       getTeamsGraphData(),
-      getTeams({ locale }),
+      getTeams(),
     ]);
 
     const staff = transformStaffData(staffData);

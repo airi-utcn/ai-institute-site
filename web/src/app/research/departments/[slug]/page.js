@@ -57,7 +57,7 @@ export default async function DepartmentPage({ params }) {
     getProjects({ domainSlug: slug, locale }),
     getPublications({ domainSlug: slug, locale }),
     getStaff({ departmentSlug: slug }),
-    getDepartmentTeams(slug, locale),
+    getDepartmentTeams(slug),
     getSingleType("departments-page", locale),
   ]);
   

@@ -582,16 +582,36 @@ export async function getPersonTeams(slug) {
 }
 
 /**
- * Get all teams belonging to a department
- * @param {string} departmentSlug - The department's slug
+ * Get all teams from Strapi
  * @returns {Promise<Array>} Array of team entries
  */
-export async function getDepartmentTeams(departmentSlug, locale = null) {
+export async function getTeams(options = {}) {
+  try {
+    const { publicationState = 'preview' } = options;
+    const params = createParams({
+      sort: 'name:asc',
+      publicationState,
+      populate: {
+        department: DEPARTMENT_POPULATE,
+        members: {
+          populate: { person: PERSON_FLAT_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch teams:', error);
+    return [];
+  }
+}
+
+export async function getDepartmentTeams(departmentSlug) {
   try {
     if (!departmentSlug) return [];
     const params = createParams({
       publicationState: 'preview',
-      locale,
       filters: { department: { slug: { $eq: departmentSlug } } },
       sort: 'name:asc',
       populate: {
@@ -1509,6 +1529,44 @@ export async function getProjectsByMember(memberSlug) {
   }
 }
 
+export async function getDepartmentBySlug(slug, locale = 'en') {
+  try {
+    if (!slug) return null;
+    const baseOptions = {
+      filters: { slug: { $eq: slug } },
+      locale,
+      fields: ['name', 'slug', 'summary', 'description', 'type'],
+      populate: {
+        focusItems: {},
+        contactLinks: {},
+        body: {},
+        heroImage: {},
+        coordinator: PERSON_WITH_IMAGE_POPULATE,
+        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
+      },
+    };
+    
+    // Convert to query string
+    const params = createParams(baseOptions);
+    const data = await fetchAPI(`/departments?${params.toString()}`);
+    
+    // Fallback logic
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackOptions = { ...baseOptions, locale: 'en' };
+      const fallbackParams = createParams(fallbackOptions);
+      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`);
+      if (fallbackData.data?.[0]) {
+        return { ...fallbackData.data[0], _isFallback: true };
+      }
+    }
+    
+    return data.data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch department by slug:', error);
+    return null;
+  }
+}
+
 export async function getDepartments(options = {}) {
   try {
     const { type, page, pageSize = 100, slim = false, locale } = options;
@@ -1531,8 +1589,8 @@ export async function getDepartments(options = {}) {
         contactLinks: {},
         body: {},
         heroImage: {},
-        coordinator: PERSON_FLAT_POPULATE,
-        coCoordinator: PERSON_FLAT_POPULATE,
+        coordinator: PERSON_WITH_IMAGE_POPULATE,
+        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
       },
     };
 
@@ -1810,6 +1868,7 @@ export function transformStaffData(strapiStaff) {
       socialLinks,
       publications,
       _strapi: person,
+      _isFallback: person._isFallback || false,
     };
   });
 }
@@ -2053,6 +2112,7 @@ export function transformResultData(strapiResults) {
       attachments,
       body,
       _strapi: result,
+      _isFallback: result._isFallback || false,
     };
   });
 }
@@ -2160,9 +2220,7 @@ export function transformNewsData(strapiNews) {
           };
         }),
         featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
-        _strapi: item,
-      _isFallback: item._isFallback || false,
-      _isFallback: item._isFallback || false,
+        _strapi: item,      _isFallback: item._isFallback || false,
       };
     });
 }
@@ -2420,9 +2478,20 @@ export function transformProjectData(strapiProjects) {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       });
 
+    const isArchived = (() => {
+      if (!attributes.endDate) return false;
+      const end = new Date(attributes.endDate);
+      if (Number.isNaN(end.getTime())) return false;
+      // Start of today so it expires effectively the day after
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      return end.getTime() < now.getTime();
+    })();
+
     return {
       id: project?.id ?? null,
       slug: attributes.slug || '',
+      isArchived,
       title: attributes.title || '',
       abstract: attributes.abstract || '',
       body: normalizeBodyBlocks(attributes.body),
@@ -2467,6 +2536,93 @@ export function transformProjectData(strapiProjects) {
       resources,
       news,
       _strapi: project,
+      _isFallback: project._isFallback || false,
+    };
+  });
+}
+
+export function isProjectArchived(proj) {
+  if (!proj) return false;
+  // If proj is a Strapi raw object or transformed object
+  const attributes = proj?.attributes ?? proj ?? {};
+  const endDate = attributes.endDate;
+  if (!endDate) return false;
+  const end = new Date(endDate);
+  if (Number.isNaN(end.getTime())) return false;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return end.getTime() < now.getTime();
+}
+
+export function isTeamArchived(team) {
+  if (!team) return false;
+  const projects = team.projects || [];
+  if (!projects.length) return false;
+  return projects.every((p) => isProjectArchived(p));
+}
+
+export function transformTeamData(strapiTeams) {
+  const list = Array.isArray(strapiTeams) ? strapiTeams : strapiTeams ? [strapiTeams] : [];
+
+  return list.map((team) => {
+    const attributes = team?.attributes ?? team ?? {};
+    const deptEntry = attributes.department?.data ?? attributes.department;
+    const deptAttr = deptEntry?.attributes ?? deptEntry ?? {};
+
+    const department = deptEntry
+      ? {
+          id: deptEntry?.id ?? null,
+          slug: deptAttr.slug || '',
+          name: deptAttr.name || '',
+        }
+      : null;
+
+    const members = toArray(attributes.members).map((m) => {
+      const personEntry = m?.person?.data ?? m?.person;
+      const personAttr = personEntry?.attributes ?? personEntry ?? {};
+      return {
+        role: m?.role || '',
+        isLead: !!m?.isLead,
+        person: personEntry
+          ? {
+              id: personEntry?.id ?? null,
+              slug: personAttr.slug || '',
+              name: `${personAttr.firstName || ''} ${personAttr.lastName || ''}`.trim() || '',
+              title: personAttr.title || '',
+              type: personAttr.type || '',
+              email: personAttr.email || '',
+              image: resolveMediaUrl(personAttr.portrait),
+            }
+          : null,
+      };
+    }).filter((m) => m.person && (m.person.slug || m.person.name));
+
+    const projects = toArray(attributes.projects?.data ?? attributes.projects).map((proj) => {
+      const pAttr = proj?.attributes ?? proj ?? {};
+      return {
+        id: proj?.id ?? null,
+        slug: pAttr.slug || '',
+        title: pAttr.title || '',
+        abstract: pAttr.abstract || '',
+        startDate: pAttr.startDate || null,
+        endDate: pAttr.endDate || null,
+        isArchived: isProjectArchived(proj),
+      };
+    }).filter((p) => p.slug || p.title);
+
+    const isArchived = projects.length > 0 && projects.every((p) => p.isArchived);
+
+    return {
+      id: team?.id ?? null,
+      slug: attributes.slug || '',
+      name: attributes.name || '',
+      description: attributes.description || '',
+      type: attributes.type || '',
+      department,
+      members,
+      projects,
+      isArchived,
+      _strapi: team,
     };
   });
 }
@@ -2503,14 +2659,20 @@ export function transformDepartmentData(strapiDepartments) {
     const coordinatorData = coordinatorEntry?.attributes ?? coordinatorEntry ?? {};
     const coCoordinatorData = coCoordinatorEntry?.attributes ?? coCoordinatorEntry ?? {};
 
-    const coordinator =
-      `${coordinatorData.firstName || ''} ${coordinatorData.lastName || ''}`.trim() ||
-      (typeof attributes.coordinator === 'string' ? attributes.coordinator : '') ||
-      '';
-    const coCoordinator =
-      `${coCoordinatorData.firstName || ''} ${coCoordinatorData.lastName || ''}`.trim() ||
-      (typeof attributes.coCoordinator === 'string' ? attributes.coCoordinator : '') ||
-      '';
+    const buildPersonObj = (entry, data, rawFieldValue) => {
+      if (!entry && typeof rawFieldValue === 'string') return { name: rawFieldValue, slug: '', title: '' };
+      if (!entry && !data.firstName && !data.lastName) return null;
+      return {
+        id: entry?.id ?? null,
+        slug: data.slug || '',
+        name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || '',
+        title: data.title || '',
+        image: resolveMediaUrl(data.portrait),
+      };
+    };
+
+    const coordinator = buildPersonObj(coordinatorEntry, coordinatorData, attributes.coordinator);
+    const coCoordinator = buildPersonObj(coCoordinatorEntry, coCoordinatorData, attributes.coCoordinator);
 
     const elements = normalizeFocusItems(attributes.focusItems);
     const contactLinks = Array.isArray(attributes.contactLinks)
@@ -2542,6 +2704,7 @@ export function transformDepartmentData(strapiDepartments) {
       coCoordinatorSlug: coCoordinatorData.slug || '',
       coordinatorSlug: coordinatorData.slug || '',
       _strapi: department,
+      _isFallback: department._isFallback || false,
     };
   });
 }
@@ -2704,6 +2867,7 @@ export function transformSeminarData(strapiSeminars) {
       modules,
       url: attributes.ctaUrl || '',
       _strapi: sem,
+      _isFallback: sem._isFallback || false,
     };
   });
 }
@@ -2799,12 +2963,7 @@ export function transformResourceData(strapiResources) {
       featured: attributes.featured || false,
       maintainers,
       department,
-      _strapi: res,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
-      _isFallback: res._isFallback || false,
+      _strapi: res,      _isFallback: res._isFallback || false,
     };
   });
 }

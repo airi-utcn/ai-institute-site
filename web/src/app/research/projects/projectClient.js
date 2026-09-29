@@ -103,31 +103,31 @@ const normalizeProject = (p) => {
   };
 };
 
-export default function ProjectsClient({ projects: rawProjects = [], pageData }) {
+export default function ProjectsClient({ projects: rawProjects = [], pageData, isArchive = false }) {
   const searchParams = useSearchParams();
 
   const t = (key, params) => {
     switch (key) {
-      case "title": return pageData?.projectsTitle || "Projects";
-      case "subtitle": return pageData?.projectsSubtitle || "Explore our research projects across various domains";
-      case "searchPlaceholder": return pageData?.projectsSearchPlaceholder || "Search projects by title, lead, department...";
+      case "title": return isArchive ? (pageData?.archiveTitle || "Archived Projects") : (pageData?.title || "Projects");
+      case "subtitle": return isArchive ? (pageData?.archiveSubtitle || "Explore past research projects.") : (pageData?.subtitle || "Explore our research projects across various domains");
+      case "searchPlaceholder": return pageData?.searchPlaceholder || "Search projects by title, lead, department...";
       case "filters": return "Filters";
       case "region": return "Region";
-      case "allRegions": return pageData?.projectsAllRegions || "All regions";
+      case "allRegions": return pageData?.allRegions || "All regions";
       case "department": return "Department";
-      case "allDepartments": return pageData?.projectsAllDepartments || "All departments";
+      case "allDepartments": return pageData?.allDepartments || "All departments";
       case "lead": return "Lead";
-      case "allLeads": return pageData?.projectsAllLeads || "All leads";
+      case "allLeads": return pageData?.allLeads || "All leads";
       case "member": return "Member";
-      case "allMembers": return pageData?.projectsAllMembers || "All members";
+      case "allMembers": return pageData?.allMembers || "All members";
       case "theme": return "Theme";
       case "filterByTheme": return "Filter by theme...";
-      case "projectsFound": return (pageData?.projectsResultsSingular || "Found {count} project").replace("{count}", params?.count ?? 0);
-      case "projectsFoundPlural": return (pageData?.projectsResultsPlural || "Found {count} projects").replace("{count}", params?.count ?? 0);
+      case "projectsFound": return (pageData?.resultsSingular || "Found {count} project").replace("{count}", params?.count ?? 0);
+      case "projectsFoundPlural": return (pageData?.resultsPlural || "Found {count} projects").replace("{count}", params?.count ?? 0);
       case "clearAllFilters": return "Clear all filters";
       case "leadLabel": return "Lead:";
       case "dept": return "Dept:";
-      case "noProjects": return pageData?.projectsEmptyState || "No projects match your search criteria.";
+      case "noProjects": return pageData?.emptyState || "No projects match your search criteria.";
       case "clearFilters": return "Clear filters";
       default: return key;
     }
@@ -233,7 +233,20 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
     <div className="page-container">
       <div className="content-wrapper content-padding">
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
-          <motion.div variants={itemVariants} className="page-header">
+                              <motion.div variants={itemVariants} className="page-header">
+            {isArchive && (
+              <div className="mb-4">
+                <Link
+                  href="/research/projects"
+                  className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
+                >
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 rotate-180" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                  {pageData?.backToProjects || "Back to Projects"}
+                </Link>
+              </div>
+            )}
             <h1 className="page-header-title">{t("title")}</h1>
             <p className="page-header-subtitle">
               {t("subtitle")}
@@ -467,6 +480,29 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData })
                 onClearFilters={clearFilters}
               />
             )}
+          </div>
+          {/* Bottom navigation link */}
+          <div className="mt-12 text-center">
+            <Link
+              href={isArchive ? "/research/projects" : "/research/projects/archive"}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gray-50 border border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium transition-colors shadow-sm"
+            >
+              {isArchive ? (
+                <>
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 rotate-180" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                  {pageData?.viewActiveProjects || "View Active Projects"}
+                </>
+              ) : (
+                <>
+                  {pageData?.viewArchivedProjects || "View Archived Projects"}
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+                  </svg>
+                </>
+              )}
+            </Link>
           </div>
         </motion.div>
       </div>

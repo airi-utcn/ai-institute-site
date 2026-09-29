@@ -30,13 +30,13 @@ export default function DepartmentsClient({
   const typeLabel = (type) => {
     switch (type) {
       case "research":
-        return pageData?.departmentTypeResearch || "Research Departments";
+        return pageData?.typeResearch || "Research Departments";
       case "networks":
-        return pageData?.departmentTypeNetworks || "Research Networks";
+        return pageData?.typeNetworks || "Research Networks";
       case "support":
-        return pageData?.departmentTypeSupport || "Support Departments";
+        return pageData?.typeSupport || "Support Departments";
       default:
-        return pageData?.departmentTypeOther || "Departments";
+        return pageData?.typeOther || "Departments";
     }
   };
 
@@ -62,10 +62,10 @@ export default function DepartmentsClient({
     return { projectCount, memberCount };
   };
 
-  const title = pageData?.departmentsTitle || "Departments";
-  const subtitle = pageData?.departmentsSubtitle || "Discover our research departments, centers, and specialized units advancing artificial intelligence.";
-  const membersTemplate = pageData?.departmentsMembersCount || "{count} members";
-  const projectsTemplate = pageData?.departmentsProjectsCount || "{count} projects";
+  const title = pageData?.title || "Departments";
+  const subtitle = pageData?.subtitle || "Discover our research departments, centers, and specialized units advancing artificial intelligence.";
+  const membersTemplate = pageData?.membersCount || "{count} members";
+  const projectsTemplate = pageData?.projectsCount || "{count} projects";
 
   return (
     <div className="page-container">

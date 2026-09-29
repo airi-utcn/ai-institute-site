@@ -48,5 +48,10 @@ export default async function PartnerPage({ params }) {
     notFound();
   }
 
-  return <PartnerDetailsClient partner={partner} />;
+  return (
+    <>
+      <FallbackDisclaimer isFallback={partner._isFallback} />
+      <PartnerDetailsClient partner={partner} />
+    </>
+  );
 }

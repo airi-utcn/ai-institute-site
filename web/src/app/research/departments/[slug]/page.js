@@ -1,8 +1,21 @@
-import { getDepartments, getDepartmentTeams, getProjects, getPublications, getStaff, getSingleType, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { 
+  getDepartments,
+  getDepartmentBySlug, 
+  getDepartmentTeams, 
+  getProjects, 
+  getPublications, 
+  getStaff, 
+  getSingleType, 
+  transformDepartmentData, 
+  transformProjectData, 
+  transformPublicationData, 
+  transformStaffData,
+  transformTeamData,
+} from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
+import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
-import { getProjectPhase } from "@/lib/projectPhase";
 
 // Generate static paths for all departments
 export async function generateStaticParams() {
@@ -39,56 +52,28 @@ export default async function DepartmentPage({ params }) {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   
   // Fetch department data and filtered data in parallel
-  const [departmentData, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
-    getDepartments({ locale }),
+  const [departmentStrapi, projectsData, publicationsData, staffData, rawTeams, pageData] = await Promise.all([
+    getDepartmentBySlug(slug, locale),
     getProjects({ domainSlug: slug, locale }),
     getPublications({ domainSlug: slug, locale }),
     getStaff({ departmentSlug: slug }),
-    getDepartmentTeams(slug, locale),
-    getSingleType("research-page", locale),
+    getDepartmentTeams(slug),
+    getSingleType("departments-page", locale),
   ]);
-
-  const departments = transformDepartmentData(departmentData);
-  const department = departments.find((u) => u.slug === slug);
+  
+  if (!departmentStrapi) notFound();
+  const department = transformDepartmentData([departmentStrapi])[0];
   if (!department) notFound();
 
   const projects = transformProjectData(projectsData);
   const publications = transformPublicationData(publicationsData);
   const staff = transformStaffData(staffData);
-
-  // Normalize teams
-  const toArr = (v) => (Array.isArray(v) ? v : v?.data ? v.data : []);
-  const teams = toArr(rawTeams).map((raw) => {
-    const t = raw.attributes ?? raw;
-    return {
-      id: raw.id,
-      name: t.name || '',
-      description: t.description || '',
-      members: toArr(t.members).map((m) => {
-        const p = m.person?.attributes ?? m.person ?? {};
-        return {
-          role: m.role || '',
-          isLead: !!m.isLead,
-          person: {
-            name: p.name || '',
-            slug: p.slug || '',
-            title: p.title || '',
-          },
-        };
-      }),
-      projects: toArr(t.projects?.data ?? t.projects).map((proj) => {
-        const pr = proj.attributes ?? proj;
-        const phase = getProjectPhase(pr.startDate, pr.endDate).status;
-        return {
-          title: pr.title || '',
-          phase: phase === 'unknown' ? '' : phase,
-        };
-      }),
-    };
-  });
+  const teams = transformTeamData(rawTeams);
 
   return (
-    <DepartmentDetailClient
+    <>
+      <FallbackDisclaimer isFallback={department._isFallback || pageData?._isFallback} />
+      <DepartmentDetailClient
       department={department}
       projects={projects}
       publications={publications}
@@ -96,5 +81,6 @@ export default async function DepartmentPage({ params }) {
       teams={teams}
       pageData={pageData}
     />
+    </>
   );
 }

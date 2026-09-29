@@ -55,5 +55,10 @@ export default async function ResultPage({ params }) {
     notFound();
   }
 
-  return <ResultDetailsClient result={result} />;
+  return (
+    <>
+      <FallbackDisclaimer isFallback={result._isFallback} />
+      <ResultDetailsClient result={result} />
+    </>
+  );
 }

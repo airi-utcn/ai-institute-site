@@ -33,6 +33,40 @@ export default {
   register({ strapi }: any) {
     if (!strapi.documents) return;
 
+
+    // Document Service middleware: Auto-generate fullName for Person
+    strapi.documents.use(async (ctx: any, next: any) => {
+      if (ctx.uid === "api::person.person" && (ctx.action === "create" || ctx.action === "update")) {
+        if (ctx.params && ctx.params.data) {
+          const { firstName, lastName } = ctx.params.data;
+          
+          let fName = firstName;
+          let lName = lastName;
+
+          // If it's an update and we might be missing fields in partial payload
+          if (ctx.action === "update" && (fName === undefined || lName === undefined)) {
+            try {
+              const existingDoc = await strapi.db.query("api::person.person").findOne({
+                where: { documentId: ctx.params.documentId },
+                select: ["firstName", "lastName"]
+              });
+              if (existingDoc) {
+                if (fName === undefined) fName = existingDoc.firstName;
+                if (lName === undefined) lName = existingDoc.lastName;
+              }
+            } catch (e) {
+              console.error("Failed to fetch existing person during update", e);
+            }
+          }
+
+          if (fName !== undefined || lName !== undefined) {
+             ctx.params.data.fullName = `${fName || ""} ${lName || ""}`.trim();
+          }
+        }
+      }
+      return next();
+    });
+
     // Document Service middleware: Validate Event Dates
     strapi.documents.use(async (ctx: any, next: any) => {
       if (ctx.uid === "api::event.event" && (ctx.action === "create" || ctx.action === "update")) {
@@ -301,6 +335,68 @@ export default {
       }
     } catch (err) {
       console.error("Failed to hide slug from Content Manager layout:", err);
+    }
+
+    // 4. Backfill fullName for People
+    try {
+      const people: any[] = await strapi.db.query("api::person.person").findMany({
+        select: ["id", "firstName", "lastName", "fullName"],
+      });
+      
+      let updatedPeopleCount = 0;
+      for (const person of people) {
+        const expectedFullName = `${person.firstName || ""} ${person.lastName || ""}`.trim();
+        if (person.fullName !== expectedFullName) {
+          await strapi.db.query("api::person.person").update({
+            where: { id: person.id },
+            data: { fullName: expectedFullName },
+          });
+          updatedPeopleCount++;
+        }
+      }
+      if (updatedPeopleCount > 0) {
+         console.log(`✅ Backfilled fullName for ${updatedPeopleCount} people`);
+      }
+    } catch (err) {
+      console.error("Failed backfilling fullName for people:", err);
+    }
+
+    // 5. Hide fullName from Strapi Admin edit view for Person
+    try {
+      const storeKey = "plugin_content_manager_configuration_content_types::api::person.person";
+      const setting = await strapi.db.query("strapi::core-store").findOne({ where: { key: storeKey } });
+      if (setting && setting.value) {
+        let parsed = typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value;
+        if (parsed) {
+          let modified = false;
+          // Hide from layout
+          if (parsed.metadatas?.fullName?.edit) {
+            if (parsed.metadatas.fullName.edit.visible !== false || parsed.metadatas.fullName.edit.editable !== false) {
+              parsed.metadatas.fullName.edit.visible = false;
+              parsed.metadatas.fullName.edit.editable = false;
+              modified = true;
+            }
+          }
+          if (Array.isArray(parsed.layouts?.edit)) {
+            const newLayout = parsed.layouts.edit
+              .map((row) => (Array.isArray(row) ? row.filter((field) => field.name !== "fullName") : row))
+              .filter((row) => row.length > 0);
+            if (JSON.stringify(newLayout) !== JSON.stringify(parsed.layouts.edit)) {
+              parsed.layouts.edit = newLayout;
+              modified = true;
+            }
+          }
+          if (modified) {
+            await strapi.db.query("strapi::core-store").update({
+              where: { id: setting.id },
+              data: { value: JSON.stringify(parsed) }
+            });
+            console.log("✅ Configured layout to hide fullName on person model");
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to hide fullName from Content Manager layout:", err);
     }
   },
 };

@@ -13,10 +13,10 @@ export default async function ProjectPage() {
 
   const [strapiProjects, pageData] = await Promise.all([
     getProjects({ locale }),
-    getSingleType("research-page", locale),
+    getSingleType("projects-page", locale),
   ]);
 
-  const projects = transformProjectData(strapiProjects);
+  const projects = transformProjectData(strapiProjects).filter(p => !p.isArchived);
 
   return <ProjectsClient projects={projects} pageData={pageData} />;
 }

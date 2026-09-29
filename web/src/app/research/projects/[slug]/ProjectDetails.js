@@ -118,6 +118,7 @@ import DynamicZone from '@/components/shared/DynamicZone';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
 import { getProjectPhase, getPhaseColorClasses } from '@/lib/projectPhase';
 import ProjectTimeline from '@/components/project/ProjectTimeline';
+import TeamCard from '@/components/TeamCard';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -196,49 +197,6 @@ function TabButton({ active, onClick, icon: Icon, label, count }) {
         </span>
       )}
     </button>
-  );
-}
-
-// Person Card Component
-function PersonCard({ person, role }) {
-  const portraitUrl = person?.image || null;
-
-  return (
-    <Link href={getPersonPath(person)}>
-      <motion.div
-        variants={itemVariants}
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 p-4 flex items-center gap-4 group cursor-pointer"
-      >
-        <div className="relative w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
-          {portraitUrl ? (
-            <img
-              src={portraitUrl}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
-              <FaUsers className="w-6 h-6" />
-            </div>
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">
-            {person.name}
-          </h4>
-          {role && (
-            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-              {role}
-            </p>
-          )}
-          {person.title && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-              {person.title}
-            </p>
-          )}
-        </div>
-      </motion.div>
-    </Link>
   );
 }
 
@@ -595,10 +553,17 @@ function NewsCard({ item, t }) {
   );
 }
 
-export default function ProjectDetails({ project }) {
+export default function ProjectDetails({ project, pageData }) {
   const [activeTab, setActiveTab] = useState('about');
   const t = (key, params) => {
     let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
+    
+    // Map dot notation from defaults to camelCase pageData keys
+    const pageDataKey = key.replace(/\.([a-z])/g, (g) => g[1].toUpperCase()).replace(".", "");
+    if (pageData && pageData[pageDataKey]) {
+      val = pageData[pageDataKey];
+    }
+
     if (params && typeof params === "object") {
       Object.entries(params).forEach(([k, v]) => {
         val = val.replace(`{${k}}`, v);
@@ -618,7 +583,24 @@ export default function ProjectDetails({ project }) {
 
   const heroImageUrl = project.heroImage || null;
   const teams = project.teams || [];
-  const contributors = project.contributors || [];
+  
+  // Track who is already in a team
+  const teamMemberIdentifiers = new Set();
+  teams.forEach(team => {
+    (team.members || []).forEach(m => {
+      if (m.person) {
+        if (m.person.slug) teamMemberIdentifiers.add(m.person.slug);
+        else if (m.person.name) teamMemberIdentifiers.add(m.person.name);
+      }
+    });
+  });
+
+  // Filter individual contributors to exclude those in teams
+  const contributors = (project.contributors || []).filter(c => {
+    if (c.slug && teamMemberIdentifiers.has(c.slug)) return false;
+    if (c.name && teamMemberIdentifiers.has(c.name)) return false;
+    return true;
+  });
   const themes = (project.themesData && project.themesData.length > 0)
     ? project.themesData
     : (project.themes || []).map((name) => ({ name, slug: '' }));
@@ -641,7 +623,7 @@ export default function ProjectDetails({ project }) {
     return media.url || media.src || '';
   };
 
-  const peopleCount = teams.length + contributors.length;
+  const peopleCount = teamMemberIdentifiers.size + contributors.length;
   const resultsCount = project.results?.length || 0;
   const hasResearch = project.researchContent && project.researchContent.length > 0;
   const hasContact = project.contactInfo?.contactEntries?.length > 0 || project.contactInfo?.generalInfo;
@@ -879,47 +861,16 @@ export default function ProjectDetails({ project }) {
                       {teams.length}
                     </span>
                   </div>
-                  {teams.map((team) => (
-                    <div key={team.slug || team.id} className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{team.name}</h3>
-                        {team.department && (
-                          <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
-                            {team.department.name}
-                          </span>
-                        )}
-                      </div>
-                      {team.description && (
-                        <ExpandableMarkdown
-                          content={team.description}
-                          previewLength={190}
-                          collapsedTextClassName="text-sm text-gray-500 dark:text-gray-400 leading-relaxed"
-                          markdownClassName="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-p:my-1 prose-headings:my-2"
-                        />
-                      )}
-                      {team.members.length > 0 ? (
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          variants={containerVariants}
-                          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-                        >
-                          {team.members.map((m, i) => (
-                            <div key={m.person?.slug || i} className="relative">
-                              {m.isLead && (
-                                <span className="absolute top-2 right-2 z-10 text-xs px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full font-medium">
-                                  {t("lead")}
-                                </span>
-                              )}
-                              <PersonCard person={m.person} role={m.role} />
-                            </div>
-                          ))}
-                        </motion.div>
-                      ) : (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("noTeamMembers")}</p>
-                      )}
-                    </div>
-                  ))}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {teams.map((team, idx) => (
+                      <TeamCard
+                        key={team.slug || team.id || idx}
+                        team={team}
+                        showProjects={false}
+                        t={t}
+                      />
+                    ))}
+                  </div>
                 </div>
               )}
 

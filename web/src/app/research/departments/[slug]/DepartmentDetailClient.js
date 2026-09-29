@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog, FaUserTie } from "react-icons/fa";
 import ExpandableMarkdown from "@/components/shared/ExpandableMarkdown";
 import RichMarkdown from "@/components/shared/RichMarkdown";
+import TeamCard from "@/components/TeamCard";
+import PersonChip from "@/components/shared/PersonChip";
 
 const PHASE_STYLES = {
   ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
@@ -26,6 +28,7 @@ const DEFAULT_TEXTS = {
   "tabs.publications": "Publications",
   "overview.about": "About",
   "overview.coordinator": "Coordinator",
+  "overview.coCoordinator": "Co-Coordinator",
   "overview.contact": "Contact",
   "members.teams": "Teams",
   "members.member": "member",
@@ -42,142 +45,6 @@ const DEFAULT_TEXTS = {
   "phases.ended": "Ended",
   "phases.archived": "Archived",
 };
-
-/* ── Person avatar + name (reusable) ─────────────────────── */
-function PersonChip({ person, role, isLead, image }) {
-  const slug = person?.slug;
-  const name = person?.name || '';
-  const title = person?.title || '';
-
-  const inner = (
-    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-      slug ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer group' : ''
-    }`}>
-      <div className="relative shrink-0">
-        <img
-          src={image || "/people/Basic_avatar_image.png"}
-          alt={name}
-          className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm"
-        />
-        {isLead && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center shadow-sm">
-            <FaStar className="w-2 h-2 text-yellow-800" />
-          </span>
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold text-gray-900 dark:text-white truncate ${
-          slug ? 'group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors' : ''
-        }`}>
-          {name}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-          {role || title || ''}
-        </p>
-      </div>
-    </div>
-  );
-
-  return slug ? <Link href={`/people/${slug}`}>{inner}</Link> : inner;
-}
-
-/* ── Team card (inline in Members tab) ───────────────────── */
-function TeamCard({ team, staffLookup, t }) {
-  const leads = (team.members || []).filter((m) => m.isLead);
-  const others = (team.members || []).filter((m) => !m.isLead);
-  const ordered = [...leads, ...others];
-
-  const getTranslatedPhase = (phase) => {
-    if (!phase) return "";
-    const lowerPhase = phase.toLowerCase();
-    return t(`phases.${lowerPhase}`) || phase;
-  };
-
-  return (
-    <motion.div
-      variants={itemVariants}
-      className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 overflow-hidden"
-    >
-      {/* Accent bar */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-gradient-to-b from-blue-500 to-indigo-500" />
-
-      <div className="pl-5 pr-5 pt-5 pb-4 flex flex-col gap-3">
-        {/* Header */}
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-lg shrink-0 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-            <FaUsers className="w-4 h-4" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-gray-900 dark:text-white text-base leading-snug truncate">
-              {team.name}
-            </h3>
-          </div>
-          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 shrink-0">
-            {ordered.length} {ordered.length === 1 ? t('members.member') : t('members.membersPlural')}
-          </span>
-        </div>
-
-        {team.description && (
-          <ExpandableMarkdown
-            content={team.description}
-            previewLength={160}
-            collapsedTextClassName="text-xs text-gray-500 dark:text-gray-400 leading-relaxed"
-            markdownClassName="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-p:my-1 prose-headings:my-2"
-          />
-        )}
-
-        {/* Members */}
-        {ordered.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5 -mx-1">
-            {ordered.map((m, i) => {
-              const personSlug = m.person?.slug || '';
-              const staffInfo = staffLookup?.[personSlug];
-              return (
-                <PersonChip
-                  key={personSlug || i}
-                  person={m.person}
-                  role={m.role}
-                  isLead={m.isLead}
-                  image={staffInfo?.image}
-                />
-              );
-            })}
-          </div>
-        )}
-
-        {/* Projects */}
-        {team.projects?.length > 0 && (
-          <div className="pt-3 border-t border-gray-100 dark:border-gray-700/50">
-            <div className="flex items-center gap-1.5 mb-2">
-              <FaProjectDiagram className="w-3 h-3 text-gray-400" />
-              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                {t('members.projects')}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {team.projects.map((p, i) => {
-                const phaseClass = PHASE_STYLES[p.phase] || PHASE_STYLES.planned;
-                return (
-                  <span
-                    key={i}
-                    className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-full font-medium"
-                  >
-                    {p.title}
-                    {p.phase && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${phaseClass}`}>
-                        {getTranslatedPhase(p.phase)}
-                      </span>
-                    )}
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -203,16 +70,12 @@ export default function DepartmentDetailClient({
   const [activeTab, setActiveTab] = useState("overview");
 
   const t = (key) => {
-    if (key === "backToDepartments") return pageData?.depBackToDepartments || DEFAULT_TEXTS.backToDepartments;
-    if (key === "notFound") return pageData?.depNotFound || DEFAULT_TEXTS.notFound;
-    if (key === "tabs.overview") return pageData?.depTabOverview || DEFAULT_TEXTS["tabs.overview"];
-    if (key === "tabs.members") return pageData?.depTabMembers || DEFAULT_TEXTS["tabs.members"];
-    if (key === "tabs.projects") return pageData?.depTabProjects || DEFAULT_TEXTS["tabs.projects"];
-    if (key === "tabs.publications") return pageData?.depTabPublications || DEFAULT_TEXTS["tabs.publications"];
-    if (key === "members.noMembers") return pageData?.depNoMembers || DEFAULT_TEXTS["members.noMembers"];
-    if (key === "projects.noProjects") return pageData?.depNoProjects || DEFAULT_TEXTS["projects.noProjects"];
-    if (key === "publications.noPublications") return pageData?.depNoPublications || DEFAULT_TEXTS["publications.noPublications"];
-    return DEFAULT_TEXTS[key] || key;
+    let val = DEFAULT_TEXTS[key] ?? key;
+    const pageDataKey = key.replace(/\.([a-z])/g, (g) => g[1].toUpperCase()).replace(".", "");
+    if (pageData && pageData[pageDataKey]) {
+      val = pageData[pageDataKey];
+    }
+    return val;
   };
 
   const TABS = [
@@ -237,9 +100,14 @@ export default function DepartmentDetailClient({
     for (const team of teams) {
       for (const m of team.members || []) {
         if (m.person?.slug) slugs.add(m.person.slug);
+        else if (m.person?.name) slugs.add(m.person.name);
       }
     }
-    const independent = staff.filter((p) => p.slug && !slugs.has(p.slug));
+    const independent = staff.filter((p) => {
+      if (p.slug && slugs.has(p.slug)) return false;
+      if (p.name && slugs.has(p.name)) return false;
+      return true;
+    });
     return { teamMemberSlugs: slugs, independentStaff: independent };
   }, [teams, staff]);
 
@@ -248,8 +116,12 @@ export default function DepartmentDetailClient({
       <div className="page-container">
         <div className="content-wrapper content-padding">
           <div className="empty-state">
-            <p>{t("notFound")}</p>
-            <Link href="/research/departments" className="btn btn-primary mt-4">
+            <h1 className="text-2xl font-bold mb-4">{t("notFound")}</h1>
+            <Link
+              href="/research/departments"
+              className="inline-flex items-center gap-2 text-primary-600 dark:text-accent-400 hover:underline"
+            >
+              <FaArrowLeft className="w-4 h-4" />
               {t("backToDepartments")}
             </Link>
           </div>
@@ -258,113 +130,97 @@ export default function DepartmentDetailClient({
     );
   }
 
-  const counts = {
-    members: staff.length,
-    projects: projects.length,
-    publications: publications.length,
-  };
+  const coordinator = department.coordinator;
+  const coordinatorImage = coordinator?.image || (coordinator?.slug ? staffLookup[coordinator.slug]?.image : null);
+  
+  const coCoordinator = department.coCoordinator;
+  const coCoordinatorImage = coCoordinator?.image || (coCoordinator?.slug ? staffLookup[coCoordinator.slug]?.image : null);
 
   return (
     <div className="page-container">
-      <div className="content-wrapper content-padding">
-        {/* Back link */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="mb-6"
-        >
-          <Link 
-            href="/research/departments" 
-            className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+      {/* Header */}
+      <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="content-wrapper content-padding py-8">
+          {/* Breadcrumb / Back button */}
+          <Link
+            href="/research/departments"
+            className="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-accent-400 mb-6 transition-colors"
           >
-            <FaArrowLeft className="text-xs" />
+            <FaArrowLeft className="w-3.5 h-3.5" />
             {t("backToDepartments")}
           </Link>
-        </motion.div>
 
-        {/* Header */}
-        <motion.div 
-          className="page-header"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="page-header-title">{department.name}</h1>
-          {department.summary && (
-            <p className="page-header-subtitle">{department.summary}</p>
-          )}
-        </motion.div>
-
-        {/* Quick stats */}
-        <motion.div 
-          className="grid grid-cols-3 gap-4 mb-8"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
-              {counts.members}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-3">
+                {department.name}
+              </h1>
+              {department.summary && (
+                <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed max-w-3xl">
+                  {department.summary}
+                </p>
+              )}
             </div>
-            <div className="text-sm text-muted">{t("membersCount")}</div>
-          </div>
-          <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
-              {counts.projects}
-            </div>
-            <div className="text-sm text-muted">{t("projectsCount")}</div>
-          </div>
-          <div className="card p-4 text-center">
-            <div className="text-2xl font-bold text-primary-600 dark:text-accent-400">
-              {counts.publications}
-            </div>
-            <div className="text-sm text-muted">{t("publicationsCount")}</div>
-          </div>
-        </motion.div>
 
-        {/* Tabs */}
-        <motion.div 
-          className="flex flex-wrap justify-center gap-2 mb-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
-            const Icon = tab.icon;
-            const count = counts[tab.id];
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-200 border
-                  ${isActive 
-                    ? "bg-primary-600 text-white border-primary-600 shadow-sm" 
-                    : "bg-surface text-foreground border-transparent hover:border-border hover:bg-hover"
-                  }
-                `}
-              >
-                <Icon className="text-sm" />
-                <span>{tab.label}</span>
-                {count !== undefined && (
-                  <span className={`
-                    ml-1 px-1.5 py-0.5 text-xs rounded-full
-                    ${isActive 
-                      ? "bg-primary-700/50 text-white" 
-                      : "bg-muted-background text-muted"
-                    }
-                  `}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </motion.div>
+            {/* Quick stats pills */}
+            <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm font-medium">
+                <FaUsers className="w-3.5 h-3.5" />
+                <span>{teamMemberSlugs.size + independentStaff.length} {DEFAULT_TEXTS.membersCount}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-sm font-medium">
+                <FaFlask className="w-3.5 h-3.5" />
+                <span>{projects.length} {DEFAULT_TEXTS.projectsCount}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-sm font-medium">
+                <FaBook className="w-3.5 h-3.5" />
+                <span>{publications.length} {DEFAULT_TEXTS.publicationsCount}</span>
+              </div>
+            </div>
+          </div>
 
-        {/* Tab content */}
+          {/* Navigation tabs */}
+          <div className="flex border-b border-gray-200 dark:border-gray-800 -mb-px mt-8 overflow-x-auto">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              let count = null;
+              if (tab.id === "members") count = teamMemberSlugs.size + independentStaff.length;
+              if (tab.id === "projects") count = projects.length;
+              if (tab.id === "publications") count = publications.length;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
+                    isActive
+                      ? "border-primary-600 text-primary-600 dark:border-accent-400 dark:text-accent-400"
+                      : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{tab.label}</span>
+                  {count !== null && count > 0 && (
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                        isActive
+                          ? "bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Main tab content */}
+      <div className="content-wrapper content-padding py-10">
         <AnimatePresence mode="wait">
           {activeTab === "overview" && (
             <motion.div
@@ -373,73 +229,115 @@ export default function DepartmentDetailClient({
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-              className="space-y-6"
+              className="space-y-8"
             >
-              {/* Description */}
-                {department.rawDescription && (
-                <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">{t("overview.about")}</h2>
-                  <RichMarkdown
-                     content={department.rawDescription}
-                    className="prose prose-gray dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 prose-p:my-2 prose-headings:my-3"
-                  />
-                </motion.div>
-              )}
-
-              {/* Coordinator */}
-              {department.coordinator && (
-                <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">{t("overview.coordinator")}</h2>
-                  {(() => {
-                    const coordName = typeof department.coordinator === 'string' 
-                      ? department.coordinator 
-                      : department.coordinator.name || 'Unknown';
-                    const coordSlug = department.coordinatorSlug || department.coordinator?.slug;
-                    const coordTitle = department.coordinator?.title;
-                    const personPath = coordSlug ? `/people/${coordSlug}` : null;
-                    
-                    const content = (
-                      <div className={`flex items-center gap-4 ${personPath ? 'cursor-pointer group' : ''}`}>
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                          <FaUsers className="text-2xl text-gray-400" />
-                        </div>
-                        <div>
-                          <p className={`font-semibold text-gray-900 dark:text-white ${personPath ? 'group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors' : ''}`}>
-                            {coordName}
-                          </p>
-                          {coordTitle && (
-                            <p className="text-sm text-muted">{coordTitle}</p>
+              {/* Coordinator card */}
+              {(coordinator || coCoordinator) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {coordinator && (
+                    <motion.div variants={itemVariants} className="card p-6">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary-600 dark:text-accent-400 uppercase tracking-wider mb-4">
+                        <FaUserCog className="w-3.5 h-3.5" />
+                        <span>{DEFAULT_TEXTS["overview.coordinator"] || "Coordinator"}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <img
+                          src={coordinatorImage || "/people/Basic_avatar_image.png"}
+                          alt={coordinator.name || "Coordinator"}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {coordinator.slug ? (
+                              <Link
+                                href={`/people/${encodeURIComponent(coordinator.slug)}`}
+                                className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+                              >
+                                {coordinator.name}
+                              </Link>
+                            ) : (
+                              coordinator.name
+                            )}
+                          </h3>
+                          {coordinator.title && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {coordinator.title}
+                            </p>
                           )}
                         </div>
                       </div>
-                    );
-                    
-                    return personPath ? (
-                      <Link href={personPath}>
-                        {content}
-                      </Link>
-                    ) : content;
-                  })()}
+                    </motion.div>
+                  )}
+
+                  {coCoordinator && (
+                    <motion.div variants={itemVariants} className="card p-6">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary-600 dark:text-accent-400 uppercase tracking-wider mb-4">
+                        <FaUserCog className="w-3.5 h-3.5" />
+                        <span>{DEFAULT_TEXTS["overview.coCoordinator"] || "Co-Coordinator"}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <img
+                          src={coCoordinatorImage || "/people/Basic_avatar_image.png"}
+                          alt={coCoordinator.name || "Co-Coordinator"}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {coCoordinator.slug ? (
+                              <Link
+                                href={`/people/${encodeURIComponent(coCoordinator.slug)}`}
+                                className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+                              >
+                                {coCoordinator.name}
+                              </Link>
+                             ) : (
+                              coCoordinator.name
+                            )}
+                          </h3>
+                          {coCoordinator.title && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {coCoordinator.title}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+              {/* Description */}
+              {department.description && (
+                <motion.div variants={itemVariants} className="card p-6">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    {DEFAULT_TEXTS["overview.about"]}
+                  </h2>
+                  <RichMarkdown content={department.description} />
                 </motion.div>
               )}
 
-              {/* Contact links */}
-              {department.contactLinks && department.contactLinks.length > 0 && (
+              {/* Contact info */}
+              {(department.email || department.phone || department.location) && (
                 <motion.div variants={itemVariants} className="card p-6">
-                  <h2 className="heading-3 heading-accent mb-4">{t("overview.contact")}</h2>
-                  <div className="flex flex-wrap gap-3">
-                    {department.contactLinks.map((link, idx) => (
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                    {DEFAULT_TEXTS["overview.contact"]}
+                  </h2>
+                  <div className="flex flex-wrap gap-6 text-sm">
+                    {department.email && (
                       <a
-                        key={idx}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-secondary btn-sm inline-flex items-center gap-2"
+                        href={`mailto:${department.email}`}
+                        className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
                       >
-                        {link.label?.includes('mail') ? <FaEnvelope /> : <FaGlobe />}
-                        {link.label || link.url}
+                        <FaEnvelope className="w-4 h-4 text-gray-400" />
+                        <span>{department.email}</span>
                       </a>
-                    ))}
+                    )}
+                    {department.location && (
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                        <FaGlobe className="w-4 h-4 text-gray-400" />
+                        <span>{department.location}</span>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -455,7 +353,7 @@ export default function DepartmentDetailClient({
               exit={{ opacity: 0 }}
               className="space-y-8"
             >
-              {/* ── Teams ──────────────────────────────────── */}
+              {/* ── Teams ────────────────────────────────────── */}
               {teams.length > 0 && (
                 <div>
                   <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
@@ -521,28 +419,50 @@ export default function DepartmentDetailClient({
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
+              className="space-y-4"
             >
               {projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {projects.map((project, idx) => (
+                  {projects.map((p, i) => (
                     <motion.div
-                      key={project.slug || idx}
+                      key={p.slug || i}
                       variants={itemVariants}
-                      className="card card-hover p-5"
+                      className="card card-hover p-5 flex flex-col justify-between"
                     >
-                      <Link 
-                        href={`/research/projects/${project.slug}`}
-                        className="block group"
-                      >
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
-                          {project.title}
-                        </h3>
-                        {project.lead && (
-                          <p className="text-sm text-muted mt-2">
-                            {t("projects.lead")} {project.lead}
+                      <div>
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                            {p.slug ? (
+                              <Link
+                                href={`/research/projects/${encodeURIComponent(p.slug)}`}
+                                className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+                              >
+                                {p.title}
+                              </Link>
+                            ) : (
+                              p.title
+                            )}
+                          </h3>
+                        </div>
+                        {p.abstract && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
+                            {p.abstract}
                           </p>
                         )}
-                      </Link>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 pt-3 border-t border-gray-100 dark:border-gray-800">
+                        {p.lead && (
+                          <span>
+                            {DEFAULT_TEXTS["projects.lead"]} {p.lead.name}
+                          </span>
+                        )}
+                        {(p.startDate || p.endDate) && (
+                          <span>
+                            {p.startDate ? new Date(p.startDate).getFullYear() : ""}
+                            {p.endDate ? ` – ${new Date(p.endDate).getFullYear()}` : " – Present"}
+                          </span>
+                        )}
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -561,38 +481,45 @@ export default function DepartmentDetailClient({
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
+              className="space-y-4"
             >
               {publications.length > 0 ? (
-                <div className="space-y-4">
-                  {publications.map((pub, idx) => (
+                <div className="space-y-3">
+                  {publications.map((pub, i) => (
                     <motion.div
-                      key={pub.id || idx}
+                      key={pub.slug || i}
                       variants={itemVariants}
-                      className="card p-5"
+                      className="card p-4 hover:shadow-md transition-shadow"
                     >
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
-                        {pub.doi ? (
-                          <Link 
-                            href={`https://doi.org/${pub.doi}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
+                        {pub.slug ? (
+                          <Link
+                            href={`/research/publications/${encodeURIComponent(pub.slug)}`}
                             className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
                           >
                             {pub.title}
                           </Link>
-                        ) : pub.title}
+                        ) : (
+                          pub.title
+                        )}
                       </h3>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {pub.year && <span className="badge-primary">{pub.year}</span>}
-                        {pub.kind && <span className="badge-gray">{pub.kind}</span>}
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                        {pub.authors && (
+                          <span>
+                            {Array.isArray(pub.authors)
+                              ? pub.authors.map((a) => (typeof a === "object" ? a?.name : a)).filter(Boolean).join(", ")
+                              : typeof pub.authors === "string"
+                              ? pub.authors
+                              : ""}
+                          </span>
+                        )}
+                        {pub.year && <span>• {pub.year}</span>}
+                        {pub.type && (
+                          <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded">
+                            {pub.type}
+                          </span>
+                        )}
                       </div>
-                      {pub.authors && pub.authors.length > 0 && (
-                        <p className="text-sm text-muted mt-2">
-                          {Array.isArray(pub.authors) 
-                            ? pub.authors.map(a => typeof a === 'string' ? a : a.name).join(", ")
-                            : pub.authors}
-                        </p>
-                      )}
                     </motion.div>
                   ))}
                 </div>

@@ -14,7 +14,9 @@ import {
   PERSON_TYPE_FILTERS, 
   getSingleType,
   getPeopleGraphData, 
-  getTeamsGraphData 
+  getTeamsGraphData,
+  getTeams,
+  transformTeamData
 } from "@/lib/strapi";
 import { attachScholarCitationCounts } from "@/lib/googleScholar";
 import { buildGraph } from "./graphModel";
@@ -58,7 +60,8 @@ export default async function PeoplePage() {
       alumniData, 
       pageData,
       graphPeopleData,
-      rawTeams
+      rawTeams,
+      allTeamsRaw
     ] = await Promise.all([
       getStaff({ types: PERSON_TYPE_FILTERS.staff }),
       getStaff({ types: PERSON_TYPE_FILTERS.researchers }),
@@ -69,6 +72,7 @@ export default async function PeoplePage() {
       getSingleType("people-page", locale),
       getPeopleGraphData(),
       getTeamsGraphData(),
+      getTeams(),
     ]);
 
     const staff = transformStaffData(staffData);
@@ -80,6 +84,10 @@ export default async function PeoplePage() {
 
     const enrichedResearchers = await attachScholarCitationCounts(researchers);
     const enrichedGraphPeople = await attachScholarCitationCounts(graphPeopleData);
+
+    const allTeams = transformTeamData(allTeamsRaw);
+    const activeTeams = allTeams.filter((t) => !t.isArchived);
+    const archivedTeams = allTeams.filter((t) => t.isArchived);
 
     const { nodes, links, departmentColors } = buildGraph(enrichedGraphPeople, normalizeTeams(rawTeams));
 
@@ -93,6 +101,8 @@ export default async function PeoplePage() {
         students={students}
         external={external}
         alumni={alumni}
+        teams={activeTeams}
+        archivedTeams={archivedTeams}
         pageData={pageData}
         graphNodes={nodes}
         graphLinks={links}

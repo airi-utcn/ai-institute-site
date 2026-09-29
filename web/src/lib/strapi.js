@@ -1541,8 +1541,8 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
         contactLinks: {},
         body: {},
         heroImage: {},
-        coordinator: PERSON_FLAT_POPULATE,
-        coCoordinator: PERSON_FLAT_POPULATE,
+        coordinator: PERSON_WITH_IMAGE_POPULATE,
+        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
       },
     };
     
@@ -1589,8 +1589,8 @@ export async function getDepartments(options = {}) {
         contactLinks: {},
         body: {},
         heroImage: {},
-        coordinator: PERSON_FLAT_POPULATE,
-        coCoordinator: PERSON_FLAT_POPULATE,
+        coordinator: PERSON_WITH_IMAGE_POPULATE,
+        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
       },
     };
 
@@ -2659,14 +2659,20 @@ export function transformDepartmentData(strapiDepartments) {
     const coordinatorData = coordinatorEntry?.attributes ?? coordinatorEntry ?? {};
     const coCoordinatorData = coCoordinatorEntry?.attributes ?? coCoordinatorEntry ?? {};
 
-    const coordinator =
-      `${coordinatorData.firstName || ''} ${coordinatorData.lastName || ''}`.trim() ||
-      (typeof attributes.coordinator === 'string' ? attributes.coordinator : '') ||
-      '';
-    const coCoordinator =
-      `${coCoordinatorData.firstName || ''} ${coCoordinatorData.lastName || ''}`.trim() ||
-      (typeof attributes.coCoordinator === 'string' ? attributes.coCoordinator : '') ||
-      '';
+    const buildPersonObj = (entry, data, rawFieldValue) => {
+      if (!entry && typeof rawFieldValue === 'string') return { name: rawFieldValue, slug: '', title: '' };
+      if (!entry && !data.firstName && !data.lastName) return null;
+      return {
+        id: entry?.id ?? null,
+        slug: data.slug || '',
+        name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || '',
+        title: data.title || '',
+        image: resolveMediaUrl(data.portrait),
+      };
+    };
+
+    const coordinator = buildPersonObj(coordinatorEntry, coordinatorData, attributes.coordinator);
+    const coCoordinator = buildPersonObj(coCoordinatorEntry, coCoordinatorData, attributes.coCoordinator);
 
     const elements = normalizeFocusItems(attributes.focusItems);
     const contactLinks = Array.isArray(attributes.contactLinks)

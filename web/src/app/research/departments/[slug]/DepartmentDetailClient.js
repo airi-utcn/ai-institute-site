@@ -28,6 +28,7 @@ const DEFAULT_TEXTS = {
   "tabs.publications": "Publications",
   "overview.about": "About",
   "overview.coordinator": "Coordinator",
+  "overview.coCoordinator": "Co-Coordinator",
   "overview.contact": "Contact",
   "members.teams": "Teams",
   "members.member": "member",
@@ -130,7 +131,10 @@ export default function DepartmentDetailClient({
   }
 
   const coordinator = department.coordinator;
-  const coordinatorImage = coordinator?.slug ? staffLookup[coordinator.slug]?.image : null;
+  const coordinatorImage = coordinator?.image || (coordinator?.slug ? staffLookup[coordinator.slug]?.image : null);
+  
+  const coCoordinator = department.coCoordinator;
+  const coCoordinatorImage = coCoordinator?.image || (coCoordinator?.slug ? staffLookup[coCoordinator.slug]?.image : null);
 
   return (
     <div className="page-container">
@@ -228,39 +232,78 @@ export default function DepartmentDetailClient({
               className="space-y-8"
             >
               {/* Coordinator card */}
-              {coordinator && (
-                <motion.div variants={itemVariants} className="card p-6">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-primary-600 dark:text-accent-400 uppercase tracking-wider mb-4">
-                    <FaUserCog className="w-3.5 h-3.5" />
-                    <span>{DEFAULT_TEXTS["overview.coordinator"]}</span>
-                  </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <img
-                      src={coordinatorImage || "/people/Basic_avatar_image.png"}
-                      alt={coordinator.name || "Coordinator"}
-                      className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                        {coordinator.slug ? (
-                          <Link
-                            href={`/people/${encodeURIComponent(coordinator.slug)}`}
-                            className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
-                          >
-                            {coordinator.name}
-                          </Link>
-                        ) : (
-                          coordinator.name
-                        )}
-                      </h3>
-                      {coordinator.title && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {coordinator.title}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
+              {(coordinator || coCoordinator) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {coordinator && (
+                    <motion.div variants={itemVariants} className="card p-6">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary-600 dark:text-accent-400 uppercase tracking-wider mb-4">
+                        <FaUserCog className="w-3.5 h-3.5" />
+                        <span>{DEFAULT_TEXTS["overview.coordinator"] || "Coordinator"}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <img
+                          src={coordinatorImage || "/people/Basic_avatar_image.png"}
+                          alt={coordinator.name || "Coordinator"}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {coordinator.slug ? (
+                              <Link
+                                href={`/people/${encodeURIComponent(coordinator.slug)}`}
+                                className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+                              >
+                                {coordinator.name}
+                              </Link>
+                            ) : (
+                              coordinator.name
+                            )}
+                          </h3>
+                          {coordinator.title && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {coordinator.title}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {coCoordinator && (
+                    <motion.div variants={itemVariants} className="card p-6">
+                      <div className="flex items-center gap-2 text-xs font-semibold text-primary-600 dark:text-accent-400 uppercase tracking-wider mb-4">
+                        <FaUserCog className="w-3.5 h-3.5" />
+                        <span>{DEFAULT_TEXTS["overview.coCoordinator"] || "Co-Coordinator"}</span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <img
+                          src={coCoordinatorImage || "/people/Basic_avatar_image.png"}
+                          alt={coCoordinator.name || "Co-Coordinator"}
+                          className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                            {coCoordinator.slug ? (
+                              <Link
+                                href={`/people/${encodeURIComponent(coCoordinator.slug)}`}
+                                className="hover:text-primary-600 dark:hover:text-accent-400 transition-colors"
+                              >
+                                {coCoordinator.name}
+                              </Link>
+                             ) : (
+                              coCoordinator.name
+                            )}
+                          </h3>
+                          {coCoordinator.title && (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {coCoordinator.title}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
               )}
 
               {/* Description */}

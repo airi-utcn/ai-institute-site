@@ -1,8 +1,19 @@
-import { getDepartments, getDepartmentTeams, getProjects, getPublications, getStaff, getSingleType, transformDepartmentData, transformProjectData, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { 
+  getDepartments, 
+  getDepartmentTeams, 
+  getProjects, 
+  getPublications, 
+  getStaff, 
+  getSingleType, 
+  transformDepartmentData, 
+  transformProjectData, 
+  transformPublicationData, 
+  transformStaffData,
+  transformTeamData,
+} from "@/lib/strapi";
 import DepartmentDetailClient from "./DepartmentDetailClient";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
-import { getProjectPhase } from "@/lib/projectPhase";
 
 // Generate static paths for all departments
 export async function generateStaticParams() {
@@ -55,37 +66,7 @@ export default async function DepartmentPage({ params }) {
   const projects = transformProjectData(projectsData);
   const publications = transformPublicationData(publicationsData);
   const staff = transformStaffData(staffData);
-
-  // Normalize teams
-  const toArr = (v) => (Array.isArray(v) ? v : v?.data ? v.data : []);
-  const teams = toArr(rawTeams).map((raw) => {
-    const t = raw.attributes ?? raw;
-    return {
-      id: raw.id,
-      name: t.name || '',
-      description: t.description || '',
-      members: toArr(t.members).map((m) => {
-        const p = m.person?.attributes ?? m.person ?? {};
-        return {
-          role: m.role || '',
-          isLead: !!m.isLead,
-          person: {
-            name: p.name || '',
-            slug: p.slug || '',
-            title: p.title || '',
-          },
-        };
-      }),
-      projects: toArr(t.projects?.data ?? t.projects).map((proj) => {
-        const pr = proj.attributes ?? proj;
-        const phase = getProjectPhase(pr.startDate, pr.endDate).status;
-        return {
-          title: pr.title || '',
-          phase: phase === 'unknown' ? '' : phase,
-        };
-      }),
-    };
-  });
+  const teams = transformTeamData(rawTeams);
 
   return (
     <DepartmentDetailClient

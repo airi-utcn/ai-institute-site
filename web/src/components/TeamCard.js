@@ -1,11 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { FaBuilding, FaProjectDiagram, FaUsers } from "react-icons/fa";
 import ExpandableMarkdown from "@/components/shared/ExpandableMarkdown";
 import PersonChip from "@/components/shared/PersonChip";
-import { itemVariants } from "@/lib/animations";
 
 const PHASE_STYLES = {
   ongoing: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300",
@@ -46,8 +44,7 @@ export default function TeamCard({
   };
 
   return (
-    <motion.div
-      variants={itemVariants}
+    <div
       className="card card-hover flex flex-col justify-between p-5 h-full relative overflow-hidden"
     >
       <div>
@@ -170,6 +167,6 @@ export default function TeamCard({
           </div>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

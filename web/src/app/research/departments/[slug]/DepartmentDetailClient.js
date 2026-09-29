@@ -460,7 +460,15 @@ export default function DepartmentDetailClient({
                         )}
                       </h3>
                       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                        {pub.authors && <span>{pub.authors}</span>}
+                        {pub.authors && (
+                          <span>
+                            {Array.isArray(pub.authors)
+                              ? pub.authors.map((a) => (typeof a === "object" ? a?.name : a)).filter(Boolean).join(", ")
+                              : typeof pub.authors === "string"
+                              ? pub.authors
+                              : ""}
+                          </span>
+                        )}
                         {pub.year && <span>• {pub.year}</span>}
                         {pub.type && (
                           <span className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded">

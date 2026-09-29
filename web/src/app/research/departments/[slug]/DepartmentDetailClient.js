@@ -99,9 +99,14 @@ export default function DepartmentDetailClient({
     for (const team of teams) {
       for (const m of team.members || []) {
         if (m.person?.slug) slugs.add(m.person.slug);
+        else if (m.person?.name) slugs.add(m.person.name);
       }
     }
-    const independent = staff.filter((p) => p.slug && !slugs.has(p.slug));
+    const independent = staff.filter((p) => {
+      if (p.slug && slugs.has(p.slug)) return false;
+      if (p.name && slugs.has(p.name)) return false;
+      return true;
+    });
     return { teamMemberSlugs: slugs, independentStaff: independent };
   }, [teams, staff]);
 
@@ -157,7 +162,7 @@ export default function DepartmentDetailClient({
             <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm font-medium">
                 <FaUsers className="w-3.5 h-3.5" />
-                <span>{staff.length} {DEFAULT_TEXTS.membersCount}</span>
+                <span>{teamMemberSlugs.size + independentStaff.length} {DEFAULT_TEXTS.membersCount}</span>
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-sm font-medium">
                 <FaFlask className="w-3.5 h-3.5" />
@@ -176,7 +181,7 @@ export default function DepartmentDetailClient({
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               let count = null;
-              if (tab.id === "members") count = staff.length;
+              if (tab.id === "members") count = teamMemberSlugs.size + independentStaff.length;
               if (tab.id === "projects") count = projects.length;
               if (tab.id === "publications") count = publications.length;
 

@@ -583,7 +583,24 @@ export default function ProjectDetails({ project, pageData }) {
 
   const heroImageUrl = project.heroImage || null;
   const teams = project.teams || [];
-  const contributors = project.contributors || [];
+  
+  // Track who is already in a team
+  const teamMemberIdentifiers = new Set();
+  teams.forEach(team => {
+    (team.members || []).forEach(m => {
+      if (m.person) {
+        if (m.person.slug) teamMemberIdentifiers.add(m.person.slug);
+        else if (m.person.name) teamMemberIdentifiers.add(m.person.name);
+      }
+    });
+  });
+
+  // Filter individual contributors to exclude those in teams
+  const contributors = (project.contributors || []).filter(c => {
+    if (c.slug && teamMemberIdentifiers.has(c.slug)) return false;
+    if (c.name && teamMemberIdentifiers.has(c.name)) return false;
+    return true;
+  });
   const themes = (project.themesData && project.themesData.length > 0)
     ? project.themesData
     : (project.themes || []).map((name) => ({ name, slug: '' }));
@@ -606,7 +623,7 @@ export default function ProjectDetails({ project, pageData }) {
     return media.url || media.src || '';
   };
 
-  const peopleCount = teams.length + contributors.length;
+  const peopleCount = teamMemberIdentifiers.size + contributors.length;
   const resultsCount = project.results?.length || 0;
   const hasResearch = project.researchContent && project.researchContent.length > 0;
   const hasContact = project.contactInfo?.contactEntries?.length > 0 || project.contactInfo?.generalInfo;

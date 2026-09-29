@@ -69,16 +69,12 @@ export default function DepartmentDetailClient({
   const [activeTab, setActiveTab] = useState("overview");
 
   const t = (key) => {
-    if (key === "backToDepartments") return pageData?.depBackToDepartments || DEFAULT_TEXTS.backToDepartments;
-    if (key === "notFound") return pageData?.depNotFound || DEFAULT_TEXTS.notFound;
-    if (key === "tabs.overview") return pageData?.depTabOverview || DEFAULT_TEXTS["tabs.overview"];
-    if (key === "tabs.members") return pageData?.depTabMembers || DEFAULT_TEXTS["tabs.members"];
-    if (key === "tabs.projects") return pageData?.depTabProjects || DEFAULT_TEXTS["tabs.projects"];
-    if (key === "tabs.publications") return pageData?.depTabPublications || DEFAULT_TEXTS["tabs.publications"];
-    if (key === "members.noMembers") return pageData?.depNoMembers || DEFAULT_TEXTS["members.noMembers"];
-    if (key === "projects.noProjects") return pageData?.depNoProjects || DEFAULT_TEXTS["projects.noProjects"];
-    if (key === "publications.noPublications") return pageData?.depNoPublications || DEFAULT_TEXTS["publications.noPublications"];
-    return DEFAULT_TEXTS[key] || key;
+    let val = DEFAULT_TEXTS[key] ?? key;
+    const pageDataKey = key.replace(/\.([a-z])/g, (g) => g[1].toUpperCase()).replace(".", "");
+    if (pageData && pageData[pageDataKey]) {
+      val = pageData[pageDataKey];
+    }
+    return val;
   };
 
   const TABS = [

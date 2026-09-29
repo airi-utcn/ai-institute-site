@@ -553,10 +553,17 @@ function NewsCard({ item, t }) {
   );
 }
 
-export default function ProjectDetails({ project }) {
+export default function ProjectDetails({ project, pageData }) {
   const [activeTab, setActiveTab] = useState('about');
   const t = (key, params) => {
     let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
+    
+    // Map dot notation from defaults to camelCase pageData keys
+    const pageDataKey = key.replace(/\.([a-z])/g, (g) => g[1].toUpperCase()).replace(".", "");
+    if (pageData && pageData[pageDataKey]) {
+      val = pageData[pageDataKey];
+    }
+
     if (params && typeof params === "object") {
       Object.entries(params).forEach(([k, v]) => {
         val = val.replace(`{${k}}`, v);

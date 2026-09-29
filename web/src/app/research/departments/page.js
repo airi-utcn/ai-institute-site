@@ -26,7 +26,7 @@ export default async function ResearchPage() {
     getDepartments({ slim: true, locale }),
     getProjects({ locale }),
     getPublications({ locale }),
-    getSingleType("research-page", locale),
+    getSingleType("departments-page", locale),
   ]);
 
   const staff = transformStaffData(staffData);

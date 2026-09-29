@@ -108,26 +108,26 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
 
   const t = (key, params) => {
     switch (key) {
-      case "title": return isArchive ? (pageData?.projectsArchiveTitle || "Archived Projects") : (pageData?.projectsTitle || "Projects");
-      case "subtitle": return isArchive ? (pageData?.projectsArchiveSubtitle || "Explore past research projects.") : (pageData?.projectsSubtitle || "Explore our research projects across various domains");
-      case "searchPlaceholder": return pageData?.projectsSearchPlaceholder || "Search projects by title, lead, department...";
+      case "title": return isArchive ? (pageData?.archiveTitle || "Archived Projects") : (pageData?.title || "Projects");
+      case "subtitle": return isArchive ? (pageData?.archiveSubtitle || "Explore past research projects.") : (pageData?.subtitle || "Explore our research projects across various domains");
+      case "searchPlaceholder": return pageData?.searchPlaceholder || "Search projects by title, lead, department...";
       case "filters": return "Filters";
       case "region": return "Region";
-      case "allRegions": return pageData?.projectsAllRegions || "All regions";
+      case "allRegions": return pageData?.allRegions || "All regions";
       case "department": return "Department";
-      case "allDepartments": return pageData?.projectsAllDepartments || "All departments";
+      case "allDepartments": return pageData?.allDepartments || "All departments";
       case "lead": return "Lead";
-      case "allLeads": return pageData?.projectsAllLeads || "All leads";
+      case "allLeads": return pageData?.allLeads || "All leads";
       case "member": return "Member";
-      case "allMembers": return pageData?.projectsAllMembers || "All members";
+      case "allMembers": return pageData?.allMembers || "All members";
       case "theme": return "Theme";
       case "filterByTheme": return "Filter by theme...";
-      case "projectsFound": return (pageData?.projectsResultsSingular || "Found {count} project").replace("{count}", params?.count ?? 0);
-      case "projectsFoundPlural": return (pageData?.projectsResultsPlural || "Found {count} projects").replace("{count}", params?.count ?? 0);
+      case "projectsFound": return (pageData?.resultsSingular || "Found {count} project").replace("{count}", params?.count ?? 0);
+      case "projectsFoundPlural": return (pageData?.resultsPlural || "Found {count} projects").replace("{count}", params?.count ?? 0);
       case "clearAllFilters": return "Clear all filters";
       case "leadLabel": return "Lead:";
       case "dept": return "Dept:";
-      case "noProjects": return pageData?.projectsEmptyState || "No projects match your search criteria.";
+      case "noProjects": return pageData?.emptyState || "No projects match your search criteria.";
       case "clearFilters": return "Clear filters";
       default: return key;
     }

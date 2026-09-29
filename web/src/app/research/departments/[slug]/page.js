@@ -56,7 +56,7 @@ export default async function DepartmentPage({ params }) {
     getPublications({ domainSlug: slug, locale }),
     getStaff({ departmentSlug: slug }),
     getDepartmentTeams(slug, locale),
-    getSingleType("research-page", locale),
+    getSingleType("departments-page", locale),
   ]);
 
   const departments = transformDepartmentData(departmentData);

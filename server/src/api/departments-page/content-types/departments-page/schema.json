@@ -1,0 +1,307 @@
+{
+  "kind": "singleType",
+  "collectionName": "departments_pages",
+  "info": {
+    "singularName": "departments-page",
+    "pluralName": "departments-pages",
+    "displayName": "Departments Page",
+    "description": "Content for departments page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "typeResearch": {
+      "type": "string",
+      "default": "Research Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "typeNetworks": {
+      "type": "string",
+      "default": "Research Networks",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "typeSupport": {
+      "type": "string",
+      "default": "Support Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "typeOther": {
+      "type": "string",
+      "default": "Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "backToDepartments": {
+      "type": "string",
+      "default": "Back to Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "notFound": {
+      "type": "string",
+      "default": "Department not found.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersCount": {
+      "type": "string",
+      "default": "Members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsCount": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicationsCount": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewAbout": {
+      "type": "string",
+      "default": "About",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewCoordinator": {
+      "type": "string",
+      "default": "Coordinator",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewContact": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersTeams": {
+      "type": "string",
+      "default": "Teams",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersMember": {
+      "type": "string",
+      "default": "member",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersMembersPlural": {
+      "type": "string",
+      "default": "members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersIndependentResearchers": {
+      "type": "string",
+      "default": "Independent Researchers",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersNoMembers": {
+      "type": "string",
+      "default": "No members found for this department.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "membersProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsLead": {
+      "type": "string",
+      "default": "Lead:",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsNoProjects": {
+      "type": "string",
+      "default": "No projects found for this department.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicationsNoPublications": {
+      "type": "string",
+      "default": "No publications found for this department.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesCompleted": {
+      "type": "string",
+      "default": "Completed",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesPlanned": {
+      "type": "string",
+      "default": "Planned",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesOngoing": {
+      "type": "string",
+      "default": "Ongoing",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesEnded": {
+      "type": "string",
+      "default": "Ended",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesArchived": {
+      "type": "string",
+      "default": "Archived",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsOverview": {
+      "type": "string",
+      "default": "Overview",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsMembers": {
+      "type": "string",
+      "default": "People & Teams",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsPublications": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,819 @@
+{
+  "kind": "singleType",
+  "collectionName": "projects_pages",
+  "info": {
+    "singularName": "projects-page",
+    "pluralName": "projects-pages",
+    "displayName": "Projects Page",
+    "description": "Content for projects page"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search projects...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allRegions": {
+      "type": "string",
+      "default": "All Regions",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allDepartments": {
+      "type": "string",
+      "default": "All Departments",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allLeads": {
+      "type": "string",
+      "default": "All Project Leads",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allMembers": {
+      "type": "string",
+      "default": "All Project Members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsSingular": {
+      "type": "string",
+      "default": "Found {count} project",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsPlural": {
+      "type": "string",
+      "default": "Found {count} projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "emptyState": {
+      "type": "string",
+      "default": "No projects match your search criteria.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "notFound": {
+      "type": "string",
+      "default": "Project not found",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "backToProjects": {
+      "type": "string",
+      "default": "Back to Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "region": {
+      "type": "string",
+      "default": "Region",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phase": {
+      "type": "string",
+      "default": "Phase",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partners": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partnerCount": {
+      "type": "string",
+      "default": "{count} partner",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "partnerCountPlural": {
+      "type": "string",
+      "default": "{count} partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "officialWebsite": {
+      "type": "string",
+      "default": "Official Website",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "documentation": {
+      "type": "string",
+      "default": "Documentation",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "start": {
+      "type": "string",
+      "default": "Start",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "end": {
+      "type": "string",
+      "default": "End",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phaseNoDate": {
+      "type": "string",
+      "default": "Not set",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phaseOpenEnded": {
+      "type": "string",
+      "default": "No end date",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phaseProgress": {
+      "type": "string",
+      "default": "Timeline progress",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timeline": {
+      "type": "string",
+      "default": "Project Journey & Timeline",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "kickoff": {
+      "type": "string",
+      "default": "Project Kickoff",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "kickoffDesc": {
+      "type": "string",
+      "default": "Official launch of project research activities.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "completion": {
+      "type": "string",
+      "default": "Target Completion",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "completionDesc": {
+      "type": "string",
+      "default": "Scheduled delivery of final milestones and objectives.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "completed": {
+      "type": "string",
+      "default": "Completed",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "concluded": {
+      "type": "string",
+      "default": "Project Concluded",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "concludedDesc": {
+      "type": "string",
+      "default": "All project objectives and deliverables achieved.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "upcoming": {
+      "type": "string",
+      "default": "Upcoming",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "inProgress": {
+      "type": "string",
+      "default": "In Progress",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "planned": {
+      "type": "string",
+      "default": "Planned to Start",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "today": {
+      "type": "string",
+      "default": "Today",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "currentPosition": {
+      "type": "string",
+      "default": "Current Position",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "milestonesTracking": {
+      "type": "string",
+      "default": "Tracking project schedule from kickoff to completion.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "continuousOperations": {
+      "type": "string",
+      "default": "Continuous Operations",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "continuousOperationsDesc": {
+      "type": "string",
+      "default": "Active ongoing research with an open-ended delivery roadmap.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timelineEventFallback": {
+      "type": "string",
+      "default": "Project milestone",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noTimeline": {
+      "type": "string",
+      "default": "No timeline events available yet.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timelineStatesPast": {
+      "type": "string",
+      "default": "Completed",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timelineStatesCurrent": {
+      "type": "string",
+      "default": "Current",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "timelineStatesUpcoming": {
+      "type": "string",
+      "default": "Upcoming",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsAbout": {
+      "type": "string",
+      "default": "About",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsTeam": {
+      "type": "string",
+      "default": "Team",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsResearch": {
+      "type": "string",
+      "default": "Research",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsPublications": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsResults": {
+      "type": "string",
+      "default": "Results",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsNews": {
+      "type": "string",
+      "default": "News",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsPartners": {
+      "type": "string",
+      "default": "Partners",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsContact": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsResources": {
+      "type": "string",
+      "default": "Resources",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "researchDomains": {
+      "type": "string",
+      "default": "Research Domains",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "teams": {
+      "type": "string",
+      "default": "Teams",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "memberCount": {
+      "type": "string",
+      "default": "{count} member",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "memberCountPlural": {
+      "type": "string",
+      "default": "{count} members",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "lead": {
+      "type": "string",
+      "default": "Lead",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noTeamMembers": {
+      "type": "string",
+      "default": "No members listed for this team.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "individualContributors": {
+      "type": "string",
+      "default": "Individual Contributors",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "contributors": {
+      "type": "string",
+      "default": "Contributors",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noPeople": {
+      "type": "string",
+      "default": "No people assigned to this project.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "platform": {
+      "type": "string",
+      "default": "Platform:",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResources": {
+      "type": "string",
+      "default": "No resources available for this project.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicationCount": {
+      "type": "string",
+      "default": "{count} publication",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicationCountPlural": {
+      "type": "string",
+      "default": "{count} publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noPublications": {
+      "type": "string",
+      "default": "No publications available for this project.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "authors": {
+      "type": "string",
+      "default": "Authors:",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "viewDetails": {
+      "type": "string",
+      "default": "View details",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "pdf": {
+      "type": "string",
+      "default": "PDF",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "teamProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResearch": {
+      "type": "string",
+      "default": "No research content available",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noResults": {
+      "type": "string",
+      "default": "No results available",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noNews": {
+      "type": "string",
+      "default": "No news linked to this project yet.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openArticle": {
+      "type": "string",
+      "default": "Open article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsCategoriesAnnouncement": {
+      "type": "string",
+      "default": "Announcement",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsCategoriesConstruction": {
+      "type": "string",
+      "default": "Construction",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsCategoriesCollaboration": {
+      "type": "string",
+      "default": "Collaboration",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "newsCategoriesAward": {
+      "type": "string",
+      "default": "Award",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesEnded": {
+      "type": "string",
+      "default": "Ended",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "phasesArchived": {
+      "type": "string",
+      "default": "Archived",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "visitResource": {
+      "type": "string",
+      "default": "Visit Resource",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "viewArticle": {
+      "type": "string",
+      "default": "View Article",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "abstract": {
+      "type": "string",
+      "default": "Abstract",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "archiveTitle": {
+      "type": "string",
+      "default": "Archived Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "archiveSubtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "viewArchivedProjects": {
+      "type": "string",
+      "default": "View Archived Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "viewActiveProjects": {
+      "type": "string",
+      "default": "View Active Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

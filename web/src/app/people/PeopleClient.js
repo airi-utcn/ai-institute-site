@@ -260,6 +260,14 @@ export default function PeopleClient({
     });
   }, [staff, researchers, visiting, students, external, alumni]);
 
+  const staffLookup = useMemo(() => {
+    const map = {};
+    for (const p of allPeopleFlat) {
+      if (p.slug) map[p.slug] = p;
+    }
+    return map;
+  }, [allPeopleFlat]);
+
   const filterOptions = useMemo(() => {
     const counts = {};
     allPeopleFlat.forEach((p) => {
@@ -512,6 +520,7 @@ export default function PeopleClient({
                     <TeamCard
                       key={team.slug || team.id || idx}
                       team={team}
+                      staffLookup={staffLookup}
                       t={(k) => {
                         if (k === 'lead') return 'Team Lead';
                         if (k === 'members') return 'Members';

@@ -568,7 +568,7 @@ export async function getPersonTeams(slug) {
       populate: {
         department: DEPARTMENT_POPULATE,
         members: {
-          populate: { person: PERSON_FLAT_POPULATE },
+          populate: { person: PERSON_WITH_IMAGE_POPULATE },
         },
         projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
       },
@@ -594,7 +594,7 @@ export async function getTeams(options = {}) {
       populate: {
         department: DEPARTMENT_POPULATE,
         members: {
-          populate: { person: PERSON_FLAT_POPULATE },
+          populate: { person: PERSON_WITH_IMAGE_POPULATE },
         },
         projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
       },
@@ -615,8 +615,9 @@ export async function getDepartmentTeams(departmentSlug) {
       filters: { department: { slug: { $eq: departmentSlug } } },
       sort: 'name:asc',
       populate: {
+        department: DEPARTMENT_POPULATE,
         members: {
-          populate: { person: PERSON_FLAT_POPULATE },
+          populate: { person: PERSON_WITH_IMAGE_POPULATE },
         },
         projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
       },

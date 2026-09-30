@@ -19,6 +19,7 @@
   "dependencies": {
     "@strapi/plugin-cloud": "^5.31.3",
     "@strapi/plugin-users-permissions": "^5.31.3",
+    "@strapi/provider-email-nodemailer": "^5.55.1",
     "@strapi/strapi": "^5.31.3",
     "better-sqlite3": "^12.5.0",
     "fs-extra": "^10.0.0",

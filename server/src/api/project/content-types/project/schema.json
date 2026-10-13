@@ -2,9 +2,9 @@
   "kind": "collectionType",
   "collectionName": "projects",
   "info": {
-    "singularName": "project",
+    "displayName": "Project",
     "pluralName": "projects",
-    "displayName": "Project"
+    "singularName": "project"
   },
   "options": {
     "draftAndPublish": true
@@ -139,6 +139,11 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::resource.resource"
+    },
+    "individualContributors": {
+      "type": "component",
+      "component": "project.team-member",
+      "repeatable": true
     },
     "contributors": {
       "type": "relation",

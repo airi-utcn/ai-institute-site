@@ -11,6 +11,7 @@
     "develop": "strapi develop",
     "seed:content": "node ./scripts/migrate-json.js",
     "migrate:i18n": "node ./scripts/migrate-i18n.js",
+    "migrate:contributors": "node ./scripts/migrate-contributors.js",
     "start": "strapi start",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",

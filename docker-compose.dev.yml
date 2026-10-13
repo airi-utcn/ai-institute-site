@@ -63,6 +63,8 @@ services:
       - "1337:1337"
     volumes:
       - ./server/public/uploads:/app/public/uploads
+      # Adding another volume so Strapi can write schema changes to the codebase
+      - ./server/src:/app/src
     depends_on:
       postgres:
         condition: service_healthy
@@ -70,11 +72,11 @@ services:
       watch:
         # Sync application source into the container — strapi develop detects the
         # change and hot-reloads without a container restart.
-        - action: sync
-          path: ./server/src
-          target: /app/src
-          ignore:
-            - node_modules/
+        # - action: sync
+        #   path: ./server/src
+        #   target: /app/src
+        #   ignore:
+        #     - node_modules/
         - action: sync
           path: ./server/config
           target: /app/config

@@ -1,7 +1,7 @@
 {
   "collectionName": "components_project_team_members",
   "info": {
-    "displayName": "Team member",
+    "displayName": "Individual Contributor",
     "description": "Link a person to a project role",
     "icon": "users"
   },
@@ -14,16 +14,12 @@
     },
     "role": {
       "type": "string",
-      "required": true,
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
-      }
-    },
-    "isLead": {
-      "type": "boolean",
-      "default": false
+      },
+      "required": false
     }
   }
 }

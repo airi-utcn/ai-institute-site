@@ -48,6 +48,22 @@ const parseSearchTerms = (query) =>
     .split(/\s+/)
     .filter(Boolean);
 
+const normalizeProjects = (projects) => {
+  const list = Array.isArray(projects) ? projects : [];
+  const seen = new Set();
+  const result = [];
+  for (const proj of list) {
+    if (!proj) continue;
+    const title = (typeof proj === "string" ? proj : proj.title || "").trim();
+    const slug = (typeof proj === "string" ? slugify(proj) : proj.slug || slugify(title)).trim();
+    const key = slug || title;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push({ slug: key, title: title || key });
+  }
+  return result;
+};
+
 const normalizePublication = (p, bySlugMap) => {
   const slug = toPublicationSlug({ slug: p.slug, title: p.title, year: p.year });
 
@@ -73,7 +89,7 @@ const normalizePublication = (p, bySlugMap) => {
     description: p.description || "",
     authors: authorsToNames(p.authors, bySlugMap),
     pdfFile: p.pdfFile || null,
-    projects: Array.isArray(p.projects) ? p.projects : [],
+    projects: normalizeProjects(p.projects),
     themes: themeNames,
     themeSlugs,
   };
@@ -95,11 +111,14 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       case "allDepartments": return "All departments";
       case "type": return "Type";
       case "allTypes": return pageData?.publicationsAllTypes || "All types";
+      case "project": return "Project";
+      case "allProjects": return "All projects";
       case "filterByTheme": return "Filter by theme...";
       case "publicationsFound": return (pageData?.publicationsResultsSingular || "Found {count} publication").replace("{count}", params?.count ?? 0);
       case "publicationsFoundPlural": return (pageData?.publicationsResultsPlural || "Found {count} publications").replace("{count}", params?.count ?? 0);
       case "clearAllFilters": return "Clear all filters";
       case "authorsLabel": return "Authors:";
+      case "projectsLabel": return "Projects:";
       case "viewDetails": return "View Details";
       case "openPdf": return "PDF";
       case "noPublications": return pageData?.publicationsEmptyState || "No publications found matching your criteria.";
@@ -123,30 +142,26 @@ export default function PublicationsClient({ publications: pubData, staff: staff
   const [domainFilter, setDomainFilter] = useState("");
   const [kindFilter, setKindFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
+  const [projectFilter, setProjectFilter] = useState("");
   const [themeFilter, setThemeFilter] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Read theme from URL params (from themes page)
-  useEffect(() => {
-    const themeParam = searchParams.get("theme");
-    if (themeParam) {
-      setThemeFilter(themeParam);
-      setShowFilters(true);
-    }
-  }, [searchParams]);
-
-  const { yearOptions, authorOptions, domainOptions, kindOptions, sourceOptions } = useMemo(() => {
+  const { yearOptions, authorOptions, domainOptions, kindOptions, sourceOptions, projectOptions } = useMemo(() => {
     const years = new Set();
     const authors = new Set();
     const domains = new Set();
     const kinds = new Set();
     const sources = new Set();
+    const projects = new Map();
     for (const p of pubs) {
       if (p.year) years.add(p.year);
       if (Array.isArray(p.authors)) p.authors.forEach((a) => a && authors.add(a));
       if (p.domain) domains.add(p.domain);
       if (p.kind) kinds.add(p.kind);
       if (p.sourceKind) sources.add(p.sourceKind);
+      p.projects.forEach((proj) => {
+        if (!projects.has(proj.slug)) projects.set(proj.slug, proj.title);
+      });
     }
     return {
       yearOptions: Array.from(years).sort((a, b) => Number(b) - Number(a)),
@@ -154,16 +169,43 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       domainOptions: Array.from(domains).sort((a, b) => a.localeCompare(b)),
       kindOptions: Array.from(kinds).sort((a, b) => a.localeCompare(b)),
       sourceOptions: Array.from(sources),
+      projectOptions: Array.from(projects, ([slug, title]) => ({ slug, title })).sort((a, b) =>
+        a.title.localeCompare(b.title)
+      ),
     };
   }, [pubs]);
+
+  // Read theme / project from URL params (e.g. from themes or project pages)
+  useEffect(() => {
+    const themeParam = searchParams.get("theme");
+    if (themeParam) {
+      setThemeFilter(themeParam);
+      setShowFilters(true);
+    }
+    const projectParam = searchParams.get("project");
+    if (projectParam) {
+      const normalizedParam = projectParam.trim().toLowerCase();
+      const matched = projectOptions.find(
+        (opt) =>
+          opt.slug.toLowerCase() === normalizedParam ||
+          opt.title.toLowerCase() === normalizedParam ||
+          slugify(opt.title) === slugify(projectParam)
+      );
+      setProjectFilter(matched ? matched.slug : projectParam.trim());
+      setShowFilters(true);
+    }
+  }, [searchParams, projectOptions]);
 
   /* filtering */
   const filtered = useMemo(() => {
     const terms = parseSearchTerms(q);
     const normalizedThemeFilter = themeFilter.trim().toLowerCase();
+    const normalizedProjectFilter = projectFilter.trim().toLowerCase();
     return pubs.filter((p) => {
       const searchable = normalizeSearchText(
-        `${p.title} ${p.year} ${p.domain} ${p.kind} ${(p.authors || []).join(" ")}`
+        `${p.title} ${p.year} ${p.domain} ${p.kind} ${(p.authors || []).join(" ")} ${p.projects
+          .map((proj) => proj.title)
+          .join(" ")}`
       );
 
       const inSearch =
@@ -174,17 +216,26 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       const inDomain = !domainFilter || p.domain === domainFilter;
       const inKind = !kindFilter || p.kind === kindFilter;
       const inSource = !sourceFilter || p.sourceKind === sourceFilter;
+      const inProject =
+        !normalizedProjectFilter ||
+        p.projects.some(
+          (proj) =>
+            proj.slug.toLowerCase() === normalizedProjectFilter ||
+            proj.title.toLowerCase() === normalizedProjectFilter ||
+            slugify(proj.title) === slugify(projectFilter)
+        );
       // Theme filter - simple text match on title/domain for now
       const inTheme =
         !normalizedThemeFilter ||
         p.themes?.some((t) => t.toLowerCase().includes(normalizedThemeFilter)) ||
         p.themeSlugs?.some((s) => s.toLowerCase() === normalizedThemeFilter);
 
-      return inSearch && inYear && inAuthor && inDomain && inKind && inSource && inTheme;
+      return inSearch && inYear && inAuthor && inDomain && inKind && inSource && inProject && inTheme;
     });
-  }, [pubs, q, yearFilter, authorFilter, domainFilter, kindFilter, sourceFilter, themeFilter]);
+  }, [pubs, q, yearFilter, authorFilter, domainFilter, kindFilter, sourceFilter, projectFilter, themeFilter]);
 
-  const hasActiveFilters = q || yearFilter || authorFilter || domainFilter || kindFilter || sourceFilter || themeFilter;
+  const hasActiveFilters =
+    q || yearFilter || authorFilter || domainFilter || kindFilter || sourceFilter || projectFilter || themeFilter;
 
   const clearFilters = () => {
     setQ("");
@@ -193,6 +244,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
     setDomainFilter("");
     setKindFilter("");
     setSourceFilter("");
+    setProjectFilter("");
     setThemeFilter("");
   };
 
@@ -262,7 +314,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
               {t("filters")}
               {hasActiveFilters && (
                 <span className="px-1.5 py-0.5 text-xs rounded-full bg-primary-600 text-white">
-                  {[yearFilter, authorFilter, domainFilter, kindFilter, sourceFilter, themeFilter].filter(Boolean).length}
+                  {[yearFilter, authorFilter, domainFilter, kindFilter, sourceFilter, projectFilter, themeFilter].filter(Boolean).length}
                 </span>
               )}
               <FaChevronDown className={`text-xs transition-transform ${showFilters ? "rotate-180" : ""}`} />
@@ -280,7 +332,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                 className="overflow-hidden mb-8"
               >
                 <div className="card p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="label">{t("year")}</label>
                       <select
@@ -319,6 +371,20 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                         <option value="">{t("allDepartments")}</option>
                         {domainOptions.map((d) => (
                           <option key={d} value={d}>{d}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="label">{t("project")}</label>
+                      <select
+                        value={projectFilter}
+                        onChange={(e) => setProjectFilter(e.target.value)}
+                        className="select"
+                      >
+                        <option value="">{t("allProjects")}</option>
+                        {projectOptions.map((proj) => (
+                          <option key={proj.slug} value={proj.slug}>{proj.title}</option>
                         ))}
                       </select>
                     </div>
@@ -434,6 +500,28 @@ export default function PublicationsClient({ publications: pubData, staff: staff
                           <p className="text-sm text-muted mt-3">
                             <span className="font-medium">{t("authorsLabel")}</span>{" "}
                             {p.authors.join(", ")}
+                          </p>
+                        )}
+
+                        {/* Projects */}
+                        {p.projects.length > 0 && (
+                          <p className="text-sm text-muted mt-1">
+                            <span className="font-medium">{t("projectsLabel")}</span>{" "}
+                            {p.projects.map((proj, idx) => (
+                              <span key={proj.slug}>
+                                {idx > 0 && ", "}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setProjectFilter(proj.slug);
+                                    setShowFilters(true);
+                                  }}
+                                  className="text-primary-600 dark:text-accent-400 hover:underline"
+                                >
+                                  {proj.title}
+                                </button>
+                              </span>
+                            ))}
                           </p>
                         )}
 

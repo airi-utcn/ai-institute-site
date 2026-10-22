@@ -1,0 +1,142 @@
+services:
+  # Dedicated SQLite3 container that remains permanently online so the state DB
+  # (/data/state/processed_papers.db) can be queried at any time.
+  sqlite_db:
+    image: alpine:3.20
+    container_name: pdf-ack-sqlite
+    restart: unless-stopped
+    command: >
+      sh -c "apk add --no-cache sqlite &&
+             mkdir -p /data/state &&
+             sqlite3 /data/state/processed_papers.db '
+               PRAGMA journal_mode=WAL;
+               CREATE TABLE IF NOT EXISTS processed_papers (\n                 paper_id TEXT PRIMARY KEY,
+                 pdf_path TEXT NOT NULL DEFAULT \"\",
+                 file_hash TEXT NOT NULL,
+                 status TEXT NOT NULL,
+                 acknowledgment_text TEXT,
+                 confidence_score REAL,
+                 retry_count INTEGER NOT NULL DEFAULT 0,
+                 error_message TEXT,
+                 queued_at REAL NOT NULL DEFAULT 0.0,
+                 completed_at TEXT,
+                 updated_at TEXT NOT NULL
+               );
+             ' &&
+             echo 'SQLite3 state DB initialized at /data/state/processed_papers.db' &&
+             tail -f /dev/null"
+    volumes:
+      - sqlite_state_data:/data/state
+    healthcheck:
+      test: ["CMD-SHELL", "sqlite3 /data/state/processed_papers.db 'SELECT 1;' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: pdf-ack-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "15672:15672"  # RabbitMQ Management UI (http://localhost:15672)
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker_service:
+    build:
+      context: .
+      dockerfile: ./worker_service/Dockerfile
+    container_name: pdf-ack-worker
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+
+      TASKS_QUEUE_NAME: ${TASKS_QUEUE_NAME:-tasks_queue}
+      RESULTS_QUEUE_NAME: ${RESULTS_QUEUE_NAME:-results_queue}
+
+      MODEL_CACHE_DIR: /app/worker_service/.model_cache
+
+      AI_BI_MODEL: ${AI_BI_MODEL:-all-MiniLM-L6-v2}
+      AI_CROSS_MODEL: ${AI_CROSS_MODEL:-cross-encoder/ms-marco-MiniLM-L-6-v2}
+      AI_CONFIDENCE_THRESHOLD: ${AI_CONFIDENCE_THRESHOLD:-0.55}
+      AI_BI_THRESHOLD: ${AI_BI_THRESHOLD:-0.60}
+      AI_CROSS_THRESHOLD: ${AI_CROSS_THRESHOLD:-0.05}
+      AI_TOP_K: ${AI_TOP_K:-5}
+
+      WORKER_POLL_INTERVAL_SECONDS: ${WORKER_POLL_INTERVAL_SECONDS:-5}
+      WORKER_IDLE_EXIT_SECONDS: ${WORKER_IDLE_EXIT_SECONDS:-60}
+      ACK_MAX_PAPERS_PER_RUN: ${ACK_MAX_PAPERS_PER_RUN:-5}
+      ACK_SYNC_CRON: ${ACK_SYNC_CRON:-0 2 * * 6}
+      ACK_SYNC_TZ: ${ACK_SYNC_TZ:-UTC}
+      ACK_RUN_ON_STARTUP: ${ACK_RUN_ON_STARTUP:-true}
+      OMP_NUM_THREADS: 2
+    volumes:
+      - ./worker_service/.model_cache:/app/worker_service/.model_cache
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  coordinator_service:
+    build:
+      context: .
+      dockerfile: ./coordinator_service/Dockerfile
+    container_name: pdf-ack-coordinator
+    restart: unless-stopped
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+      RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+
+      TASKS_QUEUE_NAME: ${TASKS_QUEUE_NAME:-tasks_queue}
+      RESULTS_QUEUE_NAME: ${RESULTS_QUEUE_NAME:-results_queue}
+
+      PDF_STORAGE_DIR: ${PDF_STORAGE_DIR:-/app/data/pdfs}
+      STATE_DB_PATH: /data/state/processed_papers.db
+
+      STRAPI_URL: ${STRAPI_URL:-https://airi.utcluj.ro/strapi}
+      STRAPI_INTERNAL_URL: ${STRAPI_INTERNAL_URL:-https://airi.utcluj.ro/strapi}
+      PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL:-https://airi.utcluj.ro/strapi}
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN:-}
+      STRAPI_PAGE_SIZE: ${STRAPI_PAGE_SIZE:-100}
+      STRAPI_TIMEOUT_SECONDS: ${STRAPI_TIMEOUT_SECONDS:-30}
+      COMPUTE_SHA256_STREAM: ${COMPUTE_SHA256_STREAM:-true}
+      ACK_TEST_PDF_URLS: ${ACK_TEST_PDF_URLS:-}
+      ACK_MAX_PAPERS_PER_RUN: ${ACK_MAX_PAPERS_PER_RUN:-5}
+
+      ACK_SYNC_CRON: ${ACK_SYNC_CRON:-0 2 * * 6}
+      ACK_SYNC_TZ: ${ACK_SYNC_TZ:-UTC}
+      ACK_RUN_ON_STARTUP: ${ACK_RUN_ON_STARTUP:-true}
+      TASK_RETRY_TIMEOUT_SECONDS: ${TASK_RETRY_TIMEOUT_SECONDS:-120}
+      MAX_TASK_RETRIES: ${MAX_TASK_RETRIES:-3}
+      COORDINATOR_RESULT_POLL_SECONDS: ${COORDINATOR_RESULT_POLL_SECONDS:-1.0}
+    volumes:
+      - sqlite_state_data:/data/state
+    depends_on:
+      sqlite_db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      worker_service:
+        condition: service_started
+
+volumes:
+  rabbitmq_data:
+  sqlite_state_data:

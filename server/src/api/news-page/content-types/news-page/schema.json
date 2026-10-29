@@ -33,6 +33,13 @@
         }
       }
     },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
     "newsLatest": {
       "type": "string",
       "default": "Latest from AIRI",

@@ -30,6 +30,7 @@ import {
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
+import SmartMediaImage from '@/components/shared/SmartMediaImage';
 const PROJECT_DETAIL_DEFAULTS = {
   notFound: "Project not found",
   backToProjects: "Back to Projects",
@@ -494,10 +495,12 @@ function NewsCard({ item, t }) {
     >
       <div className="relative h-52 bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {item.image ? (
-          <img
+          <SmartMediaImage
             src={item.image}
             alt={item.title || t('tabs.news')}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            aspectRatio=""
+            className="absolute inset-0 w-full h-52"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -593,10 +596,12 @@ function EventCard({ item, t }) {
     >
       <div className="relative h-52 bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {item.image ? (
-          <img
+          <SmartMediaImage
             src={item.image}
             alt={item.title || 'Event'}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            aspectRatio=""
+            className="absolute inset-0 w-full h-52"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (

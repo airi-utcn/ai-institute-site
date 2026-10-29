@@ -8,6 +8,7 @@ import MediaPlayer from '@/components/shared/MediaPlayer';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
+import SmartMediaImage from '@/components/shared/SmartMediaImage';
 
 export default function AwardArticleClient({ article, pageData }) {
   const locale = useLocale();
@@ -51,13 +52,16 @@ export default function AwardArticleClient({ article, pageData }) {
       {/* Hero Image */}
       {article.image && (
         <div className="w-full h-64 md:h-80 xl:h-96 relative overflow-hidden">
-          <img
+          <SmartMediaImage
             src={article.image}
             alt={article.imageAlt || article.title}
-            style={article.focalPoint ? { objectPosition: `${article.focalPoint.x || 50}% ${article.focalPoint.y || 25}%` } : undefined}
-            className="w-full h-full object-cover object-[center_25%]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            focalPoint={article.focalPoint}
+            aspectRatio=""
+            className="absolute inset-0 w-full h-full"
+            priority
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          </SmartMediaImage>
         </div>
       )}
 

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
 
 /**
  * Reusable content card component for consistent card styling.
@@ -11,6 +12,7 @@ import { motion } from "framer-motion";
  * @param {string} href - Link destination (if provided, card becomes a link)
  * @param {string} image - Optional image URL
  * @param {string} imageAlt - Image alt text
+ * @param {object} focalPoint - Optional focal point {x, y} for SmartMediaImage
  * @param {string} badge - Optional badge text
  * @param {string} badgeVariant - Badge variant: 'primary', 'accent', 'gray'
  * @param {boolean} animate - Whether to animate on mount
@@ -24,6 +26,7 @@ export default function ContentCard({
   href,
   image,
   imageAlt,
+  focalPoint = null,
   badge,
   badgeVariant = "gray",
   animate = false,
@@ -40,14 +43,14 @@ export default function ContentCard({
   const cardContent = (
     <>
       {image && (
-        <div className="aspect-video overflow-hidden rounded-t-2xl bg-gray-100 dark:bg-gray-800">
-          <img
-            src={image}
-            alt={imageAlt || title}
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
-        </div>
+        <SmartMediaImage
+          src={image}
+          alt={imageAlt || title}
+          focalPoint={focalPoint}
+          aspectRatio="aspect-video"
+          className="rounded-t-2xl"
+          loading="lazy"
+        />
       )}
       <div className="p-5 sm:p-6">
         {badge && (

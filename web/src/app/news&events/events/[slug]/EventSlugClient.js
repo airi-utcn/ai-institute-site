@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 import DynamicZone from "@/components/shared/DynamicZone";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import {
   FaArrowLeft,
   FaCalendar,
@@ -100,22 +101,13 @@ export default function EventSlugClient({ event, pageData }) {
         {/* Hero Banner Image */}
         {event.image && (
           <div className="mb-10">
-            <div className="w-full h-64 sm:h-80 md:h-[420px] relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm bg-gray-100 dark:bg-gray-900">
-              <img
-                src={event.image}
-                alt={event.imageAlt || event.title}
-                style={
-                  event.focalPoint
-                    ? {
-                        objectPosition: `${event.focalPoint.x || 50}% ${
-                          event.focalPoint.y || 25
-                        }%`,
-                      }
-                    : undefined
-                }
-                className="w-full h-full object-cover"
-              />
-            </div>
+            <SmartMediaImage
+              src={event.image}
+              alt={event.imageAlt || event.title}
+              focalPoint={event.focalPoint}
+              aspectRatio=""
+              className="w-full h-64 sm:h-80 md:h-[420px] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm"
+            />
             {event.photoCredits && (
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right">
                 <FaRegImage className="inline mr-1" />

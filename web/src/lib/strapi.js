@@ -1567,25 +1567,35 @@ export async function getPublicationBySlug(slug, locale = null) {
 /**
  * Get all news articles from Strapi
  * @param {Object} options - Options for the query
- * @param {number} options.pageSize - Maximum number of articles to fetch
+ * @param {number} options.pageSize - Maximum number of articles to fetch; omit to fetch every page
  * @returns {Promise<Array>} Array of news articles
  */
 export async function getNewsArticles(options = {}) {
   const { pageSize, locale } = options;
 
   try {
-    const params = createParams({
+    const baseOptions = {
       sort: 'publishedDate:desc',
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
-      pagination: pageSize ? { pageSize } : null, filters: options.filters || null,
+      filters: options.filters || null,
       locale,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },
         author: PERSON_FLAT_POPULATE,
       },
-    });
-    const data = await fetchAPI(`/news-articles?${params.toString()}`);
-    return data.data || [];
+    };
+
+    // Callers that need a bounded feed (homepage, RSS, sitemap) pass an
+    // explicit pageSize. Everything else must see the full collection;
+    // otherwise Strapi's default limit silently hides older articles from
+    // listings, archives, static params, and the site-search index.
+    if (pageSize) {
+      const params = createParams({ ...baseOptions, pagination: { pageSize } });
+      const data = await fetchAPI(`/news-articles?${params.toString()}`);
+      return data.data || [];
+    }
+
+    return await fetchAllEntries('/news-articles', baseOptions);
   } catch (error) {
     console.error('Failed to fetch news articles:', error);
     return [];

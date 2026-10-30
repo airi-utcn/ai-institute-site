@@ -101,6 +101,13 @@ export default async function PersonDetailPage({ params }) {
     personData.publications?.data ?? personData.publications ?? []
   );
 
+  // Teams with the latest project end date first, so ended projects fall to the bottom.
+  const latestProjectEnd = (team) =>
+    team.projects.reduce((latest, project) => {
+      const time = Date.parse(project.endDate);
+      return Number.isNaN(time) ? latest : Math.max(latest, time);
+    }, 0);
+
   // Normalize teams from API response
   const teams = personTeamsRaw.map((team) => {
     const t = team?.attributes ?? team ?? {};
@@ -121,6 +128,7 @@ export default async function PersonDetailPage({ params }) {
             slug: pAttr.slug || '',
             title: pAttr.title || '',
             phase: phase === 'unknown' ? '' : phase,
+            endDate: pAttr.endDate || '',
           };
         })
       : [];
@@ -134,7 +142,7 @@ export default async function PersonDetailPage({ params }) {
       isLead: !!myMembership?.isLead,
       projects,
     };
-  });
+  }).sort((a, b) => latestProjectEnd(b) - latestProjectEnd(a));
 
   const normalizePublication = (pub) => ({
     id: pub.id ?? null,

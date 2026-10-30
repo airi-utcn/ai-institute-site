@@ -218,6 +218,7 @@ export default function AwardsClient({ awardsItems = [], pageData }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={t("searchPlaceholder")}
+                aria-label={t("searchLabel")}
                 className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors shadow-sm"
               />
               {query && (
@@ -254,71 +255,76 @@ export default function AwardsClient({ awardsItems = [], pageData }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
+            className="group relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shadow-sm hover:shadow-xl transition-shadow duration-300"
           >
-            <Link
-              href={hero.slug ? `/news&events/awards/${hero.slug}` : "#"}
-              className="group block relative overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 shadow-sm hover:shadow-xl transition-shadow duration-300"
-            >
-              <SmartMediaImage
-                src={hero.image}
-                alt={hero.title}
-                focalPoint={hero.focalPoint}
-                aspectRatio="aspect-[21/9]"
-                className="max-h-96"
-                loading="lazy"
+            <SmartMediaImage
+              src={hero.image}
+              alt={hero.imageAlt || hero.title}
+              focalPoint={hero.focalPoint}
+              aspectRatio="aspect-[4/3] min-h-[340px] sm:aspect-[16/9] sm:min-h-0 lg:aspect-[21/9]"
+              className="w-full sm:max-h-96"
+              fallbackClassName="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/30 dark:to-yellow-900/20 text-amber-400"
+              fallback={<FaTrophy className="w-8 h-8 opacity-50" aria-hidden="true" />}
+              loading="lazy"
+            />
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent pointer-events-none" />
+            {/* Full-card link sits below the text so the author/external links stay valid */}
+            {hero.slug && (
+              <Link
+                href={`/news&events/awards/${hero.slug}`}
+                className="absolute inset-0 z-10 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-400"
+                aria-label={`${t("viewArticle")}: ${hero.title}`}
               />
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent pointer-events-none" />
-              {/* Text overlay */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 text-white space-y-2 pointer-events-none">
-                {hero.date && (
-                  <div className="text-xs uppercase tracking-[0.2em]">
-                    <span className="text-amber-400 font-bold">{formatDate(hero.date)}</span>
-                  </div>
-                )}
-                {hero.author && (
-                  <div className="text-sm pointer-events-auto">
-                    {renderAuthor(hero.author, "text-white/80")}
-                  </div>
-                )}
-                <h2 className="text-2xl font-semibold leading-snug group-hover:text-amber-200 transition-colors">
-                  <Highlight text={hero.title} highlight={query} />
-                </h2>
-                {hero.summary && (
-                  <p className="text-white/85 text-sm max-w-2xl line-clamp-2">
-                    <Highlight text={hero.summary} highlight={query} />
-                  </p>
-                )}
-                {Array.isArray(hero.tags) && hero.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {hero.tags.slice(0, 4).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 rounded-full bg-white/15 text-xs border border-white/20"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {hasNewsLink(hero.linkUrl) && (
-                  <div className="pt-1 pointer-events-auto">
-                    <a
-                      href={hero.linkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white transition-colors"
+            )}
+            {/* Text overlay */}
+            <div className="absolute bottom-0 left-0 right-0 z-20 p-6 text-white space-y-2 pointer-events-none">
+              {hero.date && (
+                <div className="text-xs uppercase tracking-[0.2em]">
+                  <span className="text-amber-400 font-bold">{formatDate(hero.date)}</span>
+                </div>
+              )}
+              {hero.author && (
+                <div className="relative z-20 text-sm pointer-events-auto">
+                  {renderAuthor(hero.author, "text-white/80")}
+                </div>
+              )}
+              <h2 className="text-2xl font-semibold leading-snug line-clamp-4 group-hover:text-amber-200 transition-colors">
+                <Highlight text={hero.title} highlight={query} />
+              </h2>
+              {hero.summary && (
+                <p className="text-white/85 text-sm max-w-2xl line-clamp-2">
+                  <Highlight text={hero.summary} highlight={query} />
+                </p>
+              )}
+              {Array.isArray(hero.tags) && hero.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {hero.tags.slice(0, 4).map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 rounded-full bg-white/15 text-xs border border-white/20"
                     >
-                      {t("readStory")}
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
-                        <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
-                      </svg>
-                    </a>
-                  </div>
-                )}
-              </div>
-            </Link>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {hasNewsLink(hero.linkUrl) && (
+                <div className="relative z-20 pt-1 pointer-events-auto">
+                  <a
+                    href={hero.linkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 hover:text-white transition-colors"
+                  >
+                    {t("readStory")}
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden="true">
+                      <path fill="currentColor" d="M13 5a1 1 0 1 0 0 2h3.586l-7.293 7.293a1 1 0 0 0 1.414 1.414L18 8.414V12a1 1 0 1 0 2 0V5h-7Z" />
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </div>
           </motion.div>
         ) : (
           <CatalogNotice
@@ -344,20 +350,16 @@ export default function AwardsClient({ awardsItems = [], pageData }) {
                 className="group relative flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-amber-500/50 dark:hover:border-amber-400/50 overflow-hidden"
               >
                 {/* Image */}
-                {item.image ? (
-                  <SmartMediaImage
-                    src={item.image}
-                    alt={item.title}
-                    focalPoint={item.focalPoint}
-                    aspectRatio="aspect-video"
-                    imageClassName="group-hover:scale-105"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="aspect-video bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/30 dark:to-yellow-900/20 flex items-center justify-center text-amber-400">
-                    <FaTrophy className="w-8 h-8 opacity-50" />
-                  </div>
-                )}
+                <SmartMediaImage
+                  src={item.image}
+                  alt={item.imageAlt || item.title}
+                  focalPoint={item.focalPoint}
+                  aspectRatio="aspect-video"
+                  imageClassName="group-hover:scale-105"
+                  fallbackClassName="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/30 dark:to-yellow-900/20 text-amber-400"
+                  fallback={<FaTrophy className="w-8 h-8 opacity-50" aria-hidden="true" />}
+                  loading="lazy"
+                />
 
                 {/* Body */}
                 <div className="flex-1 p-5 space-y-2">
@@ -367,7 +369,7 @@ export default function AwardsClient({ awardsItems = [], pageData }) {
                     </div>
                   )}
                   {item.author && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="relative z-20 text-sm text-gray-500 dark:text-gray-400">
                       {renderAuthor(item.author, "text-gray-500 dark:text-gray-400")}
                     </div>
                   )}

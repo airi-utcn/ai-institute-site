@@ -401,5 +401,45 @@ export default {
     } catch (err) {
       console.error("Failed to hide fullName from Content Manager layout:", err);
     }
+
+    // 6. Ensure acknowledgment field is visible in Strapi Admin edit view for Publication
+    try {
+      const storeKey = "plugin_content_manager_configuration_content_types::api::publication.publication";
+      const setting = await strapi.db.query("strapi::core-store").findOne({ where: { key: storeKey } });
+      if (setting && setting.value) {
+        let parsed = typeof setting.value === "string" ? JSON.parse(setting.value) : setting.value;
+        if (parsed) {
+          let modified = false;
+          if (parsed.metadatas?.acknowledgment?.edit) {
+            if (
+              parsed.metadatas.acknowledgment.edit.visible !== true ||
+              parsed.metadatas.acknowledgment.edit.editable !== true
+            ) {
+              parsed.metadatas.acknowledgment.edit.visible = true;
+              parsed.metadatas.acknowledgment.edit.editable = true;
+              modified = true;
+            }
+          }
+          if (Array.isArray(parsed.layouts?.edit)) {
+            const existsInLayout = parsed.layouts.edit.some(
+              (row: any[]) => Array.isArray(row) && row.some((field: any) => field.name === "acknowledgment")
+            );
+            if (!existsInLayout) {
+              parsed.layouts.edit.push([{ name: "acknowledgment", size: 12 }]);
+              modified = true;
+            }
+          }
+          if (modified) {
+            await strapi.db.query("strapi::core-store").update({
+              where: { id: setting.id },
+              data: { value: JSON.stringify(parsed) },
+            });
+            console.log("✅ Configured layout to show acknowledgment on publication model");
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to configure acknowledgment visibility in Content Manager layout:", err);
+    }
   },
 };

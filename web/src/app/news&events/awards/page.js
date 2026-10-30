@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import AwardsClient from "./awardsClient";
 import { getSingleType, getNewsArticles, transformNewsData } from "@/lib/strapi";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: awardsPage?.awardsTitle || "Awards",
     description: awardsPage?.awardsSubtitle || "Awards and recognitions received by AIRi researchers and teams at UTCN.",
+    alternates: canonical('/news&events/awards'),
   };
 }
 

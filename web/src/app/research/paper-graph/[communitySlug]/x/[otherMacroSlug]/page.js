@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import {
   getGraphMacros,
@@ -25,7 +26,7 @@ const sortMacros = (a, b) => {
 
 export async function generateMetadata({ params }) {
   const { communitySlug, otherMacroSlug } = await params;
-  return { title: `ICIA – ${communitySlug} × ${otherMacroSlug}` };
+  return { title: `ICIA – ${communitySlug} × ${otherMacroSlug}`, alternates: canonical(`/research/paper-graph/${encodeURIComponent(communitySlug)}/x/${encodeURIComponent(otherMacroSlug)}`) };
 }
 
 export default async function MacroIntersectionPage({ params }) {

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import EventsClient from "./eventsClient";
 import { getEvents, transformEventData, getSingleType } from "@/lib/strapi";
@@ -11,6 +12,7 @@ export async function generateMetadata() {
   return {
     title: eventsPage?.eventsTitle || "Events",
     description: eventsPage?.eventsSubtitle || "Upcoming and past events organized by the Artificial Intelligence Research Institute at UTCN.",
+    alternates: canonical('/news&events/events'),
   };
 }
 

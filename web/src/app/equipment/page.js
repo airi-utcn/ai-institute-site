@@ -1,6 +1,8 @@
+import { canonical } from "@/lib/metadata";
 export const metadata = {
   title: "Equipment",
   description: "Browse available equipment and submit reservation requests at AIRi @ UTCN.",
+  alternates: canonical('/equipment'),
 };
 
 import EquipmentClient from "./EquipmentClient";

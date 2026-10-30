@@ -282,7 +282,7 @@ export async function buildSearchIndex() {
     partnerRows,
     laboratoryRows,
   ] = await Promise.all([
-    getPublications({ includeUnlisted: true, graphEligibleOnly: true }),
+    getPublications({ includeUnlisted: true }),
     getStaff(),
     getProjects(),
     getDepartments(),

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import Client from "./Client";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: about?.roomsTitle || "Rooms & Calendar",
     description: "Room availability and calendar for AIRi facilities at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/about/rooms-calendar'),
   };
 }
 

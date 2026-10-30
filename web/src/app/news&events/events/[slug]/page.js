@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { getEventBySlug, transformEventData, getEvents, getSingleType } from "@/lib/strapi";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
@@ -17,6 +18,7 @@ export async function generateMetadata({ params }) {
   return {
     title: transformed ? `${transformed.title} | Events` : "Event",
     description: transformed?.description || "AIRi Event",
+    alternates: canonical(`/news&events/events/${encodeURIComponent(resolvedParams.slug)}`),
   };
 }
 

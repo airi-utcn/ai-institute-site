@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import ResourcesClient from "./resourcesClient";
 import { getResources, transformResourceData, getSingleType } from "@/lib/strapi";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: resPage?.title || "Resources",
     description: resPage?.subtitle || "Explore tools, resources, APIs, and learning materials curated by the Artificial Intelligence Research Institute.",
+    alternates: canonical('/resources'),
   };
 }
 

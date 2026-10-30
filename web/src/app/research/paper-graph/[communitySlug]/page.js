@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import {
   getGraphMacros,
@@ -26,7 +27,7 @@ const sortMacros = (a, b) => {
 
 export async function generateMetadata({ params }) {
   const { communitySlug } = await params;
-  return { title: `ICIA – ${communitySlug}` };
+  return { title: `ICIA – ${communitySlug}`, alternates: canonical(`/research/paper-graph/${encodeURIComponent(communitySlug)}`) };
 }
 
 export default async function CommunityTopicsPage({ params }) {

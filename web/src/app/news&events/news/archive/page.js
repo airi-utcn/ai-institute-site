@@ -1,6 +1,8 @@
+import { canonical } from "@/lib/metadata";
 export const metadata = {
   title: "News Archive",
   description: "Browse older news and announcements from AIRi.",
+  alternates: canonical('/news&events/news/archive'),
 };
 
 import ArchiveClient from "./ArchiveClient";

@@ -2868,17 +2868,32 @@ export function isTeamArchived(team) {
   return projects.every((p) => isProjectArchived(p));
 }
 
+// check if a partner is a former/previous partner
+// per issue 172, if they don't have any active projects, they belong to previous partners
 export function isPartnerFormer(partner) {
   if (!partner) return true;
   const attributes = partner?.attributes ?? partner ?? {};
+  // if partner already had isFormer or partnerStatus computed, reuse that
   if (typeof attributes.isFormer === 'boolean') {
     return attributes.isFormer;
   }
   if (typeof attributes.isArchived === 'boolean') {
     return attributes.isArchived;
   }
-  const projects = toArray(attributes.projects?.data ?? attributes.projects ?? []);
+  if (typeof partner.isFormer === 'boolean') {
+    return partner.isFormer;
+  }
+  if (partner.partnerStatus === 'former') {
+    return true;
+  }
+  if (partner.partnerStatus === 'current') {
+    return false;
+  }
+  // grab projects from either strapi relation data or transformed array
+  const projects = toArray(attributes.projects?.data ?? attributes.projects ?? partner.projects ?? []);
+  // no projects means no active project, so they are former
   if (!projects.length) return true;
+  // if every project is ended/archived, partner is former
   return projects.every((p) => isProjectArchived(p));
 }
 
@@ -3379,7 +3394,14 @@ export function transformPartnerData(strapiPartners) {
       })
       .filter((project) => project.title || project.slug);
 
-    const isFormer = partnerProjects.length === 0 || partnerProjects.every((p) => p.isArchived);
+    // split into active and past projects
+    // this directly addresses issue 172 where za cloud had the expired
+    // 'distributed ledger' project mistakenly showing up under active projects
+    const activeProjects = partnerProjects.filter((p) => !p.isArchived);
+    const pastProjects = partnerProjects.filter((p) => p.isArchived);
+
+    // a partner is former if they do not have any active project
+    const isFormer = activeProjects.length === 0;
     const isCurrent = !isFormer;
     const status = isFormer ? 'former' : 'current';
     const role = normalizePartnerRole(attributes.role || attributes.type);
@@ -3408,6 +3430,9 @@ export function transformPartnerData(strapiPartners) {
       heroImageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
       body: normalizeBodyBlocks(attributes.body),
       projects: partnerProjects,
+      activeProjects,
+      pastProjects,
+      hasActiveProjects: activeProjects.length > 0,
       partnerStatus: status,
       status,
       isCurrentPartner: isCurrent,

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import NewsClient from "./NewsClient";
 import { getNewsArticles, transformNewsData, getSingleType } from "@/lib/strapi";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: newsPage?.title || "News",
     description: newsPage?.subtitle || "Latest news and announcements from AIRi at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/news&events/news'),
   };
 }
 

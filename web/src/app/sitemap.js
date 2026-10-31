@@ -141,6 +141,28 @@ export default async function sitemap() {
           priority: 0.7,
         }))
     );
+
+    // News articles
+    dynamicPages.push(
+      ...news
+        .filter((n) => n.slug)
+        .map((n) => ({
+          url: `${SITE_URL}/news&events/news/${n.slug}`,
+          changeFrequency: "monthly",
+          priority: 0.6,
+        }))
+    );
+
+    // Events
+    dynamicPages.push(
+      ...events
+        .filter((e) => e.slug)
+        .map((e) => ({
+          url: `${SITE_URL}/news&events/events/${e.slug}`,
+          changeFrequency: "monthly",
+          priority: 0.6,
+        }))
+    );
   } catch (error) {
     console.error("Sitemap: failed to fetch dynamic content from Strapi", error);
   }

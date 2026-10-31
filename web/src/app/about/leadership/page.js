@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType, getLeadershipTeams } from "@/lib/strapi";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
@@ -13,6 +14,7 @@ export async function generateMetadata() {
     description:
       about?.leadershipDescription ||
       "Leadership board, executive committee, and governance structure of the Artificial Intelligence Research Institute at UTCN.",
+    alternates: canonical('/about/leadership'),
   };
 }
 

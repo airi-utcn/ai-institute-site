@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
@@ -64,9 +65,10 @@ export async function generateMetadata({ params }) {
         description,
         ...(person.image ? { images: [{ url: person.image, alt: person.name }] } : {}),
       },
+      alternates: canonical(`/people/${encodeURIComponent(slug)}`),
     };
   } catch {
-    return { title: "Person" };
+    return { title: "Person", alternates: canonical(`/people/${encodeURIComponent(slug)}`) };
   }
 }
 

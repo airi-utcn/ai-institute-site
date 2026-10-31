@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
@@ -11,6 +12,7 @@ export async function generateMetadata() {
   return {
     title: search?.chatbotTitle || "AIRi Chatbot",
     description: "Ask questions about AIRi's research, people, and projects using our AI-powered chatbot.",
+    alternates: canonical('/search/chatbot'),
   };
 }
 

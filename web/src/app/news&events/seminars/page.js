@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import SeminarsClient from "./seminarsClient";
 import { getSeminars, transformSeminarData, getSingleType } from "@/lib/strapi";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: seminarsPage?.seminarsTitle || "Seminars",
     description: seminarsPage?.seminarsSubtitle || "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/news&events/seminars'),
   };
 }
 

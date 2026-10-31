@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getLaboratories, getSingleType, transformLaboratoryData } from "@/lib/strapi";
 import LaboratoriesClient from "./LaboratoriesClient";
@@ -10,11 +11,13 @@ export async function generateMetadata() {
     return {
       title: pageData?.title || "Laboratories & Spaces",
       description: pageData?.subtitle || "State-of-the-art research laboratories and sponsored spaces at the Artificial Intelligence Research Institute.",
+      alternates: canonical('/research/laboratories'),
     };
   } catch {
     return {
       title: "Laboratories & Spaces",
       description: "State-of-the-art research laboratories and sponsored spaces at AIRI.",
+      alternates: canonical('/research/laboratories'),
     };
   }
 }

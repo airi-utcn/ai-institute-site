@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import Client from "./Client";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: about?.virtualTourTitle || "Virtual Tour",
     description: "Take a virtual tour of AIRi's facilities at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/about/virtual-tour'),
   };
 }
 

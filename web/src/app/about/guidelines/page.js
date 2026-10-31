@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import Client from "./Client";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: about?.guidelinesTitle || "Guidelines – Onboarding",
     description: "Onboarding guidelines and resources for new members of AIRi at UTCN.",
+    alternates: canonical('/about/guidelines'),
   };
 }
 

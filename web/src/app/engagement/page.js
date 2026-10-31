@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies, draftMode } from "next/headers";
 import { Suspense } from "react";
@@ -67,6 +68,7 @@ export async function generateMetadata() {
   return {
     title: engagement?.heroTitle || "Engagement",
     description: engagement?.heroSubtitle || "Discover how AIRi engages with industry, academia, high-school students, and the public through partnerships and programs.",
+    alternates: canonical('/engagement'),
   };
 }
 

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import MediaClient from "./MediaClient";
@@ -17,6 +18,7 @@ export async function generateMetadata() {
     description:
       cleanDescription ||
       "Photos, albums on Flickr, press coverage, and media resources from AIRi at UTCN.",
+    alternates: canonical('/media'),
   };
 }
 

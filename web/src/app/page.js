@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ export async function generateMetadata() {
   return {
     title: home?.metaTitle || "AIRI - Home",
     description: home?.metaDescription || "Advancing Artificial Intelligence Research at Technical University of Cluj-Napoca",
+    alternates: canonical('/'),
   };
 }
 

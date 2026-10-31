@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
@@ -30,6 +31,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${article.title} | Awards`,
     description: article.summary || 'Read the latest news from AIRI.',
+    alternates: canonical(`/news&events/awards/${encodeURIComponent(slug)}`),
   };
 }
 

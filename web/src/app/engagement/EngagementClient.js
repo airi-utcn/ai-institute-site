@@ -17,8 +17,14 @@ import {
   FaProjectDiagram,
   FaUserGraduate,
   FaMapMarkerAlt,
-  FaArrowRight
+  FaArrowRight,
+  FaCrown,
+  FaGem,
+  FaAward,
+  FaMedal,
+  FaHistory
 } from 'react-icons/fa';
+import { useEffect } from 'react';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
 import { PARTNER_ROLES, PARTNER_ROLE_ORDER } from '@/lib/strapi';
 import { containerVariants, itemVariants } from '@/lib/animations';
@@ -356,6 +362,237 @@ function HighSchoolContent({ blocks }) {
   return <DynamicZone blocks={blocks} />;
 }
 
+// sponsorship tiers defined in hierarchical order
+// clean bold titles with icons and partner counts, avoiding corny corporate marketing filler
+const PARTNER_TIERS = [
+  {
+    id: 'Strategic',
+    title: 'Strategic Partners',
+    icon: FaCrown,
+    color: 'text-red-600 dark:text-red-400',
+    bg: 'bg-red-50 dark:bg-red-950/40',
+    border: 'border-red-300 dark:border-red-800',
+  },
+  {
+    id: 'Diamond',
+    title: 'Diamond Partners',
+    icon: FaGem,
+    color: 'text-sky-600 dark:text-sky-400',
+    bg: 'bg-sky-50 dark:bg-sky-950/40',
+    border: 'border-sky-300 dark:border-sky-800',
+  },
+  {
+    id: 'Platinum',
+    title: 'Platinum Partners',
+    icon: FaAward,
+    color: 'text-indigo-600 dark:text-indigo-400',
+    bg: 'bg-indigo-50 dark:bg-indigo-950/40',
+    border: 'border-indigo-300 dark:border-indigo-800',
+  },
+  {
+    id: 'Gold',
+    title: 'Gold Partners',
+    icon: FaMedal,
+    color: 'text-amber-600 dark:text-amber-400',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    border: 'border-amber-300 dark:border-amber-800',
+  },
+  {
+    id: 'Partner',
+    title: 'Collaborating Partners',
+    icon: FaHandshake,
+    color: 'text-gray-600 dark:text-gray-400',
+    bg: 'bg-gray-100 dark:bg-gray-800',
+    border: 'border-gray-200 dark:border-gray-800',
+  },
+];
+
+// partner card component
+// handles active vs past project lists cleanly so expired projects don't look active
+function PartnerCard({
+  partner,
+  isProminent = false,
+  activeProjectsLabel,
+  exploreProfileLabel,
+  visitWebsiteLabel,
+  statusCurrentLabel,
+  statusFormerLabel,
+}) {
+  const roleConfig = getPartnerRoleConfig(partner.role);
+
+  // filter active vs past projects
+  // directly fixes issue 172 where za cloud had its expired distributed ledger project under active projects
+  const activeProjs = Array.isArray(partner.activeProjects)
+    ? partner.activeProjects
+    : (partner.projects || []).filter((pr) => !pr.isArchived);
+  const pastProjs = Array.isArray(partner.pastProjects)
+    ? partner.pastProjects
+    : (partner.projects || []).filter((pr) => pr.isArchived);
+
+  return (
+    <motion.article
+      variants={itemVariants}
+      className={`group flex flex-col rounded-3xl border-2 ${roleConfig.cardBorder} bg-white p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:bg-[#0a0a0a] relative overflow-hidden ${
+        isProminent ? 'shadow-md dark:shadow-sky-950/20' : ''
+      }`}
+    >
+      <div className="flex flex-col sm:flex-row gap-6 relative z-10 h-full">
+        {/* partner logo */}
+        {partner.logo ? (
+          <div
+            className={`shrink-0 ${
+              isProminent ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'
+            } rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black p-2 flex items-center justify-center`}
+          >
+            <img
+              src={partner.logo}
+              alt={partner.logoAlt || partner.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ) : (
+          <div
+            className={`shrink-0 flex items-center justify-center ${
+              isProminent ? 'h-24 w-24 sm:h-28 sm:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'
+            } rounded-2xl bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 text-gray-400 font-bold text-2xl`}
+          >
+            {partner.name.charAt(0)}
+          </div>
+        )}
+
+        <div className="flex flex-col flex-1 min-w-0">
+          {/* partner title and badges */}
+          <div className="flex justify-between items-start gap-4 mb-3">
+            <div className="min-w-0">
+              {partner.slug ? (
+                <Link
+                  href={`/engagement/partners/${encodeURIComponent(partner.slug)}`}
+                  className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2"
+                >
+                  {partner.name}
+                </Link>
+              ) : (
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-2">
+                  {partner.name}
+                </h3>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <PartnerRoleBadge role={partner.role} size="xs" />
+                {partner.country ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <FaMapMarkerAlt className="w-3.5 h-3.5" />
+                    {partner.country}
+                  </span>
+                ) : null}
+
+                <span
+                  className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+                    partner.partnerStatus === 'current'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  }`}
+                >
+                  {partner.partnerStatus === 'current'
+                    ? statusCurrentLabel || 'Current'
+                    : statusFormerLabel || 'Former'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* short description */}
+          {partner.description && (
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
+              {partner.description}
+            </p>
+          )}
+
+          {/* project listings */}
+          <div className="flex-1 mt-4 space-y-3">
+            {/* active projects */}
+            {activeProjs.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                  <FaProjectDiagram className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  {activeProjectsLabel || 'Active Projects'}
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {activeProjs.slice(0, 3).map((project) => (
+                    <Link
+                      key={project.slug || project.title}
+                      href={project.slug ? `/research/projects/${encodeURIComponent(project.slug)}` : '/research/projects'}
+                      className="inline-flex items-center px-2.5 py-1 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 text-xs font-medium text-emerald-800 dark:text-emerald-300 hover:border-emerald-400 transition-colors"
+                    >
+                      {project.title}
+                    </Link>
+                  ))}
+                  {activeProjs.length > 3 && (
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500">
+                      +{activeProjs.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* past projects - shown with distinct historical styling */}
+            {pastProjs.length > 0 && (
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                  <FaHistory className="w-3 h-3 text-gray-400" />
+                  Past Collaborations
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {pastProjs.slice(0, 2).map((project) => (
+                    <Link
+                      key={project.slug || project.title}
+                      href={project.slug ? `/research/projects/${encodeURIComponent(project.slug)}` : '/research/projects'}
+                      className="inline-flex items-center px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                    >
+                      {project.title}
+                    </Link>
+                  ))}
+                  {pastProjs.length > 2 && (
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500">
+                      +{pastProjs.length - 2} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* actions */}
+          <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
+            {partner.slug ? (
+              <Link
+                href={`/engagement/partners/${encodeURIComponent(partner.slug)}`}
+                className="inline-flex items-center gap-2 text-sm font-bold text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-all group/btn"
+              >
+                {exploreProfileLabel || 'Explore Profile'}
+                <FaArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
+              </Link>
+            ) : <span />}
+
+            {partner.url ? (
+              <a
+                href={partner.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 w-10 h-10 justify-center rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title={visitWebsiteLabel || 'Visit website'}
+              >
+                <FaExternalLinkAlt className="w-3.5 h-3.5" />
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
 function PartnersContent({
   partners,
   CollaboratorsClient,
@@ -380,21 +617,55 @@ function PartnersContent({
   visitWebsite,
   emptyFiltered,
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // read view param from url to support direct links like ?tab=partners&view=previous
+  // inspired by formula student partner history tab toggle
+  const viewParam = searchParams.get('view');
+  const [view, setViewState] = useState(viewParam === 'previous' ? 'previous' : 'current');
+
+  // keep view in sync with url
+  useEffect(() => {
+    if (viewParam === 'previous') {
+      setViewState('previous');
+    } else {
+      setViewState('current');
+    }
+  }, [viewParam]);
+
+  const handleViewChange = (newView) => {
+    setViewState(newView);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'partners');
+    if (newView === 'previous') {
+      params.set('view', 'previous');
+    } else {
+      params.delete('view');
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
   const [searchQuery, setSearchQuery] = useState('');
   const [countryFilter, setCountryFilter] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('current');
 
-  const currentCount = useMemo(
-    () => partnerList.filter((p) => p.partnerStatus === 'current' || p.isCurrentPartner).length,
+  // partition partners into current (has active projects) and former (no active projects)
+  // per issue 172: "If a partner does not have an active project - it should appear in a Previous Partners page"
+  const currentPartnersList = useMemo(
+    () => partnerList.filter((p) => p.partnerStatus === 'current' || p.isCurrentPartner),
     [partnerList]
   );
-  const formerCount = useMemo(
-    () => partnerList.filter((p) => p.partnerStatus === 'former' || p.isFormer).length,
+  const formerPartnersList = useMemo(
+    () => partnerList.filter((p) => p.partnerStatus === 'former' || p.isFormer),
     [partnerList]
   );
 
+  // current active dataset depending on which tab view the user is on
+  const activeDataset = view === 'previous' ? formerPartnersList : currentPartnersList;
+
+  // collect unique countries for dropdown
   const countryOptions = useMemo(() => {
     const countries = new Set();
     partnerList.forEach((partner) => {
@@ -405,9 +676,10 @@ function PartnersContent({
     return Array.from(countries).sort((a, b) => a.localeCompare(b));
   }, [partnerList]);
 
+  // filter partners by search text, country, and role
   const filteredPartners = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    const result = partnerList.filter((partner) => {
+    return activeDataset.filter((partner) => {
       const haystack = [
         partner?.name,
         partner?.country,
@@ -423,28 +695,20 @@ function PartnersContent({
       const matchesQuery = !q || haystack.includes(q);
       const matchesCountry = !countryFilter || partner?.country === countryFilter;
       const matchesRole = !roleFilter || (partner?.role || 'Partner').toLowerCase() === roleFilter.toLowerCase();
-      const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'current' && (partner?.partnerStatus === 'current' || partner?.isCurrentPartner)) ||
-        (statusFilter === 'former' && (partner?.partnerStatus === 'former' || partner?.isFormer));
-      return matchesQuery && matchesCountry && matchesRole && matchesStatus;
+      return matchesQuery && matchesCountry && matchesRole;
     });
-
-    const roleOrder = PARTNER_ROLE_ORDER || { Strategic: 1, Diamond: 2, Platinum: 3, Platinum: 3, Gold: 4, Partner: 5 };
-    return result.sort((a, b) => {
-      const orderA = roleOrder[a.role] || 5;
-      const orderB = roleOrder[b.role] || 5;
-      if (orderA !== orderB) return orderA - orderB;
-      return (a.name || '').localeCompare(b.name || '');
-    });
-  }, [partnerList, searchQuery, countryFilter, roleFilter, statusFilter]);
+  }, [activeDataset, searchQuery, countryFilter, roleFilter]);
 
   const totalProjects = useMemo(() => {
-    return partnerList.reduce((acc, partner) => acc + (Array.isArray(partner?.projects) ? partner.projects.length : 0), 0);
+    return partnerList.reduce(
+      (acc, partner) => acc + (Array.isArray(partner?.projects) ? partner.projects.length : 0),
+      0
+    );
   }, [partnerList]);
 
   return (
-    <motion.div key="partners" variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <motion.div key="partners" variants={containerVariants} initial="hidden" animate="visible" className="space-y-8">
+      {/* hero header card */}
       <motion.section
         variants={itemVariants}
         className="relative overflow-hidden rounded-3xl bg-[#0a0a0a] text-white dark:bg-white dark:text-[#0a0a0a] py-10 px-8 lg:px-12 flex flex-col md:flex-row md:items-center justify-between gap-10"
@@ -452,224 +716,251 @@ function PartnersContent({
         <div className="absolute top-0 right-0 w-[30rem] h-[30rem] bg-white/5 dark:bg-black/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
 
         <div className="relative z-10 max-w-2xl">
-          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4 text-gray-400 dark:text-gray-500">{eyebrow || 'Strategic Network'}</p>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">{title || 'Partners'}</h2>
-          <p className="text-lg text-gray-400 dark:text-gray-600 leading-relaxed md:max-w-xl">{description || 'We are proud to collaborate with leading organizations across academia and industry.'}</p>
+          <p className="text-xs font-bold tracking-[0.2em] uppercase mb-4 text-gray-400 dark:text-gray-500">
+            {eyebrow || 'Strategic Network'}
+          </p>
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
+            {title || 'Partners'}
+          </h2>
+          <p className="text-lg text-gray-400 dark:text-gray-600 leading-relaxed md:max-w-xl">
+            {description || 'We are proud to collaborate with leading organizations across academia and industry.'}
+          </p>
         </div>
 
         <div className="relative z-10 flex flex-wrap items-center gap-8 md:gap-12">
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{partnerList.length}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{statsPartners || 'Partners'}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">
+              {statsPartners || 'Partners'}
+            </span>
           </div>
           <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{countryOptions.length}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{statsCountries || 'Countries'}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">
+              {statsCountries || 'Countries'}
+            </span>
           </div>
           <div className="w-px h-16 bg-white/10 dark:bg-black/10 hidden sm:block" />
           <div className="flex flex-col">
             <span className="text-4xl md:text-5xl font-bold tracking-tighter">{totalProjects}</span>
-            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">{statsProjects || 'Projects'}</span>
+            <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-2">
+              {statsProjects || 'Projects'}
+            </span>
           </div>
         </div>
       </motion.section>
 
-      {partnerList.length > 0 ? (
-        <>
-          <motion.div variants={itemVariants} className="rounded-2xl p-2 bg-gray-50/80 border border-gray-100 dark:bg-gray-900/50 dark:border-gray-800">
-            <div className="flex flex-col md:flex-row gap-2">
-              <div className="relative flex-1">
-                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder={searchPlaceholder || 'Search by partner, country, project'}
-                  className="w-full h-12 rounded-xl bg-white pl-11 pr-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow"
-                />
-              </div>
+      {/* view switcher: current partners vs previous partners */}
+      {/* mirrors the clear tab navigation seen on formula student partners page */}
+      <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div
+          className="inline-flex p-1.5 rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-gray-800 shadow-sm"
+          role="tablist"
+          aria-label="Partner Directory View"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'current'}
+            onClick={() => handleViewChange('current')}
+            className={`px-5 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+              view === 'current'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <FaUsers className="w-4 h-4" />
+            <span>{currentPartners || 'Current Partners'} ({currentPartnersList.length})</span>
+          </button>
 
-              <select
-                value={countryFilter}
-                onChange={(event) => setCountryFilter(event.target.value)}
-                className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[170px]"
-              >
-                <option value="">{allCountries || 'All countries'}</option>
-                {countryOptions.map((country) => (
-                  <option key={country} value={country}>
-                    {country}
-                  </option>
-                ))}
-              </select>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'previous'}
+            onClick={() => handleViewChange('previous')}
+            className={`px-5 sm:px-6 py-2.5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer ${
+              view === 'previous'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}
+          >
+            <FaHistory className="w-4 h-4" />
+            <span>{formerPartners || 'Previous Partners'} ({formerPartnersList.length})</span>
+          </button>
+        </div>
+      </motion.div>
 
-              <select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[170px]"
-              >
-                <option value="current">{currentPartners || 'Current partners'}</option>
-                <option value="former">{formerPartners || 'Former partners'}</option>
-                <option value="all">{allStatuses || 'All statuses'}</option>
-              </select>
+      {/* search and filter bar */}
+      <motion.div variants={itemVariants} className="rounded-2xl p-2 bg-gray-50/80 border border-gray-100 dark:bg-gray-900/50 dark:border-gray-800">
+        <div className="flex flex-col md:flex-row gap-2">
+          {/* search query */}
+          <div className="relative flex-1">
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={searchPlaceholder || 'Search by partner, country, project'}
+              className="w-full h-12 rounded-xl bg-white pl-11 pr-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow"
+            />
+          </div>
 
-              <select
-                value={roleFilter}
-                onChange={(event) => setRoleFilter(event.target.value)}
-                className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[150px]"
-              >
-                <option value="">{allRoles || 'All roles'}</option>
-                {(PARTNER_ROLES || []).map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
+          {/* country dropdown */}
+          <select
+            value={countryFilter}
+            onChange={(event) => setCountryFilter(event.target.value)}
+            className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[170px]"
+          >
+            <option value="">{allCountries || 'All countries'}</option>
+            {countryOptions.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
 
-              {(searchQuery || countryFilter || roleFilter || statusFilter !== 'current') ? (
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setCountryFilter('');
-                    setRoleFilter('');
-                    setStatusFilter('current');
-                  }}
-                  className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shrink-0"
-                >
-                  <FaTimes className="w-3.5 h-3.5" />
-                  {clearFilters || 'Clear'}
-                </button>
-              ) : null}
+          {/* role filter only relevant in current partners view */}
+          {view === 'current' && (
+            <select
+              value={roleFilter}
+              onChange={(event) => setRoleFilter(event.target.value)}
+              className="h-12 rounded-xl bg-white px-4 text-sm text-gray-900 border-none shadow-sm focus:ring-2 focus:ring-black dark:focus:ring-white dark:bg-[#0a0a0a] dark:text-white transition-shadow cursor-pointer min-w-[150px]"
+            >
+              <option value="">{allRoles || 'All tiers'}</option>
+              {(PARTNER_ROLES || []).map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          )}
+
+          {/* clear button */}
+          {(searchQuery || countryFilter || roleFilter) ? (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setCountryFilter('');
+                setRoleFilter('');
+              }}
+              className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors shrink-0"
+            >
+              <FaTimes className="w-3.5 h-3.5" />
+              {clearFilters || 'Clear'}
+            </button>
+          ) : null}
+        </div>
+      </motion.div>
+
+      {/* VIEW 1: CURRENT PARTNERS - clearly sectioned by sponsorship tier */}
+      {/* issue 172: diamond, gold, platinum partners distinguished with separation line and bold title */}
+      {view === 'current' && (
+        <div className="space-y-12">
+          {filteredPartners.length > 0 ? (
+            PARTNER_TIERS.map((tier) => {
+              // find partners in this specific tier
+              const tierPartners = filteredPartners.filter((p) => {
+                const partnerRole = (p.role || 'Partner').toLowerCase();
+                return partnerRole === tier.id.toLowerCase();
+              });
+
+              // skip empty tiers
+              if (tierPartners.length === 0) return null;
+
+              const TierIcon = tier.icon;
+              const isProminent = tier.id === 'Strategic' || tier.id === 'Diamond';
+
+              return (
+                <section key={tier.id} className="space-y-6">
+                  {/* clean tier separation line & bold header */}
+                  <div className="flex items-center justify-between border-b-2 border-gray-200 dark:border-gray-800 pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2.5 rounded-2xl ${tier.bg} ${tier.color}`}>
+                        <TierIcon className="w-5 h-5" />
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black tracking-tight text-gray-900 dark:text-white uppercase">
+                        {tier.title}
+                      </h3>
+                    </div>
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                      {tierPartners.length} {tierPartners.length === 1 ? 'partner' : 'partners'}
+                    </span>
+                  </div>
+
+                  {/* grid of partner cards */}
+                  <div className="grid gap-6 xl:grid-cols-2">
+                    {tierPartners.map((partner) => (
+                      <PartnerCard
+                        key={partner.slug || partner.name}
+                        partner={partner}
+                        isProminent={isProminent}
+                        activeProjectsLabel={activeProjects}
+                        exploreProfileLabel={exploreProfile}
+                        visitWebsiteLabel={visitWebsite}
+                        statusCurrentLabel={statusCurrent}
+                        statusFormerLabel={statusFormer}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })
+          ) : (
+            <motion.div variants={itemVariants} className="rounded-2xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
+              <FaSearch className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+              <p className="text-sm text-gray-600 dark:text-gray-300">{emptyFiltered || 'No current partners match your filters.'}</p>
+            </motion.div>
+          )}
+        </div>
+      )}
+
+      {/* VIEW 2: PREVIOUS PARTNERS */}
+      {/* partners with concluded projects or no current active project appear here */}
+      {view === 'previous' && (
+        <div className="space-y-6">
+          {/* informative banner explaining past collaborations */}
+          <div className="p-6 rounded-3xl bg-gray-100 dark:bg-[#121212] border border-gray-200 dark:border-gray-800 flex items-start gap-4">
+            <div className="p-3 rounded-2xl bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 shadow-sm shrink-0">
+              <FaHistory className="w-5 h-5" />
             </div>
-          </motion.div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                Previous Partners
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">
+                Organizations that previously collaborated with AIRi on completed research projects.
+              </p>
+            </div>
+          </div>
 
           {filteredPartners.length > 0 ? (
             <div className="grid gap-6 xl:grid-cols-2">
-              {filteredPartners.map((p) => {
-                const roleConfig = getPartnerRoleConfig(p.role);
-                return (
-                  <motion.article
-                    key={p.slug || p.name}
-                    variants={itemVariants}
-                    className={`group flex flex-col rounded-3xl border-2 ${roleConfig.cardBorder} bg-white p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:bg-[#0a0a0a] relative overflow-hidden`}
-                  >
-                  <div className="flex flex-col sm:flex-row gap-6 relative z-10 h-full">
-                    {/* Visual Anchor / Logo */}
-                    {p.logo ? (
-                      <div className="shrink-0 h-20 w-20 sm:h-24 sm:w-24 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 transition-colors group-hover:bg-white dark:group-hover:bg-black p-2 flex items-center justify-center">
-                        <img
-                          src={p.logo}
-                          alt={p.logoAlt || p.name}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <div className="shrink-0 flex items-center justify-center h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-gray-50 border border-gray-100 dark:bg-gray-900 dark:border-gray-800 text-gray-400 font-bold text-2xl">
-                        {p.name.charAt(0)}
-                      </div>
-                    )}
-
-                    <div className="flex flex-col flex-1 min-w-0">
-                      {/* Headers */}
-                      <div className="flex justify-between items-start gap-4 mb-3">
-                        <div className="min-w-0">
-                          {p.slug ? (
-                            <Link
-                              href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
-                              className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2"
-                            >
-                              {p.name}
-                            </Link>
-                          ) : (
-                            <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white line-clamp-2">{p.name}</h3>
-                          )}
-
-                          <div className="flex flex-wrap items-center gap-2 mt-2">
-                            <PartnerRoleBadge role={p.role} size="xs" />
-                            {p.country ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                <FaMapMarkerAlt className="w-3.5 h-3.5" />
-                                {p.country}
-                              </span>
-                            ) : null}
-
-                            <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide ${p.partnerStatus === 'current' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'}`}>
-                              {p.partnerStatus === 'current'
-                                ? (statusCurrent || 'Current')
-                                : (statusFormer || 'Former')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex-1 mt-4">
-                        {Array.isArray(p.projects) && p.projects.length > 0 ? (
-                          <div className="space-y-3">
-                            <span className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                              <FaProjectDiagram className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                              {activeProjects || 'Active Projects'}
-                            </span>
-                            <div className="flex flex-wrap gap-2">
-                              {p.projects.slice(0, 3).map((project) => (
-                                <Link
-                                  key={project.slug || project.title}
-                                  href={project.slug ? `/research/projects/${encodeURIComponent(project.slug)}` : '/research/projects'}
-                                  className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 hover:border-blue-300 hover:text-blue-700 dark:hover:border-blue-700/60 dark:hover:text-blue-300 transition-colors"
-                                >
-                                  {project.title}
-                                </Link>
-                              ))}
-                              {p.projects.length > 3 && (
-                                <span className="inline-flex items-center justify-center px-2 py-1.5 text-xs font-medium text-gray-500">
-                                  +{p.projects.length - 3} more
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="mt-8 pt-5 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-4">
-                        {p.slug ? (
-                          <Link
-                            href={`/engagement/partners/${encodeURIComponent(p.slug)}`}
-                            className="inline-flex items-center gap-2 text-sm font-bold text-black dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-all group/btn"
-                          >
-                            {exploreProfile || 'Explore Profile'}
-                            <FaArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
-                          </Link>
-                        ) : <span />}
-
-                        {p.url ? (
-                          <a
-                            href={p.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 w-10 h-10 justify-center rounded-full bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-500 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                            title={visitWebsite || 'Visit website'}
-                          >
-                            <FaExternalLinkAlt className="w-3.5 h-3.5" />
-                          </a>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-                </motion.article>
-                );
-              })}
+              {filteredPartners.map((partner) => (
+                <PartnerCard
+                  key={partner.slug || partner.name}
+                  partner={partner}
+                  isProminent={false}
+                  activeProjectsLabel={activeProjects}
+                  exploreProfileLabel={exploreProfile}
+                  visitWebsiteLabel={visitWebsite}
+                  statusCurrentLabel={statusCurrent}
+                  statusFormerLabel={statusFormer}
+                />
+              ))}
             </div>
           ) : (
             <motion.div variants={itemVariants} className="rounded-2xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
               <FaSearch className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
-              <p className="text-sm text-gray-600 dark:text-gray-300">{emptyFiltered || 'No partners match your filters.'}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{emptyFiltered || 'No previous partners match your filters.'}</p>
             </motion.div>
           )}
-        </>
-      ) : null}
+        </div>
+      )}
 
+      {/* map section */}
       {CollaboratorsClient && (
-        <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants} className="pt-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">{mapTitle || 'Partner Map'}</h2>
           <CollaboratorsClient partners={partners} />
         </motion.div>

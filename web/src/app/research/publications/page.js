@@ -1,6 +1,8 @@
+import { canonical } from "@/lib/metadata";
 export const metadata = {
   title: "Publications",
   description: "Scientific publications, journal articles, and conference papers from AIRi researchers.",
+  alternates: canonical('/research/publications'),
 };
 
 import { cookies } from "next/headers";

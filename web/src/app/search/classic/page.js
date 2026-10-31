@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
@@ -12,6 +13,7 @@ export async function generateMetadata() {
   return {
     title: search?.classicTitle || "Classic Search",
     description: "Search across AIRi's research, people, projects, and publications.",
+    alternates: canonical('/search'),
   };
 }
 

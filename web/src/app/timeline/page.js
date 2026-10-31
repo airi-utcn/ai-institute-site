@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import TimelineClient from "./TimelineClient";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: timeline?.title?.replace(/[^\w\s-]/g, "").trim() || "Timeline",
     description: "Explore the history and milestones of the Artificial Intelligence Research Institute at UTCN.",
+    alternates: canonical('/timeline'),
   };
 }
 

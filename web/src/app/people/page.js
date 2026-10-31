@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 /**
  * app/people/page.js
@@ -57,6 +58,7 @@ export async function generateMetadata() {
   return {
     title: people?.title || "People",
     description: people?.subtitle || "Meet the researchers, staff, and visiting scholars of the Artificial Intelligence Research Institute at UTCN.",
+    alternates: canonical('/people'),
   };
 }
 

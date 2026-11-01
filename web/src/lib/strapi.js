@@ -274,6 +274,17 @@ const PERSON_WITH_IMAGE_POPULATE = {
   },
 };
 
+// Minimal person payload for PersonChip cards. Keep this lean: laboratory
+// queries are already large and public deployments have request-URI limits.
+const PERSON_CARD_POPULATE = {
+  fields: ['firstName', 'lastName', 'slug', 'title'],
+  populate: {
+    portrait: {
+      fields: ['url', 'alternativeText'],
+    },
+  },
+};
+
 const PERSON_FULL_POPULATE = {
   fields: [...PERSON_FIELDS, 'bio'],
   populate: {
@@ -1012,8 +1023,8 @@ const LABORATORY_POPULATE = {
         logo: { fields: ['url', 'formats', 'alternativeText'] },
       },
     },
-    coordinator: PERSON_FLAT_POPULATE,
-    researchers: PERSON_FLAT_POPULATE,
+    coordinator: PERSON_CARD_POPULATE,
+    researchers: PERSON_CARD_POPULATE,
     departments: DEPARTMENT_POPULATE,
     researchThemes: { fields: ['name', 'slug'] },
     projects: {

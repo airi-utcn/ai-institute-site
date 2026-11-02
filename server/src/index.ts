@@ -1,4 +1,5 @@
 // import type { Core } from "@strapi/strapi";
+import { registerDraftAccessGuard } from "./utils/draft-access";
 
 const SLUG_COLLECTIONS = [
   "api::publication.publication",
@@ -34,6 +35,7 @@ export default {
   register({ strapi }: any) {
     if (!strapi.documents) return;
 
+    registerDraftAccessGuard(strapi);
 
     // Document Service middleware: Auto-generate fullName for Person
     strapi.documents.use(async (ctx: any, next: any) => {

@@ -13,6 +13,7 @@
     "migrate:i18n": "node ./scripts/migrate-i18n.js",
     "migrate:contributors": "node ./scripts/migrate-contributors.js",
     "start": "strapi start",
+    "test:draft-access": "node --test tests/draft-access.test.mjs",
     "test:news": "node --test tests/news-publication.test.cjs",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",

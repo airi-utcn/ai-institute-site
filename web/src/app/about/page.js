@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
@@ -13,6 +14,7 @@ export async function generateMetadata() {
   return {
     title: about?.metaTitle || "About – Mission & History",
     description: about?.metaDescription || "Learn about AIRi's mission, history, and role in advancing AI research at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/about'),
   };
 }
 

@@ -227,64 +227,6 @@ async function importDepartments(state) {
   }
 }
 
-async function importSupportUnits(state) {
-  const exists = await hasJson('departments', 'supportUnitsData.json');
-  if (!exists) {
-    console.warn('⚠️  supportUnitsData.json not found. Skipping support units import.');
-    return;
-  }
-  const units = await readJson('departments', 'supportUnitsData.json');
-  console.log(`\n⏳ Importing support units (${units.length} units detected)`);
-
-  for (const unit of units) {
-    const name = String(unit?.name || '').trim();
-    if (!name) continue;
-
-    const key = toKey(name);
-    const paragraphs = extractParagraphs(unit?.description);
-    const services = toFocusItems(unit?.elements);
-
-    const existing = await findDocument('api::support-unit.support-unit', {
-      name: { $eqi: name },
-    });
-
-    const baseData = {
-      name,
-      slug: toSlug(name),
-      summary: paragraphs[0] || '',
-      mission: paragraphs.join('\n\n'),
-      body: toRichTextBlocks(paragraphs),
-      services,
-      contactLinks: unit?.contactLinks || [],
-    };
-
-    let supportDoc;
-    if (existing) {
-      supportDoc = await strapi
-        .documents('api::support-unit.support-unit')
-        .update({
-          documentId: getDocId(existing),
-          data: { ...baseData, publishedAt: nowISO() },
-        });
-      await publishDocument('api::support-unit.support-unit', getDocId(supportDoc));
-      console.log(`  🔁 updated support unit: ${name}`);
-    } else {
-      supportDoc = await strapi
-        .documents('api::support-unit.support-unit')
-        .create({
-          data: {
-            ...baseData,
-            publishedAt: nowISO(),
-          },
-        });
-      await publishDocument('api::support-unit.support-unit', getDocId(supportDoc));
-      console.log(`  ✅ created support unit: ${name}`);
-    }
-
-    state.supportUnits[key] = supportDoc;
-  }
-}
-
 async function importPeople(state) {
   const raw = await readJson('staff', 'staffData.json');
   const people = [];
@@ -742,7 +684,6 @@ async function runMigration() {
     departments: {},
     departmentsByName: {},
     departmentMeta: {},
-    supportUnits: {},
     peopleBySlug: {},
     peopleByKey: {},
     publications: {},
@@ -753,7 +694,6 @@ async function runMigration() {
   };
 
   await importDepartments(state);
-  await importSupportUnits(state);
   await importPeople(state);
   await attachDepartmentLeads(state);
   await importPublications(state);

@@ -3419,7 +3419,8 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::partner.partner'
     >;
-    logo: Schema.Attribute.Media<'images'>;
+    logo: Schema.Attribute.Media<'images'> &
+      Schema.Attribute.Required;
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -3437,7 +3438,8 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    website: Schema.Attribute.String;
+    website: Schema.Attribute.String &
+      Schema.Attribute.Required;
   };
 }
 

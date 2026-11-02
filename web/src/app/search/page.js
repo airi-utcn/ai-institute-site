@@ -1,8 +1,13 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import ClassicClient from "./classic/ClassicClient";
+
+export const metadata = {
+  alternates: canonical('/search'),
+};
 
 export default async function SearchIndex() {
   const cookieStore = await cookies();

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
@@ -32,9 +33,10 @@ export async function generateMetadata({ params }) {
     return {
       title: lab?.title || "Laboratory Details",
       description: lab?.summary?.slice(0, 160) || "Laboratory details and facilities at AIRI.",
+      alternates: canonical(`/research/laboratories/${encodeURIComponent(slug)}`),
     };
   } catch {
-    return { title: "Laboratory Details" };
+    return { title: "Laboratory Details", alternates: canonical(`/research/laboratories/${encodeURIComponent(slug)}`) };
   }
 }
 

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
@@ -35,9 +36,10 @@ export async function generateMetadata({ params }) {
         title: `${title} | AIRi @ UTCN`,
         description,
       },
+      alternates: canonical(`/people/${encodeURIComponent(slugParam)}/${encodeURIComponent(projectParam)}`),
     };
   } catch {
-    return { title: "Project" };
+    return { title: "Project", alternates: canonical(`/people/${encodeURIComponent(slugParam)}/${encodeURIComponent(projectParam)}`) };
   }
 }
 

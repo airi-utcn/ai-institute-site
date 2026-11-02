@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from 'next/navigation';
@@ -29,6 +30,7 @@ export async function generateMetadata({ params }) {
   return {
     title: `${partner.name} | Partner`,
     description: partner.description || 'Partner profile and related projects.',
+    alternates: canonical(`/engagement/partners/${encodeURIComponent(slug)}`),
   };
 }
 

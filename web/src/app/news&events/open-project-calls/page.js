@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import OpenProjectsCallsClient from "./openProjectsCallsClient";
 import { getSingleType } from "@/lib/strapi";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: openCallsPage?.openCallsTitle || "Open Project Calls",
     description: openCallsPage?.openCallsSubtitle || "Open calls for research projects and funding opportunities at AIRi.",
+    alternates: canonical('/news&events/open-project-calls'),
   };
 }
 

@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -42,9 +43,7 @@ export async function generateMetadata({ params }) {
     return {
       title: publication.title || "Publication",
       description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
+      alternates: canonical(canonicalUrl),
       openGraph: {
         title: `${publication.title} | AIRi @ UTCN`,
         description,

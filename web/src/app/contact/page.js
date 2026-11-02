@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
 import ContactClient from "./ContactClient";
@@ -10,6 +11,7 @@ export async function generateMetadata() {
   return {
     title: contact?.headerTitle || "Contact",
     description: contact?.headerSubtitle || "Get in touch with the Artificial Intelligence Research Institute at the Technical University of Cluj-Napoca.",
+    alternates: canonical('/contact'),
   };
 }
 

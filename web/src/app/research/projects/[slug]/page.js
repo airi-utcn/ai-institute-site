@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }) {
     return {
       title: project?.title || "Project Details",
       description: project?.abstract?.slice(0, 160) || "Project details",
+      alternates: canonical(`/research/projects/${encodeURIComponent(slug)}`),
     };
   } catch {
-    return { title: "Project Details" };
+    return { title: "Project Details", alternates: canonical(`/research/projects/${encodeURIComponent(slug)}`) };
   }
 }
 

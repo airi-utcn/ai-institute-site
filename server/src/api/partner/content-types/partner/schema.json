@@ -33,7 +33,7 @@
     "logo": {
       "type": "media",
       "multiple": false,
-      "required": false,
+      "required": true,
       "allowedTypes": [
         "images"
       ]
@@ -47,7 +47,8 @@
       ]
     },
     "website": {
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "country": {
       "type": "enumeration",

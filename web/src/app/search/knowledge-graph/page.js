@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { getSingleType } from "@/lib/strapi";
@@ -11,6 +12,7 @@ export async function generateMetadata() {
   return {
     title: search?.kgTitle || "Knowledge Graphs",
     description: "Explore AIRi's research landscape through interactive knowledge graphs.",
+    alternates: canonical('/search/knowledge-graph'),
   };
 }
 

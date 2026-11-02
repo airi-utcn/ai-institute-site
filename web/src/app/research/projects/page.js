@@ -1,6 +1,8 @@
+import { canonical } from "@/lib/metadata";
 export const metadata = {
   title: "Projects",
   description: "Research projects and funded initiatives at the Artificial Intelligence Research Institute.",
+  alternates: canonical('/research/projects'),
 };
 
 import { cookies } from "next/headers";

@@ -274,6 +274,17 @@ const PERSON_WITH_IMAGE_POPULATE = {
   },
 };
 
+// Minimal person payload for PersonChip cards. Keep this lean: laboratory
+// queries are already large and public deployments have request-URI limits.
+const PERSON_CARD_POPULATE = {
+  fields: ['firstName', 'lastName', 'slug', 'title'],
+  populate: {
+    portrait: {
+      fields: ['url', 'alternativeText'],
+    },
+  },
+};
+
 const PERSON_FULL_POPULATE = {
   fields: [...PERSON_FIELDS, 'bio'],
   populate: {
@@ -1012,8 +1023,8 @@ const LABORATORY_POPULATE = {
         logo: { fields: ['url', 'formats', 'alternativeText'] },
       },
     },
-    coordinator: PERSON_FLAT_POPULATE,
-    researchers: PERSON_FLAT_POPULATE,
+    coordinator: PERSON_CARD_POPULATE,
+    researchers: PERSON_CARD_POPULATE,
     departments: DEPARTMENT_POPULATE,
     researchThemes: { fields: ['name', 'slug'] },
     projects: {
@@ -1567,25 +1578,35 @@ export async function getPublicationBySlug(slug, locale = null) {
 /**
  * Get all news articles from Strapi
  * @param {Object} options - Options for the query
- * @param {number} options.pageSize - Maximum number of articles to fetch
+ * @param {number} options.pageSize - Maximum number of articles to fetch; omit to fetch every page
  * @returns {Promise<Array>} Array of news articles
  */
 export async function getNewsArticles(options = {}) {
   const { pageSize, locale } = options;
 
   try {
-    const params = createParams({
+    const baseOptions = {
       sort: 'publishedDate:desc',
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
-      pagination: pageSize ? { pageSize } : null, filters: options.filters || null,
+      filters: options.filters || null,
       locale,
       populate: {
         heroImage: { fields: ['url', 'formats', 'alternativeText'] },
         author: PERSON_FLAT_POPULATE,
       },
-    });
-    const data = await fetchAPI(`/news-articles?${params.toString()}`);
-    return data.data || [];
+    };
+
+    // Callers that need a bounded feed (homepage, RSS, sitemap) pass an
+    // explicit pageSize. Everything else must see the full collection;
+    // otherwise Strapi's default limit silently hides older articles from
+    // listings, archives, static params, and the site-search index.
+    if (pageSize) {
+      const params = createParams({ ...baseOptions, pagination: { pageSize } });
+      const data = await fetchAPI(`/news-articles?${params.toString()}`);
+      return data.data || [];
+    }
+
+    return await fetchAllEntries('/news-articles', baseOptions);
   } catch (error) {
     console.error('Failed to fetch news articles:', error);
     return [];
@@ -2868,17 +2889,32 @@ export function isTeamArchived(team) {
   return projects.every((p) => isProjectArchived(p));
 }
 
+// check if a partner is a former/previous partner
+// per issue 172, if they don't have any active projects, they belong to previous partners
 export function isPartnerFormer(partner) {
   if (!partner) return true;
   const attributes = partner?.attributes ?? partner ?? {};
+  // if partner already had isFormer or partnerStatus computed, reuse that
   if (typeof attributes.isFormer === 'boolean') {
     return attributes.isFormer;
   }
   if (typeof attributes.isArchived === 'boolean') {
     return attributes.isArchived;
   }
-  const projects = toArray(attributes.projects?.data ?? attributes.projects ?? []);
+  if (typeof partner.isFormer === 'boolean') {
+    return partner.isFormer;
+  }
+  if (partner.partnerStatus === 'former') {
+    return true;
+  }
+  if (partner.partnerStatus === 'current') {
+    return false;
+  }
+  // grab projects from either strapi relation data or transformed array
+  const projects = toArray(attributes.projects?.data ?? attributes.projects ?? partner.projects ?? []);
+  // no projects means no active project, so they are former
   if (!projects.length) return true;
+  // if every project is ended/archived, partner is former
   return projects.every((p) => isProjectArchived(p));
 }
 
@@ -3379,7 +3415,14 @@ export function transformPartnerData(strapiPartners) {
       })
       .filter((project) => project.title || project.slug);
 
-    const isFormer = partnerProjects.length === 0 || partnerProjects.every((p) => p.isArchived);
+    // split into active and past projects
+    // this directly addresses issue 172 where za cloud had the expired
+    // 'distributed ledger' project mistakenly showing up under active projects
+    const activeProjects = partnerProjects.filter((p) => !p.isArchived);
+    const pastProjects = partnerProjects.filter((p) => p.isArchived);
+
+    // a partner is former if they do not have any active project
+    const isFormer = activeProjects.length === 0;
     const isCurrent = !isFormer;
     const status = isFormer ? 'former' : 'current';
     const role = normalizePartnerRole(attributes.role || attributes.type);
@@ -3408,6 +3451,9 @@ export function transformPartnerData(strapiPartners) {
       heroImageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
       body: normalizeBodyBlocks(attributes.body),
       projects: partnerProjects,
+      activeProjects,
+      pastProjects,
+      hasActiveProjects: activeProjects.length > 0,
       partnerStatus: status,
       status,
       isCurrentPartner: isCurrent,

@@ -59,7 +59,6 @@ export async function generateMetadata() {
       images: ["/homepage/hero5.png"],
     },
     alternates: {
-      canonical: "/",
       types: {
         'application/rss+xml': '/rss.xml',
       },

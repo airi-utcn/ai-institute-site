@@ -1,3 +1,4 @@
+import { canonical } from "@/lib/metadata";
 import { 
   getDepartments,
   getDepartmentBySlug, 
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }) {
   return {
     title: unit.name,
     description: unit.summary || unit.description || `Learn about ${unit.name} at AIRi @ UTCN`,
+    alternates: canonical(`/research/departments/${encodeURIComponent(slug)}`),
   };
 }
 

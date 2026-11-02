@@ -1,5 +1,7 @@
+import { canonical } from "@/lib/metadata";
 export const metadata = {
   title: "ICIA – Research Graph",
+  alternates: canonical('/research/paper-graph'),
 };
 
 import {

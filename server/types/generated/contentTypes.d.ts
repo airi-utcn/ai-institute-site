@@ -1086,7 +1086,7 @@ export interface ApiDepartmentsPageDepartmentsPage
     singularName: 'departments-page';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   pluginOptions: {
     i18n: {

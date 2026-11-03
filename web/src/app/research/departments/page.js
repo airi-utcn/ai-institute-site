@@ -1,6 +1,11 @@
 import { canonical } from "@/lib/metadata";
-import { cookies, draftMode } from "next/headers";
-import FallbackDisclaimer from "@/components/FallbackDisclaimer";
+export const metadata = {
+  title: "Research Departments",
+  description: "Research departments and units within the Artificial Intelligence Research Institute at UTCN.",
+  alternates: canonical('/research/departments'),
+};
+
+import { cookies } from "next/headers";
 import DepartmentsClient from "./DepartmentsClient";
 import {
   getDepartments,
@@ -14,45 +19,16 @@ import {
   transformStaffData,
 } from "@/lib/strapi";
 
-export async function generateMetadata() {
-  const cookieStore = await cookies();
-  const { isEnabled } = await draftMode();
-  const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const pageData = await getSingleType(
-    "departments-page",
-    locale,
-    "*",
-    isEnabled ? { cache: "no-store" } : {},
-    isEnabled ? { status: "draft" } : {},
-  );
-
-  return {
-    title: pageData?.title || "Research Departments",
-    description: pageData?.subtitle || "Research departments and units within the Artificial Intelligence Research Institute at UTCN.",
-    alternates: canonical('/research/departments'),
-  };
-}
-
 export default async function ResearchPage() {
   const cookieStore = await cookies();
-  const { isEnabled } = await draftMode();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [staffData, departmentData, projectsData, publicationsData, pageData] = await Promise.all([
     getStaff(),
-    getDepartments(
-      { slim: true, locale, ...(isEnabled ? { status: "draft" } : {}) },
-      isEnabled ? { cache: "no-store" } : {},
-    ),
-    getProjects({ locale, ...(isEnabled ? { status: "draft" } : {}) }),
+    getDepartments({ slim: true, locale }),
+    getProjects({ locale }),
     getPublications({ locale }),
-    getSingleType(
-      "departments-page",
-      locale,
-      "*",
-      isEnabled ? { cache: "no-store" } : {},
-      isEnabled ? { status: "draft" } : {},
-    ),
+    getSingleType("departments-page", locale),
   ]);
 
   const staff = transformStaffData(staffData);
@@ -61,15 +37,12 @@ export default async function ResearchPage() {
   const publications = transformPublicationData(publicationsData);
 
   return (
-    <>
-      <FallbackDisclaimer isFallback={pageData?._isFallback} />
-      <DepartmentsClient
-        staffData={staff}
-        departments={departments}
-        projects={projects}
-        publications={publications}
-        pageData={pageData}
-      />
-    </>
+    <DepartmentsClient
+      staffData={staff}
+      departments={departments}
+      projects={projects}
+      publications={publications}
+      pageData={pageData}
+    />
   );
 }

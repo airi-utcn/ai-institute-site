@@ -1820,11 +1820,16 @@ export async function getProjectsByMember(memberSlug) {
   }
 }
 
-export async function getDepartmentBySlug(slug, locale = 'en') {
+export async function getDepartmentBySlug(
+  slug,
+  locale = 'en',
+  queryOptions = {},
+  fetchOptions = {},
+) {
   try {
     if (!slug) return null;
+    const { filters: customFilters, ...restQueryOptions } = queryOptions;
     const baseOptions = {
-      filters: { slug: { $eq: slug } },
       locale,
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       populate: {
@@ -1835,17 +1840,22 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
         coordinator: PERSON_WITH_IMAGE_POPULATE,
         coCoordinator: PERSON_WITH_IMAGE_POPULATE,
       },
+      ...restQueryOptions,
+      filters: {
+        slug: { $eq: slug },
+        ...(customFilters || {}),
+      },
     };
 
     // Convert to query string
     const params = createParams(baseOptions);
-    const data = await fetchAPI(`/departments?${params.toString()}`);
+    const data = await fetchAPI(`/departments?${params.toString()}`, fetchOptions);
 
     // Fallback logic
     if (!data.data?.length && locale && locale !== 'en') {
       const fallbackOptions = { ...baseOptions, locale: 'en' };
       const fallbackParams = createParams(fallbackOptions);
-      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`);
+      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`, fetchOptions);
       if (fallbackData.data?.[0]) {
         return { ...fallbackData.data[0], _isFallback: true };
       }
@@ -1858,9 +1868,9 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
   }
 }
 
-export async function getDepartments(options = {}) {
+export async function getDepartments(options = {}, fetchOptions = {}) {
   try {
-    const { type, page, pageSize = 100, slim = false, locale } = options;
+    const { type, page, pageSize = 100, slim = false, locale, status, publicationState } = options;
     const filters = type ? { type: { $eq: type } } : null;
 
     // slim=true: only fetch the fields needed for list/card views (name, slug, summary, type).
@@ -1870,11 +1880,15 @@ export async function getDepartments(options = {}) {
       fields: ['name', 'slug', 'summary', 'type'],
       filters,
       locale,
+      ...(status ? { status } : {}),
+      ...(publicationState ? { publicationState } : {}),
     } : {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
       locale,
+      ...(status ? { status } : {}),
+      ...(publicationState ? { publicationState } : {}),
       populate: {
         focusItems: {},
         contactLinks: {},
@@ -1887,11 +1901,11 @@ export async function getDepartments(options = {}) {
 
     if (page) {
       const params = createParams({ ...baseOptions, pagination: { page, pageSize } });
-      const data = await fetchAPI(`/departments?${params.toString()}`);
+      const data = await fetchAPI(`/departments?${params.toString()}`, fetchOptions);
       return data.data || [];
     }
 
-    return await fetchAllEntries('/departments', baseOptions, pageSize);
+    return await fetchAllEntries('/departments', baseOptions, pageSize, fetchOptions);
   } catch (error) {
     console.error('Failed to fetch departments:', error);
     return [];

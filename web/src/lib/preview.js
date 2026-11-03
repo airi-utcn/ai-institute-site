@@ -1,9 +1,11 @@
 export const ALLOWED_STATIC_PATHS = new Set([
   '/engagement',
+  '/research/departments',
 ]);
 
 export const ALLOWED_PATH_PATTERNS = [
   /^\/research\/projects\/[^/?#]+$/,
+  /^\/research\/departments\/[^/?#]+$/,
 ];
 
 export function isAllowedPreviewPath(path) {

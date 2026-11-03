@@ -67,6 +67,8 @@ const resolveSlugCollectionPath = (basePath: string): PreviewResolver => {
 export const previewResolvers: Record<string, PreviewResolver> = {
   'api::engagement-page.engagement-page': () => '/engagement',
   'api::project.project': resolveSlugCollectionPath('/research/projects'),
+  'api::departments-page.departments-page': () => '/research/departments',
+  'api::department.department': resolveSlugCollectionPath('/research/departments'),
 };
 
 export default ({ env }) => ({

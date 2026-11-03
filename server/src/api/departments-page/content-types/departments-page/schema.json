@@ -8,7 +8,7 @@
     "description": "Content for departments page"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {
     "i18n": {

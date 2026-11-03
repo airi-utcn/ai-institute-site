@@ -107,6 +107,9 @@ export default function EventSlugClient({ event, pageData }) {
               focalPoint={event.focalPoint}
               aspectRatio=""
               className="w-full h-64 sm:h-80 md:h-[420px] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm"
+              priority
+              fallback={<FaRegImage className="w-10 h-10 opacity-40" aria-hidden="true" />}
+              fallbackClassName="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-400"
             />
             {event.photoCredits && (
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right">
@@ -157,6 +160,8 @@ export default function EventSlugClient({ event, pageData }) {
                               <img
                                 src={avatarImg}
                                 alt={displayName}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover"
                               />
                             </div>

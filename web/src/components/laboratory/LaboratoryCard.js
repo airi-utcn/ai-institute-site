@@ -17,20 +17,16 @@ export default function LaboratoryCard({ lab, className = '' }) {
       className={`group relative flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-blue-500/50 dark:hover:border-blue-400/50 overflow-hidden ${className}`}
     >
       {/* Media Preview Frame with SmartMediaImage */}
-      <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800">
-        {imageUrl ? (
-          <SmartMediaImage
-            src={imageUrl}
-            alt={lab.heroImageAlt || lab.title}
-            focalPoint={lab.focalPoint}
-            aspectRatio="aspect-video"
-            imageClassName="group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-900/20 via-gray-900 to-indigo-950 text-gray-500">
-            <span className="text-sm font-medium">AIRI Laboratory</span>
-          </div>
-        )}
+      <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <SmartMediaImage
+          src={imageUrl}
+          alt={lab.heroImageAlt || lab.title}
+          focalPoint={lab.focalPoint}
+          aspectRatio="aspect-video"
+          imageClassName="group-hover:scale-105"
+          fallback={<span className="text-sm font-medium">AIRI Laboratory</span>}
+          fallbackClassName="bg-gradient-to-br from-blue-900/20 via-gray-900 to-indigo-950 text-gray-500"
+        />
 
         {/* Top Badges Overlay */}
         <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-20">

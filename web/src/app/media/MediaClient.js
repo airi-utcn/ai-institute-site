@@ -278,7 +278,7 @@ export default function MediaClient({ mediaData }) {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredAlbums.map((album) => (
+              {filteredAlbums.map((album, index) => (
                 <motion.article
                   key={album.id}
                   variants={itemVariants}
@@ -290,11 +290,13 @@ export default function MediaClient({ mediaData }) {
                     rel="noopener noreferrer"
                     className="block relative aspect-video overflow-hidden bg-gray-100 dark:bg-gray-800"
                   >
-                    <img
+                    <Image
                       src={album.coverUrl}
                       alt={album.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      priority={index < 3}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1.5">
                       <FaImages className="w-3 h-3 text-blue-400" />
@@ -432,7 +434,7 @@ export default function MediaClient({ mediaData }) {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredDocs.map((item) => (
+              {filteredDocs.map((item, index) => (
                 <motion.div
                   key={item.id}
                   variants={itemVariants}
@@ -446,7 +448,8 @@ export default function MediaClient({ mediaData }) {
                         alt={item.alt || item.title}
                         width={600}
                         height={400}
-                        unoptimized
+                        priority={index < 3}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -519,7 +522,7 @@ export default function MediaClient({ mediaData }) {
                     src={selectedMedia.src}
                     alt={selectedMedia.alt || selectedMedia.title}
                     fill
-                    unoptimized
+                    sizes="(max-width: 768px) 100vw, 90vw"
                     className="object-contain"
                   />
                 </div>

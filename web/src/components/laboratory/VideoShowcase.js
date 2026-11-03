@@ -61,6 +61,10 @@ export default function VideoShowcase({
               <img
                 src={posterSrc}
                 alt={posterAlt || title || 'Video preview'}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                onError={(event) => { event.currentTarget.style.display = 'none'; }}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center">

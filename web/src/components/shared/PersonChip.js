@@ -23,6 +23,8 @@ export default function PersonChip({ person, role, isLead, image }) {
         <img
           src={avatarUrl}
           alt={person?.imageAlt || name || "Avatar"}
+          loading="lazy"
+          decoding="async"
           className="w-10 h-10 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm"
         />
         {isLead && (

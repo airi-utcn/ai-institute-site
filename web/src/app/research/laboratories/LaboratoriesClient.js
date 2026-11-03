@@ -110,6 +110,9 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
               src={heroImageUrl}
               alt=""
               aria-hidden="true"
+              loading="eager"
+              fetchPriority="low"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover opacity-25 dark:opacity-30"
             />
             <div

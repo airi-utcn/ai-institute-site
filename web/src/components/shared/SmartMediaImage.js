@@ -25,6 +25,8 @@ export default function SmartMediaImage({
   focalPoint = null,
   priority = false,
   loading = 'lazy',
+  decoding = 'async',
+  sizes,
   fallback = null,
   fallbackClassName = '',
   children,
@@ -67,7 +69,7 @@ export default function SmartMediaImage({
           {fallback}
         </div>
       )}
-      {children && <div className="relative z-20">{children}</div>}
+      {children && <div className="absolute inset-0 z-20">{children}</div>}
     </div>
   );
 
@@ -104,7 +106,8 @@ export default function SmartMediaImage({
             src={src}
             alt=""
             className="w-full h-full object-cover blur-2xl opacity-50 dark:opacity-40 scale-110"
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
           />
           <div className="absolute inset-0 bg-black/10 dark:bg-black/35 backdrop-blur-[1px]" />
         </div>
@@ -115,6 +118,9 @@ export default function SmartMediaImage({
         src={src}
         alt={alt}
         loading={priority ? 'eager' : loading}
+        fetchPriority={priority ? 'high' : undefined}
+        decoding={decoding}
+        sizes={sizes}
         onLoad={handleLoad}
         onError={handleError}
         style={!showAmbientBackdrop ? focalStyle : undefined}
@@ -127,7 +133,7 @@ export default function SmartMediaImage({
       />
 
       {children && (
-        <div className="relative z-20">
+        <div className="absolute inset-0 z-20">
           {children}
         </div>
       )}

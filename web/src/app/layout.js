@@ -45,7 +45,7 @@ export async function generateMetadata() {
       url: "https://airi.utcluj.ro",
       images: [
         {
-          url: "/homepage/hero5.png",
+          url: "/homepage/hero5-og.jpg",
           width: 1200,
           height: 630,
           alt: `${title} – Artificial Intelligence Research Institute at UTCN`,
@@ -56,7 +56,7 @@ export async function generateMetadata() {
       card: "summary_large_image",
       title: `${title} – Artificial Intelligence Research Institute`,
       description,
-      images: ["/homepage/hero5.png"],
+      images: ["/homepage/hero5-og.jpg"],
     },
     alternates: {
       types: {

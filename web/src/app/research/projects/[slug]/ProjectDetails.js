@@ -231,6 +231,8 @@ function PartnerCard({ partner }) {
               <img
                 src={logoUrl}
                 alt={partner.name}
+                loading="lazy"
+                decoding="async"
                 className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
               />
               <span className="mt-3 text-gray-900 dark:text-white font-semibold text-sm text-center leading-tight">
@@ -777,6 +779,9 @@ export default function ProjectDetails({ project, pageData }) {
           <img
             src={heroImageUrl}
             alt={project.heroImageAlt || project.title}
+            loading="eager"
+            decoding="async"
+            onError={(event) => { event.currentTarget.style.display = 'none'; }}
             className="absolute inset-0 w-full h-full object-cover opacity-30"
           />
         )}
@@ -1026,6 +1031,8 @@ export default function ProjectDetails({ project, pageData }) {
                             <img
                               src={person.image || '/people/Basic_avatar_image.png'}
                               alt={person.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
                             />
                           </div>

@@ -346,6 +346,8 @@ export default function ProjectDetailClient({
                           <img
                             src={member.image || FALLBACK_AVATAR}
                             alt={member.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
                           />
                           <div>
@@ -374,6 +376,8 @@ export default function ProjectDetailClient({
                           <img
                             src={member.image || FALLBACK_AVATAR}
                             alt={member.name}
+                            loading="lazy"
+                            decoding="async"
                             className="w-7 h-7 rounded-full object-cover"
                           />
                           <span className="text-xs font-medium text-gray-800 dark:text-gray-200 truncate group-hover:text-blue-600 transition-colors">
@@ -410,6 +414,8 @@ export default function ProjectDetailClient({
                             <img
                               src={partnerLogo}
                               alt={partnerName}
+                              loading="lazy"
+                              decoding="async"
                               className="w-8 h-8 rounded object-contain shrink-0"
                             />
                           ) : (

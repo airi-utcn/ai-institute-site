@@ -179,6 +179,8 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = true, active
             <img
               src={person.image}
               alt={person.name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full rounded-full object-cover"
             />
           ) : (

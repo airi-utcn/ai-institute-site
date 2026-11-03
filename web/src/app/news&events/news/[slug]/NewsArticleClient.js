@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FaArrowLeft, FaExternalLinkAlt, FaCalendar, FaUser, FaTag, FaLinkedin } from 'react-icons/fa';
+import { FaArrowLeft, FaExternalLinkAlt, FaCalendar, FaUser, FaTag, FaLinkedin, FaNewspaper } from 'react-icons/fa';
 import { useLocale } from '@/context/LocaleContext';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import MediaPlayer from '@/components/shared/MediaPlayer';
@@ -60,6 +60,8 @@ export default function NewsArticleClient({ article, pageData }) {
             aspectRatio=""
             className="absolute inset-0 w-full h-full"
             priority
+            fallback={<FaNewspaper className="w-10 h-10 opacity-40" aria-hidden="true" />}
+            fallbackClassName="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-400"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           </SmartMediaImage>

@@ -3,6 +3,8 @@ import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { FaNewspaper } from "react-icons/fa";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { getNewsArticles, transformNewsData, getSingleType } from "@/lib/strapi";
 
 export async function generateMetadata() {
@@ -56,12 +58,11 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="relative isolate h-[55vh] md:h-[65vh] flex items-center justify-center overflow-hidden bg-gray-900">
         <Image
-          src="/homepage/hero5.png"
+          src="/homepage/hero5.webp"
           alt={heroAltHero}
           fill
           priority
           sizes="100vw"
-          unoptimized
           className="absolute inset-0 object-cover opacity-60"
         />
         <div
@@ -90,7 +91,6 @@ export default async function Home() {
             height={160}
             className="w-28 h-28 md:w-40 md:h-40 object-contain rounded-xl shadow-xl border-4 border-white/90 dark:border-gray-800"
             priority
-            unoptimized
           />
         </div>
       </section>
@@ -188,15 +188,14 @@ export default async function Home() {
                 className="card overflow-hidden group flex flex-col"
               >
                 {article.image && (
-                  <div className="relative h-40 overflow-hidden">
-                    <Image
-                      src={article.image}
-                      alt={article.imageAlt || article.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      unoptimized
-                    />
-                  </div>
+                  <SmartMediaImage
+                    src={article.image}
+                    alt={article.imageAlt || article.title}
+                    aspectRatio="h-40"
+                    imageClassName="group-hover:scale-105"
+                    fallbackClassName="bg-gray-100 dark:bg-gray-800 text-gray-400"
+                    fallback={<FaNewspaper className="w-8 h-8 opacity-40" aria-hidden="true" />}
+                  />
                 )}
                 <div className="p-5 flex-1 flex flex-col">
                   <time className="text-xs text-gray-500 dark:text-gray-400 mb-2 block">

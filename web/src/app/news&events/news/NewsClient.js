@@ -227,6 +227,9 @@ export default function NewsClient({ newsItems = [], pageData }) {
               src={heroImageUrl}
               alt=""
               aria-hidden="true"
+              loading="eager"
+              fetchPriority="low"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-25"
             />
             <div
@@ -319,7 +322,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
               className="w-full sm:max-h-96"
               fallbackClassName="bg-gray-100 dark:bg-gray-800 text-gray-400"
               fallback={<FaNewspaper className="w-8 h-8 opacity-40" aria-hidden="true" />}
-              loading="lazy"
+              priority
             />
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent pointer-events-none" />

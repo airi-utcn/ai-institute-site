@@ -108,6 +108,9 @@ export default function LaboratoryDetailClient({ lab, pageData }) {
               focalPoint={lab.focalPoint}
               aspectRatio="aspect-[21/9]"
               className="max-h-[500px]"
+              priority
+              fallback={<FaFlask className="w-10 h-10 opacity-40" aria-hidden="true" />}
+              fallbackClassName="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-900/20 text-blue-400"
             />
           </section>
         ) : null}

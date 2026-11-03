@@ -83,7 +83,7 @@ function DynamicCard({ card, className = '' }) {
         <div className="flex items-start justify-between gap-3 mb-4">
           {imageUrl ? (
             <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-100 dark:border-gray-800">
-              <img src={imageUrl} alt={card.title || 'Card image'} className="w-full h-full object-cover" />
+              <img src={imageUrl} alt={card.title || 'Card image'} loading="lazy" decoding="async" className="w-full h-full object-cover" />
             </div>
           ) : Icon ? (
             <div className="p-3 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl flex-shrink-0 group-hover:scale-105 transition-transform">

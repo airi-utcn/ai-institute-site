@@ -244,6 +244,8 @@ export default function DepartmentDetailClient({
                         <img
                           src={coordinatorImage || "/people/Basic_avatar_image.png"}
                           alt={coordinator.name || "Coordinator"}
+                          loading="lazy"
+                          decoding="async"
                           className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
@@ -279,6 +281,8 @@ export default function DepartmentDetailClient({
                         <img
                           src={coCoordinatorImage || "/people/Basic_avatar_image.png"}
                           alt={coCoordinator.name || "Co-Coordinator"}
+                          loading="lazy"
+                          decoding="async"
                           className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
                         />
                         <div className="flex-1 min-w-0">

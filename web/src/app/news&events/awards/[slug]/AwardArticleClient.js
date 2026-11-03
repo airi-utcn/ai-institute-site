@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FaArrowLeft, FaExternalLinkAlt, FaCalendar, FaUser, FaTag, FaLinkedin } from 'react-icons/fa';
+import { FaArrowLeft, FaExternalLinkAlt, FaCalendar, FaUser, FaTag, FaLinkedin, FaTrophy } from 'react-icons/fa';
 import { useLocale } from '@/context/LocaleContext';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import MediaPlayer from '@/components/shared/MediaPlayer';
@@ -59,6 +59,8 @@ export default function AwardArticleClient({ article, pageData }) {
             aspectRatio=""
             className="absolute inset-0 w-full h-full"
             priority
+            fallback={<FaTrophy className="w-10 h-10 opacity-40" aria-hidden="true" />}
+            fallbackClassName="bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/30 dark:to-yellow-900/20 text-amber-400"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
           </SmartMediaImage>

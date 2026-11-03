@@ -49,6 +49,7 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
               className="w-full h-full object-contain cursor-pointer"
               onClick={() => setIsLightboxOpen(true)}
               loading="lazy"
+              decoding="async"
             />
           </AnimatePresence>
 
@@ -116,6 +117,7 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
                   alt={item.alt || item.alternativeText || `Thumbnail ${index + 1}`}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
               </button>
             ))}
@@ -131,9 +133,11 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
             className="print-gallery-item rounded-lg border border-gray-200 p-2 break-inside-avoid"
           >
             <img
-              src={src}
+              src={src.url || src}
               alt={`${alt} ${index + 1}`}
               className="w-full h-44 object-cover rounded"
+              loading="lazy"
+              decoding="async"
             />
             {items.length > 1 && (
               <figcaption className="text-[10pt] text-gray-500 mt-1 text-center font-medium">

@@ -771,14 +771,20 @@ export async function getProjects(options = {}) {
  * @param {string} slug - The project's slug
  * @returns {Promise<Object|null>} Project object or null
  */
-export async function getProjectBySlug(slug, locale = null) {
+export async function getProjectBySlug(
+  slug,
+  locale = null,
+  queryOptions = {},
+  fetchOptions = {},
+) {
   try {
     if (!slug) return null;
+
+    const { filters: customFilters, ...restQueryOptions } = queryOptions;
 
     // Split into two parallel requests so neither URL becomes excessively long.
     // 1. Core project data (no publications nested populate).
     const projectParams = createParams({
-      filters: { slug: { $eq: slug } },
       publicationState: 'preview',
       locale,
       fields: PROJECT_POPULATE.fields,
@@ -851,6 +857,11 @@ export async function getProjectBySlug(slug, locale = null) {
         timeline: {},
         resources: { fields: ['title', 'slug', 'url', 'icon', 'category', 'description'] },
       },
+      ...restQueryOptions,
+      filters: {
+        slug: { $eq: slug },
+        ...(customFilters || {}),
+      },
     });
 
     // 2. Publications for this project — fetched from the publications endpoint to keep URLs short.
@@ -865,12 +876,12 @@ export async function getProjectBySlug(slug, locale = null) {
       },
     });
 
-    const projectData = await fetchAPI(`/projects?${projectParams.toString()}`);
+    const projectData = await fetchAPI(`/projects?${projectParams.toString()}`, fetchOptions);
     let project = projectData.data?.[0];
     if (!project && locale && locale !== 'en') {
       const fallbackParams = new URLSearchParams(projectParams);
       fallbackParams.set("locale", "en");
-      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`);
+      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`, fetchOptions);
       if (fallbackData.data?.[0]) {
         project = fallbackData.data[0];
         project._isFallback = true;
@@ -881,7 +892,7 @@ export async function getProjectBySlug(slug, locale = null) {
     // Publications are optional for this view; do not block project rendering if this call fails.
     let publications = [];
     try {
-      const pubData = await fetchAPI(`/publications?${pubParams.toString()}`);
+      const pubData = await fetchAPI(`/publications?${pubParams.toString()}`, fetchOptions);
       publications = pubData?.data ?? [];
     } catch (error) {
       console.warn('Failed to fetch publications for project:', slug, error);
@@ -1809,11 +1820,16 @@ export async function getProjectsByMember(memberSlug) {
   }
 }
 
-export async function getDepartmentBySlug(slug, locale = 'en') {
+export async function getDepartmentBySlug(
+  slug,
+  locale = 'en',
+  queryOptions = {},
+  fetchOptions = {},
+) {
   try {
     if (!slug) return null;
+    const { filters: customFilters, ...restQueryOptions } = queryOptions;
     const baseOptions = {
-      filters: { slug: { $eq: slug } },
       locale,
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       populate: {
@@ -1824,17 +1840,22 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
         coordinator: PERSON_WITH_IMAGE_POPULATE,
         coCoordinator: PERSON_WITH_IMAGE_POPULATE,
       },
+      ...restQueryOptions,
+      filters: {
+        slug: { $eq: slug },
+        ...(customFilters || {}),
+      },
     };
 
     // Convert to query string
     const params = createParams(baseOptions);
-    const data = await fetchAPI(`/departments?${params.toString()}`);
+    const data = await fetchAPI(`/departments?${params.toString()}`, fetchOptions);
 
     // Fallback logic
     if (!data.data?.length && locale && locale !== 'en') {
       const fallbackOptions = { ...baseOptions, locale: 'en' };
       const fallbackParams = createParams(fallbackOptions);
-      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`);
+      const fallbackData = await fetchAPI(`/departments?${fallbackParams.toString()}`, fetchOptions);
       if (fallbackData.data?.[0]) {
         return { ...fallbackData.data[0], _isFallback: true };
       }
@@ -1847,9 +1868,9 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
   }
 }
 
-export async function getDepartments(options = {}) {
+export async function getDepartments(options = {}, fetchOptions = {}) {
   try {
-    const { type, page, pageSize = 100, slim = false, locale } = options;
+    const { type, page, pageSize = 100, slim = false, locale, status, publicationState } = options;
     const filters = type ? { type: { $eq: type } } : null;
 
     // slim=true: only fetch the fields needed for list/card views (name, slug, summary, type).
@@ -1859,11 +1880,15 @@ export async function getDepartments(options = {}) {
       fields: ['name', 'slug', 'summary', 'type'],
       filters,
       locale,
+      ...(status ? { status } : {}),
+      ...(publicationState ? { publicationState } : {}),
     } : {
       sort: 'name:asc',
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
       locale,
+      ...(status ? { status } : {}),
+      ...(publicationState ? { publicationState } : {}),
       populate: {
         focusItems: {},
         contactLinks: {},
@@ -1876,11 +1901,11 @@ export async function getDepartments(options = {}) {
 
     if (page) {
       const params = createParams({ ...baseOptions, pagination: { page, pageSize } });
-      const data = await fetchAPI(`/departments?${params.toString()}`);
+      const data = await fetchAPI(`/departments?${params.toString()}`, fetchOptions);
       return data.data || [];
     }
 
-    return await fetchAllEntries('/departments', baseOptions, pageSize);
+    return await fetchAllEntries('/departments', baseOptions, pageSize, fetchOptions);
   } catch (error) {
     console.error('Failed to fetch departments:', error);
     return [];

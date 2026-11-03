@@ -1,7 +1,8 @@
 import { draftMode } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { isAllowedPreviewPath, PREVIEW_PATHS } from '@/lib/preview';
 
-const PREVIEW_PATHS = new Set(['/engagement']);
+export { isAllowedPreviewPath, PREVIEW_PATHS };
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -14,7 +15,7 @@ export async function GET(request) {
     return new Response('Invalid preview token', { status: 401 });
   }
 
-  if (!PREVIEW_PATHS.has(path)) {
+  if (!isAllowedPreviewPath(path)) {
     return new Response('Invalid preview path', { status: 400 });
   }
 

@@ -1,6 +1,6 @@
 import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
-import { cookies } from "next/headers";
+import { cookies, draftMode } from "next/headers";
 import { notFound } from "next/navigation";
 import { getProjects, getProjectBySlug, transformProjectData, getSingleType } from "@/lib/strapi";
 import ProjectDetailsClient from "./ProjectDetails";
@@ -20,9 +20,15 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const cookieStore = await cookies();
+  const { isEnabled } = await draftMode();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   try {
-    const projectData = await getProjectBySlug(slug, locale);
+    const projectData = await getProjectBySlug(
+      slug,
+      locale,
+      isEnabled ? { status: "draft" } : {},
+      isEnabled ? { cache: "no-store" } : {},
+    );
     const project = transformProjectData([projectData])[0];
     return {
       title: project?.title || "Project Details",
@@ -37,13 +43,26 @@ export async function generateMetadata({ params }) {
 export default async function ProjectPage({ params }) {
   const { slug } = await params;
   const cookieStore = await cookies();
+  const { isEnabled } = await draftMode();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   const [projectData, pageData] = await Promise.all([
-    getProjectBySlug(slug, locale),
-    getSingleType("projects-page", locale),
+    getProjectBySlug(
+      slug,
+      locale,
+      isEnabled ? { status: "draft" } : {},
+      isEnabled ? { cache: "no-store" } : {},
+    ),
+    getSingleType(
+      "projects-page",
+      locale,
+      "*",
+      isEnabled ? { cache: "no-store" } : {},
+      isEnabled ? { status: "draft" } : {},
+    ),
   ]);
   if (!projectData) notFound();
   const project = transformProjectData([projectData])[0];
+  if (!project) notFound();
 
   return (
     <>

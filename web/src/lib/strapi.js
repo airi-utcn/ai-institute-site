@@ -771,14 +771,20 @@ export async function getProjects(options = {}) {
  * @param {string} slug - The project's slug
  * @returns {Promise<Object|null>} Project object or null
  */
-export async function getProjectBySlug(slug, locale = null) {
+export async function getProjectBySlug(
+  slug,
+  locale = null,
+  queryOptions = {},
+  fetchOptions = {},
+) {
   try {
     if (!slug) return null;
+
+    const { filters: customFilters, ...restQueryOptions } = queryOptions;
 
     // Split into two parallel requests so neither URL becomes excessively long.
     // 1. Core project data (no publications nested populate).
     const projectParams = createParams({
-      filters: { slug: { $eq: slug } },
       publicationState: 'preview',
       locale,
       fields: PROJECT_POPULATE.fields,
@@ -851,6 +857,11 @@ export async function getProjectBySlug(slug, locale = null) {
         timeline: {},
         resources: { fields: ['title', 'slug', 'url', 'icon', 'category', 'description'] },
       },
+      ...restQueryOptions,
+      filters: {
+        slug: { $eq: slug },
+        ...(customFilters || {}),
+      },
     });
 
     // 2. Publications for this project — fetched from the publications endpoint to keep URLs short.
@@ -865,12 +876,12 @@ export async function getProjectBySlug(slug, locale = null) {
       },
     });
 
-    const projectData = await fetchAPI(`/projects?${projectParams.toString()}`);
+    const projectData = await fetchAPI(`/projects?${projectParams.toString()}`, fetchOptions);
     let project = projectData.data?.[0];
     if (!project && locale && locale !== 'en') {
       const fallbackParams = new URLSearchParams(projectParams);
       fallbackParams.set("locale", "en");
-      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`);
+      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`, fetchOptions);
       if (fallbackData.data?.[0]) {
         project = fallbackData.data[0];
         project._isFallback = true;
@@ -881,7 +892,7 @@ export async function getProjectBySlug(slug, locale = null) {
     // Publications are optional for this view; do not block project rendering if this call fails.
     let publications = [];
     try {
-      const pubData = await fetchAPI(`/publications?${pubParams.toString()}`);
+      const pubData = await fetchAPI(`/publications?${pubParams.toString()}`, fetchOptions);
       publications = pubData?.data ?? [];
     } catch (error) {
       console.warn('Failed to fetch publications for project:', slug, error);

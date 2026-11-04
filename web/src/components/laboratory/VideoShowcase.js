@@ -22,6 +22,17 @@ function getEmbedUrl(url) {
   return null;
 }
 
+/**
+ * VideoShowcase
+ *
+ * Renders an uploaded video, a direct video URL, or an embed (YouTube/Vimeo)
+ * behind a poster cover.
+ *
+ * The player is only mounted after the visitor presses play. Mounting an embed
+ * up-front would let it autoplay underneath the cover (the embed URLs request
+ * autoplay), and even a local <video> would show its native controls through a
+ * translucent cover. Until then only the opaque poster and play button exist.
+ */
 export default function VideoShowcase({
   videoFile,
   videoUrl,
@@ -46,64 +57,74 @@ export default function VideoShowcase({
     return null;
   }
 
+  const playLabel = title ? `Play video: ${title}` : 'Play video';
+
   return (
     <div className={`relative my-8 ${className}`}>
       {/* Cinematic ambient glow */}
-      <div 
-        className="absolute -inset-1.5 bg-gradient-to-r from-blue-600/25 via-indigo-500/20 to-purple-600/25 rounded-3xl blur-xl opacity-70 dark:opacity-50 -z-10" 
-        aria-hidden="true" 
+      <div
+        className="absolute -inset-1.5 bg-gradient-to-r from-blue-600/25 via-indigo-500/20 to-purple-600/25 rounded-3xl blur-xl opacity-70 dark:opacity-50 -z-10"
+        aria-hidden="true"
       />
 
       <div className="relative rounded-2xl overflow-hidden border border-gray-200/80 dark:border-gray-800 bg-black shadow-2xl">
-        <div className="relative aspect-video w-full overflow-hidden bg-gray-950 flex items-center justify-center">
-          {/* If user hasn't clicked play yet and we have a poster, show cinematic cover */}
-          {!isPlaying && posterSrc && (
-            <div className="absolute inset-0 z-20 cursor-pointer group" onClick={() => setIsPlaying(true)}>
-              <img
-                src={posterSrc}
-                srcSet={posterSrcSet || undefined}
-                sizes="(max-width: 1024px) 100vw, 1000px"
-                alt={posterAlt || title || 'Video preview'}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                onError={(event) => { event.currentTarget.style.display = 'none'; }}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90"
+        <div className="relative aspect-video w-full overflow-hidden bg-gray-950">
+          {!isPlaying ? (
+            // Poster cover. A single button keeps the whole cover clickable and
+            // makes sure the player below is not mounted (and cannot autoplay).
+            <button
+              type="button"
+              onClick={() => setIsPlaying(true)}
+              aria-label={playLabel}
+              className="group absolute inset-0 z-20 block h-full w-full text-left"
+            >
+              <span
+                className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-black"
+                aria-hidden="true"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center">
-                <button
-                  type="button"
-                  aria-label="Play video"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600/90 text-white flex items-center justify-center shadow-2xl backdrop-blur-md transform transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500 ring-4 ring-white/30"
-                >
-                  <FaPlay className="w-6 h-6 sm:w-7 sm:h-7 ml-1" />
-                </button>
-              </div>
-              <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white pointer-events-none">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-black/60 backdrop-blur-md text-blue-300 border border-white/10 mb-2">
-                  <FaVideo className="w-3 h-3" />
+              {posterSrc && (
+                <img
+                  src={posterSrc}
+                  srcSet={posterSrcSet || undefined}
+                  sizes="(max-width: 1024px) 100vw, 1000px"
+                  alt={posterAlt || title || 'Video preview'}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  onError={(event) => { event.currentTarget.style.display = 'none'; }}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              )}
+              <span
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"
+                aria-hidden="true"
+              />
+              <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-600/90 text-white shadow-2xl ring-4 ring-white/30 backdrop-blur-md transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500 sm:h-20 sm:w-20">
+                  <FaPlay className="ml-1 h-6 w-6 sm:h-7 sm:w-7" />
+                </span>
+              </span>
+              <span className="absolute bottom-4 left-4 right-4 text-white sm:bottom-6 sm:left-6 sm:right-6">
+                <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-xs font-semibold text-blue-300 backdrop-blur-md">
+                  <FaVideo className="h-3 w-3" />
                   <span>Lab Tour Video</span>
-                </div>
+                </span>
                 {title && (
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-md">
+                  <span className="block text-lg font-bold tracking-tight text-white drop-shadow-md sm:text-xl md:text-2xl">
                     {title}
-                  </h3>
+                  </span>
                 )}
-              </div>
-            </div>
-          )}
-
-          {/* Player rendering */}
-          {resolvedDirectSrc ? (
+              </span>
+            </button>
+          ) : resolvedDirectSrc ? (
             <video
               src={resolvedDirectSrc}
-              poster={posterSrc}
+              poster={posterSrc || undefined}
               controls
-              autoPlay={isPlaying}
+              autoPlay
               preload="metadata"
-              className="w-full h-full object-contain"
+              className="absolute inset-0 h-full w-full object-contain"
             >
-              <track kind="captions" />
               Your browser does not support HTML5 video.
             </video>
           ) : embedUrl ? (
@@ -112,12 +133,12 @@ export default function VideoShowcase({
               title={title || 'Presenting Video'}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
-              className="w-full h-full border-0"
+              className="absolute inset-0 h-full w-full border-0"
             />
-          ) : videoUrl ? (
+          ) : (
             // Generic external link if embed URL couldn't be parsed
-            <div className="p-8 text-center text-white">
-              <p className="text-gray-300 mb-4">External video presentation available.</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-white">
+              <p className="mb-4 text-gray-300">External video presentation available.</p>
               <a
                 href={videoUrl}
                 target="_blank"
@@ -128,11 +149,11 @@ export default function VideoShowcase({
                 <FaExternalLinkAlt className="w-3.5 h-3.5" />
               </a>
             </div>
-          ) : null}
+          )}
         </div>
 
         {/* Video metadata footer */}
-        {(title || description || caption) && (!posterSrc || isPlaying) && (
+        {isPlaying && (title || description || caption) && (
           <div className="p-4 sm:p-5 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800">
             {title && (
               <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white mb-1">

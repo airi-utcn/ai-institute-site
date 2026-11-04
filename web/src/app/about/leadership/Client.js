@@ -23,7 +23,11 @@ function ExecutiveLeadHeroCard({ member, teamSubtitle }) {
           <div className="relative">
             <img
               src={avatarUrl}
+              srcSet={person.imageSrcSet || undefined}
+              sizes="(max-width: 768px) 144px, 176px"
               alt={name || "Institute Leader"}
+              loading="eager"
+              decoding="async"
               className="w-36 h-36 md:w-44 md:h-44 rounded-2xl object-cover ring-4 ring-white dark:ring-gray-800 shadow-xl"
             />
             <span
@@ -120,7 +124,11 @@ function ExecutiveMemberCard({ member, highlight = false }) {
       <div className="relative mb-3">
         <img
           src={avatarUrl}
+          srcSet={person.imageSrcSet || undefined}
+          sizes="96px"
           alt={name || "Member"}
+          loading="lazy"
+          decoding="async"
           className="w-24 h-24 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-md group-hover:ring-primary-400 transition-all"
         />
         {member.isLead && (
@@ -192,7 +200,11 @@ function CommitteeMemberCard({ member }) {
       <div className="relative mb-2.5">
         <img
           src={avatarUrl}
+          srcSet={person.imageSrcSet || undefined}
+          sizes="64px"
           alt={name || "Member"}
+          loading="lazy"
+          decoding="async"
           className="w-16 h-16 rounded-full object-cover ring-2 ring-white dark:ring-gray-800 shadow-sm"
         />
         {member.isLead && (

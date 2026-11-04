@@ -1,4 +1,5 @@
 import { getEnv, normalizeBaseUrl, requireEnv } from './env';
+import { buildSrcSetFromFormats } from './media';
 import { normalizePublicationSourceKind } from './publication';
 import { toPublicationSlug } from './slug';
 
@@ -82,6 +83,22 @@ const resolveMediaUrl = (media) => {
 };
 
 /**
+ * Resolve the relative URLs Strapi returns inside `formats` to absolute ones,
+ * so they can be used verbatim in a `srcset`.
+ */
+const resolveMediaFormats = (formats) => {
+  if (!formats || typeof formats !== 'object') return null;
+
+  const resolved = {};
+  for (const [key, format] of Object.entries(formats)) {
+    if (!format?.url) continue;
+    resolved[key] = { ...format, url: resolveMediaUrl(format.url) };
+  }
+
+  return Object.keys(resolved).length ? resolved : null;
+};
+
+/**
  * Normalize a Strapi media value into the frontend media shape.
  * Keep URL-only fields compatible while preserving metadata where available.
  */
@@ -101,6 +118,8 @@ export const resolveMediaData = (media) => {
           width: null,
           height: null,
           focalPoint: null,
+          formats: null,
+          srcSet: '',
         }
       : null;
   }
@@ -112,6 +131,8 @@ export const resolveMediaData = (media) => {
   const url = resolveMediaUrl(data);
   if (!url) return null;
 
+  const formats = resolveMediaFormats(attrs.formats);
+
   return {
     id: data?.id ?? null,
     url,
@@ -122,6 +143,13 @@ export const resolveMediaData = (media) => {
     width: attrs.width || null,
     height: attrs.height || null,
     focalPoint: attrs.focalPoint || null,
+    formats,
+    srcSet: buildSrcSetFromFormats({
+      url,
+      formats: attrs.formats,
+      width: attrs.width,
+      resolveUrl: resolveMediaUrl,
+    }),
   };
 };
 
@@ -135,6 +163,7 @@ const normalizePerson = (person) => {
     title: attrs.title || '',
     image: resolveMediaUrl(attrs.portrait || attrs.profileImage),
     imageAlt: resolveMediaData(attrs.portrait || attrs.profileImage)?.alt || '',
+    imageSrcSet: resolveMediaData(attrs.portrait || attrs.profileImage)?.srcSet || '',
   };
 };
 
@@ -269,7 +298,7 @@ const PERSON_WITH_IMAGE_POPULATE = {
   fields: PERSON_FIELDS,
   populate: {
     portrait: {
-      fields: ['url', 'formats', 'alternativeText'],
+      fields: ['url', 'formats', 'alternativeText', 'width'],
     },
   },
 };
@@ -280,7 +309,7 @@ const PERSON_CARD_POPULATE = {
   fields: ['firstName', 'lastName', 'slug', 'title'],
   populate: {
     portrait: {
-      fields: ['url', 'alternativeText'],
+      fields: ['url', 'formats', 'alternativeText', 'width'],
     },
   },
 };
@@ -289,7 +318,7 @@ const PERSON_FULL_POPULATE = {
   fields: [...PERSON_FIELDS, 'bio'],
   populate: {
     portrait: {
-      fields: ['url', 'formats', 'alternativeText'],
+      fields: ['url', 'formats', 'alternativeText', 'width'],
     },
   },
 };
@@ -310,7 +339,7 @@ const PROJECT_POPULATE = {
   fields: ['title', 'slug', 'abstract', 'region', 'startDate', 'endDate', 'isIndustryEngagement'],
   populate: {
     heroImage: {
-      fields: ['url', 'formats', 'alternativeText'],
+      fields: ['url', 'formats', 'alternativeText', 'width'],
     },
     domains: DEPARTMENT_POPULATE,
     themes: {
@@ -320,7 +349,7 @@ const PROJECT_POPULATE = {
       fields: ['name', 'slug', 'website', 'country', 'role', 'description'],
       populate: {
         logo: {
-          fields: ['url', 'formats', 'alternativeText'],
+          fields: ['url', 'formats', 'alternativeText', 'width'],
         },
       },
     },
@@ -500,7 +529,7 @@ export async function getStaff(options = {}) {
       populate: {
         department: DEPARTMENT_POPULATE,
         portrait: {
-          fields: ['url', 'formats', 'alternativeText'],
+          fields: ['url', 'formats', 'alternativeText', 'width'],
         },
         socialLinks: {
           fields: ['label', 'url', 'icon'],
@@ -533,7 +562,7 @@ export async function getStaffMember(slug, _locale = null) {
       filters: { slug: { $eq: slug } },
       populate: {
         department: DEPARTMENT_POPULATE,
-        portrait: { fields: ['url', 'formats', 'alternativeText'] },
+        portrait: { fields: ['url', 'formats', 'alternativeText', 'width'] },
         socialLinks: {
           fields: ['label', 'url', 'icon'],
         },
@@ -784,19 +813,19 @@ export async function getProjectBySlug(slug, locale = null) {
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
-        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
         body: {
           on: {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
           },
         },
@@ -805,13 +834,13 @@ export async function getProjectBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText'] } },
+              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText'] } },
+              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText'] } },
+              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
             },
           },
         },
@@ -839,13 +868,13 @@ export async function getProjectBySlug(slug, locale = null) {
         news: {
           fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
           populate: {
-            heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+            heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
           },
         },
         events: {
           fields: ['title', 'slug', 'startDate', 'endDate', 'category', 'format', 'location', 'locationType', 'description', 'ctaLabel', 'ctaUrl'],
           populate: {
-            heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+            heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
           },
         },
         timeline: {},
@@ -909,10 +938,10 @@ export async function getPartners(options = {}) {
     fields: ['name', 'slug', 'website', 'country', 'role', 'description'],
     populate: {
       logo: {
-        fields: ['url', 'formats', 'alternativeText'],
+        fields: ['url', 'formats', 'alternativeText', 'width'],
       },
       heroImage: {
-        fields: ['url', 'formats', 'alternativeText'],
+        fields: ['url', 'formats', 'alternativeText', 'width'],
       },
       projects: {
         fields: ['title', 'slug', 'startDate', 'endDate', 'isIndustryEngagement'],
@@ -949,16 +978,16 @@ export async function getPartnerBySlug(slug, locale = null) {
       fields: ['name', 'slug', 'website', 'country', 'role', 'description'],
       populate: {
         logo: {
-          fields: ['url', 'formats', 'alternativeText'],
+          fields: ['url', 'formats', 'alternativeText', 'width'],
         },
         heroImage: {
-          fields: ['url', 'formats', 'alternativeText'],
+          fields: ['url', 'formats', 'alternativeText', 'width'],
         },
         projects: {
           fields: ['title', 'slug', 'abstract', 'startDate', 'endDate', 'isIndustryEngagement'],
           populate: {
             heroImage: {
-              fields: ['url', 'formats', 'alternativeText'],
+              fields: ['url', 'formats', 'alternativeText', 'width'],
             },
             domains: DEPARTMENT_POPULATE,
           },
@@ -968,13 +997,13 @@ export async function getPartnerBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
             },
           },
         },
@@ -1020,7 +1049,7 @@ const LABORATORY_POPULATE = {
     partners: {
       fields: ['name', 'slug', 'website', 'country', 'role'],
       populate: {
-        logo: { fields: ['url', 'formats', 'alternativeText'] },
+        logo: { fields: ['url', 'formats', 'alternativeText', 'width'] },
       },
     },
     coordinator: PERSON_CARD_POPULATE,
@@ -1030,7 +1059,7 @@ const LABORATORY_POPULATE = {
     projects: {
       fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'],
       populate: {
-        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
       },
     },
     body: {
@@ -1038,13 +1067,13 @@ const LABORATORY_POPULATE = {
         'shared.rich-text': { fields: ['body'] },
         'shared.section': {
           fields: ['heading', 'subheading', 'body'],
-          populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+          populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
         },
         'shared.media': {
-          populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+          populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
         },
         'shared.slider': {
-          populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height'] } },
+          populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
         },
         'shared.cta': {
           fields: [
@@ -1591,7 +1620,7 @@ export async function getNewsArticles(options = {}) {
       filters: options.filters || null,
       locale,
       populate: {
-        heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+        heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
         author: PERSON_FLAT_POPULATE,
       },
     };
@@ -1635,7 +1664,7 @@ export async function getNewsArticleBySlug(slug, locale = null) {
         relatedProjects: {
           fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'],
           populate: {
-            heroImage: { fields: ['url', 'formats', 'alternativeText'] },
+            heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
           },
         },
         featuredPeople: PERSON_FLAT_POPULATE,
@@ -1644,13 +1673,13 @@ export async function getNewsArticleBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.quote': { fields: ['title', 'body'] },
           },
@@ -1916,7 +1945,7 @@ export async function getEventBySlug(slug, locale) {
         participants: {
           populate: {
             person: PERSON_FULL_POPULATE,
-            photo: { fields: ['url', 'formats', 'alternativeText'] }
+            photo: { fields: ['url', 'formats', 'alternativeText', 'width'] }
           }
         },
         contactPerson: PERSON_FULL_POPULATE,
@@ -1928,13 +1957,13 @@ export async function getEventBySlug(slug, locale) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
             },
             'shared.quote': { fields: ['title', 'body'] },
           },
@@ -2079,6 +2108,7 @@ export function transformStaffData(strapiStaff) {
 
     // Use 'portrait' field from schema
     const image = resolveMediaUrl(attributes.portrait);
+    const imageSrcSet = resolveMediaData(attributes.portrait)?.srcSet || '';
 
     // ============================================================================
     // QUICKFIX: Validate subtypes match parent type
@@ -2143,6 +2173,7 @@ export function transformStaffData(strapiStaff) {
       department: department?.name || '',
       departmentInfo: department,
       image,
+      imageSrcSet,
       bio: stripHtml(attributes.bio) || '',
       bioMarkdown: typeof attributes.bio === 'string' ? attributes.bio : '',
       socialLinks,
@@ -2471,6 +2502,9 @@ export function transformNewsData(strapiNews) {
         linkUrl: normalizeExternalUrl(attributes.linkUrl),
         image: resolveMediaUrl(attributes.heroImage),
         imageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
+        imageSrcSet: resolveMediaData(attributes.heroImage)?.srcSet || '',
+        imageWidth: resolveMediaData(attributes.heroImage)?.width || null,
+        imageHeight: resolveMediaData(attributes.heroImage)?.height || null,
         focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
         tags,
         // Full article data
@@ -2491,6 +2525,7 @@ export function transformNewsData(strapiNews) {
             phase: pa.phase || derivePhase(pa.startDate, pa.endDate),
             image: resolveMediaUrl(pa.heroImage),
             imageAlt: resolveMediaData(pa.heroImage)?.alt || '',
+            imageSrcSet: resolveMediaData(pa.heroImage)?.srcSet || '',
           };
         }),
         featuredPeople: toArray(rawPeople).map(normalizePerson).filter(Boolean),
@@ -2550,6 +2585,7 @@ export function transformProjectData(strapiProjects) {
                 email: personAttr.email || '',
                 phone: personAttr.phone || '',
                 image: resolveMediaUrl(personAttr.portrait),
+                imageSrcSet: resolveMediaData(personAttr.portrait)?.srcSet || '',
               }
             : null,
         };
@@ -2670,6 +2706,7 @@ export function transformProjectData(strapiProjects) {
               type: personAttr.type || '',
               email: personAttr.email || '',
               image: resolveMediaUrl(personAttr.portrait),
+              imageSrcSet: resolveMediaData(personAttr.portrait)?.srcSet || '',
             } : null,
           };
         }).filter((m) => m.person),
@@ -2756,6 +2793,7 @@ export function transformProjectData(strapiProjects) {
           linkUrl: normalizeExternalUrl(newsData.linkUrl),
           image: resolveMediaUrl(newsData.heroImage),
           imageAlt: resolveMediaData(newsData.heroImage)?.alt || '',
+          imageSrcSet: resolveMediaData(newsData.heroImage)?.srcSet || '',
           tags,
         };
       })
@@ -2790,6 +2828,7 @@ export function transformProjectData(strapiProjects) {
           ctaUrl: normalizeExternalUrl(eventData.ctaUrl),
           image: resolveMediaUrl(eventData.heroImage),
           imageAlt: resolveMediaData(eventData.heroImage)?.alt || '',
+          imageSrcSet: resolveMediaData(eventData.heroImage)?.srcSet || '',
         };
       })
       .filter((item) => item.title || item.slug)
@@ -2843,6 +2882,9 @@ export function transformProjectData(strapiProjects) {
       isIndustryEngagement: !!attributes.isIndustryEngagement,
       heroImage: resolveMediaUrl(attributes.heroImage),
       heroImageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
+      heroImageSrcSet: resolveMediaData(attributes.heroImage)?.srcSet || '',
+      heroImageWidth: resolveMediaData(attributes.heroImage)?.width || null,
+      heroImageHeight: resolveMediaData(attributes.heroImage)?.height || null,
       // Map themes relation to simple array for frontend compatibility
       themes: themes.map(t => t.name).filter(Boolean),
       // Map partners relation to simple array for frontend compatibility
@@ -2973,6 +3015,7 @@ export function transformTeamData(strapiTeams) {
               type: personAttr.type || '',
               email: personAttr.email || '',
               image: resolveMediaUrl(personAttr.portrait),
+              imageSrcSet: resolveMediaData(personAttr.portrait)?.srcSet || '',
             }
           : null,
       };
@@ -3052,6 +3095,7 @@ export function transformDepartmentData(strapiDepartments) {
         name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || '',
         title: data.title || '',
         image: resolveMediaUrl(data.portrait),
+        imageSrcSet: resolveMediaData(data.portrait)?.srcSet || '',
       };
     };
 
@@ -3101,7 +3145,7 @@ export function transformEventData(strapiEvents) {
     const participants = (attributes.participants || []).map((p) => {
       const pPerson = p.person?.data?.attributes ?? p.person ?? null;
 
-      let personName, personTitle, personBio, personImage, personSlug, personEmail;
+      let personName, personTitle, personBio, personImage, personImageSrcSet, personSlug, personEmail;
 
       // If a relationship is selected, ONLY use data from the relationship
       if (pPerson && (pPerson.firstName || pPerson.slug)) {
@@ -3109,6 +3153,7 @@ export function transformEventData(strapiEvents) {
         personTitle = pPerson.title || '';
         personBio = pPerson.bio || '';
         personImage = resolveMediaUrl(pPerson.portrait);
+        personImageSrcSet = resolveMediaData(pPerson.portrait)?.srcSet || '';
         personSlug = pPerson.slug || '';
         personEmail = pPerson.email || '';
       } else {
@@ -3117,6 +3162,7 @@ export function transformEventData(strapiEvents) {
         personTitle = p.title || '';
         personBio = p.bio || '';
         personImage = resolveMediaUrl(p.photo);
+        personImageSrcSet = resolveMediaData(p.photo)?.srcSet || '';
         personSlug = '';
         personEmail = '';
       }
@@ -3127,6 +3173,7 @@ export function transformEventData(strapiEvents) {
         title: personTitle,
         bio: personBio,
         image: personImage,
+        imageSrcSet: personImageSrcSet,
         slug: personSlug,
         email: personEmail,
         person: {
@@ -3135,6 +3182,7 @@ export function transformEventData(strapiEvents) {
           slug: personSlug,
           email: personEmail,
           image: personImage,
+          imageSrcSet: personImageSrcSet,
           bio: personBio,
         },
       };
@@ -3230,6 +3278,9 @@ export function transformEventData(strapiEvents) {
       url: attributes.ctaUrl || '',
       image: resolveMediaUrl(attributes.heroImage),
       imageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
+      imageSrcSet: resolveMediaData(attributes.heroImage)?.srcSet || '',
+      imageWidth: resolveMediaData(attributes.heroImage)?.width || null,
+      imageHeight: resolveMediaData(attributes.heroImage)?.height || null,
       focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
       body: attributes.body || [],
       _strapi: evt,
@@ -3273,7 +3324,7 @@ const RESOURCE_POPULATE = {
 const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description', 'format', 'locationType', 'address', 'roomOrLink', 'language', 'registrationRequired', 'registrationUrl', 'registrationEmail', 'registrationDeadline'];
 
 const EVENT_POPULATE = {
-  heroImage: { fields: ['url', 'alternativeText'] },
+  heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
 };
 
 const SEMINAR_FIELDS = ['title', 'slug', 'provider', 'summary', 'ctaLabel', 'ctaUrl'];
@@ -3449,6 +3500,9 @@ export function transformPartnerData(strapiPartners) {
       logoAlt: resolveMediaData(attributes.logo)?.alt || '',
       heroImage: resolveMediaUrl(attributes.heroImage),
       heroImageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
+      heroImageSrcSet: resolveMediaData(attributes.heroImage)?.srcSet || '',
+      heroImageWidth: resolveMediaData(attributes.heroImage)?.width || null,
+      heroImageHeight: resolveMediaData(attributes.heroImage)?.height || null,
       body: normalizeBodyBlocks(attributes.body),
       projects: partnerProjects,
       activeProjects,
@@ -3509,6 +3563,8 @@ export function transformLaboratoryData(strapiLaboratories) {
         startDate: projAttr.startDate || null,
         endDate: projAttr.endDate || null,
         heroImage: resolveMediaUrl(projAttr.heroImage),
+        heroImageAlt: resolveMediaData(projAttr.heroImage)?.alt || '',
+        heroImageSrcSet: resolveMediaData(projAttr.heroImage)?.srcSet || '',
       };
     });
 
@@ -3548,6 +3604,9 @@ export function transformLaboratoryData(strapiLaboratories) {
       capacity: attributes.capacity || null,
       heroImage: resolveMediaUrl(attributes.heroImage),
       heroImageAlt: resolveMediaData(attributes.heroImage)?.alt || '',
+      heroImageSrcSet: resolveMediaData(attributes.heroImage)?.srcSet || '',
+      heroImageWidth: resolveMediaData(attributes.heroImage)?.width || null,
+      heroImageHeight: resolveMediaData(attributes.heroImage)?.height || null,
       focalPoint: attributes.heroImage?.data?.attributes?.focalPoint ?? attributes.heroImage?.focalPoint ?? null,
       videoFile,
       videoUrl,

@@ -28,7 +28,7 @@ export default function PartnerDetailsClient({ partner }) {
       {/* Subtle Atmospheric Top Border/Hero */}
       {partner.heroImage && (
         <div className="w-full h-32 md:h-48 xl:h-64 relative overflow-hidden">
-          <img src={partner.heroImage} alt={partner.heroImageAlt || partner.name} className="absolute inset-0 w-full h-full object-cover" />
+          <img src={partner.heroImage} srcSet={partner.heroImageSrcSet || undefined} sizes="100vw" alt={partner.heroImageAlt || partner.name} loading="eager" decoding="async" onError={(event) => { event.currentTarget.style.display = 'none'; }} className="absolute inset-0 w-full h-full object-cover" />
           <div className="absolute inset-0 bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-md" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white dark:to-[#0a0a0a]" />
         </div>
@@ -56,6 +56,8 @@ export default function PartnerDetailsClient({ partner }) {
                   <img
                     src={partner.logo}
                     alt={partner.logoAlt || `${partner.name} Logo`}
+                    loading="lazy"
+                    decoding="async"
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>

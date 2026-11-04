@@ -41,6 +41,8 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
             <motion.img
               key={currentIndex}
               src={items[currentIndex].url}
+              srcSet={items[currentIndex].srcSet || undefined}
+              sizes="(max-width: 1024px) 100vw, 1000px"
               alt={items[currentIndex].alt || items[currentIndex].alternativeText || `${alt} ${currentIndex + 1}`}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -49,6 +51,7 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
               className="w-full h-full object-contain cursor-pointer"
               onClick={() => setIsLightboxOpen(true)}
               loading="lazy"
+              decoding="async"
             />
           </AnimatePresence>
 
@@ -113,9 +116,12 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
               >
                 <img
                   src={item.url}
+                  srcSet={item.srcSet || undefined}
+                  sizes="80px"
                   alt={item.alt || item.alternativeText || `Thumbnail ${index + 1}`}
                   className="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
               </button>
             ))}
@@ -131,9 +137,13 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
             className="print-gallery-item rounded-lg border border-gray-200 p-2 break-inside-avoid"
           >
             <img
-              src={src}
+              src={src.url || src}
+              srcSet={src.srcSet || undefined}
+              sizes="(max-width: 768px) 100vw, 50vw"
               alt={`${alt} ${index + 1}`}
               className="w-full h-44 object-cover rounded"
+              loading="lazy"
+              decoding="async"
             />
             {items.length > 1 && (
               <figcaption className="text-[10pt] text-gray-500 mt-1 text-center font-medium">
@@ -178,6 +188,8 @@ export default function GallerySlideshow({ images = [], alt = 'Gallery image' })
                 <motion.img
                   key={currentIndex}
                   src={items[currentIndex].url}
+                  srcSet={items[currentIndex].srcSet || undefined}
+                  sizes="90vw"
                   alt={items[currentIndex].alt || items[currentIndex].alternativeText || `${alt} ${currentIndex + 1}`}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

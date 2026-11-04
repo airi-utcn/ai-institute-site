@@ -52,7 +52,7 @@ export async function generateMetadata({ params }) {
         siteName: "AIRi @ UTCN",
         images: [
           {
-            url: "/homepage/hero5.png",
+            url: "/homepage/hero5-og.jpg",
             width: 1200,
             height: 630,
             alt: `${publication.title} | AIRi @ UTCN`,
@@ -63,7 +63,7 @@ export async function generateMetadata({ params }) {
         card: "summary_large_image",
         title: `${publication.title} | AIRi @ UTCN`,
         description,
-        images: ["/homepage/hero5.png"],
+        images: ["/homepage/hero5-og.jpg"],
       },
     };
   } catch {

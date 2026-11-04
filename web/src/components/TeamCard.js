@@ -122,6 +122,7 @@ export default function TeamCard({
                     role={m.role}
                     isLead={m.isLead}
                     image={staffInfo?.image || person.image}
+                    imageSrcSet={staffInfo?.imageSrcSet || person.imageSrcSet}
                   />
                 );
               })}

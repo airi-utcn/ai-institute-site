@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { FaMapMarkerAlt, FaVideo, FaCalendar } from "react-icons/fa";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { gridSizes } from "@/lib/media";
 
 const motionCard = {
   hidden: { y: 10, opacity: 0 },
@@ -69,12 +71,15 @@ export default function EventsClient({ events = [], pageData }) {
               >
                 <div className="relative">
                   {ev.image ? (
-                    <img 
-                      src={ev.image} 
-                      alt={ev.title} 
-                      style={ev.focalPoint ? { objectPosition: `${ev.focalPoint.x || 50}% ${ev.focalPoint.y || 25}%` } : undefined} 
-                      className="w-full h-48 object-cover object-[center_25%]" 
-                      loading="lazy" 
+                    <SmartMediaImage
+                      src={ev.image}
+                      srcSet={ev.imageSrcSet}
+                      sizes={gridSizes({ columns: 3 })}
+                      alt={ev.title}
+                      focalPoint={ev.focalPoint}
+                      aspectRatio="aspect-video"
+                      className="max-h-48"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-48 bg-gradient-to-tr from-blue-900 to-indigo-700 flex items-center justify-center text-white/50 text-4xl">

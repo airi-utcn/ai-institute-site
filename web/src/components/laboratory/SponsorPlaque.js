@@ -61,6 +61,8 @@ export default function SponsorPlaque({
                   <img
                     src={logoUrl}
                     alt={partner.logoAlt || partner.name || 'Partner logo'}
+                    loading="lazy"
+                    decoding="async"
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>

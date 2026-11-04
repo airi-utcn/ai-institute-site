@@ -8,6 +8,7 @@ import MediaPlayer from '@/components/shared/MediaPlayer';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
+import HeroHeader from '@/components/shared/HeroHeader';
 
 export default function AwardArticleClient({ article, pageData }) {
   const locale = useLocale();
@@ -48,21 +49,16 @@ export default function AwardArticleClient({ article, pageData }) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
-      {/* Hero Image */}
-      {article.image && (
-        <div className="w-full h-64 md:h-80 xl:h-96 relative overflow-hidden">
-          <img
-            src={article.image}
-            alt={article.imageAlt || article.title}
-            style={article.focalPoint ? { objectPosition: `${article.focalPoint.x || 50}% ${article.focalPoint.y || 25}%` } : undefined}
-            className="w-full h-full object-cover object-[center_25%]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        </div>
-      )}
-
-      {/* Main Content Container */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <HeroHeader
+        image={article.image}
+        srcSet={article.imageSrcSet}
+        focalPoint={article.focalPoint}
+        width={article.imageWidth}
+        height={article.imageHeight}
+        priority
+        className="pt-8 pb-10 md:pt-12 md:pb-14"
+        contentClassName="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         {/* Back Link */}
         <Link
           href="/news&events/awards"
@@ -145,7 +141,10 @@ export default function AwardArticleClient({ article, pageData }) {
             )}
           </div>
         </header>
+      </HeroHeader>
 
+      {/* Main Content Container */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Dynamic Zone Body Content */}
         {bodyBlocks.length > 0 ? (
           <div className="my-8">

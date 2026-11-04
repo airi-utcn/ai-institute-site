@@ -447,6 +447,8 @@ function PartnerCard({
             <img
               src={partner.logo}
               alt={partner.logoAlt || partner.name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain"
             />
           </div>

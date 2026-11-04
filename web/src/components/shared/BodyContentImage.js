@@ -36,6 +36,7 @@ export default function BodyContentImage({
       src={src}
       alt={alt}
       loading={loading}
+      decoding="async"
       onLoad={onLoad}
       className={`${className} ${modeClass}`.trim()}
       {...props}

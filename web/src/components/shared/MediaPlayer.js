@@ -73,6 +73,7 @@ export default function MediaPlayer({
         src={src}
         alt={mediaAlt}
         loading={loading}
+        decoding="async"
         onLoad={onLoad}
         className={finalClassName}
         {...props}

@@ -30,6 +30,8 @@ import {
 } from 'react-icons/fa';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
+import SmartMediaImage from '@/components/shared/SmartMediaImage';
+import { gridSizes } from '@/lib/media';
 const PROJECT_DETAIL_DEFAULTS = {
   notFound: "Project not found",
   backToProjects: "Back to Projects",
@@ -124,6 +126,7 @@ import BodyContentImage from '@/components/shared/BodyContentImage';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import DynamicZone from '@/components/shared/DynamicZone';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
+import HeroHeader from '@/components/shared/HeroHeader';
 import { getProjectPhase, getPhaseColorClasses } from '@/lib/projectPhase';
 import ProjectTimeline from '@/components/project/ProjectTimeline';
 import TeamCard from '@/components/TeamCard';
@@ -230,6 +233,8 @@ function PartnerCard({ partner }) {
               <img
                 src={logoUrl}
                 alt={partner.name}
+                loading="lazy"
+                decoding="async"
                 className={`object-contain max-h-16 max-w-[140px] mix-blend-multiply dark:mix-blend-normal transition-transform duration-300 ${partnerProfileHref ? 'group-hover:scale-105' : ''}`}
               />
               <span className="mt-3 text-gray-900 dark:text-white font-semibold text-sm text-center leading-tight">
@@ -494,10 +499,14 @@ function NewsCard({ item, t }) {
     >
       <div className="relative h-52 bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {item.image ? (
-          <img
+          <SmartMediaImage
             src={item.image}
+            srcSet={item.imageSrcSet}
+            sizes={gridSizes({ columns: 3 })}
             alt={item.title || t('tabs.news')}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            aspectRatio=""
+            className="absolute inset-0 w-full h-52"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -593,10 +602,14 @@ function EventCard({ item, t }) {
     >
       <div className="relative h-52 bg-gray-100 dark:bg-gray-800 overflow-hidden">
         {item.image ? (
-          <img
+          <SmartMediaImage
             src={item.image}
+            srcSet={item.imageSrcSet}
+            sizes={gridSizes({ columns: 3 })}
             alt={item.title || 'Event'}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            aspectRatio=""
+            className="absolute inset-0 w-full h-52"
+            imageClassName="transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -767,62 +780,61 @@ export default function ProjectDetails({ project, pageData }) {
       className="min-h-screen bg-gray-50 dark:bg-gray-900"
     >
       {/* Hero Section */}
-      <div className="relative h-64 md:h-80 bg-gradient-to-r from-blue-600 to-blue-800">
-        {heroImageUrl && (
-          <img
-            src={heroImageUrl}
-            alt={project.heroImageAlt || project.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
-          <div className="max-w-7xl mx-auto">
-            <Link
-              href="/research/projects"
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
-            >
-              <FaArrowLeft className="w-4 h-4" />
-              <span>{t("backToProjects")}</span>
-            </Link>
-            <motion.h1
-              variants={itemVariants}
-              className="text-3xl md:text-4xl font-bold text-white mb-2"
-            >
-              {project.title}
-            </motion.h1>
-            {themes && themes.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                {themes.map(theme => (
-                  theme.slug ? (
-                    <Link
-                      key={theme.slug}
-                      href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
-                      className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white hover:bg-white/30 transition-colors"
-                    >
-                      {theme.name}
-                    </Link>
-                  ) : (
-                    <span
-                      key={theme.name}
-                      className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm text-white"
-                    >
-                      {theme.name}
-                    </span>
-                  )
-                ))}
-              </div>
-            )}
+      <HeroHeader
+        image={heroImageUrl}
+        srcSet={project.heroImageSrcSet}
+        focalPoint={project.focalPoint}
+        width={project.heroImageWidth}
+        height={project.heroImageHeight}
+        priority
+        backgroundClassName="bg-gradient-to-b from-blue-50/50 via-gray-50 to-gray-50 dark:from-gray-900/40 dark:via-gray-900 dark:to-gray-900"
+        overlayClassName="bg-gradient-to-b from-white/30 via-white/80 to-gray-50 dark:from-gray-950/40 dark:via-gray-950/80 dark:to-gray-900"
+        className="pt-10 pb-12 md:pt-14 md:pb-16"
+        contentClassName="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
+        <Link
+          href="/research/projects"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-6"
+        >
+          <FaArrowLeft className="w-4 h-4" />
+          <span>{t("backToProjects")}</span>
+        </Link>
+        <motion.h1
+          variants={itemVariants}
+          className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-2"
+        >
+          {project.title}
+        </motion.h1>
+        {themes && themes.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {themes.map(theme => (
+              theme.slug ? (
+                <Link
+                  key={theme.slug}
+                  href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
+                  className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/60 transition-colors"
+                >
+                  {theme.name}
+                </Link>
+              ) : (
+                <span
+                  key={theme.name}
+                  className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300"
+                >
+                  {theme.name}
+                </span>
+              )
+            ))}
           </div>
-        </div>
-      </div>
+        )}
+      </HeroHeader>
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Info Cards */}
         <motion.div
           variants={containerVariants}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 -mt-12 mb-8 relative z-10"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 relative z-10"
         >
           {project.region && (
             <InfoCard icon={FaMapMarkerAlt} label={t("region")} value={project.region} />
@@ -1020,7 +1032,11 @@ export default function ProjectDetails({ project, pageData }) {
                           <div className="relative w-20 h-20 mx-auto mb-3">
                             <img
                               src={person.image || '/people/Basic_avatar_image.png'}
+                              srcSet={person.imageSrcSet || undefined}
+                              sizes="80px"
                               alt={person.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-800"
                             />
                           </div>

@@ -21,6 +21,7 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import MediaPlayer from '@/components/shared/MediaPlayer';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
+import { buildSrcSetFromFormats } from '@/lib/media';
 
 const resolveMediaUrl = (media) => {
   if (!media) return null;
@@ -41,6 +42,18 @@ const resolveMediaUrl = (media) => {
   
   const baseUrl = (process.env.NEXT_PUBLIC_STRAPI_URL || '').replace(/\/+$/, '');
   return `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
+};
+
+const resolveMediaSrcSet = (media) => {
+  if (!media || typeof media === 'string') return '';
+  const data = media.data ?? media;
+  const attrs = data.attributes ?? data;
+  return buildSrcSetFromFormats({
+    url: resolveMediaUrl(data) || '',
+    formats: attrs.formats,
+    width: attrs.width,
+    resolveUrl: resolveMediaUrl,
+  });
 };
 
 const ICON_MAP = {
@@ -83,7 +96,7 @@ function DynamicCard({ card, className = '' }) {
         <div className="flex items-start justify-between gap-3 mb-4">
           {imageUrl ? (
             <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-100 dark:border-gray-800">
-              <img src={imageUrl} alt={card.title || 'Card image'} className="w-full h-full object-cover" />
+              <img src={imageUrl} alt={card.title || 'Card image'} loading="lazy" decoding="async" className="w-full h-full object-cover" />
             </div>
           ) : Icon ? (
             <div className="p-3 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 rounded-xl flex-shrink-0 group-hover:scale-105 transition-transform">
@@ -374,6 +387,8 @@ export default function DynamicZone({ blocks, className = '' }) {
                   <div className="mt-6">
                     <BodyContentImage
                       src={resolveMediaUrl(block.media)}
+                      srcSet={resolveMediaSrcSet(block.media)}
+                      sizes="(max-width: 1024px) 100vw, 800px"
                       alt={block.media.alt || block.media.alternativeText || block.heading || ''}
                       className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 mx-auto"
                     />
@@ -420,6 +435,8 @@ export default function DynamicZone({ blocks, className = '' }) {
                     <>
                       <BodyContentImage
                         src={mediaSrc}
+                        srcSet={resolveMediaSrcSet(mediaData)}
+                        sizes="(max-width: 1024px) 100vw, 800px"
                         alt={mediaData.alt || mediaData.alternativeText || block.caption || ''}
                       />
                       {(mediaData.caption || block.caption) && (
@@ -459,6 +476,7 @@ export default function DynamicZone({ blocks, className = '' }) {
                 .map((file) => ({
                   ...file,
                   url: resolveMediaUrl(file),
+                  srcSet: resolveMediaSrcSet(file),
                 }))
                 .filter((file) => file.url);
               if (imageItems.length === 0) return null;

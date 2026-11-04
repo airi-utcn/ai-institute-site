@@ -276,10 +276,13 @@ export default async function PersonDetailPage({ params }) {
                 return (
                   <img
                     src={imageSrc}
+                    srcSet={person.imageSrcSet || undefined}
+                    sizes="160px"
                     alt={person.name}
                     width={160}
                     height={160}
                     loading="lazy"
+                    decoding="async"
                     className="w-full h-full rounded-full object-cover border-4 border-white/30 shadow-xl"
                   />
                 );

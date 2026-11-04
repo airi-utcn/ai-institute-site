@@ -132,9 +132,11 @@ export default function DepartmentDetailClient({
 
   const coordinator = department.coordinator;
   const coordinatorImage = coordinator?.image || (coordinator?.slug ? staffLookup[coordinator.slug]?.image : null);
+  const coordinatorImageSrcSet = coordinator?.imageSrcSet || (coordinator?.slug ? staffLookup[coordinator.slug]?.imageSrcSet : null);
   
   const coCoordinator = department.coCoordinator;
   const coCoordinatorImage = coCoordinator?.image || (coCoordinator?.slug ? staffLookup[coCoordinator.slug]?.image : null);
+  const coCoordinatorImageSrcSet = coCoordinator?.imageSrcSet || (coCoordinator?.slug ? staffLookup[coCoordinator.slug]?.imageSrcSet : null);
 
   return (
     <div className="page-container">
@@ -243,7 +245,11 @@ export default function DepartmentDetailClient({
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <img
                           src={coordinatorImage || "/people/Basic_avatar_image.png"}
+                          srcSet={coordinatorImageSrcSet || undefined}
+                          sizes="64px"
                           alt={coordinator.name || "Coordinator"}
+                          loading="lazy"
+                          decoding="async"
                           className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
@@ -278,7 +284,11 @@ export default function DepartmentDetailClient({
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                         <img
                           src={coCoordinatorImage || "/people/Basic_avatar_image.png"}
+                          srcSet={coCoordinatorImageSrcSet || undefined}
+                          sizes="64px"
                           alt={coCoordinator.name || "Co-Coordinator"}
+                          loading="lazy"
+                          decoding="async"
                           className="w-16 h-16 rounded-full object-cover ring-2 ring-primary-100 dark:ring-primary-900 shrink-0"
                         />
                         <div className="flex-1 min-w-0">
@@ -396,6 +406,7 @@ export default function DepartmentDetailClient({
                         <PersonChip
                           person={{ name: p.name, slug: p.slug, title: p.title }}
                           image={p.image}
+                          imageSrcSet={p.imageSrcSet}
                         />
                       </div>
                     ))}

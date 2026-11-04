@@ -702,10 +702,20 @@ function PartnersContent({
   }, [activeDataset, searchQuery, countryFilter, roleFilter]);
 
   const totalProjects = useMemo(() => {
-    return partnerList.reduce(
-      (acc, partner) => acc + (Array.isArray(partner?.projects) ? partner.projects.length : 0),
-      0
-    );
+    const projectKeys = new Set();
+
+    partnerList.forEach((partner) => {
+      if (!Array.isArray(partner?.projects)) return;
+
+      partner.projects.forEach((project) => {
+        const key = project?.id ?? project?.slug ?? project?.title;
+        if (key !== undefined && key !== null && key !== '') {
+          projectKeys.add(String(key));
+        }
+      });
+    });
+
+    return projectKeys.size;
   }, [partnerList]);
 
   return (

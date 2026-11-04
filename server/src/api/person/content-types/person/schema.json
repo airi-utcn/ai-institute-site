@@ -10,6 +10,7 @@
   "options": {
     "draftAndPublish": true
   },
+  "pluginOptions": {},
   "attributes": {
     "firstName": {
       "type": "string",
@@ -134,11 +135,13 @@
       "type": "string"
     },
     "bio": {
-      "type": "richtext"
+      "type": "richtext",
+      "required": true
     },
     "portrait": {
       "type": "media",
       "multiple": false,
+      "required": true,
       "allowedTypes": [
         "images"
       ]
@@ -146,7 +149,8 @@
     "socialLinks": {
       "type": "component",
       "component": "shared.contact-link",
-      "repeatable": true
+      "repeatable": true,
+      "required": true
     },
     "scholarId": {
       "type": "string"

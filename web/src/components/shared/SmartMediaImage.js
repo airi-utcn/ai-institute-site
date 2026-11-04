@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * SmartMediaImage
  *
- * Solves the portrait cropping issue in landscape containers:
- * - Landscape images: Render full-bleed object-cover with optional focalPoint alignment.
- * - Portrait images: Render 100% in view (object-contain) centered over an ambient,
+ * Solves the cropping issue in landscape containers:
+ * - Wide images: Render full-bleed object-cover with optional focalPoint alignment.
+ * - Square/portrait images: Render 100% in view (object-contain) centered over an ambient,
  *   frosted-glass backdrop blur sampled from the image itself.
- *   This prevents awkward top-crops (e.g., only forehead/hair visible) and ensures
- *   every piece of media displays with pride.
+ *   This prevents awkward crops (e.g. only the middle of a portrait, or just a nose)
+ *   and ensures every piece of media displays with pride.
  *
  * Missing or broken images can render a caller-provided `fallback` element instead
  * of the browser's broken-image icon. The fallback is also used when the image
@@ -40,13 +40,13 @@ export default function SmartMediaImage({
   const resolvedSrcSet =
     srcSet ?? (src && typeof src === 'object' ? src.srcSet : '') ?? '';
 
-  const [isPortrait, setIsPortrait] = useState(false);
-  const [portraitSrc, setPortraitSrc] = useState(null);
+  const [isNarrow, setIsNarrow] = useState(false);
+  const [narrowSrc, setNarrowSrc] = useState(null);
   const [failedSrc, setFailedSrc] = useState(null);
   const imgRef = useRef(null);
 
   const hasError = Boolean(srcUrl) && failedSrc === srcUrl;
-  const showAmbientBackdrop = !hasError && portraitSrc === srcUrl && isPortrait;
+  const showAmbientBackdrop = !hasError && narrowSrc === srcUrl && isNarrow;
 
   useEffect(() => {
     const img = imgRef.current;
@@ -58,8 +58,8 @@ export default function SmartMediaImage({
     }
 
     if (img.naturalWidth && img.naturalHeight) {
-      setIsPortrait(img.naturalHeight > img.naturalWidth);
-      setPortraitSrc(srcUrl);
+      setIsNarrow(img.naturalHeight >= img.naturalWidth * 0.85);
+      setNarrowSrc(srcUrl);
     }
   }, [srcUrl]);
 
@@ -91,8 +91,8 @@ export default function SmartMediaImage({
   const handleLoad = (event) => {
     const img = event.currentTarget;
     if (img?.naturalWidth && img?.naturalHeight) {
-      setIsPortrait(img.naturalHeight > img.naturalWidth);
-      setPortraitSrc(srcUrl);
+      setIsNarrow(img.naturalHeight >= img.naturalWidth * 0.85);
+      setNarrowSrc(srcUrl);
     }
   };
 

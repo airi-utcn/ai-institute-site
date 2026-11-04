@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 import DynamicZone from "@/components/shared/DynamicZone";
-import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import HeroHeader from "@/components/shared/HeroHeader";
 import {
   FaArrowLeft,
   FaCalendar,
@@ -64,7 +64,16 @@ export default function EventSlugClient({ event, pageData }) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <HeroHeader
+        image={event.image}
+        srcSet={event.imageSrcSet}
+        focalPoint={event.focalPoint}
+        width={event.imageWidth}
+        height={event.imageHeight}
+        priority
+        className="pt-8 pb-10 md:pt-12 md:pb-14"
+        contentClassName="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
         {/* Back Link */}
         <Link
           href="/news&events/events"
@@ -98,28 +107,15 @@ export default function EventSlugClient({ event, pageData }) {
           </h1>
         </header>
 
-        {/* Hero Banner Image */}
-        {event.image && (
-          <div className="mb-10">
-            <SmartMediaImage
-              src={event.image}
-              alt={event.imageAlt || event.title}
-              focalPoint={event.focalPoint}
-              aspectRatio=""
-              className="w-full h-64 sm:h-80 md:h-[420px] rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm"
-              priority
-              fallback={<FaRegImage className="w-10 h-10 opacity-40" aria-hidden="true" />}
-              fallbackClassName="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-400"
-            />
-            {event.photoCredits && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-right">
-                <FaRegImage className="inline mr-1" />
-                Photo credits: {event.photoCredits}
-              </p>
-            )}
-          </div>
+        {event.photoCredits && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-right">
+            <FaRegImage className="inline mr-1" />
+            Photo credits: {event.photoCredits}
+          </p>
         )}
+      </HeroHeader>
 
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Two-Column Layout */}
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content Area */}
@@ -145,7 +141,7 @@ export default function EventSlugClient({ event, pageData }) {
                 </h2>
                 <div className="grid grid-cols-1 gap-5">
                   {event.participants.map((p, idx) => {
-                    const { image: avatarImg, name, title: displayTitle, bio: displayBio, slug, role } = p;
+                    const { image: avatarImg, imageSrcSet: avatarSrcSet, name, title: displayTitle, bio: displayBio, slug, role } = p;
                     const displayName = name || "Speaker";
 
                     return (

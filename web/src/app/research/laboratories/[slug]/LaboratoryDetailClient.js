@@ -17,6 +17,8 @@ import {
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
 import SponsorPlaque from '@/components/laboratory/SponsorPlaque';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
+import HeroHeader from '@/components/shared/HeroHeader';
+import { heroSizes } from '@/lib/media';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 import PersonChip from '@/components/shared/PersonChip';
@@ -33,22 +35,26 @@ export default function LaboratoryDetailClient({ lab, pageData }) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
-      {/* Top Header / Breadcrumb */}
-      <div className="border-b border-gray-100 dark:border-gray-900 bg-gray-50/50 dark:bg-gray-950/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href="/research/laboratories"
-            className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            <FaArrowLeft className="w-3.5 h-3.5" />
-            <span>{backLabel}</span>
-          </Link>
-        </div>
-      </div>
+      <HeroHeader
+        image={lab.heroImage || lab.videoPoster?.url}
+        srcSet={lab.heroImageSrcSet || lab.videoPoster?.srcSet}
+        focalPoint={lab.focalPoint}
+        width={lab.heroImage ? lab.heroImageWidth : lab.videoPoster?.width}
+        height={lab.heroImage ? lab.heroImageHeight : lab.videoPoster?.height}
+        priority
+        className="pt-8 pb-10 md:pt-12 md:pb-14"
+        contentClassName="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
+      >
+        <Link
+          href="/research/laboratories"
+          className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-6"
+        >
+          <FaArrowLeft className="w-3.5 h-3.5" />
+          <span>{backLabel}</span>
+        </Link>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Lab Title & Identity */}
-        <header className="mb-8">
+        <header className="mb-2">
           <div className="flex flex-wrap items-center gap-3 mb-3">
             {lab.roomNumber && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
@@ -87,7 +93,9 @@ export default function LaboratoryDetailClient({ lab, pageData }) {
             </p>
           )}
         </header>
+      </HeroHeader>
 
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Video Theater Showcase (First-Class Feature) */}
         {hasVideo ? (
           <section className="mb-12">
@@ -104,9 +112,11 @@ export default function LaboratoryDetailClient({ lab, pageData }) {
           <section className="mb-12 rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800">
             <SmartMediaImage
               src={heroSrc}
+              srcSet={lab.heroImageSrcSet}
+              sizes={heroSizes(1152)}
               alt={lab.heroImageAlt || lab.title}
               focalPoint={lab.focalPoint}
-              aspectRatio="aspect-[21/9]"
+              aspectRatio="aspect-video"
               className="max-h-[500px]"
               priority
               fallback={<FaFlask className="w-10 h-10 opacity-40" aria-hidden="true" />}

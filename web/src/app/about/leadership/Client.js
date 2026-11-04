@@ -23,6 +23,8 @@ function ExecutiveLeadHeroCard({ member, teamSubtitle }) {
           <div className="relative">
             <img
               src={avatarUrl}
+              srcSet={person.imageSrcSet || undefined}
+              sizes="(max-width: 768px) 144px, 176px"
               alt={name || "Institute Leader"}
               loading="eager"
               decoding="async"
@@ -122,6 +124,8 @@ function ExecutiveMemberCard({ member, highlight = false }) {
       <div className="relative mb-3">
         <img
           src={avatarUrl}
+          srcSet={person.imageSrcSet || undefined}
+          sizes="96px"
           alt={name || "Member"}
           loading="lazy"
           decoding="async"
@@ -196,6 +200,8 @@ function CommitteeMemberCard({ member }) {
       <div className="relative mb-2.5">
         <img
           src={avatarUrl}
+          srcSet={person.imageSrcSet || undefined}
+          sizes="64px"
           alt={name || "Member"}
           loading="lazy"
           decoding="async"

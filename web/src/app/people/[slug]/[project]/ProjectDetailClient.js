@@ -345,6 +345,8 @@ export default function ProjectDetailClient({
                         >
                           <img
                             src={member.image || FALLBACK_AVATAR}
+                            srcSet={member.imageSrcSet || undefined}
+                            sizes="40px"
                             alt={member.name}
                             loading="lazy"
                             decoding="async"
@@ -375,6 +377,8 @@ export default function ProjectDetailClient({
                         >
                           <img
                             src={member.image || FALLBACK_AVATAR}
+                            srcSet={member.imageSrcSet || undefined}
+                            sizes="28px"
                             alt={member.name}
                             loading="lazy"
                             decoding="async"

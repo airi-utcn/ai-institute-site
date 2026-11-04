@@ -6,6 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import Link from "next/link";
 import { FaMapMarkerAlt, FaVideo, FaCalendar } from "react-icons/fa";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { gridSizes } from "@/lib/media";
 
 const motionCard = {
   hidden: { y: 10, opacity: 0 },
@@ -72,6 +73,8 @@ export default function EventsClient({ events = [], pageData }) {
                   {ev.image ? (
                     <SmartMediaImage
                       src={ev.image}
+                      srcSet={ev.imageSrcSet}
+                      sizes={gridSizes({ columns: 3 })}
                       alt={ev.title}
                       focalPoint={ev.focalPoint}
                       aspectRatio="aspect-video"

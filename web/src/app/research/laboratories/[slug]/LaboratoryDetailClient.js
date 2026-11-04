@@ -251,6 +251,8 @@ export default function LaboratoryDetailClient({ lab, pageData }) {
                   description={proj.abstract}
                   href={`/research/projects/${proj.slug}`}
                   image={proj.heroImage}
+                  imageSrcSet={proj.heroImageSrcSet}
+                  imageAlt={proj.heroImageAlt}
                 />
               ))}
             </div>

@@ -7,7 +7,7 @@ import { FaStar } from "react-icons/fa";
  * Reusable PersonChip component for displaying a team member or person
  * with avatar, name, role/title, and lead indicator.
  */
-export default function PersonChip({ person, role, isLead, image }) {
+export default function PersonChip({ person, role, isLead, image, imageSrcSet }) {
   const slug = person?.slug;
   const name = person?.name || (person?.firstName ? `${person.firstName} ${person.lastName || ""}`.trim() : "");
   const title = person?.title || "";
@@ -22,6 +22,8 @@ export default function PersonChip({ person, role, isLead, image }) {
       <div className="relative shrink-0">
         <img
           src={avatarUrl}
+          srcSet={imageSrcSet || (!image ? person?.imageSrcSet : '') || undefined}
+          sizes="40px"
           alt={person?.imageAlt || name || "Avatar"}
           loading="lazy"
           decoding="async"

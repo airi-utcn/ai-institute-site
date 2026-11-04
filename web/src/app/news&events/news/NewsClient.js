@@ -7,6 +7,7 @@ import { useLocale } from "@/context/LocaleContext";
 import Link from "next/link";
 import { FaUser, FaSearch, FaTimes, FaNewspaper } from "react-icons/fa";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { gridSizes, heroSizes } from "@/lib/media";
 
 // ─── Motion ──────────────────────────────────────────────────────────────────
 
@@ -316,6 +317,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
           >
             <SmartMediaImage
               src={hero.image}
+              srcSet={hero.imageSrcSet}
+              sizes={heroSizes(1152)}
               alt={hero.imageAlt || hero.title}
               focalPoint={hero.focalPoint}
               aspectRatio="aspect-[4/3] min-h-[340px] sm:aspect-[16/9] sm:min-h-0 lg:aspect-[21/9]"
@@ -415,6 +418,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
                 {/* Image */}
                 <SmartMediaImage
                   src={item.image}
+                  srcSet={item.imageSrcSet}
+                  sizes={gridSizes({ columns: 3, containerWidth: 1152 })}
                   alt={item.imageAlt || item.title}
                   focalPoint={item.focalPoint}
                   aspectRatio="aspect-video"

@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 export default function SmartMediaImage({
   src,
+  srcSet,
   alt = '',
   aspectRatio = 'aspect-video',
   className = '',
@@ -33,28 +34,34 @@ export default function SmartMediaImage({
   onError,
   ...props
 }) {
+  // Accept either a URL string or a media object from `resolveMediaData`
+  // (which already carries a ready-to-use `srcSet`).
+  const srcUrl = typeof src === 'string' ? src : src?.url || '';
+  const resolvedSrcSet =
+    srcSet ?? (src && typeof src === 'object' ? src.srcSet : '') ?? '';
+
   const [isPortrait, setIsPortrait] = useState(false);
   const [portraitSrc, setPortraitSrc] = useState(null);
   const [failedSrc, setFailedSrc] = useState(null);
   const imgRef = useRef(null);
 
-  const hasError = Boolean(src) && failedSrc === src;
-  const showAmbientBackdrop = !hasError && portraitSrc === src && isPortrait;
+  const hasError = Boolean(srcUrl) && failedSrc === srcUrl;
+  const showAmbientBackdrop = !hasError && portraitSrc === srcUrl && isPortrait;
 
   useEffect(() => {
     const img = imgRef.current;
     if (!img?.complete) return;
 
     if (img.naturalWidth === 0) {
-      setFailedSrc(src);
+      setFailedSrc(srcUrl);
       return;
     }
 
     if (img.naturalWidth && img.naturalHeight) {
       setIsPortrait(img.naturalHeight > img.naturalWidth);
-      setPortraitSrc(src);
+      setPortraitSrc(srcUrl);
     }
-  }, [src]);
+  }, [srcUrl]);
 
   const containerClasses = `relative w-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${aspectRatio} ${className}`.trim();
 
@@ -73,7 +80,7 @@ export default function SmartMediaImage({
     </div>
   );
 
-  if (!src) {
+  if (!srcUrl) {
     return fallback ? renderFallback() : null;
   }
 
@@ -85,12 +92,12 @@ export default function SmartMediaImage({
     const img = event.currentTarget;
     if (img?.naturalWidth && img?.naturalHeight) {
       setIsPortrait(img.naturalHeight > img.naturalWidth);
-      setPortraitSrc(src);
+      setPortraitSrc(srcUrl);
     }
   };
 
   const handleError = (event) => {
-    setFailedSrc(src);
+    setFailedSrc(srcUrl);
     onError?.(event);
   };
 
@@ -103,7 +110,7 @@ export default function SmartMediaImage({
       {showAmbientBackdrop && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <img
-            src={src}
+            src={srcUrl}
             alt=""
             className="w-full h-full object-cover blur-2xl opacity-50 dark:opacity-40 scale-110"
             loading={priority ? 'eager' : 'lazy'}
@@ -115,7 +122,8 @@ export default function SmartMediaImage({
 
       <img
         ref={imgRef}
-        src={src}
+        src={srcUrl}
+        srcSet={resolvedSrcSet || undefined}
         alt={alt}
         loading={priority ? 'eager' : loading}
         fetchPriority={priority ? 'high' : undefined}

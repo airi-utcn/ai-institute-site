@@ -31,6 +31,7 @@ import {
 import { containerVariants, itemVariants } from '@/lib/animations';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
+import { gridSizes } from '@/lib/media';
 const PROJECT_DETAIL_DEFAULTS = {
   notFound: "Project not found",
   backToProjects: "Back to Projects",
@@ -499,6 +500,8 @@ function NewsCard({ item, t }) {
         {item.image ? (
           <SmartMediaImage
             src={item.image}
+            srcSet={item.imageSrcSet}
+            sizes={gridSizes({ columns: 3 })}
             alt={item.title || t('tabs.news')}
             aspectRatio=""
             className="absolute inset-0 w-full h-52"
@@ -600,6 +603,8 @@ function EventCard({ item, t }) {
         {item.image ? (
           <SmartMediaImage
             src={item.image}
+            srcSet={item.imageSrcSet}
+            sizes={gridSizes({ columns: 3 })}
             alt={item.title || 'Event'}
             aspectRatio=""
             className="absolute inset-0 w-full h-52"
@@ -1030,6 +1035,8 @@ export default function ProjectDetails({ project, pageData }) {
                           <div className="relative w-20 h-20 mx-auto mb-3">
                             <img
                               src={person.image || '/people/Basic_avatar_image.png'}
+                              srcSet={person.imageSrcSet || undefined}
+                              sizes="80px"
                               alt={person.name}
                               loading="lazy"
                               decoding="async"

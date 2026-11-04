@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { FaVideo, FaMapMarkerAlt, FaUsers, FaUserTie, FaArrowRight } from 'react-icons/fa';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
+import { gridSizes } from '@/lib/media';
 
 export default function LaboratoryCard({ lab, className = '' }) {
   if (!lab) return null;
@@ -20,6 +21,8 @@ export default function LaboratoryCard({ lab, className = '' }) {
       <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-800">
         <SmartMediaImage
           src={imageUrl}
+          srcSet={lab.heroImageSrcSet}
+          sizes={gridSizes({ columns: 3 })}
           alt={lab.heroImageAlt || lab.title}
           focalPoint={lab.focalPoint}
           aspectRatio="aspect-video"

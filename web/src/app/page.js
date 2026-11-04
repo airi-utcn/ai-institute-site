@@ -5,6 +5,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { FaNewspaper } from "react-icons/fa";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { gridSizes } from "@/lib/media";
 import { getNewsArticles, transformNewsData, getSingleType } from "@/lib/strapi";
 
 export async function generateMetadata() {
@@ -190,6 +191,8 @@ export default async function Home() {
                 {article.image && (
                   <SmartMediaImage
                     src={article.image}
+                    srcSet={article.imageSrcSet}
+                    sizes={gridSizes({ columns: 3 })}
                     alt={article.imageAlt || article.title}
                     aspectRatio="h-40"
                     imageClassName="group-hover:scale-105"

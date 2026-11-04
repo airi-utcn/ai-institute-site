@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { gridSizes } from "@/lib/media";
 
 /**
  * Reusable content card component for consistent card styling.
@@ -25,6 +26,7 @@ export default function ContentCard({
   description,
   href,
   image,
+  imageSrcSet,
   imageAlt,
   focalPoint = null,
   badge,
@@ -45,6 +47,8 @@ export default function ContentCard({
       {image && (
         <SmartMediaImage
           src={image}
+          srcSet={imageSrcSet}
+          sizes={gridSizes({ columns: 3 })}
           alt={imageAlt || title}
           focalPoint={focalPoint}
           aspectRatio="aspect-video"

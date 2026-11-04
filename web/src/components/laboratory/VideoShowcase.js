@@ -36,6 +36,7 @@ export default function VideoShowcase({
   const caption = typeof videoFile === 'object' ? videoFile?.caption : '';
   const posterSrc = typeof poster === 'string' ? poster : poster?.url;
   const posterAlt = typeof poster === 'object' ? poster?.alt : '';
+  const posterSrcSet = typeof poster === 'object' ? poster?.srcSet : '';
   const embedUrl = getEmbedUrl(videoUrl);
   const isDirectUrl = !embedUrl && videoUrl && /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(videoUrl);
   const resolvedDirectSrc = videoSrc || (isDirectUrl ? videoUrl : null);
@@ -60,6 +61,8 @@ export default function VideoShowcase({
             <div className="absolute inset-0 z-20 cursor-pointer group" onClick={() => setIsPlaying(true)}>
               <img
                 src={posterSrc}
+                srcSet={posterSrcSet || undefined}
+                sizes="(max-width: 1024px) 100vw, 1000px"
                 alt={posterAlt || title || 'Video preview'}
                 loading="eager"
                 fetchPriority="high"

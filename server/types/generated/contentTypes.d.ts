@@ -807,6 +807,7 @@ export interface ApiAwardsPageAwardsPage extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    heroImage: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -2963,6 +2964,7 @@ export interface ApiNewsPageNewsPage extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    heroImage: Schema.Attribute.Media<'images'>;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -3419,8 +3421,7 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::partner.partner'
     >;
-    logo: Schema.Attribute.Media<'images'> &
-      Schema.Attribute.Required;
+    logo: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     name: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -3438,8 +3439,7 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    website: Schema.Attribute.String &
-      Schema.Attribute.Required;
+    website: Schema.Attribute.String & Schema.Attribute.Required;
   };
 }
 
@@ -3816,7 +3816,7 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    bio: Schema.Attribute.RichText;
+    bio: Schema.Attribute.RichText & Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -3846,7 +3846,7 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
     phone: Schema.Attribute.String;
-    portrait: Schema.Attribute.Media<'images'>;
+    portrait: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     publications: Schema.Attribute.Relation<
       'manyToMany',
       'api::publication.publication'
@@ -3854,7 +3854,8 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     scholarId: Schema.Attribute.String;
     slug: Schema.Attribute.UID<'lastName'>;
-    socialLinks: Schema.Attribute.Component<'shared.contact-link', true>;
+    socialLinks: Schema.Attribute.Component<'shared.contact-link', true> &
+      Schema.Attribute.Required;
     title: Schema.Attribute.Enumeration<
       [
         'Professor',

@@ -183,3 +183,24 @@ export function resolvePreviewTarget(rawPath) {
     path: `${target.pathname}${target.search}`,
   };
 }
+
+/**
+ * Resolve where to send the browser after leaving preview.
+ *
+ * Only the path from the referer is used, never its origin and never the
+ * request URL. The redirect is therefore resolved by the browser against the
+ * public origin it is already on. This matters behind a reverse proxy, where
+ * Next.js can see the internal request URL (for example
+ * http://localhost:3000) instead of the public one.
+ */
+export function resolveExitPath(referer) {
+  if (!referer || typeof referer !== 'string') return '/';
+
+  try {
+    const ref = new URL(referer);
+    if (!isAllowedPreviewPath(ref.pathname)) return '/';
+    return `${ref.pathname}${ref.search}`;
+  } catch {
+    return '/';
+  }
+}

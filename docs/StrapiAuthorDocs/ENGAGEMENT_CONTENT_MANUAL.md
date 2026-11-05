@@ -102,7 +102,7 @@ After saving a draft:
 3. The website opens in Strapi's preview frame and shows the draft version of `/engagement`.
 4. Test the relevant tab, media, card links, and separator scrolling.
 
-Preview uses the locale currently selected in Strapi. It does not publish changes. Close the preview or return to the editor to continue editing.
+Preview uses the locale currently selected in Strapi. It does not publish changes. A one-hour preview session is created for your browser only; ordinary visitors keep seeing the published page. Use **Exit preview** in the amber banner to end the session.
 
 If Preview is unavailable or blank:
 
@@ -111,6 +111,8 @@ If Preview is unavailable or blank:
 - Refresh the preview frame.
 - Ask an administrator to verify `CLIENT_URL` and `PREVIEW_SECRET` are configured identically for Strapi and Next.js.
 - Check the browser console for iframe or Content Security Policy errors.
+
+See [PREVIEW_GUIDE.md](./PREVIEW_GUIDE.md) for the preview target of every other content type.
 
 ## Localization checklist
 

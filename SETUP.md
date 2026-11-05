@@ -247,7 +247,7 @@ When creating or modifying content types:
 
 - **Draft** - Content exists but not published
 - **Published** - Content is live
-- Use `?publicationState=preview` in API calls to see both states
+- Use `?status=draft` or `?status=published` in server-side API calls (Strapi v5). Public traffic must never send a status parameter.
 
 ### API Testing
 
@@ -258,8 +258,9 @@ curl http://localhost:1337/api/projects
 # Get projects with populated relations
 curl http://localhost:1337/api/projects?populate=*
 
-# Preview draft and published content
-curl 'http://localhost:1337/api/projects?publicationState=preview'
+# Read draft content (requires an authenticated API token)
+curl -H "Authorization: Bearer $STRAPI_API_TOKEN" \
+  'http://localhost:1337/api/projects?status=draft'
 ```
 
 ### Admin Panel Tips
@@ -315,7 +316,7 @@ docker compose up --build
 **Problem:** API returns empty data
 - Verify content is published in admin panel
 - Check permissions in Settings > Roles > Public
-- Test with `?publicationState=preview`
+- Use the admin **Preview** action to inspect draft content
 
 ### Next.js Issues
 

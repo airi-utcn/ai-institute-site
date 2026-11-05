@@ -1,6 +1,7 @@
 import { getEnv, normalizeBaseUrl, requireEnv } from './env';
 import { buildSrcSetFromFormats } from './media';
 import { normalizePublicationSourceKind } from './publication';
+import { getPreviewSession } from './preview-session';
 import { toPublicationSlug } from './slug';
 
 const isServer = typeof window === 'undefined';
@@ -255,8 +256,6 @@ const createParams = ({
   filters = null,
   sort = null,
   pagination = null,
-  publicationState = null,
-  status = null,
   locale = null,
 }) => {
   const params = new URLSearchParams();
@@ -264,8 +263,6 @@ const createParams = ({
   appendFields(params, fields);
   appendSort(params, sort);
   appendPagination(params, pagination || {});
-  if (publicationState) params.set('publicationState', publicationState);
-  if (status) params.set('status', status);
   if (filters) appendFilters(params, filters);
   if (typeof populate === 'string') {
     params.set('populate', populate);
@@ -404,7 +401,6 @@ const normalizeDepartmentType = (value) => {
  */
 export async function fetchAPI(endpoint, options = {}) {
   const baseUrl = getStrapiApiBaseUrl();
-  const url = `${baseUrl}/api${endpoint}`;
 
   // Server-only token. Do NOT use NEXT_PUBLIC_ prefix for this value.
   const token = process.env.STRAPI_API_TOKEN || null;
@@ -419,6 +415,18 @@ export async function fetchAPI(endpoint, options = {}) {
     ...rest
   } = options;
 
+  // Only a valid signed preview session may request anything other than
+  // published content. A stale Next draft-mode cookie is intentionally not
+  // enough: it only controls caching, not authorisation.
+  const previewSession = await getPreviewSession();
+
+  let url = `${baseUrl}/api${endpoint}`;
+  if (previewSession) {
+    const target = new URL(url);
+    target.searchParams.set('status', previewSession.status);
+    url = target.toString();
+  }
+
   const headers = {
     'Content-Type': 'application/json',
     ...customHeaders,
@@ -429,11 +437,13 @@ export async function fetchAPI(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const shouldUseNext = cache !== 'no-store';
+  // Preview requests must never be served from the shared data cache.
+  const effectiveCache = previewSession ? 'no-store' : cache;
+  const shouldUseNext = effectiveCache !== 'no-store';
   const fetchInit = {
     method,
     headers,
-    cache,
+    cache: effectiveCache,
     ...rest,
   };
 
@@ -656,7 +666,6 @@ export async function getPersonTeams(slug) {
   try {
     if (!slug) return [];
     const params = createParams({
-      publicationState: 'preview',
       filters: { members: { person: { slug: { $eq: slug } } } },
       populate: {
         department: DEPARTMENT_POPULATE,
@@ -680,10 +689,8 @@ export async function getPersonTeams(slug) {
  */
 export async function getTeams(options = {}) {
   try {
-    const { publicationState = 'preview' } = options;
     const params = createParams({
       sort: 'name:asc',
-      publicationState,
       populate: {
         department: DEPARTMENT_POPULATE,
         members: {
@@ -704,7 +711,6 @@ export async function getDepartmentTeams(departmentSlug) {
   try {
     if (!departmentSlug) return [];
     const params = createParams({
-      publicationState: 'preview',
       filters: { department: { slug: { $eq: departmentSlug } } },
       sort: 'name:asc',
       populate: {
@@ -732,7 +738,6 @@ export async function getLeadershipTeams() {
     const params = createParams({
       sort: ['displayOrder:asc', 'name:asc'],
       filters: { category: { $eq: 'leadership' } },
-      publicationState: 'preview',
       populate: {
         department: DEPARTMENT_POPULATE,
         members: {
@@ -757,7 +762,6 @@ export async function getProjects(options = {}) {
     const {
       domainSlug,
       themeSlug,
-      publicationState = 'preview',
       locale,
       page,
       pageSize = 100,
@@ -769,7 +773,6 @@ export async function getProjects(options = {}) {
 
     const baseOptions = {
       sort: 'title:asc',
-      publicationState,
       locale,
       filters: Object.keys(filters).length ? filters : null,
       fields: PROJECT_POPULATE.fields,
@@ -808,7 +811,6 @@ export async function getProjectBySlug(slug, locale = null) {
     // 1. Core project data (no publications nested populate).
     const projectParams = createParams({
       filters: { slug: { $eq: slug } },
-      publicationState: 'preview',
       locale,
       fields: PROJECT_POPULATE.fields,
       populate: {
@@ -972,7 +974,6 @@ export async function getPartnerBySlug(slug, locale = null) {
     if (!slug) return null;
 
     const params = createParams({
-      publicationState: 'preview',
       locale,
       filters: { slug: { $eq: slug } },
       fields: ['name', 'slug', 'website', 'country', 'role', 'description'],
@@ -1116,7 +1117,6 @@ export async function getLaboratories(options = {}) {
     const {
       departmentSlug,
       themeSlug,
-      publicationState = 'preview',
       locale,
       page,
       pageSize = 100,
@@ -1128,7 +1128,6 @@ export async function getLaboratories(options = {}) {
 
     const baseOptions = {
       sort: 'title:asc',
-      publicationState,
       locale,
       filters: Object.keys(filters).length ? filters : null,
       fields: LABORATORY_POPULATE.fields,
@@ -1160,7 +1159,6 @@ export async function getLaboratoryBySlug(slug, locale = null) {
 
     const params = createParams({
       filters: { slug: { $eq: slug } },
-      publicationState: 'preview',
       locale,
       fields: LABORATORY_POPULATE.fields,
       populate: LABORATORY_POPULATE.populate,
@@ -1652,7 +1650,6 @@ export async function getNewsArticleBySlug(slug, locale = null) {
     if (!slug) return null;
 
     const params = createParams({
-      publicationState: 'preview',
       locale,
       filters: { slug: { $eq: slug } },
       fields: ['title', 'slug', 'summary', 'category', 'publishedDate', 'linkUrl', 'tags'],
@@ -1739,7 +1736,6 @@ export async function getResultBySlug(slug, locale = null) {
 
     const params = createParams({
       filters: { slug: { $eq: slug } },
-      publicationState: 'preview',
       locale,
       fields: ['title', 'slug', 'description', 'publishedDate'],
       populate: {
@@ -2962,15 +2958,7 @@ export function isPartnerFormer(partner) {
 
 export const isPartnerArchived = isPartnerFormer;
 
-export const PARTNER_ROLES = ['Strategic', 'Diamond', 'Platinum', 'Gold', 'Partner'];
-
-export const PARTNER_ROLE_ORDER = {
-  Strategic: 1,
-  Diamond: 2,
-  Platinum: 3,
-  Gold: 4,
-  Partner: 5,
-};
+export { PARTNER_ROLES, PARTNER_ROLE_ORDER } from './partnerRoles';
 
 export function normalizePartnerRole(rawRole) {
   if (!rawRole) return 'Partner';
@@ -3724,13 +3712,11 @@ export async function getSingleType(
   locale = "en",
   populate = "*",
   fetchOptions = {},
-  queryOptions = {},
 ) {
   try {
     const params = createParams({
       locale,
       populate,
-      ...queryOptions,
     });
     let res = await fetchAPI(`/${endpoint}?${params.toString()}`, fetchOptions);
     if (!res?.data && locale && locale !== "en") {

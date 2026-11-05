@@ -8,7 +8,7 @@
     "description": "Content for News, Events, Seminars, Awards, Careers"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

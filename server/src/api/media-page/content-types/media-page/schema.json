@@ -8,7 +8,7 @@
     "description": "Content for the media gallery"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

@@ -3,6 +3,7 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import ThemeProvider from "@/components/ThemeProvider";
 import RouteShell from "@/components/RouteShell";
+import PreviewBanner from "@/components/PreviewBanner";
 import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { getGlobal } from "@/lib/strapi";
 import { LocaleProvider } from "@/context/LocaleContext";
@@ -68,8 +69,10 @@ export async function generateMetadata() {
 
 // Always render routes on-demand so Strapi data is fetched at first access.
 export const dynamic = "force-dynamic";
-// Allow individual fetches to opt into caching (we set force-cache in fetchAPI by default).
-export const fetchCache = "force-cache";
+// Allow each fetch to choose its cache mode. fetchAPI uses force-cache for
+// ordinary visitors and no-store for preview sessions; "force-cache" here
+// would silently turn preview requests back into shared cached responses.
+export const fetchCache = "default-cache";
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();
@@ -85,6 +88,7 @@ export default async function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+        <PreviewBanner />
         <Script
           id="theme-init"
           strategy="beforeInteractive"

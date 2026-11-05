@@ -26,7 +26,7 @@ import {
 } from 'react-icons/fa';
 import { useEffect } from 'react';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
-import { PARTNER_ROLES, PARTNER_ROLE_ORDER } from '@/lib/strapi';
+import { PARTNER_ROLES, PARTNER_ROLE_ORDER } from '@/lib/partnerRoles';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import DynamicZone from '@/components/shared/DynamicZone';
 

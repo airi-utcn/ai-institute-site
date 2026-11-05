@@ -98,6 +98,7 @@ export function isValidPreviewSecret(candidate) {
 export const ALLOWED_STATIC_PATHS = new Set([
   '/',
   '/about',
+  '/about/leadership',
   '/collaborators',
   '/contact',
   '/engagement',

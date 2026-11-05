@@ -2944,15 +2944,7 @@ export function isPartnerFormer(partner) {
 
 export const isPartnerArchived = isPartnerFormer;
 
-export const PARTNER_ROLES = ['Strategic', 'Diamond', 'Platinum', 'Gold', 'Partner'];
-
-export const PARTNER_ROLE_ORDER = {
-  Strategic: 1,
-  Diamond: 2,
-  Platinum: 3,
-  Gold: 4,
-  Partner: 5,
-};
+export { PARTNER_ROLES, PARTNER_ROLE_ORDER } from './partnerRoles';
 
 export function normalizePartnerRole(rawRole) {
   if (!rawRole) return 'Partner';

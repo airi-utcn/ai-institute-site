@@ -1148,6 +1148,36 @@ export async function getLaboratories(options = {}) {
 }
 
 /**
+ * Get every laboratory a person is affiliated with, identified by their slug.
+ * Filters server-side on the laboratories[].researchers relation.
+ * @param {string} slug - The person's slug
+ * @param {string} locale - Locale code
+ * @returns {Promise<Array>} Array of laboratory entries
+ */
+export async function getPersonLaboratories(slug, locale = null) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      filters: { researchers: { slug: { $eq: slug } } },
+      locale,
+      fields: ['title', 'slug', 'roomNumber', 'summary'],
+      sort: 'title:asc',
+    });
+    const data = await fetchAPI(`/laboratories?${params.toString()}`);
+    if (!data.data?.length && locale && locale !== 'en') {
+      const fallbackParams = new URLSearchParams(params);
+      fallbackParams.set('locale', 'en');
+      const fallbackData = await fetchAPI(`/laboratories?${fallbackParams.toString()}`);
+      return fallbackData.data || [];
+    }
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch person laboratories:', error);
+    return [];
+  }
+}
+
+/**
  * Get a single laboratory by slug
  * @param {string} slug - Laboratory slug
  * @param {string} locale - Locale code

@@ -1,5 +1,6 @@
 import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
@@ -20,7 +21,9 @@ import {
   getStaff,
   getStaffMember,
   getPersonTeams,
+  getPersonLaboratories,
   transformStaffData,
+  transformLaboratoryData,
   transformPublicationData,
 } from "@/lib/strapi";
 import { normalizePublicationSourceKind } from "@/lib/publication";
@@ -82,9 +85,10 @@ export default async function PersonDetailPage({ params }) {
 
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const [strapiPerson, personTeamsRaw] = await Promise.all([
+  const [strapiPerson, personTeamsRaw, personLaboratoriesRaw] = await Promise.all([
     getStaffMember(slug, locale),
     getPersonTeams(slug),
+    getPersonLaboratories(slug, locale),
   ]);
 
   if (!strapiPerson) {
@@ -164,6 +168,14 @@ export default async function PersonDetailPage({ params }) {
   });
 
   const publications = publicationsRaw.map(normalizePublication);
+
+  const laboratories = transformLaboratoryData(personLaboratoriesRaw)
+    .filter((lab) => lab.slug)
+    .map((lab) => ({
+      slug: lab.slug,
+      title: lab.title,
+      roomNumber: lab.roomNumber,
+    }));
 
   const person = {
     ...personEntry,
@@ -350,6 +362,23 @@ export default async function PersonDetailPage({ params }) {
                       </a>
                     );
                   })}
+                </div>
+              )}
+              {laboratories.length > 0 && (
+                <div className="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                  {laboratories.map((lab) => (
+                    <Link
+                      key={lab.slug}
+                      href={`/research/laboratories/${encodeURIComponent(lab.slug)}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full border border-white/20 text-sm hover:bg-white/25 transition-colors"
+                    >
+                      <FaFlask className="w-4 h-4" />
+                      <span className="truncate max-w-[200px]">
+                        {lab.title}
+                        {lab.roomNumber ? ` (${lab.roomNumber})` : ""}
+                      </span>
+                    </Link>
+                  ))}
                 </div>
               )}
             </div>

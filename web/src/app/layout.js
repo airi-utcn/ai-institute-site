@@ -3,6 +3,7 @@ import "./globals.css";
 import { cookies } from "next/headers";
 import ThemeProvider from "@/components/ThemeProvider";
 import RouteShell from "@/components/RouteShell";
+import PreviewBanner from "@/components/PreviewBanner";
 import { JsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import { getGlobal } from "@/lib/strapi";
 import { LocaleProvider } from "@/context/LocaleContext";
@@ -85,6 +86,7 @@ export default async function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="antialiased min-h-screen flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+        <PreviewBanner />
         <Script
           id="theme-init"
           strategy="beforeInteractive"

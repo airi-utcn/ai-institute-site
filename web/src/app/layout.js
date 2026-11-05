@@ -69,8 +69,10 @@ export async function generateMetadata() {
 
 // Always render routes on-demand so Strapi data is fetched at first access.
 export const dynamic = "force-dynamic";
-// Allow individual fetches to opt into caching (we set force-cache in fetchAPI by default).
-export const fetchCache = "force-cache";
+// Allow each fetch to choose its cache mode. fetchAPI uses force-cache for
+// ordinary visitors and no-store for preview sessions; "force-cache" here
+// would silently turn preview requests back into shared cached responses.
+export const fetchCache = "default-cache";
 
 export default async function RootLayout({ children }) {
   const cookieStore = await cookies();

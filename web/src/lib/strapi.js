@@ -1,6 +1,7 @@
 import { getEnv, normalizeBaseUrl, requireEnv } from './env';
 import { buildSrcSetFromFormats } from './media';
 import { normalizePublicationSourceKind } from './publication';
+import { getPreviewSession } from './preview-session';
 import { toPublicationSlug } from './slug';
 
 const isServer = typeof window === 'undefined';
@@ -400,7 +401,6 @@ const normalizeDepartmentType = (value) => {
  */
 export async function fetchAPI(endpoint, options = {}) {
   const baseUrl = getStrapiApiBaseUrl();
-  const url = `${baseUrl}/api${endpoint}`;
 
   // Server-only token. Do NOT use NEXT_PUBLIC_ prefix for this value.
   const token = process.env.STRAPI_API_TOKEN || null;
@@ -415,6 +415,18 @@ export async function fetchAPI(endpoint, options = {}) {
     ...rest
   } = options;
 
+  // Only a valid signed preview session may request anything other than
+  // published content. A stale Next draft-mode cookie is intentionally not
+  // enough: it only controls caching, not authorisation.
+  const previewSession = await getPreviewSession();
+
+  let url = `${baseUrl}/api${endpoint}`;
+  if (previewSession) {
+    const target = new URL(url);
+    target.searchParams.set('status', previewSession.status);
+    url = target.toString();
+  }
+
   const headers = {
     'Content-Type': 'application/json',
     ...customHeaders,
@@ -425,11 +437,13 @@ export async function fetchAPI(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const shouldUseNext = cache !== 'no-store';
+  // Preview requests must never be served from the shared data cache.
+  const effectiveCache = previewSession ? 'no-store' : cache;
+  const shouldUseNext = effectiveCache !== 'no-store';
   const fetchInit = {
     method,
     headers,
-    cache,
+    cache: effectiveCache,
     ...rest,
   };
 

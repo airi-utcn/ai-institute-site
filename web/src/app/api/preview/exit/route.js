@@ -1,23 +1,8 @@
 import { draftMode, cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { PREVIEW_COOKIE, isAllowedPreviewPath } from '@/lib/preview';
+import { PREVIEW_COOKIE, resolveExitPath } from '@/lib/preview';
 
 export const dynamic = 'force-dynamic';
-
-const redirectTarget = (request) => {
-  const referer = request.headers.get('referer');
-  if (!referer) return '/';
-
-  try {
-    const source = new URL(request.url);
-    const ref = new URL(referer);
-    if (ref.origin !== source.origin) return '/';
-    if (!isAllowedPreviewPath(ref.pathname)) return '/';
-    return `${ref.pathname}${ref.search}`;
-  } catch {
-    return '/';
-  }
-};
 
 export async function GET(request) {
   const draft = await draftMode();
@@ -26,8 +11,14 @@ export async function GET(request) {
   const cookieStore = await cookies();
   cookieStore.delete(PREVIEW_COOKIE);
 
-  return NextResponse.redirect(new URL(redirectTarget(request), request.url), {
+  // The Location is intentionally relative. Behind a reverse proxy,
+  // request.url can be the internal address (http://localhost:3000); the
+  // browser resolves this path against the public origin it is already on.
+  return new NextResponse(null, {
     status: 307,
-    headers: { 'Cache-Control': 'no-store' },
+    headers: {
+      Location: resolveExitPath(request.headers.get('referer')),
+      'Cache-Control': 'no-store',
+    },
   });
 }

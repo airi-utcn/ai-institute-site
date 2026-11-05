@@ -8,7 +8,7 @@
     "description": "Content for Research departments, projects, publications, and themes"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

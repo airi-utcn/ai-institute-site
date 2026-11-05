@@ -452,7 +452,7 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
     singularName: 'about-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -684,7 +684,7 @@ export interface ApiAwardsPageAwardsPage extends Struct.SingleTypeSchema {
     singularName: 'awards-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -829,7 +829,7 @@ export interface ApiCareersPageCareersPage extends Struct.SingleTypeSchema {
     singularName: 'careers-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -917,7 +917,7 @@ export interface ApiContactPageContactPage extends Struct.SingleTypeSchema {
     singularName: 'contact-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -1087,7 +1087,7 @@ export interface ApiDepartmentsPageDepartmentsPage
     singularName: 'departments-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -1867,7 +1867,7 @@ export interface ApiEventsPageEventsPage extends Struct.SingleTypeSchema {
     singularName: 'events-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -2122,7 +2122,7 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     singularName: 'global';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -2308,7 +2308,7 @@ export interface ApiHomePageHomePage extends Struct.SingleTypeSchema {
     singularName: 'home-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -2505,7 +2505,7 @@ export interface ApiLaboratoriesPageLaboratoriesPage
     singularName: 'laboratories-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -2716,7 +2716,7 @@ export interface ApiMediaPageMediaPage extends Struct.SingleTypeSchema {
     singularName: 'media-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -2855,7 +2855,7 @@ export interface ApiNewsPageNewsPage extends Struct.SingleTypeSchema {
     singularName: 'news-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -3090,7 +3090,7 @@ export interface ApiOpenCallsPageOpenCallsPage extends Struct.SingleTypeSchema {
     singularName: 'open-calls-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -3452,7 +3452,7 @@ export interface ApiPeoplePagePeoplePage extends Struct.SingleTypeSchema {
     singularName: 'people-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -4000,7 +4000,7 @@ export interface ApiProjectsPageProjectsPage extends Struct.SingleTypeSchema {
     singularName: 'projects-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -4769,7 +4769,7 @@ export interface ApiResearchPageResearchPage extends Struct.SingleTypeSchema {
     singularName: 'research-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -5073,7 +5073,7 @@ export interface ApiResourcesPageResourcesPage extends Struct.SingleTypeSchema {
     singularName: 'resources-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -5263,7 +5263,7 @@ export interface ApiSearchPageSearchPage extends Struct.SingleTypeSchema {
     singularName: 'search-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -5472,7 +5472,7 @@ export interface ApiSeminarsPageSeminarsPage extends Struct.SingleTypeSchema {
     singularName: 'seminars-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -5582,7 +5582,7 @@ export interface ApiTimelinePageTimelinePage extends Struct.SingleTypeSchema {
     singularName: 'timeline-page';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {

@@ -8,7 +8,7 @@
     "description": "Content for the contact page"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

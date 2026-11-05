@@ -18,7 +18,8 @@ import {
   getTeamsGraphData,
   getProjectsGraphData,
   getTeams,
-  transformTeamData
+  transformTeamData,
+  isProjectArchived
 } from "@/lib/strapi";
 import { attachScholarCitationCounts } from "@/lib/googleScholar";
 import { buildGraph } from "./graphModel";
@@ -46,7 +47,14 @@ function normalizeProjects(rawProjects) {
         return person?.id ?? null;
       })
       .filter((id) => id != null);
-    return { id: p?.id ?? null, title: attr.title || null, memberIds };
+    return {
+      id: p?.id ?? null,
+      title: attr.title || null,
+      memberIds,
+      startDate: attr.startDate || null,
+      endDate: attr.endDate || null,
+      isArchived: isProjectArchived(p),
+    };
   });
 }
 
@@ -106,11 +114,46 @@ export default async function PeoplePage() {
     const allTeams = transformTeamData(allTeamsRaw);
     const activeTeams = allTeams.filter((t) => !t.isArchived);
     const archivedTeams = allTeams.filter((t) => t.isArchived);
+    const projects = normalizeProjects(rawProjects);
+
+    // A researcher is "former" when they are linked to at least one project and
+    // none of those projects are still running. People with no project data at
+    // all are kept in the active list rather than guessed at.
+    const teamsByPersonSlug = new Map();
+    for (const team of allTeams) {
+      for (const member of team.members || []) {
+        const slug = member?.person?.slug;
+        if (!slug) continue;
+        if (!teamsByPersonSlug.has(slug)) teamsByPersonSlug.set(slug, []);
+        teamsByPersonSlug.get(slug).push(team);
+      }
+    }
+
+    const projectsByPersonId = new Map();
+    for (const project of projects) {
+      for (const personId of project.memberIds || []) {
+        if (!projectsByPersonId.has(personId)) projectsByPersonId.set(personId, []);
+        projectsByPersonId.get(personId).push(project);
+      }
+    }
+
+    const isFormerResearcher = (person) => {
+      const personTeams = teamsByPersonSlug.get(person.slug) || [];
+      const associatedProjects = [
+        ...personTeams.flatMap((team) => team.projects || []),
+        ...(projectsByPersonId.get(person.id) || []),
+      ];
+      if (associatedProjects.length === 0) return false;
+      return associatedProjects.every((project) => isProjectArchived(project));
+    };
+
+    const formerResearchers = enrichedResearchers.filter(isFormerResearcher);
+    const activeResearchers = enrichedResearchers.filter((person) => !isFormerResearcher(person));
 
     const { nodes, links, departmentColors } = buildGraph(
       enrichedGraphPeople,
       normalizeTeams(rawTeams),
-      normalizeProjects(rawProjects)
+      projects
     );
 
     return (
@@ -118,7 +161,8 @@ export default async function PeoplePage() {
       <FallbackDisclaimer isFallback={pageData?._isFallback} />
       <PeopleClient
         staff={staff}
-        researchers={enrichedResearchers}
+        researchers={activeResearchers}
+        formerResearchers={formerResearchers}
         visiting={visiting}
         students={students}
         external={external}

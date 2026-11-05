@@ -645,7 +645,7 @@ export async function getTeamsGraphData() {
 export async function getProjectsGraphData() {
   try {
     return await fetchAllEntries('/projects', {
-      fields: ['title', 'slug'],
+      fields: ['title', 'slug', 'startDate', 'endDate'],
       populate: {
         individualContributors: { populate: { person: { fields: ['id'] } } },
       },

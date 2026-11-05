@@ -14,12 +14,6 @@ export const dynamic = 'force-dynamic';
 const isSafeLocale = (locale) =>
   typeof locale === 'string' && /^[a-z]{2,3}(?:-[A-Za-z]{2,4})?$/.test(locale);
 
-const safeEqual = (left, right) => {
-  // The value is compared in length-safe form by isValidPreviewSecret; this
-  // helper only exists to keep the flow explicit.
-  return isValidPreviewSecret(left) && left === right;
-};
-
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
@@ -27,7 +21,7 @@ export async function GET(request) {
   const requestedStatus = searchParams.get('status');
   const requestedLocale = searchParams.get('locale');
 
-  if (!safeEqual(secret, process.env.PREVIEW_SECRET)) {
+  if (!isValidPreviewSecret(secret)) {
     return new Response('Invalid preview token', {
       status: 401,
       headers: { 'Cache-Control': 'no-store' },
@@ -82,6 +76,9 @@ export async function GET(request) {
     headers: {
       Location: target.path,
       'Cache-Control': 'no-store',
+      // The preview secret is in this URL. Do not forward it as the Referer
+      // of the redirected page, and do not leak it to later requests.
+      'Referrer-Policy': 'no-referrer',
     },
   });
 }

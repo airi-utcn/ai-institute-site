@@ -131,6 +131,12 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      {
+        // The preview entry URL contains the shared secret. Never forward it
+        // to the redirected page as a Referer.
+        source: '/api/preview',
+        headers: [{ key: 'Referrer-Policy', value: 'no-referrer' }],
+      },
     ];
   },
 };

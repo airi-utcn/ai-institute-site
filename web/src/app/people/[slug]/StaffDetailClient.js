@@ -18,7 +18,8 @@ import {
   FaProjectDiagram,
   FaBuilding,
   FaUserCog,
-  FaUser
+  FaUser,
+  FaNewspaper
 } from 'react-icons/fa';
 import { toPublicationSlug } from '@/lib/slug';
 import { getPublicationSourceLabel, normalizePublicationSourceKind } from '@/lib/publication';
@@ -26,11 +27,13 @@ import { containerVariants, itemVariants } from '@/lib/animations';
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
 import TeamCard from '@/components/TeamCard';
+import ContentCard from '@/components/ContentCard';
 
 const DEFAULT_TEXTS = {
   about: 'About',
   publications: 'Publications',
   teams: 'Teams',
+  news: 'News',
   searchPubs: 'Search publications by title, year, domain...',
   allYears: 'All Years',
   allTypes: 'All Types',
@@ -39,6 +42,7 @@ const DEFAULT_TEXTS = {
   noPubs: 'No publications available yet.',
   noPubsMatch: 'No publications found matching your filters.',
   noTeams: 'No research teams or projects found.',
+  noNews: 'No news available yet.',
   viewDetails: 'View Details',
   pdf: 'PDF',
   lead: 'Team Lead',
@@ -199,7 +203,7 @@ function PublicationCard({ publication, t }) {
   );
 }
 
-export default function StaffDetailClient({ person, publications, teams, slug }) {
+export default function StaffDetailClient({ person, publications, teams, news = [], slug }) {
   const t = (k) => DEFAULT_TEXTS[k] || k;
   const tr = (key, fallback) => DEFAULT_TEXTS[key] || fallback;
   
@@ -207,8 +211,23 @@ export default function StaffDetailClient({ person, publications, teams, slug })
     if (person?.bioMarkdown) return 'about';
     if (publications?.length > 0) return 'publications';
     if (teams?.length > 0) return 'teams';
+    if (news?.length > 0) return 'news';
     return 'publications'; // default fallback
   });
+
+  const formatNewsDate = (value) => {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
+  const formatNewsCategory = (value) =>
+    value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
 
   // Publications filters
   const [pubQuery, setPubQuery] = useState('');
@@ -281,6 +300,13 @@ export default function StaffDetailClient({ person, publications, teams, slug })
           icon={FaUsers}
           label={t('teams')}
           count={teams.length}
+        />
+        <TabButton
+          active={activeTab === 'news'}
+          onClick={() => setActiveTab('news')}
+          icon={FaNewspaper}
+          label={t('news')}
+          count={news.length}
         />
       </motion.div>
 
@@ -394,7 +420,7 @@ export default function StaffDetailClient({ person, publications, teams, slug })
               </div>
             )}
           </div>
-        ) : (
+        ) : activeTab === 'teams' ? (
           <div>
             {teams.length > 0 ? (
               <motion.div
@@ -412,6 +438,46 @@ export default function StaffDetailClient({ person, publications, teams, slug })
                 <FaUsers className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
                   {t('noTeams')}
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            {news.length > 0 ? (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="grid gap-4 md:grid-cols-2"
+              >
+                {news.map((item) => (
+                  <ContentCard
+                    key={item.slug || item.linkUrl || item.id}
+                    title={item.title}
+                    description={item.summary}
+                    href={item.slug ? `/news&events/news/${encodeURIComponent(item.slug)}` : item.linkUrl}
+                    image={item.image}
+                    imageSrcSet={item.imageSrcSet}
+                    imageAlt={item.imageAlt}
+                    badge={formatNewsCategory(item.category)}
+                    badgeVariant="primary"
+                    animate
+                    animationVariants={itemVariants}
+                  >
+                    {item.date && (
+                      <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        {formatNewsDate(item.date)}
+                      </p>
+                    )}
+                  </ContentCard>
+                ))}
+              </motion.div>
+            ) : (
+              <div className="text-center py-12">
+                <FaNewspaper className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">
+                  {t('noNews')}
                 </p>
               </div>
             )}

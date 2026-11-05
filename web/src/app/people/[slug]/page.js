@@ -22,8 +22,10 @@ import {
   getStaffMember,
   getPersonTeams,
   getPersonLaboratories,
+  getPersonNews,
   transformStaffData,
   transformLaboratoryData,
+  transformNewsData,
   transformPublicationData,
 } from "@/lib/strapi";
 import { normalizePublicationSourceKind } from "@/lib/publication";
@@ -85,10 +87,11 @@ export default async function PersonDetailPage({ params }) {
 
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const [strapiPerson, personTeamsRaw, personLaboratoriesRaw] = await Promise.all([
+  const [strapiPerson, personTeamsRaw, personLaboratoriesRaw, personNewsRaw] = await Promise.all([
     getStaffMember(slug, locale),
     getPersonTeams(slug),
     getPersonLaboratories(slug, locale),
+    getPersonNews(slug, locale),
   ]);
 
   if (!strapiPerson) {
@@ -175,6 +178,21 @@ export default async function PersonDetailPage({ params }) {
       slug: lab.slug,
       title: lab.title,
       roomNumber: lab.roomNumber,
+    }));
+
+  const news = transformNewsData(personNewsRaw)
+    .filter((item) => item.slug || item.linkUrl)
+    .map((item) => ({
+      id: item.id,
+      slug: item.slug,
+      title: item.title,
+      summary: item.summary,
+      category: item.category,
+      date: item.date,
+      linkUrl: item.linkUrl,
+      image: item.image,
+      imageAlt: item.imageAlt,
+      imageSrcSet: item.imageSrcSet,
     }));
 
   const person = {
@@ -387,7 +405,7 @@ export default async function PersonDetailPage({ params }) {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8">
-        <StaffDetailClient person={person} publications={publications} teams={teams} slug={slug} />
+        <StaffDetailClient person={person} publications={publications} teams={teams} news={news} slug={slug} />
       </div>
     </div>
     </>

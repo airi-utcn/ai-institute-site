@@ -3,6 +3,7 @@
 import CatalogNotice from "@/components/CatalogNotice";
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageState } from "@/lib/usePageState";
 
 /* Animations */
 const containerVariants = {
@@ -32,8 +33,8 @@ function Chevron({ open }) {
   );
 }
 
-function SectionToggle({ label, children, defaultOpen = false }) {
-  const [open, setOpen] = React.useState(defaultOpen);
+function SectionToggle({ label, children, defaultOpen = false, stateKey }) {
+  const [open, setOpen] = usePageState(`section:${stateKey || label}`, defaultOpen);
 
   return (
     <div className="mt-4">
@@ -120,7 +121,7 @@ export default function SeminarsClient({ seminars = [], pageData }) {
                 </a>
 
                 {Array.isArray(s.about) && s.about.length > 0 && (
-                  <SectionToggle label={whatYouWillLearn}>
+                  <SectionToggle label={whatYouWillLearn} stateKey={`${s.title}-about`}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.about.map((point, i) => (
                         <li key={`about-${idx}-${i}`}>{point}</li>
@@ -130,7 +131,7 @@ export default function SeminarsClient({ seminars = [], pageData }) {
                 )}
 
                 {Array.isArray(s.modules) && s.modules.length > 0 && (
-                  <SectionToggle label={modules}>
+                  <SectionToggle label={modules} stateKey={`${s.title}-modules`}>
                     <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
                       {s.modules.map((m, i) => (
                         <li key={`module-${idx}-${i}`}>{m}</li>

@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { usePageState } from "@/lib/usePageState";
 
 // ─── Layout constants ────────────────────────────────────────────────────────
 const MAP_W = 3200;
@@ -143,7 +144,7 @@ export default function IntersectionGraphClient({
   const svgRef = useRef(null);
   const nodePressRef = useRef(null);
 
-  const [minScore, setMinScore] = useState(0.5);
+  const [minScore, setMinScore] = usePageState("minScore", 0.5);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
   const [scale, setScale] = useState(1);

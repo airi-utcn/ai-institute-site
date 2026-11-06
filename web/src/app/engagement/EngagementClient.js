@@ -29,6 +29,7 @@ import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRole
 import { PARTNER_ROLES, PARTNER_ROLE_ORDER } from '@/lib/partnerRoles';
 import { containerVariants, itemVariants } from '@/lib/animations';
 import DynamicZone from '@/components/shared/DynamicZone';
+import { usePageState } from '@/lib/usePageState';
 
 // ============================================================================
 // SHARED COMPONENTS
@@ -198,8 +199,8 @@ function IndustryContent({
     { id: 'projects', label: projectsLabel || 'Projects' },
   ];
 
-  const [query, setQuery] = useState('');
-  const [domainFilter, setDomainFilter] = useState('');
+  const [query, setQuery] = usePageState('industryQuery', '');
+  const [domainFilter, setDomainFilter] = usePageState('industryDomain', '');
 
   const industryProjects = useMemo(() => {
     return projects.filter(p => p.isIndustryEngagement);
@@ -649,9 +650,9 @@ function PartnersContent({
   };
 
   const partnerList = useMemo(() => (Array.isArray(partners) ? partners : []), [partners]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [countryFilter, setCountryFilter] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
+  const [searchQuery, setSearchQuery] = usePageState('partnerQuery', '');
+  const [countryFilter, setCountryFilter] = usePageState('partnerCountry', '');
+  const [roleFilter, setRoleFilter] = usePageState('partnerRole', '');
 
   // partition partners into current (has active projects) and former (no active projects)
   // per issue 172: "If a partner does not have an active project - it should appear in a Previous Partners page"

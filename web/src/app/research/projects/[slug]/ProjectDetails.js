@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { usePageState } from '@/lib/usePageState';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -681,7 +681,7 @@ function EventCard({ item, t }) {
 }
 
 export default function ProjectDetails({ project, pageData }) {
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = usePageState('tab', 'about');
   const t = (key, params) => {
     let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
     

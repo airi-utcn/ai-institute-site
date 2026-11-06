@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -30,6 +29,7 @@ import PersonChip from '@/components/shared/PersonChip';
 import ContentCard from '@/components/ContentCard';
 import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
 import { getPeopleCount } from '@/lib/people';
+import { usePageState } from '@/lib/usePageState';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -75,7 +75,7 @@ export default function LaboratoryDetailClient({
   teams = [],
   publications = [],
 }) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = usePageState('tab', 'overview');
 
   const t = (key) => {
     let val = DEFAULT_TEXTS[key] ?? key;

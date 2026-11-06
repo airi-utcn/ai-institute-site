@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePageState } from "@/lib/usePageState";
 import { useRouter } from "next/navigation";
 const PUBLICATION_DETAIL_DEFAULTS = {
   notFound: "Publication not found.",
@@ -27,6 +27,10 @@ const PUBLICATION_DETAIL_DEFAULTS = {
 export default function PublicationDetailClient({ publication }) {
   const t = (key) => PUBLICATION_DETAIL_DEFAULTS[key] || key;
   const router = useRouter();
+  const [activeTab, setActiveTab] = usePageState(
+    "tab",
+    publication?.pdfFile?.url ? "pdf" : publication?.bibFile?.url ? "bib" : ""
+  );
 
   if (!publication) return <div className="p-6">{t("notFound")}</div>;
 
@@ -45,10 +49,6 @@ export default function PublicationDetailClient({ publication }) {
     bibFile,
     slug,
   } = publication;
-
-  const [activeTab, setActiveTab] = useState(
-    pdfFile?.url ? "pdf" : bibFile?.url ? "bib" : ""
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">

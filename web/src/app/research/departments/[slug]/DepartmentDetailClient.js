@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -24,6 +24,7 @@ import DynamicZone from "@/components/shared/DynamicZone";
 import PersonChip from "@/components/shared/PersonChip";
 import PeopleTeamsSection from "@/components/shared/PeopleTeamsSection";
 import { getPeopleCount } from "@/lib/people";
+import { usePageState } from "@/lib/usePageState";
 
 const DEFAULT_TEXTS = {
   backToDepartments: "Back to Departments",
@@ -112,7 +113,7 @@ export default function DepartmentDetailClient({
   teams = [],
   pageData,
 }) {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = usePageState("tab", "overview");
 
   const t = (key) => {
     let val = DEFAULT_TEXTS[key] ?? key;

@@ -2527,6 +2527,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'All Themes'>;
+    backToLaboratories: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Back to Laboratories'>;
     body: Schema.Attribute.DynamicZone<
       [
         'shared.cta',
@@ -2561,6 +2568,76 @@ export interface ApiLaboratoriesPageLaboratoriesPage
       'oneToMany',
       'api::laboratories-page.laboratories-page'
     >;
+    notFound: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Laboratory not found.'>;
+    overviewAbout: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'About'>;
+    overviewCoCoordinator: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Co-Coordinator'>;
+    overviewContact: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Contact'>;
+    overviewCoordinator: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Coordinator'>;
+    peopleNoPeople: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'No researchers found for this laboratory.'>;
+    peopleResearchers: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Researchers'>;
+    peopleTeams: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Teams'>;
+    projectsNoProjects: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'No projects found for this laboratory.'>;
+    publicationsNoPublications: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'No publications found for this laboratory.'>;
     publishedAt: Schema.Attribute.DateTime;
     resultsCount: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
@@ -2589,6 +2666,41 @@ export interface ApiLaboratoriesPageLaboratoriesPage
           localized: true;
         };
       }>;
+    tabsOverview: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Overview'>;
+    tabsPeople: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'People'>;
+    tabsProjects: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Projects'>;
+    tabsPublications: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Publications'>;
+    themesTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Research Themes'>;
     title: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2639,6 +2751,7 @@ export interface ApiLaboratoryLaboratory extends Struct.CollectionTypeSchema {
       }>;
     bookingUrl: Schema.Attribute.String;
     capacity: Schema.Attribute.Integer;
+    coCoordinator: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
     contactEmail: Schema.Attribute.Email;
     coordinator: Schema.Attribute.Relation<'manyToOne', 'api::person.person'>;
     createdAt: Schema.Attribute.DateTime;
@@ -2663,6 +2776,10 @@ export interface ApiLaboratoryLaboratory extends Struct.CollectionTypeSchema {
       }>;
     partners: Schema.Attribute.Relation<'manyToMany', 'api::partner.partner'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;
+    publications: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::publication.publication'
+    >;
     publishedAt: Schema.Attribute.DateTime;
     researchers: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
     researchThemes: Schema.Attribute.Relation<
@@ -2677,6 +2794,7 @@ export interface ApiLaboratoryLaboratory extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    teams: Schema.Attribute.Relation<'oneToMany', 'api::team.team'>;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -4715,6 +4833,10 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
       'api::graph-link.graph-link'
     >;
     kind: Schema.Attribute.String;
+    laboratories: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::laboratory.laboratory'
+    >;
     lastGraphIndexedAt: Schema.Attribute.DateTime;
     lastImportedAt: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String;
@@ -5556,6 +5678,10 @@ export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
     description: Schema.Attribute.RichText;
     displayOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     image: Schema.Attribute.Media<'images'>;
+    laboratory: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::laboratory.laboratory'
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::team.team'> &
       Schema.Attribute.Private;

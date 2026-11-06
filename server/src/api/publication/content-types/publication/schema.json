@@ -162,6 +162,12 @@
       "target": "api::project.project",
       "inversedBy": "publications"
     },
+    "laboratories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::laboratory.laboratory",
+      "mappedBy": "publications"
+    },
     "resources": {
       "type": "relation",
       "relation": "manyToMany",

@@ -645,13 +645,36 @@ export async function getTeamsGraphData() {
 export async function getProjectsGraphData() {
   try {
     return await fetchAllEntries('/projects', {
-      fields: ['title', 'slug'],
+      fields: ['title', 'slug', 'startDate', 'endDate'],
       populate: {
         individualContributors: { populate: { person: { fields: ['id'] } } },
       },
     });
   } catch (error) {
     console.error('Failed to fetch projects graph data:', error);
+    return [];
+  }
+}
+
+/**
+ * Get all projects a person contributes to directly (as an individual
+ * contributor), identified by their slug. Team-based project membership is
+ * returned separately by getPersonTeams().
+ * @param {string} slug - The person's slug
+ * @returns {Promise<Array>} Array of project entries
+ */
+export async function getPersonProjects(slug) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      filters: { individualContributors: { person: { slug: { $eq: slug } } } },
+      fields: ['title', 'slug', 'startDate', 'endDate'],
+      sort: 'title:asc',
+    });
+    const data = await fetchAPI(`/projects?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch person projects:', error);
     return [];
   }
 }
@@ -725,6 +748,33 @@ export async function getDepartmentTeams(departmentSlug) {
     return data.data || [];
   } catch (error) {
     console.error('Failed to fetch department teams:', error);
+    return [];
+  }
+}
+
+/**
+ * Get teams assigned to a laboratory
+ * @param {string} laboratorySlug - Laboratory slug
+ * @returns {Promise<Array>} Array of team entries
+ */
+export async function getLaboratoryTeams(laboratorySlug) {
+  try {
+    if (!laboratorySlug) return [];
+    const params = createParams({
+      filters: { laboratory: { slug: { $eq: laboratorySlug } } },
+      sort: 'name:asc',
+      populate: {
+        laboratory: { fields: ['title', 'slug'] },
+        members: {
+          populate: { person: PERSON_WITH_IMAGE_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch laboratory teams:', error);
     return [];
   }
 }
@@ -1054,6 +1104,7 @@ const LABORATORY_POPULATE = {
       },
     },
     coordinator: PERSON_CARD_POPULATE,
+    coCoordinator: PERSON_CARD_POPULATE,
     researchers: PERSON_CARD_POPULATE,
     departments: DEPARTMENT_POPULATE,
     researchThemes: { fields: ['name', 'slug'] },
@@ -1567,6 +1618,7 @@ export async function getPublications(options = {}) {
   try {
     const {
       domainSlug,
+      laboratorySlug,
       includeUnlisted = false,
       graphEligibleOnly = false,
       sourceKind,
@@ -1576,6 +1628,10 @@ export async function getPublications(options = {}) {
 
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
+    }
+
+    if (laboratorySlug) {
+      filters.laboratories = { slug: { $eq: laboratorySlug } };
     }
 
     if (graphEligibleOnly) {
@@ -2977,6 +3033,25 @@ export function isTeamArchived(team) {
   return projects.every((p) => isProjectArchived(p));
 }
 
+/**
+ * A researcher is considered "former" when they are linked to at least one
+ * project and every one of those projects has ended. People with no project
+ * data are deliberately treated as active rather than guessed at.
+ * @param {Object} person - Transformed or raw person record
+ * @param {Array} projects - Projects associated with the person
+ * @returns {boolean}
+ */
+export function isFormerResearcher(person, projects = []) {
+  if (!person) return false;
+  const attributes = person?.attributes ?? person;
+  const type = attributes.type || person.type || '';
+  if (type !== 'researcher') return false;
+
+  const list = toArray(projects);
+  if (list.length === 0) return false;
+  return list.every((project) => isProjectArchived(project));
+}
+
 // check if a partner is a former/previous partner
 // per issue 172, if they don't have any active projects, they belong to previous partners
 export function isPartnerFormer(partner) {
@@ -3038,6 +3113,16 @@ export function transformTeamData(strapiTeams) {
         }
       : null;
 
+    const labEntry = attributes.laboratory?.data ?? attributes.laboratory;
+    const labAttr = labEntry?.attributes ?? labEntry ?? {};
+    const laboratory = labEntry
+      ? {
+          id: labEntry?.id ?? null,
+          slug: labEntry ? (labAttr.slug || '') : '',
+          name: labEntry ? (labAttr.title || labAttr.name || '') : '',
+        }
+      : null;
+
     const members = toArray(attributes.members).map((m) => {
       const personEntry = m?.person?.data ?? m?.person;
       const personAttr = personEntry?.attributes ?? personEntry ?? {};
@@ -3084,6 +3169,7 @@ export function transformTeamData(strapiTeams) {
       displayOrder: attributes.displayOrder ?? 0,
       type: attributes.type || '',
       department,
+      laboratory,
       members,
       projects,
       isArchived,
@@ -3656,6 +3742,7 @@ export function transformLaboratoryData(strapiLaboratories) {
       gallery,
       virtualTour360Url: attributes.virtualTour360Url || '',
       coordinator: normalizePerson(attributes.coordinator?.data ?? attributes.coordinator),
+      coCoordinator: normalizePerson(attributes.coCoordinator?.data ?? attributes.coCoordinator),
       researchers,
       departments,
       researchThemes,

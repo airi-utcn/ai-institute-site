@@ -39,6 +39,12 @@
       "target": "api::department.department",
       "inversedBy": "teams"
     },
+    "laboratory": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::laboratory.laboratory",
+      "inversedBy": "teams"
+    },
     "members": {
       "type": "component",
       "component": "team.membership",

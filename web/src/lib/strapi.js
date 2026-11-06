@@ -1229,6 +1229,26 @@ export async function getPersonLaboratories(slug, locale = null) {
 }
 
 /**
+ * Get every news article that features a person, identified by their slug.
+ * Filters server-side on the news-articles[].featuredPeople relation.
+ * @param {string} slug - The person's slug
+ * @param {string} locale - Locale code
+ * @returns {Promise<Array>} Array of news article entries
+ */
+export async function getPersonNews(slug, locale = null) {
+  try {
+    if (!slug) return [];
+    return await getNewsArticles({
+      locale,
+      filters: { featuredPeople: { slug: { $eq: slug } } },
+    });
+  } catch (error) {
+    console.error('Failed to fetch person news:', error);
+    return [];
+  }
+}
+
+/**
  * Get a single laboratory by slug
  * @param {string} slug - Laboratory slug
  * @param {string} locale - Locale code

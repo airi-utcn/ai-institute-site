@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import TeamCard from "@/components/TeamCard";
 import PeopleGraphClient from "./PeopleGraphClient";
+import { usePageState } from "@/lib/usePageState";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -235,13 +236,14 @@ export default function PeopleClient({
   graphLinks = [],
   departmentColors = {},
 }) {
-  const [activeSection, setActiveSection] = useState("people"); // "people" | "teams"
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [researcherView, setResearcherView] = useState("active");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState("cards");
-  const [allSort, setAllSort] = useState("most-citations");
-  const [researcherSort, setResearcherSort] = useState("most-citations");
+  // Persisted per history entry so browser Back/Forward restores the view.
+  const [activeSection, setActiveSection] = usePageState("section", "people"); // "people" | "teams"
+  const [activeFilter, setActiveFilter] = usePageState("filter", "all");
+  const [researcherView, setResearcherView] = usePageState("researcherView", "active");
+  const [searchQuery, setSearchQuery] = usePageState("query", "");
+  const [viewMode, setViewMode] = usePageState("viewMode", "cards");
+  const [allSort, setAllSort] = usePageState("allSort", "most-citations");
+  const [researcherSort, setResearcherSort] = usePageState("researcherSort", "most-citations");
 
   const title = pageData?.title || "People";
   const subtitle = pageData?.subtitle || "Meet the researchers, faculty, and collaborative teams shaping AI innovation at AIRi.";

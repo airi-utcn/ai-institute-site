@@ -1,13 +1,14 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useLocale } from "@/context/LocaleContext";
 import Link from "next/link";
 import { FaUser, FaSearch, FaTimes, FaTrophy } from "react-icons/fa";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { gridSizes, heroSizes } from "@/lib/media";
+import { usePageState } from "@/lib/usePageState";
 
 // ─── Motion ──────────────────────────────────────────────────────────────────
 
@@ -84,7 +85,7 @@ const Highlight = ({ text = "", highlight = "" }) => {
 
 export default function AwardsClient({ awardsItems = [], pageData }) {
   const items = Array.isArray(awardsItems) ? awardsItems : [];
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = usePageState("query", "");
 
   const locale = useLocale();
   const authorLabel = "By";

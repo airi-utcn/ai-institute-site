@@ -1,10 +1,11 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { usePageState } from "@/lib/usePageState";
 import { slugify, toPublicationSlug } from "@/lib/slug";
 import { getPublicationSourceLabel, normalizePublicationSourceKind } from "@/lib/publication";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown, FaExternalLinkAlt } from "react-icons/fa";
@@ -135,16 +136,16 @@ export default function PublicationsClient({ publications: pubData, staff: staff
     return src.map((p) => normalizePublication(p, staffBySlug)).filter((p) => p.title);
   }, [pubData, staffBySlug]);
 
-  /* State filters */
-  const [q, setQ] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
-  const [authorFilter, setAuthorFilter] = useState("");
-  const [domainFilter, setDomainFilter] = useState("");
-  const [kindFilter, setKindFilter] = useState("");
-  const [sourceFilter, setSourceFilter] = useState("");
-  const [projectFilter, setProjectFilter] = useState("");
-  const [themeFilter, setThemeFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  /* State filters — persisted per history entry so Back/Forward restores them */
+  const [q, setQ] = usePageState("q", "");
+  const [yearFilter, setYearFilter] = usePageState("year", "");
+  const [authorFilter, setAuthorFilter] = usePageState("author", "");
+  const [domainFilter, setDomainFilter] = usePageState("domain", "");
+  const [kindFilter, setKindFilter] = usePageState("kind", "");
+  const [sourceFilter, setSourceFilter] = usePageState("source", "");
+  const [projectFilter, setProjectFilter] = usePageState("project", "");
+  const [themeFilter, setThemeFilter] = usePageState("theme", "");
+  const [showFilters, setShowFilters] = usePageState("filtersOpen", false);
 
   const { yearOptions, authorOptions, domainOptions, kindOptions, sourceOptions, projectOptions } = useMemo(() => {
     const years = new Set();
@@ -194,7 +195,7 @@ export default function PublicationsClient({ publications: pubData, staff: staff
       setProjectFilter(matched ? matched.slug : projectParam.trim());
       setShowFilters(true);
     }
-  }, [searchParams, projectOptions]);
+  }, [searchParams, projectOptions, setThemeFilter, setProjectFilter, setShowFilters]);
 
   /* filtering */
   const filtered = useMemo(() => {

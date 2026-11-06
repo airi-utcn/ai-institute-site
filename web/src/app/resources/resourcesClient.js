@@ -1,7 +1,7 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { 
   FaDatabase, 
@@ -18,6 +18,7 @@ import {
   FaStar
 } from "react-icons/fa";
 import RichMarkdown from "@/components/shared/RichMarkdown";
+import { usePageState } from "@/lib/usePageState";
 
 /* Icon map based on schema enums */
 const iconMap = {
@@ -155,8 +156,8 @@ function ResourceCard({ resource, visitResourceText }) {
 }
 
 export default function ResourcesClient({ resources = [], pageData }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
+  const [searchQuery, setSearchQuery] = usePageState("query", "");
+  const [categoryFilter, setCategoryFilter] = usePageState("category", "");
 
   const title = pageData?.title || "Resources";
   const subtitle = pageData?.subtitle || "Explore tools, resources, APIs, and learning materials curated by AIRi.";

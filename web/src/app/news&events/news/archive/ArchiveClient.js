@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useLocale } from "@/context/LocaleContext";
 import Link from "next/link";
 import { FaUser } from "react-icons/fa";
+import { usePageState } from "@/lib/usePageState";
 
 const normalizeSearchText = (value) =>
   (value || "")
@@ -43,7 +44,7 @@ const Highlight = ({ text = "", highlight = "" }) => {
 
 export default function ArchiveClient({ newsItems = [], pageData }) {
   const locale = useLocale();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = usePageState("query", "");
 
   const t = (key) => {
     const map = {

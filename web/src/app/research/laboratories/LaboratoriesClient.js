@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaTimes, FaFlask } from 'react-icons/fa';
 import LaboratoryCard from '@/components/laboratory/LaboratoryCard';
 import DynamicZone from '@/components/shared/DynamicZone';
+import { usePageState } from '@/lib/usePageState';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -44,8 +45,8 @@ const resolveImageUrl = (image) => {
 };
 
 export default function LaboratoriesClient({ laboratories = [], pageData }) {
-  const [query, setQuery] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('all');
+  const [query, setQuery] = usePageState('query', '');
+  const [selectedDepartment, setSelectedDepartment] = usePageState('department', 'all');
 
   const title = pageData?.title || 'Laboratories & Spaces';
   const subtitle =

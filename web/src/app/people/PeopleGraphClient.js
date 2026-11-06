@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { forceCollide } from "d3-force";
 import PersonDetailPanel from "./PersonDetailPanel";
+import { usePageState } from "@/lib/usePageState";
 
 // Canvas renderer touches `window`, so it must not be server-rendered.
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -84,11 +85,12 @@ export default function PeopleGraphClient({ nodes, links, departmentColors }) {
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [hoverId, setHoverId] = useState(null);
   const [hoverLink, setHoverLink] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
-  const [selection, setSelection] = useState(null); // {type:'department'|'project', label, memberIds:Set}
-  const [query, setQuery] = useState("");
+  // Persist the parts of the graph view the user intentionally selected.
+  const [selectedId, setSelectedId] = usePageState("graphSelectedId", null);
+  const [selection, setSelection] = usePageState("graphSelection", null); // {type:'department'|'project', label, memberIds:Set}
+  const [query, setQuery] = usePageState("graphQuery", "");
   const [searchFocused, setSearchFocused] = useState(false);
-  const [showLegend, setShowLegend] = useState(false);
+  const [showLegend, setShowLegend] = usePageState("graphLegend", false);
 
   const graphData = useMemo(() => ({ nodes, links }), [nodes, links]);
 

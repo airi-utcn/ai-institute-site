@@ -18,8 +18,9 @@ import { usePathname, useRouter } from "next/navigation";
  * want for free: Back restores the previous view, opening the page from the
  * navbar starts fresh.
  *
- * Values are written when the component mounts and again when it unmounts, so
- * there is no flash of default state on back navigation.
+ * Values are written when the component mounts, immediately when a setter is
+ * called, and again when it unmounts, so there is no flash of default state on
+ * back navigation and updates survive an unmount that happens in the same tick.
  */
 
 const MAX_ENTRIES = 50;
@@ -83,9 +84,26 @@ export function usePageState(name, initialValue) {
     };
   }, [entryKey, name]);
 
-  const setPageState = useCallback((nextValue) => {
-    setValue(nextValue);
+  // Write immediately as well as through React state. This matters when a
+  // click both updates state and starts a navigation: the page can unmount
+  // before React has rendered the new value, and the unmount cleanup would
+  // otherwise save the old one.
+  const writePageState = useCallback((nextValue) => {
+    const resolved =
+      typeof nextValue === "function" ? nextValue(valueRef.current) : nextValue;
+
+    valueRef.current = resolved;
+    writeValue(entryKeyRef.current, nameRef.current, resolved);
+
+    return resolved;
   }, []);
 
-  return [value, setPageState];
+  const setPageState = useCallback(
+    (nextValue) => {
+      setValue(writePageState(nextValue));
+    },
+    [writePageState]
+  );
+
+  return [value, setPageState, writePageState];
 }

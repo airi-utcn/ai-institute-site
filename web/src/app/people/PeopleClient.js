@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,18 +26,63 @@ import TeamCard from "@/components/TeamCard";
 import PeopleGraphClient from "./PeopleGraphClient";
 import { usePageState } from "@/lib/usePageState";
 
+// This page can render 180+ cards. A fixed 0.04s stagger would take over 7
+// seconds to finish, so cap the whole cascade at roughly a quarter second.
 const containerVariants = {
   hidden: { opacity: 0 },
-  show: {
+  show: (count = 0) => ({
     opacity: 1,
-    transition: { staggerChildren: 0.04, delayChildren: 0.05 },
-  },
+    transition: {
+      staggerChildren: count > 0 ? Math.min(0.04, 0.25 / count) : 0.04,
+      delayChildren: 0.02,
+    },
+  }),
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 8 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.16, ease: "easeOut" },
+  },
 };
+
+// Avoid React's SSR warning for useLayoutEffect.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function findScrollAnchor(key) {
+  const cards = document.querySelectorAll("[data-scroll-anchor]");
+  for (const card of cards) {
+    if (card.getAttribute("data-scroll-anchor") === key) return card;
+  }
+  return null;
+}
+
+function getVisibleScrollAnchor() {
+  if (typeof window === "undefined") return null;
+
+  const cards = document.querySelectorAll("[data-scroll-anchor]");
+  let best = null;
+  let bestDistance = Infinity;
+
+  for (const card of cards) {
+    const rect = card.getBoundingClientRect();
+    if (rect.bottom <= 0 || rect.top >= window.innerHeight) continue;
+
+    const distance = Math.abs(rect.top);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = {
+        key: card.getAttribute("data-scroll-anchor"),
+        top: Math.round(rect.top),
+      };
+    }
+  }
+
+  return best;
+}
 
 const normalizeSearchText = (value) =>
   (value || "")
@@ -131,7 +182,8 @@ const RESEARCHER_SORT_OPTIONS = [
 ];
 
 function PersonCard({ person, basePath = "/people", showRoleBadge = true, activeFilter = "all" }) {
-    const roleConfig = getRoleConfig(person.isFormerResearcher ? "former" : person.type);
+  const roleConfig = getRoleConfig(person.isFormerResearcher ? "former" : person.type);
+  const scrollKey = getPersonKey(person);
 
   const formatSubtype = (typeStr) => {
     if (!typeStr) return null;
@@ -164,6 +216,7 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = true, active
     <motion.div
       variants={itemVariants}
       className="card card-hover flex flex-col items-center text-center p-4 relative group"
+      data-scroll-anchor={scrollKey}
     >
       {showRoleBadge && (
         <span
@@ -244,6 +297,105 @@ export default function PeopleClient({
   const [viewMode, setViewMode] = usePageState("viewMode", "cards");
   const [allSort, setAllSort] = usePageState("allSort", "most-citations");
   const [researcherSort, setResearcherSort] = usePageState("researcherSort", "most-citations");
+
+  // The raw scroll offset is unreliable when the list, filters, or images
+  // change size. Remember the card that was at the top of the viewport instead
+  // and put that card back at the same spot when this history entry returns.
+  const [scrollAnchor, , writeScrollAnchor] = usePageState("scrollAnchor", null);
+  const initialScrollAnchor = useRef(scrollAnchor);
+  const visibleAnchorRef = useRef(null);
+
+  const captureVisibleAnchor = useCallback(() => {
+    const anchor = getVisibleScrollAnchor();
+    if (anchor) visibleAnchorRef.current = anchor;
+  }, []);
+
+  useEffect(() => {
+    let frame = 0;
+
+    const scheduleCapture = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        captureVisibleAnchor();
+      });
+    };
+
+    captureVisibleAnchor();
+    window.addEventListener("scroll", scheduleCapture, { passive: true });
+    window.addEventListener("resize", scheduleCapture, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", scheduleCapture);
+      window.removeEventListener("resize", scheduleCapture);
+      if (frame) cancelAnimationFrame(frame);
+
+      // Save the last visible card for this history entry. Using an
+      // imperative write here means it still lands even if React never
+      // renders the value before unmounting.
+      if (visibleAnchorRef.current?.key) {
+        writeScrollAnchor(visibleAnchorRef.current);
+      }
+    };
+  }, [captureVisibleAnchor, writeScrollAnchor]);
+
+  useIsomorphicLayoutEffect(() => {
+    const anchor = initialScrollAnchor.current;
+    if (!anchor?.key) return;
+
+    let cancelled = false;
+    let frame = 0;
+    const timers = [];
+
+    const restore = () => {
+      if (cancelled) return;
+
+      const card = findScrollAnchor(anchor.key);
+      if (!card) return;
+
+      const desired =
+        window.scrollY + card.getBoundingClientRect().top - anchor.top;
+
+      if (Math.abs(window.scrollY - desired) <= 2) return;
+
+      // Cancel any smooth scroll that the browser/Next started so the
+      // position is applied immediately.
+      const root = document.documentElement;
+      const previousBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(0, desired);
+      root.style.scrollBehavior = previousBehavior;
+    };
+
+    // Run immediately, then verify once the browser's native history
+    // restoration and any late layout work have finished.
+    restore();
+    frame = requestAnimationFrame(restore);
+    timers.push(setTimeout(restore, 120), setTimeout(restore, 450));
+
+    const cancel = () => {
+      cancelled = true;
+      if (frame) cancelAnimationFrame(frame);
+      timers.forEach(clearTimeout);
+      removeListeners();
+    };
+
+    const events = ["wheel", "touchstart", "keydown", "pointerdown"];
+    const removeListeners = () => {
+      events.forEach((event) => window.removeEventListener(event, cancel));
+    };
+
+    events.forEach((event) =>
+      window.addEventListener(event, cancel, { passive: true, once: true })
+    );
+
+    return () => {
+      cancelled = true;
+      if (frame) cancelAnimationFrame(frame);
+      timers.forEach(clearTimeout);
+      removeListeners();
+    };
+  }, []);
 
   const title = pageData?.title || "People";
   const subtitle = pageData?.subtitle || "Meet the researchers, faculty, and collaborative teams shaping AI innovation at AIRi.";
@@ -548,9 +700,10 @@ export default function PeopleClient({
                 </motion.div>
               ) : (
                 <motion.div
-                  key={`teams-${searchQuery}`}
+                  key="teams"
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                   variants={containerVariants}
+                  custom={displayedTeams.length}
                   initial="hidden"
                   animate="show"
                   exit={{ opacity: 0 }}
@@ -559,6 +712,7 @@ export default function PeopleClient({
                     <TeamCard
                       key={team.slug || team.id || idx}
                       team={team}
+                      scrollKey={team.slug || team.id}
                       staffLookup={staffLookup}
                       t={(k) => {
                         if (k === 'lead') return 'Team Lead';
@@ -739,9 +893,10 @@ export default function PeopleClient({
             </motion.div>
           ) : (
             <motion.div
-              key={`${activeFilter}-${researcherView}-${researcherSort}-${searchQuery}`}
+              key={`${activeFilter}-${researcherView}-${researcherSort}`}
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
               variants={containerVariants}
+              custom={displayedPeople.length}
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}

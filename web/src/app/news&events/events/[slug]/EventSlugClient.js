@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 import DynamicZone from "@/components/shared/DynamicZone";
 import HeroHeader from "@/components/shared/HeroHeader";
+import BackLink from "@/components/BackLink";
 import {
   FaArrowLeft,
   FaCalendar,
@@ -75,13 +76,13 @@ export default function EventSlugClient({ event, pageData }) {
         contentClassName="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         {/* Back Link */}
-        <Link
+        <BackLink
           href="/news&events/events"
           className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline mb-6 font-medium"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
           {pageData?.backToEvents || "Back to Events"}
-        </Link>
+        </BackLink>
 
         {/* Event Header */}
         <header className="mb-8">

@@ -17,6 +17,7 @@ export default function TeamCard({
   staffLookup = {},
   showProjects = true,
   t = (k) => k,
+  scrollKey,
 }) {
   if (!team) return null;
 
@@ -46,6 +47,7 @@ export default function TeamCard({
   return (
     <div
       className="card card-hover flex flex-col justify-between p-5 h-full relative overflow-hidden"
+      data-scroll-anchor={scrollKey ?? undefined}
     >
       <div>
         {/* Header */}

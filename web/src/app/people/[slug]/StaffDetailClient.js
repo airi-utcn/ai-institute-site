@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -28,6 +28,7 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import ExpandableMarkdown from '@/components/shared/ExpandableMarkdown';
 import TeamCard from '@/components/TeamCard';
 import ContentCard from '@/components/ContentCard';
+import { usePageState } from '@/lib/usePageState';
 
 const DEFAULT_TEXTS = {
   about: 'About',
@@ -207,7 +208,7 @@ export default function StaffDetailClient({ person, publications, teams, news = 
   const t = (k) => DEFAULT_TEXTS[k] || k;
   const tr = (key, fallback) => DEFAULT_TEXTS[key] || fallback;
   
-  const [activeTab, setActiveTab] = useState(() => {
+  const [activeTab, setActiveTab] = usePageState('tab', () => {
     if (person?.bioMarkdown) return 'about';
     if (publications?.length > 0) return 'publications';
     if (teams?.length > 0) return 'teams';
@@ -230,11 +231,11 @@ export default function StaffDetailClient({ person, publications, teams, news = 
     value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
 
   // Publications filters
-  const [pubQuery, setPubQuery] = useState('');
-  const [yearFilter, setYearFilter] = useState('');
-  const [kindFilter, setKindFilter] = useState('');
-  const [domainFilter, setDomainFilter] = useState('');
-  const [sourceFilter, setSourceFilter] = useState('');
+  const [pubQuery, setPubQuery] = usePageState('pubQuery', '');
+  const [yearFilter, setYearFilter] = usePageState('pubYear', '');
+  const [kindFilter, setKindFilter] = usePageState('pubKind', '');
+  const [domainFilter, setDomainFilter] = usePageState('pubDomain', '');
+  const [sourceFilter, setSourceFilter] = usePageState('pubSource', '');
 
   // Publications processing
   const { yearOptions, kindOptions, pubDomainOptions, sourceOptions } = useMemo(() => {

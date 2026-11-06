@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { usePageState } from "@/lib/usePageState";
 
 const container = {
   hidden: { opacity: 0 },
@@ -14,7 +15,7 @@ const item = {
 };
 
 export default function Client({ aboutData }) {
-  const [q, setQ] = useState("");
+  const [q, setQ] = usePageState("query", "");
 
   const title = aboutData?.sitemapTitle || "Sitemap";
   const filterPlaceholder = "Filter pages…";

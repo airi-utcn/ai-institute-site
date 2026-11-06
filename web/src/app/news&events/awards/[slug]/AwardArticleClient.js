@@ -9,6 +9,7 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 import HeroHeader from '@/components/shared/HeroHeader';
+import BackLink from '@/components/BackLink';
 
 export default function AwardArticleClient({ article, pageData }) {
   const locale = useLocale();
@@ -60,13 +61,13 @@ export default function AwardArticleClient({ article, pageData }) {
         contentClassName="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         {/* Back Link */}
-        <Link
+        <BackLink
           href="/news&events/awards"
           className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline mb-6 font-medium"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
           {tr('backToNews', 'Back to Awards')}
-        </Link>
+        </BackLink>
 
         {/* Article Header */}
         <header className="mb-8">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { usePageState } from '@/lib/usePageState';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -31,6 +31,7 @@ import {
 import { containerVariants, itemVariants } from '@/lib/animations';
 import PartnerRoleBadge, { getPartnerRoleConfig } from '@/components/PartnerRoleBadge';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
+import BackLink from '@/components/BackLink';
 import { gridSizes } from '@/lib/media';
 const PROJECT_DETAIL_DEFAULTS = {
   notFound: "Project not found",
@@ -681,7 +682,7 @@ function EventCard({ item, t }) {
 }
 
 export default function ProjectDetails({ project, pageData }) {
-  const [activeTab, setActiveTab] = useState('about');
+  const [activeTab, setActiveTab] = usePageState('tab', 'about');
   const t = (key, params) => {
     let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
     
@@ -792,13 +793,13 @@ export default function ProjectDetails({ project, pageData }) {
         className="pt-10 pb-12 md:pt-14 md:pb-16"
         contentClassName="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <Link
+        <BackLink
           href="/research/projects"
           className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-6"
         >
           <FaArrowLeft className="w-4 h-4" />
           <span>{t("backToProjects")}</span>
-        </Link>
+        </BackLink>
         <motion.h1
           variants={itemVariants}
           className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-2"

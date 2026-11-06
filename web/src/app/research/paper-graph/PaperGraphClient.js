@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { GlobalGraphSearch } from "./globalSearch";
+import { usePageState } from "@/lib/usePageState";
 
 // ─── Layout constants ────────────────────────────────────────────────────────
 const MAP_W = 2800;
@@ -121,8 +122,8 @@ export default function PaperGraphClient({
   const nodePressRef = useRef(null);
 
   // Filters
-  const [minScore, setMinScore] = useState(0.5);
-  const [showCrossCluster, setShowCrossCluster] = useState(true);
+  const [minScore, setMinScore] = usePageState("minScore", 0.5);
+  const [showCrossCluster, setShowCrossCluster] = usePageState("showCrossCluster", true);
 
   // Pan/zoom state
   const [tx, setTx] = useState(0);

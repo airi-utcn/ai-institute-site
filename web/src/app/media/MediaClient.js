@@ -29,6 +29,7 @@ import {
   pressArticles,
   institutionalMedia,
 } from "@/app/data/mediaGalleryData";
+import { usePageState } from "@/lib/usePageState";
 
 // animation transitions for page elements
 const containerVariants = {
@@ -56,8 +57,9 @@ const itemVariants = {
 
 export default function MediaClient({ mediaData }) {
   // active tab state: 'all', 'albums', 'press', 'docs'
-  const [activeTab, setActiveTab] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = usePageState("tab", "all");
+  const [searchQuery, setSearchQuery] = usePageState("query", "");
+  // Lightbox is a transient overlay; don't reopen it on Back/Forward.
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   const headerTitle = mediaData?.headerTitle || "Media Gallery";

@@ -1,12 +1,14 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { usePageState } from "@/lib/usePageState";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaSearch, FaTimes, FaFilter, FaChevronDown } from "react-icons/fa";
 import { slugify } from "@/lib/slug";
+import BackLink from "@/components/BackLink";
 import { containerVariants, itemVariants } from "@/lib/animations";
 
 const normalizeTeams = (proj) =>
@@ -134,13 +136,15 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
   };
   
   // ---- State filters ----
-  const [q, setQ] = useState("");
-  const [regionFilter, setRegionFilter] = useState("");
-  const [domainFilter, setDomainFilter] = useState("");
-  const [leadFilter, setLeadFilter] = useState("");
-  const [memberFilter, setMemberFilter] = useState("");
-  const [themeFilter, setThemeFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  // Persisted per history entry so browser Back/Forward restores the view,
+  // while a fresh visit to the page starts from the defaults.
+  const [q, setQ] = usePageState("q", "");
+  const [regionFilter, setRegionFilter] = usePageState("region", "");
+  const [domainFilter, setDomainFilter] = usePageState("domain", "");
+  const [leadFilter, setLeadFilter] = usePageState("lead", "");
+  const [memberFilter, setMemberFilter] = usePageState("member", "");
+  const [themeFilter, setThemeFilter] = usePageState("theme", "");
+  const [showFilters, setShowFilters] = usePageState("filtersOpen", false);
 
   // Read theme from URL params (from themes page)
   useEffect(() => {
@@ -149,7 +153,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
       setThemeFilter(themeParam);
       setShowFilters(true);
     }
-  }, [searchParams]);
+  }, [searchParams, setThemeFilter, setShowFilters]);
 
   const projects = useMemo(() => {
     const src = Array.isArray(rawProjects) ? rawProjects : [];
@@ -236,7 +240,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                               <motion.div variants={itemVariants} className="page-header">
             {isArchive && (
               <div className="mb-4">
-                <Link
+                <BackLink
                   href="/research/projects"
                   className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors font-medium"
                 >
@@ -244,7 +248,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                     <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                   </svg>
                   {pageData?.backToProjects || "Back to Projects"}
-                </Link>
+                </BackLink>
               </div>
             )}
             <h1 className="page-header-title">{t("title")}</h1>

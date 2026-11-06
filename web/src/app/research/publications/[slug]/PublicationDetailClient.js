@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePageState } from "@/lib/usePageState";
+import BackLink from "@/components/BackLink";
 const PUBLICATION_DETAIL_DEFAULTS = {
   notFound: "Publication not found.",
   backToPublications: "← Back to publications",
@@ -26,7 +26,10 @@ const PUBLICATION_DETAIL_DEFAULTS = {
 
 export default function PublicationDetailClient({ publication }) {
   const t = (key) => PUBLICATION_DETAIL_DEFAULTS[key] || key;
-  const router = useRouter();
+  const [activeTab, setActiveTab] = usePageState(
+    "tab",
+    publication?.pdfFile?.url ? "pdf" : publication?.bibFile?.url ? "bib" : ""
+  );
 
   if (!publication) return <div className="p-6">{t("notFound")}</div>;
 
@@ -46,27 +49,16 @@ export default function PublicationDetailClient({ publication }) {
     slug,
   } = publication;
 
-  const [activeTab, setActiveTab] = useState(
-    pdfFile?.url ? "pdf" : bibFile?.url ? "bib" : ""
-  );
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
       <div className="max-w-5xl mx-auto px-6 py-10">
         <div className="mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== 'undefined' && window.history.length > 1) {
-                router.back();
-              } else {
-                router.push('/research/publications');
-              }
-            }}
+          <BackLink
+            href="/research/publications"
             className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
           >
             {t("backToPublications")}
-          </button>
+          </BackLink>
         </div>
 
         <div className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-950/80 shadow-xl p-8 md:p-10">

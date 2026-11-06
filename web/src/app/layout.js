@@ -82,10 +82,16 @@ export default async function RootLayout({ children }) {
   const globalData = await getGlobal(locale);
 
   return (
+    // `data-scroll-behavior="smooth"` lets Next temporarily switch to instant
+    // scrolling while it jumps to the top on navigation or restores the
+    // previous position on Back. Without it, the global `scroll-behavior:
+    // smooth` turns those jumps into animations that late layout/image work
+    // can interrupt, leaving the page stuck partway down.
     <html
       lang={locale}
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
+      data-scroll-behavior="smooth"
     >
       <body className="antialiased min-h-screen flex flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
         <PreviewBanner />

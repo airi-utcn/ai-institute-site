@@ -1173,6 +1173,13 @@ export interface ApiDepartmentsPageDepartmentsPage
         };
       }> &
       Schema.Attribute.DefaultTo<'About'>;
+    overviewCoCoordinator: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Co-Coordinator'>;
     overviewContact: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -1187,6 +1194,13 @@ export interface ApiDepartmentsPageDepartmentsPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Coordinator'>;
+    overviewFocusItems: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Focus Areas'>;
     phasesArchived: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

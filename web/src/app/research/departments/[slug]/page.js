@@ -20,7 +20,7 @@ import { cookies } from "next/headers";
 
 // Generate static paths for all departments
 export async function generateStaticParams() {
-  const departmentData = await getDepartments();
+  const departmentData = await getDepartments({ slim: true });
   const departments = transformDepartmentData(departmentData);
 
   return departments
@@ -32,7 +32,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const departmentData = await getDepartments();
+  const departmentData = await getDepartments({ slim: true });
   const departments = transformDepartmentData(departmentData);
 
   const unit = departments.find((u) => u.slug === slug);

@@ -168,14 +168,18 @@ function buildProjectEntries(projects) {
 }
 
 function buildDepartmentEntries(departments) {
-  return departments.map((department) =>
-    makeEntry({
+  return departments.map((department) => {
+    const focusTitles = asArray(department.focusItems)
+      .map((item) => item?.title)
+      .filter(Boolean);
+
+    return makeEntry({
       title: department.name,
       route: department.slug ? `/research/departments/${encodeURIComponent(department.slug)}` : "/research/departments",
-      tags: ["department", department.type, department.coordinator, department.coCoordinator],
+      tags: ["department", department.type, department.coordinator, department.coCoordinator, ...focusTitles],
       snippet: department.summary || department.description,
-    })
-  );
+    });
+  });
 }
 
 function buildThemeEntries(themes) {

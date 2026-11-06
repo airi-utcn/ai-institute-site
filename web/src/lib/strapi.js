@@ -657,6 +657,29 @@ export async function getProjectsGraphData() {
 }
 
 /**
+ * Get all projects a person contributes to directly (as an individual
+ * contributor), identified by their slug. Team-based project membership is
+ * returned separately by getPersonTeams().
+ * @param {string} slug - The person's slug
+ * @returns {Promise<Array>} Array of project entries
+ */
+export async function getPersonProjects(slug) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      filters: { individualContributors: { person: { slug: { $eq: slug } } } },
+      fields: ['title', 'slug', 'startDate', 'endDate'],
+      sort: 'title:asc',
+    });
+    const data = await fetchAPI(`/projects?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch person projects:', error);
+    return [];
+  }
+}
+
+/**
  * Get all teams a person is a member of, identified by their slug.
  * Filters server-side on the members[].person.slug component relation.
  * @param {string} slug - The person's slug
@@ -2955,6 +2978,25 @@ export function isTeamArchived(team) {
   const projects = team.projects || [];
   if (!projects.length) return false;
   return projects.every((p) => isProjectArchived(p));
+}
+
+/**
+ * A researcher is considered "former" when they are linked to at least one
+ * project and every one of those projects has ended. People with no project
+ * data are deliberately treated as active rather than guessed at.
+ * @param {Object} person - Transformed or raw person record
+ * @param {Array} projects - Projects associated with the person
+ * @returns {boolean}
+ */
+export function isFormerResearcher(person, projects = []) {
+  if (!person) return false;
+  const attributes = person?.attributes ?? person;
+  const type = attributes.type || person.type || '';
+  if (type !== 'researcher') return false;
+
+  const list = toArray(projects);
+  if (list.length === 0) return false;
+  return list.every((project) => isProjectArchived(project));
 }
 
 // check if a partner is a former/previous partner

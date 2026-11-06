@@ -19,7 +19,8 @@ import {
   getProjectsGraphData,
   getTeams,
   transformTeamData,
-  isProjectArchived
+  isProjectArchived,
+  isFormerResearcher as isFormerResearcherRecord
 } from "@/lib/strapi";
 import { attachScholarCitationCounts } from "@/lib/googleScholar";
 import { buildGraph } from "./graphModel";
@@ -144,7 +145,7 @@ export default async function PeoplePage() {
         ...(projectsByPersonId.get(person.id) || []),
       ];
       if (associatedProjects.length === 0) return false;
-      return associatedProjects.every((project) => isProjectArchived(project));
+      return isFormerResearcherRecord(person, associatedProjects);
     };
 
     const formerResearchers = enrichedResearchers.filter(isFormerResearcher);

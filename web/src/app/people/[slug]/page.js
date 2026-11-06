@@ -15,16 +15,19 @@ import {
   FaGraduationCap,
   FaGlobe,
   FaHandshake,
-  FaTrophy
+  FaTrophy,
+  FaUserClock
 } from "react-icons/fa";
 import {
   getStaff,
   getStaffMember,
   getPersonTeams,
+  getPersonProjects,
   getPersonLaboratories,
   transformStaffData,
   transformLaboratoryData,
   transformPublicationData,
+  isFormerResearcher,
 } from "@/lib/strapi";
 import { normalizePublicationSourceKind } from "@/lib/publication";
 import { getProjectPhase } from "@/lib/projectPhase";
@@ -85,10 +88,11 @@ export default async function PersonDetailPage({ params }) {
 
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const [strapiPerson, personTeamsRaw, personLaboratoriesRaw] = await Promise.all([
+  const [strapiPerson, personTeamsRaw, personLaboratoriesRaw, personProjectsRaw] = await Promise.all([
     getStaffMember(slug, locale),
     getPersonTeams(slug),
     getPersonLaboratories(slug, locale),
+    getPersonProjects(slug),
   ]);
 
   if (!strapiPerson) {
@@ -102,6 +106,15 @@ export default async function PersonDetailPage({ params }) {
   }
 
   const personData = strapiPerson.attributes ?? strapiPerson;
+
+  const teamProjects = personTeamsRaw.flatMap((team) => {
+    const t = team?.attributes ?? team ?? {};
+    return t.projects?.data ?? t.projects ?? [];
+  });
+  const isFormer = isFormerResearcher(personEntry, [
+    ...teamProjects,
+    ...(personProjectsRaw || []),
+  ]);
 
   const publicationsRaw = transformPublicationData(
     personData.publications?.data ?? personData.publications ?? []
@@ -241,6 +254,11 @@ export default async function PersonDetailPage({ params }) {
         icon: FaTrophy, 
         color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
       },
+      former: {
+        label: "Former Researcher",
+        icon: FaUserClock,
+        color: "bg-slate-100 text-slate-700 dark:bg-slate-900/40 dark:text-slate-300"
+      },
     };
     
     return configs[type] || configs.researcher;
@@ -263,11 +281,14 @@ export default async function PersonDetailPage({ params }) {
   };
 
   const subtypeLabel = formatSubtypeLabel(person.subtype);
-  const roleConfig = getRoleConfig(person.type);
+  const roleConfig = getRoleConfig(isFormer ? "former" : person.type);
   const RoleIcon = roleConfig.icon;
   
   // Show "Type • Subtype" if both exist, otherwise just one
   const getBadgeLabel = () => {
+    if (isFormer) {
+      return roleConfig.label;
+    }
     if (subtypeLabel) {
       return `${roleConfig.label} • ${subtypeLabel}`;
     }

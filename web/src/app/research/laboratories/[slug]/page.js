@@ -5,9 +5,11 @@ import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
   getLaboratories,
   getLaboratoryBySlug,
+  getLaboratoryTeams,
   getPublications,
   transformLaboratoryData,
   transformPublicationData,
+  transformTeamData,
   getSingleType,
 } from "@/lib/strapi";
 import LaboratoryDetailClient from "./LaboratoryDetailClient";
@@ -47,8 +49,9 @@ export default async function LaboratoryPage({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
-  const [labData, publicationsData, pageData] = await Promise.all([
+  const [labData, teamsData, publicationsData, pageData] = await Promise.all([
     getLaboratoryBySlug(slug, locale),
+    getLaboratoryTeams(slug),
     getPublications({ laboratorySlug: slug, locale }),
     getSingleType("laboratories-page", locale),
   ]);
@@ -58,6 +61,7 @@ export default async function LaboratoryPage({ params }) {
   }
 
   const lab = transformLaboratoryData([labData])[0];
+  const teams = transformTeamData(teamsData).filter((team) => !team.isArchived);
   const publications = transformPublicationData(publicationsData);
 
   return (
@@ -69,6 +73,7 @@ export default async function LaboratoryPage({ params }) {
       <LaboratoryDetailClient
         lab={lab}
         pageData={pageData}
+        teams={teams}
         publications={publications}
       />
     </>

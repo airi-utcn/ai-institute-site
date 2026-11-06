@@ -2610,13 +2610,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'No researchers found for this laboratory.'>;
-    peopleNoThemes: Schema.Attribute.String &
+    peopleNoTeams: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'No research themes assigned to this laboratory.'>;
+      Schema.Attribute.DefaultTo<'No teams found for this laboratory.'>;
     peopleResearchers: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2624,13 +2624,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Researchers'>;
-    peopleThemes: Schema.Attribute.String &
+    peopleTeams: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'Research Themes'>;
+      Schema.Attribute.DefaultTo<'Teams'>;
     projectsNoProjects: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2680,13 +2680,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Overview'>;
-    tabsPeopleThemes: Schema.Attribute.String &
+    tabsPeople: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'People & Themes'>;
+      Schema.Attribute.DefaultTo<'People'>;
     tabsProjects: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2794,6 +2794,7 @@ export interface ApiLaboratoryLaboratory extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
+    teams: Schema.Attribute.Relation<'oneToMany', 'api::team.team'>;
     title: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -5677,6 +5678,10 @@ export interface ApiTeamTeam extends Struct.CollectionTypeSchema {
     description: Schema.Attribute.RichText;
     displayOrder: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
     image: Schema.Attribute.Media<'images'>;
+    laboratory: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::laboratory.laboratory'
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::team.team'> &
       Schema.Attribute.Private;

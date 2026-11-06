@@ -121,9 +121,9 @@
         }
       }
     },
-    "tabsPeopleThemes": {
+    "tabsPeople": {
       "type": "string",
-      "default": "People & Themes",
+      "default": "People",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -193,9 +193,9 @@
         }
       }
     },
-    "peopleThemes": {
+    "peopleTeams": {
       "type": "string",
-      "default": "Research Themes",
+      "default": "Teams",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -211,9 +211,9 @@
         }
       }
     },
-    "peopleNoThemes": {
+    "peopleNoTeams": {
       "type": "string",
-      "default": "No research themes assigned to this laboratory.",
+      "default": "No teams found for this laboratory.",
       "pluginOptions": {
         "i18n": {
           "localized": true

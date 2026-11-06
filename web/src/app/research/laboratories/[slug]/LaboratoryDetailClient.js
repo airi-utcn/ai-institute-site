@@ -17,7 +17,6 @@ import {
   FaImages,
   FaInfoCircle,
   FaBook,
-  FaTags,
   FaFilePdf,
 } from 'react-icons/fa';
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
@@ -29,12 +28,13 @@ import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 import PersonChip from '@/components/shared/PersonChip';
 import ContentCard from '@/components/ContentCard';
+import TeamCard from '@/components/TeamCard';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
   notFound: 'Laboratory not found.',
   'tabs.overview': 'Overview',
-  'tabs.peopleThemes': 'People & Themes',
+  'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
   'overview.about': 'About',
@@ -42,9 +42,9 @@ const DEFAULT_TEXTS = {
   'overview.coCoordinator': 'Co-Coordinator',
   'overview.contact': 'Contact',
   'people.researchers': 'Researchers',
-  'people.themes': 'Research Themes',
+  'people.teams': 'Teams',
   'people.noPeople': 'No researchers found for this laboratory.',
-  'people.noThemes': 'No research themes assigned to this laboratory.',
+  'people.noTeams': 'No teams found for this laboratory.',
   'projects.noProjects': 'No projects found for this laboratory.',
   'publications.noPublications': 'No publications found for this laboratory.',
 };
@@ -68,7 +68,12 @@ const EmptyState = ({ children }) => (
   </div>
 );
 
-export default function LaboratoryDetailClient({ lab, pageData, publications = [] }) {
+export default function LaboratoryDetailClient({
+  lab,
+  pageData,
+  teams = [],
+  publications = [],
+}) {
   const [activeTab, setActiveTab] = useState('overview');
 
   const t = (key) => {
@@ -91,13 +96,14 @@ export default function LaboratoryDetailClient({ lab, pageData, publications = [
   const projects = Array.isArray(lab.projects) ? lab.projects : [];
   const researchers = Array.isArray(lab.researchers) ? lab.researchers : [];
   const themes = Array.isArray(lab.researchThemes) ? lab.researchThemes : [];
+  const allTeams = Array.isArray(teams) ? teams : [];
   const hasContact = Boolean(lab.bookingUrl || lab.contactEmail || lab.virtualTour360Url);
 
   const TABS = [
     { id: 'overview', label: t('tabs.overview'), icon: FaInfoCircle },
     {
       id: 'people',
-      label: t('tabs.peopleThemes'),
+      label: t('tabs.people'),
       icon: FaUsers,
       count: researchers.length,
     },
@@ -434,45 +440,28 @@ export default function LaboratoryDetailClient({ lab, pageData, publications = [
               <motion.section variants={itemVariants}>
                 <div className="flex items-center gap-2.5 mb-4">
                   <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
-                    <FaTags className="w-4 h-4" />
+                    <FaUsers className="w-4 h-4" />
                   </div>
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('people.themes')}
+                    {t('people.teams')}
                   </h2>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                    {themes.length}
+                    {allTeams.length}
                   </span>
                 </div>
 
-                {themes.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {themes.map((theme, index) => (
-                      <div
-                        key={theme.slug || index}
-                        className="rounded-xl border border-indigo-200/60 dark:border-indigo-800/40 bg-indigo-50/40 dark:bg-indigo-950/20 p-4"
-                      >
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                          {theme.name}
-                        </h3>
-                        <div className="flex flex-wrap gap-3 text-xs font-semibold">
-                          <Link
-                            href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
-                            className="text-blue-600 dark:text-blue-400 hover:underline"
-                          >
-                            Projects
-                          </Link>
-                          <Link
-                            href={`/research/publications?theme=${encodeURIComponent(theme.name)}`}
-                            className="text-blue-600 dark:text-blue-400 hover:underline"
-                          >
-                            Publications
-                          </Link>
-                        </div>
-                      </div>
+                {allTeams.length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {allTeams.map((team, index) => (
+                      <TeamCard
+                        key={team.slug || team.id || index}
+                        team={team}
+                        t={t}
+                      />
                     ))}
                   </div>
                 ) : (
-                  <EmptyState>{t('people.noThemes')}</EmptyState>
+                  <EmptyState>{t('people.noTeams')}</EmptyState>
                 )}
               </motion.section>
             </motion.div>

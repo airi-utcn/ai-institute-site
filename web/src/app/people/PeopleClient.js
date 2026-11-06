@@ -14,6 +14,7 @@ import {
   FaHandshake,
   FaTrophy,
   FaUsers,
+  FaUserClock,
 } from "react-icons/fa";
 import TeamCard from "@/components/TeamCard";
 import PeopleGraphClient from "./PeopleGraphClient";
@@ -105,6 +106,12 @@ const getRoleConfig = (type) => {
       color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
       chipColor: "bg-indigo-600 hover:bg-indigo-700",
     },
+    former: {
+      label: "Former Researchers",
+      icon: FaUserClock,
+      color: "bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 border-slate-200 dark:border-slate-700",
+      chipColor: "bg-slate-600 hover:bg-slate-700",
+    },
     team: {
       label: "Teams",
       icon: FaUsers,
@@ -123,7 +130,7 @@ const RESEARCHER_SORT_OPTIONS = [
 ];
 
 function PersonCard({ person, basePath = "/people", showRoleBadge = true, activeFilter = "all" }) {
-    const roleConfig = getRoleConfig(person.type);
+    const roleConfig = getRoleConfig(person.isFormerResearcher ? "former" : person.type);
 
   const formatSubtype = (typeStr) => {
     if (!typeStr) return null;
@@ -134,8 +141,9 @@ function PersonCard({ person, basePath = "/people", showRoleBadge = true, active
   };
 
   let displayRole = roleConfig.label;
+  if (person.isFormerResearcher) displayRole = "Former Researcher";
   const subType = person[`type_${person.type}`];
-  if (subType) {
+  if (subType && !person.isFormerResearcher) {
      displayRole = formatSubtype(subType);
   }
 
@@ -215,6 +223,7 @@ const SORT_OPTIONS = RESEARCHER_SORT_OPTIONS;
 export default function PeopleClient({
   staff = [],
   researchers = [],
+  formerResearchers = [],
   visiting = [],
   students = [],
   external = [],
@@ -228,6 +237,7 @@ export default function PeopleClient({
 }) {
   const [activeSection, setActiveSection] = useState("people"); // "people" | "teams"
   const [activeFilter, setActiveFilter] = useState("all");
+  const [researcherView, setResearcherView] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("cards");
   const [allSort, setAllSort] = useState("most-citations");
@@ -236,6 +246,7 @@ export default function PeopleClient({
   const title = pageData?.title || "People";
   const subtitle = pageData?.subtitle || "Meet the researchers, faculty, and collaborative teams shaping AI innovation at AIRi.";
   const tabResearchers = pageData?.tabResearchers || "Researchers";
+  const tabFormerResearchers = pageData?.tabFormerResearchers || "Former Researchers";
   const tabStaff = pageData?.tabStaff || "Staff";
   const tabStudents = pageData?.tabStudents || "Students";
   const tabVisiting = pageData?.tabVisiting || "Visiting Scholars";
@@ -248,6 +259,7 @@ export default function PeopleClient({
   const allPeopleFlat = useMemo(() => {
     const merged = [
       ...researchers.map((p) => ({ ...p, type: p.type || "researcher" })),
+      ...formerResearchers.map((p) => ({ ...p, type: p.type || "researcher", isFormerResearcher: true })),
       ...staff.map((p) => ({ ...p, type: p.type || "staff" })),
       ...students.map((p) => ({ ...p, type: p.type || "student" })),
       ...visiting.map((p) => ({ ...p, type: p.type || "visiting" })),
@@ -262,7 +274,7 @@ export default function PeopleClient({
       seen.add(key);
       return true;
     });
-  }, [staff, researchers, visiting, students, external, alumni]);
+  }, [staff, researchers, formerResearchers, visiting, students, external, alumni]);
 
   const staffLookup = useMemo(() => {
     const map = {};
@@ -272,22 +284,34 @@ export default function PeopleClient({
     return map;
   }, [allPeopleFlat]);
 
+  const researcherCounts = useMemo(() => {
+    let active = 0;
+    let former = 0;
+    allPeopleFlat.forEach((person) => {
+      if (person.type !== "researcher") return;
+      if (person.isFormerResearcher) former += 1;
+      else active += 1;
+    });
+    return { active, former };
+  }, [allPeopleFlat]);
+
   const filterOptions = useMemo(() => {
     const counts = {};
     allPeopleFlat.forEach((p) => {
-      counts[p.type] = (counts[p.type] || 0) + 1;
+      const countKey = p.isFormerResearcher ? "former" : p.type;
+      counts[countKey] = (counts[countKey] || 0) + 1;
     });
 
     return [
       { id: "all", label: "All", icon: null, count: allPeopleFlat.length },
-      { id: "researcher", label: tabResearchers, ...getRoleConfig("researcher"), count: counts.researcher || 0 },
+      { id: "researcher", label: tabResearchers, ...getRoleConfig("researcher"), count: researcherCounts.active + researcherCounts.former },
       { id: "staff", label: tabStaff, ...getRoleConfig("staff"), count: counts.staff || 0 },
       { id: "student", label: tabStudents, ...getRoleConfig("student"), count: counts.student || 0 },
       { id: "visiting", label: tabVisiting, ...getRoleConfig("visiting"), count: counts.visiting || 0 },
       { id: "external", label: tabExternal, ...getRoleConfig("external"), count: counts.external || 0 },
       { id: "alumni", label: tabAlumni, ...getRoleConfig("alumni"), count: counts.alumni || 0 },
     ].filter((option) => option.count > 0 || option.id === "all");
-  }, [allPeopleFlat, tabResearchers, tabStaff, tabStudents, tabVisiting, tabExternal, tabAlumni]);
+  }, [allPeopleFlat, researcherCounts, tabResearchers, tabStaff, tabStudents, tabVisiting, tabExternal, tabAlumni]);
 
   const displayedPeople = useMemo(() => {
     const terms = parseSearchTerms(searchQuery);
@@ -305,7 +329,13 @@ export default function PeopleClient({
 
     const filtered = activeFilter === "all"
       ? searchResults
-      : searchResults.filter((p) => p.type === activeFilter);
+      : searchResults.filter((p) => {
+          if (activeFilter === "researcher") {
+            const isResearcher = p.type === "researcher";
+            return isResearcher && (researcherView === "former" ? p.isFormerResearcher === true : !p.isFormerResearcher);
+          }
+          return p.type === activeFilter;
+        });
 
     return [...filtered].sort((a, b) => {
       if (currentSort === "most-citations") {
@@ -326,7 +356,7 @@ export default function PeopleClient({
       }
       return 0;
     });
-  }, [allPeopleFlat, activeFilter, searchQuery, allSort, researcherSort]);
+  }, [allPeopleFlat, activeFilter, researcherView, searchQuery, allSort, researcherSort]);
 
   const displayedTeams = useMemo(() => {
     if (activeSection !== "teams") return [];
@@ -343,6 +373,9 @@ export default function PeopleClient({
   }, [teams, activeSection, searchQuery]);
 
   const handleFilterChange = (filterId) => {
+    if (filterId === "researcher" && activeFilter !== "researcher") {
+      setResearcherView("active");
+    }
     setActiveFilter(filterId);
   };
 
@@ -586,6 +619,50 @@ export default function PeopleClient({
               </div>
             </motion.div>
 
+            {activeFilter === "researcher" && (
+              <motion.div
+                className="flex justify-center mb-6 -mt-2"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="inline-flex rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-1 shadow-sm">
+                  <button
+                    onClick={() => setResearcherView("active")}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      researcherView === "active"
+                        ? "bg-blue-600 text-white shadow"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <FaFlask className="w-3.5 h-3.5" />
+                    <span>Active</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                      researcherView === "active" ? "bg-white/25 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                    }`}>
+                      {researcherCounts.active}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setResearcherView("former")}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                      researcherView === "former"
+                        ? "bg-slate-600 text-white shadow"
+                        : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                  >
+                    <FaUserClock className="w-3.5 h-3.5" />
+                    <span>{tabFormerResearchers}</span>
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                      researcherView === "former" ? "bg-white/25 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                    }`}>
+                      {researcherCounts.former}
+                    </span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
             <AnimatePresence>
               {(activeFilter === "all" || activeFilter === "researcher") && (
                 <motion.div
@@ -627,7 +704,9 @@ export default function PeopleClient({
                 {searchQuery
                   ? `Found ${displayedPeople.length} result${displayedPeople.length !== 1 ? "s" : ""} for "${searchQuery}"`
                   : `Showing ${displayedPeople.length} ${
-                      filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"
+                      activeFilter === "researcher" && researcherView === "former"
+                        ? "former researchers"
+                        : filterOptions.find((f) => f.id === activeFilter)?.label.toLowerCase() || "people"
                     }`}
               </motion.p>
             )}
@@ -658,7 +737,7 @@ export default function PeopleClient({
             </motion.div>
           ) : (
             <motion.div
-              key={`${activeFilter}-${researcherSort}-${searchQuery}`}
+              key={`${activeFilter}-${researcherView}-${researcherSort}-${searchQuery}`}
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
               variants={containerVariants}
               initial="hidden"

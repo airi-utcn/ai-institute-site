@@ -88,14 +88,18 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
       const labSummary = normalizeText(lab.summary);
       const room = normalizeText(lab.roomNumber);
       const coordinator = normalizeText(lab.coordinator?.name);
+      const coCoordinator = normalizeText(lab.coCoordinator?.name);
       const partners = (lab.partners || []).map((p) => normalizeText(p.name)).join(' ');
+      const themes = (lab.researchThemes || []).map((theme) => normalizeText(theme.name)).join(' ');
 
       return (
         labTitle.includes(q) ||
         labSummary.includes(q) ||
         room.includes(q) ||
         coordinator.includes(q) ||
-        partners.includes(q)
+        coCoordinator.includes(q) ||
+        partners.includes(q) ||
+        themes.includes(q)
       );
     });
   }, [laboratories, query, selectedDepartment]);

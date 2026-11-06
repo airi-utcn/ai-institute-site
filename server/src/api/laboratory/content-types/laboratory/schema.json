@@ -130,6 +130,11 @@
       "relation": "manyToOne",
       "target": "api::person.person"
     },
+    "coCoordinator": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::person.person"
+    },
     "researchers": {
       "type": "relation",
       "relation": "manyToMany",
@@ -149,6 +154,18 @@
       "type": "relation",
       "relation": "manyToMany",
       "target": "api::project.project"
+    },
+    "publications": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::publication.publication",
+      "inversedBy": "laboratories"
+    },
+    "teams": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::team.team",
+      "mappedBy": "laboratory"
     },
     "contactEmail": {
       "type": "email"

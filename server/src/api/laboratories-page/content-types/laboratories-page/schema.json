@@ -94,6 +94,150 @@
         }
       }
     },
+    "backToLaboratories": {
+      "type": "string",
+      "default": "Back to Laboratories",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "notFound": {
+      "type": "string",
+      "default": "Laboratory not found.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsOverview": {
+      "type": "string",
+      "default": "Overview",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsPeople": {
+      "type": "string",
+      "default": "People",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsProjects": {
+      "type": "string",
+      "default": "Projects",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "tabsPublications": {
+      "type": "string",
+      "default": "Publications",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewAbout": {
+      "type": "string",
+      "default": "About",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewCoordinator": {
+      "type": "string",
+      "default": "Coordinator",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewCoCoordinator": {
+      "type": "string",
+      "default": "Co-Coordinator",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewContact": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "peopleResearchers": {
+      "type": "string",
+      "default": "Researchers",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "peopleTeams": {
+      "type": "string",
+      "default": "Teams",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "peopleNoPeople": {
+      "type": "string",
+      "default": "No researchers found for this laboratory.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "themesTitle": {
+      "type": "string",
+      "default": "Research Themes",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "projectsNoProjects": {
+      "type": "string",
+      "default": "No projects found for this laboratory.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "publicationsNoPublications": {
+      "type": "string",
+      "default": "No publications found for this laboratory.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "body": {
       "type": "dynamiczone",
       "components": [

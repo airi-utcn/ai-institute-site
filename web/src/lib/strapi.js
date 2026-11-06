@@ -730,6 +730,33 @@ export async function getDepartmentTeams(departmentSlug) {
 }
 
 /**
+ * Get teams assigned to a laboratory
+ * @param {string} laboratorySlug - Laboratory slug
+ * @returns {Promise<Array>} Array of team entries
+ */
+export async function getLaboratoryTeams(laboratorySlug) {
+  try {
+    if (!laboratorySlug) return [];
+    const params = createParams({
+      filters: { laboratory: { slug: { $eq: laboratorySlug } } },
+      sort: 'name:asc',
+      populate: {
+        laboratory: { fields: ['title', 'slug'] },
+        members: {
+          populate: { person: PERSON_WITH_IMAGE_POPULATE },
+        },
+        projects: { fields: ['title', 'slug', 'abstract', 'startDate', 'endDate'] },
+      },
+    });
+    const data = await fetchAPI(`/teams?${params.toString()}`);
+    return data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch laboratory teams:', error);
+    return [];
+  }
+}
+
+/**
  * Get leadership/governance teams from Strapi
  * @returns {Promise<Array>} Array of normalized team entries with category "leadership"
  */
@@ -1054,6 +1081,7 @@ const LABORATORY_POPULATE = {
       },
     },
     coordinator: PERSON_CARD_POPULATE,
+    coCoordinator: PERSON_CARD_POPULATE,
     researchers: PERSON_CARD_POPULATE,
     departments: DEPARTMENT_POPULATE,
     researchThemes: { fields: ['name', 'slug'] },
@@ -1547,6 +1575,7 @@ export async function getPublications(options = {}) {
   try {
     const {
       domainSlug,
+      laboratorySlug,
       includeUnlisted = false,
       graphEligibleOnly = false,
       sourceKind,
@@ -1556,6 +1585,10 @@ export async function getPublications(options = {}) {
 
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
+    }
+
+    if (laboratorySlug) {
+      filters.laboratories = { slug: { $eq: laboratorySlug } };
     }
 
     if (graphEligibleOnly) {
@@ -3018,6 +3051,16 @@ export function transformTeamData(strapiTeams) {
         }
       : null;
 
+    const labEntry = attributes.laboratory?.data ?? attributes.laboratory;
+    const labAttr = labEntry?.attributes ?? labEntry ?? {};
+    const laboratory = labEntry
+      ? {
+          id: labEntry?.id ?? null,
+          slug: labEntry ? (labAttr.slug || '') : '',
+          name: labEntry ? (labAttr.title || labAttr.name || '') : '',
+        }
+      : null;
+
     const members = toArray(attributes.members).map((m) => {
       const personEntry = m?.person?.data ?? m?.person;
       const personAttr = personEntry?.attributes ?? personEntry ?? {};
@@ -3064,6 +3107,7 @@ export function transformTeamData(strapiTeams) {
       displayOrder: attributes.displayOrder ?? 0,
       type: attributes.type || '',
       department,
+      laboratory,
       members,
       projects,
       isArchived,
@@ -3636,6 +3680,7 @@ export function transformLaboratoryData(strapiLaboratories) {
       gallery,
       virtualTour360Url: attributes.virtualTour360Url || '',
       coordinator: normalizePerson(attributes.coordinator?.data ?? attributes.coordinator),
+      coCoordinator: normalizePerson(attributes.coCoordinator?.data ?? attributes.coCoordinator),
       researchers,
       departments,
       researchThemes,

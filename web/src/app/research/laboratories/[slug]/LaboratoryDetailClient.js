@@ -17,6 +17,7 @@ import {
   FaImages,
   FaInfoCircle,
   FaBook,
+  FaTags,
   FaFilePdf,
 } from 'react-icons/fa';
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
@@ -47,6 +48,7 @@ const DEFAULT_TEXTS = {
   'people.noTeams': 'No teams found for this laboratory.',
   'projects.noProjects': 'No projects found for this laboratory.',
   'publications.noPublications': 'No publications found for this laboratory.',
+  'themes.title': 'Research Themes',
 };
 
 const containerVariants = {
@@ -67,6 +69,30 @@ const EmptyState = ({ children }) => (
     {children}
   </div>
 );
+
+const normalizePersonKey = (person) => {
+  const slug = String(person?.slug || '').trim().toLowerCase();
+  const name = String(person?.name || '').trim().toLowerCase();
+  if (slug && slug !== 'null') return `slug:${slug}`;
+  if (name && name !== 'null') return `name:${name}`;
+  return null;
+};
+
+const buildTeamMemberKeySet = (teams) => {
+  const keys = new Set();
+  teams.forEach((team) => {
+    (team?.members || []).forEach((member) => {
+      const key = normalizePersonKey(member?.person);
+      if (key) keys.add(key);
+    });
+  });
+  return keys;
+};
+
+const isTeamMember = (person, teamMemberKeys) => {
+  const key = normalizePersonKey(person);
+  return Boolean(key && teamMemberKeys.has(key));
+};
 
 export default function LaboratoryDetailClient({
   lab,
@@ -99,13 +125,21 @@ export default function LaboratoryDetailClient({
   const allTeams = Array.isArray(teams) ? teams : [];
   const hasContact = Boolean(lab.bookingUrl || lab.contactEmail || lab.virtualTour360Url);
 
+  /* Mirror the department logic: a person covered by any team should not also
+     show up as an independent researcher. */
+  const teamMemberKeys = buildTeamMemberKeySet(allTeams);
+  const individualResearchers = researchers.filter(
+    (researcher) => !isTeamMember(researcher, teamMemberKeys)
+  );
+  const peopleCount = teamMemberKeys.size + individualResearchers.length;
+
   const TABS = [
     { id: 'overview', label: t('tabs.overview'), icon: FaInfoCircle },
     {
       id: 'people',
       label: t('tabs.people'),
       icon: FaUsers,
-      count: researchers.length,
+      count: peopleCount,
     },
     {
       id: 'projects',
@@ -396,6 +430,46 @@ export default function LaboratoryDetailClient({
                   <GallerySlideshow images={galleryImages} alt={lab.title} />
                 </motion.section>
               )}
+
+              {/* Research Themes */}
+              {themes.length > 0 && (
+                <motion.section variants={itemVariants}>
+                  <div className="flex items-center gap-2.5 mb-4">
+                    <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
+                      <FaTags className="w-4 h-4" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {t('themes.title')}
+                    </h2>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {themes.map((theme, index) => (
+                      <div
+                        key={theme.slug || index}
+                        className="rounded-xl border border-indigo-200/60 dark:border-indigo-800/40 bg-indigo-50/40 dark:bg-indigo-950/20 p-4"
+                      >
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                          {theme.name}
+                        </h3>
+                        <div className="flex flex-wrap gap-3 text-xs font-semibold">
+                          <Link
+                            href={`/research/projects?theme=${encodeURIComponent(theme.name)}`}
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            Projects
+                          </Link>
+                          <Link
+                            href={`/research/publications?theme=${encodeURIComponent(theme.name)}`}
+                            className="text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            Publications
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.section>
+              )}
             </motion.div>
           )}
 
@@ -417,13 +491,13 @@ export default function LaboratoryDetailClient({
                     {t('people.researchers')}
                   </h2>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                    {researchers.length}
+                    {individualResearchers.length}
                   </span>
                 </div>
 
-                {researchers.length > 0 ? (
+                {individualResearchers.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {researchers.map((researcher, index) => (
+                    {individualResearchers.map((researcher, index) => (
                       <div
                         key={researcher.slug || index}
                         className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-sm"

@@ -2701,6 +2701,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Publications'>;
+    themesTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Research Themes'>;
     title: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

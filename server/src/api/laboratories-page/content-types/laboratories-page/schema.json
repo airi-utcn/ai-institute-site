@@ -220,6 +220,15 @@
         }
       }
     },
+    "themesTitle": {
+      "type": "string",
+      "default": "Research Themes",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "projectsNoProjects": {
       "type": "string",
       "default": "No projects found for this laboratory.",

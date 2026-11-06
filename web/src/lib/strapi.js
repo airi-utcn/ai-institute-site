@@ -1940,6 +1940,40 @@ export async function getProjectsByMember(memberSlug) {
   }
 }
 
+const DEPARTMENT_BODY_POPULATE = {
+  on: {
+    'shared.rich-text': { fields: ['body'] },
+    'shared.section': {
+      fields: ['heading', 'subheading', 'body'],
+      populate: {
+        media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+      },
+    },
+    'shared.media': {
+      populate: {
+        file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+      },
+    },
+    'shared.slider': {
+      populate: {
+        files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+      },
+    },
+    'shared.quote': { fields: ['title', 'body'] },
+  },
+};
+
+const DEPARTMENT_DETAIL_POPULATE = {
+  focusItems: { fields: ['title', 'description', 'richContent'] },
+  contactLinks: { fields: ['label', 'url', 'icon'] },
+  body: DEPARTMENT_BODY_POPULATE,
+  heroImage: {
+    fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'focalPoint'],
+  },
+  coordinator: PERSON_WITH_IMAGE_POPULATE,
+  coCoordinator: PERSON_WITH_IMAGE_POPULATE,
+};
+
 export async function getDepartmentBySlug(slug, locale = 'en') {
   try {
     if (!slug) return null;
@@ -1947,14 +1981,7 @@ export async function getDepartmentBySlug(slug, locale = 'en') {
       filters: { slug: { $eq: slug } },
       locale,
       fields: ['name', 'slug', 'summary', 'description', 'type'],
-      populate: {
-        focusItems: {},
-        contactLinks: {},
-        body: {},
-        heroImage: {},
-        coordinator: PERSON_WITH_IMAGE_POPULATE,
-        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
-      },
+      populate: DEPARTMENT_DETAIL_POPULATE,
     };
 
     // Convert to query string
@@ -1995,14 +2022,7 @@ export async function getDepartments(options = {}) {
       fields: ['name', 'slug', 'summary', 'description', 'type'],
       filters,
       locale,
-      populate: {
-        focusItems: {},
-        contactLinks: {},
-        body: {},
-        heroImage: {},
-        coordinator: PERSON_WITH_IMAGE_POPULATE,
-        coCoordinator: PERSON_WITH_IMAGE_POPULATE,
-      },
+      populate: DEPARTMENT_DETAIL_POPULATE,
     };
 
     if (page) {
@@ -3186,22 +3206,39 @@ export function transformDepartmentData(strapiDepartments) {
     : [];
 
   const normalizeFocusItems = (items) =>
-    Array.isArray(items)
-      ? items
-          .map((item) => {
-            if (!item) return null;
-            const title =
-              item?.title || item?.heading || item?.text || item?.label || 'Details';
-            const description = stripHtml(item?.description || item?.content || item?.body || '');
-            const content = description ? [description] : [];
-            return {
-              text: title,
-              content,
-              raw: item,
-            };
-          })
-          .filter(Boolean)
-      : [];
+    toArray(items)
+      .map((item) => {
+        if (!item) return null;
+
+        const title = String(item.title || item.heading || item.label || '').trim();
+        const description = String(item.description || item.content || item.body || '');
+        const richContent = String(item.richContent || '');
+
+        if (!title && !description.trim() && !richContent.trim()) return null;
+
+        return {
+          title,
+          description,
+          richContent,
+        };
+      })
+      .filter(Boolean);
+
+  const normalizeContactLinks = (links) =>
+    toArray(links)
+      .map((link) => {
+        const label = String(link?.label || link?.title || link?.text || '').trim();
+        const url = String(link?.url || link?.href || '').trim();
+
+        if (!label && !url) return null;
+
+        return {
+          label: label || url,
+          url,
+          icon: String(link?.icon || 'link').toLowerCase(),
+        };
+      })
+      .filter(Boolean);
 
   return list.map((department) => {
     const attributes = department?.attributes ?? department ?? {};
@@ -3226,14 +3263,9 @@ export function transformDepartmentData(strapiDepartments) {
     const coordinator = buildPersonObj(coordinatorEntry, coordinatorData, attributes.coordinator);
     const coCoordinator = buildPersonObj(coCoordinatorEntry, coCoordinatorData, attributes.coCoordinator);
 
-    const elements = normalizeFocusItems(attributes.focusItems);
-    const contactLinks = Array.isArray(attributes.contactLinks)
-      ? attributes.contactLinks.map((link) => ({
-          label: link?.label || link?.title || link?.text || 'Contact',
-          url: link?.url || link?.href || '',
-          icon: link?.icon || '',
-        }))
-      : [];
+    const focusItems = normalizeFocusItems(attributes.focusItems);
+    const contactLinks = normalizeContactLinks(attributes.contactLinks);
+    const heroMedia = resolveMediaData(attributes.heroImage);
 
     return {
       id: department?.id ?? null,
@@ -3241,18 +3273,27 @@ export function transformDepartmentData(strapiDepartments) {
       slug: attributes.slug || '',
       type: normalizeDepartmentType(attributes.type),
       summary: attributes.summary || '',
+      // `description` stays plain text for metadata/snippets, while
+      // `rawDescription` keeps the original markdown for rendering.
       description:
         typeof attributes.description === 'string'
           ? stripHtml(attributes.description)
           : stripHtml(attributes.description?.toString?.() || ''),
       rawDescription: attributes.description || '',
-      body: attributes.body || [],
-      elements,
+      body: toArray(attributes.body),
+      focusItems,
+      // Kept as an alias for older consumers of the transform.
+      elements: focusItems,
       contactLinks,
+      heroImage: heroMedia?.url || '',
+      heroImageAlt: heroMedia?.alt || '',
+      heroImageSrcSet: heroMedia?.srcSet || '',
+      heroImageWidth: heroMedia?.width || null,
+      heroImageHeight: heroMedia?.height || null,
+      focalPoint: heroMedia?.focalPoint || null,
       icon: '🏷️', // Default icon since schema doesn't have icon field
       coordinator,
       coCoordinator,
-      focusItems: elements,
       coCoordinatorSlug: coCoordinatorData.slug || '',
       coordinatorSlug: coordinatorData.slug || '',
       _strapi: department,

@@ -132,6 +132,24 @@
         }
       }
     },
+    "overviewCoCoordinator": {
+      "type": "string",
+      "default": "Co-Coordinator",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "overviewFocusItems": {
+      "type": "string",
+      "default": "Focus Areas",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "overviewContact": {
       "type": "string",
       "default": "Contact",

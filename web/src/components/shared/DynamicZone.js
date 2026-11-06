@@ -21,6 +21,7 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import MediaPlayer from '@/components/shared/MediaPlayer';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
+import MediaAttachment from '@/components/shared/MediaAttachment';
 import { buildSrcSetFromFormats } from '@/lib/media';
 
 const resolveMediaUrl = (media) => {
@@ -55,6 +56,112 @@ const resolveMediaSrcSet = (media) => {
     resolveUrl: resolveMediaUrl,
   });
 };
+
+/**
+ * Media in a dynamic zone can be an image, a video, or a document such as a
+ * PDF. Strapi exposes the same shape for all of them, so we need to look at
+ * the mime type/extension before deciding how to render it.
+ */
+const getMediaAttributes = (media) => {
+  if (!media || typeof media !== 'object') return {};
+  const data = media.data ?? media;
+  return data.attributes ?? data ?? {};
+};
+
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'ico', 'tif', 'tiff']);
+const VIDEO_EXTENSIONS = new Set(['mp4', 'webm', 'ogg', 'ogv', 'mov', 'm4v', 'avi', 'mkv']);
+const AUDIO_EXTENSIONS = new Set(['mp3', 'wav', 'ogg', 'oga', 'm4a', 'aac', 'flac']);
+
+const getUrlExtension = (url) => {
+  const path = String(url || '').split(/[?#]/)[0];
+  const match = /\.([a-z0-9]+)$/i.exec(path);
+  return match ? match[1].toLowerCase() : '';
+};
+
+const getMediaKind = (media, url) => {
+  const attrs = getMediaAttributes(media);
+  const mime = String(attrs.mime || media?.mime || '').toLowerCase();
+
+  if (mime.startsWith('image/')) return 'image';
+  if (mime.startsWith('video/')) return 'video';
+  if (mime.startsWith('audio/')) return 'audio';
+
+  const extension = String(attrs.ext || '').replace(/^\./, '').toLowerCase() || getUrlExtension(url);
+
+  if (IMAGE_EXTENSIONS.has(extension)) return 'image';
+  if (VIDEO_EXTENSIONS.has(extension)) return 'video';
+  if (AUDIO_EXTENSIONS.has(extension)) return 'audio';
+
+  return 'file';
+};
+
+function DynamicMedia({ media, caption, alt, sizes = '(max-width: 1024px) 100vw, 800px', className = 'my-8' }) {
+  const src = resolveMediaUrl(media);
+  if (!src) return null;
+
+  const attrs = getMediaAttributes(media);
+  const kind = getMediaKind(media, src);
+  const resolvedCaption = attrs.caption || caption || '';
+  const resolvedAlt = attrs.alt || attrs.alternativeText || alt || resolvedCaption || '';
+
+  if (kind === 'video') {
+    return (
+      <div className={`rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 ${className}`.trim()}>
+        <MediaPlayer
+          media={{ url: src, mime: attrs.mime || '', caption: resolvedCaption }}
+          alt={resolvedAlt}
+        />
+      </div>
+    );
+  }
+
+  if (kind === 'audio') {
+    return (
+      <figure className={className}>
+        <audio controls preload="metadata" src={src} className="w-full">
+          Your browser does not support the audio element.
+        </audio>
+        {resolvedCaption && (
+          <figcaption className="mt-2 text-center text-sm italic text-gray-500 dark:text-gray-400">
+            {resolvedCaption}
+          </figcaption>
+        )}
+      </figure>
+    );
+  }
+
+  if (kind === 'file') {
+    return (
+      <MediaAttachment
+        media={{
+          url: src,
+          name: attrs.name,
+          mime: attrs.mime,
+          ext: attrs.ext,
+          size: attrs.size,
+          caption: resolvedCaption,
+        }}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <figure className={className}>
+      <BodyContentImage
+        src={src}
+        srcSet={resolveMediaSrcSet(media)}
+        sizes={sizes}
+        alt={resolvedAlt}
+      />
+      {resolvedCaption && (
+        <figcaption className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
+          {resolvedCaption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
 
 const ICON_MAP = {
   users: FaUsers,
@@ -384,18 +491,12 @@ export default function DynamicZone({ blocks, className = '' }) {
                 />
                 
                 {block.media && (
-                  <div className="mt-6">
-                    <BodyContentImage
-                      src={resolveMediaUrl(block.media)}
-                      srcSet={resolveMediaSrcSet(block.media)}
-                      sizes="(max-width: 1024px) 100vw, 800px"
-                      alt={block.media.alt || block.media.alternativeText || block.heading || ''}
-                      className="rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 mx-auto"
-                    />
-                    {block.media.caption && (
-                      <p className="text-sm text-center text-gray-500 mt-2">{block.media.caption}</p>
-                    )}
-                  </div>
+                  <DynamicMedia
+                    media={block.media}
+                    alt={block.heading}
+                    sizes="(max-width: 1024px) 100vw, 800px"
+                    className="mt-6"
+                  />
                 )}
               </section>
             );
@@ -418,35 +519,13 @@ export default function DynamicZone({ blocks, className = '' }) {
           case 'shared.media':
             {
               const mediaData = block.file || block.media || block;
-              const mediaSrc = resolveMediaUrl(mediaData);
-              if (!mediaSrc) return null;
-              
-              const mimeStr = mediaData.mime || mediaData.data?.attributes?.mime;
-              const isVideo = mimeStr?.startsWith('video/') || /\.(mp4|webm|ogg|mov)$/i.test(mediaSrc);
-
               return (
-                <div key={`media-${index}`} className="my-8 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-                  {isVideo ? (
-                    <MediaPlayer
-                      media={{ url: mediaSrc, mime: mimeStr, caption: mediaData.caption || block.caption }}
-                      alt={mediaData.alt || mediaData.alternativeText || block.caption || ''}
-                    />
-                  ) : (
-                    <>
-                      <BodyContentImage
-                        src={mediaSrc}
-                        srcSet={resolveMediaSrcSet(mediaData)}
-                        sizes="(max-width: 1024px) 100vw, 800px"
-                        alt={mediaData.alt || mediaData.alternativeText || block.caption || ''}
-                      />
-                      {(mediaData.caption || block.caption) && (
-                        <p className="text-sm text-center text-gray-500 p-3 bg-white dark:bg-gray-950/50 border-t border-gray-100 dark:border-gray-800">
-                          {mediaData.caption || block.caption}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
+                <DynamicMedia
+                  key={`media-${index}`}
+                  media={mediaData}
+                  caption={block.caption}
+                  className="my-8"
+                />
               );
             }
 
@@ -471,27 +550,46 @@ export default function DynamicZone({ blocks, className = '' }) {
 
           case 'shared.slider':
             {
-              const files = Array.isArray(block.files) ? block.files : block.media ? block.media : [];
-              const imageItems = files
-                .map((file) => ({
-                  ...file,
-                  url: resolveMediaUrl(file),
-                  srcSet: resolveMediaSrcSet(file),
-                }))
-                .filter((file) => file.url);
-              if (imageItems.length === 0) return null;
-              
-              if (imageItems.length === 1) {
-                const singleFile = imageItems[0];
-                const mimeStr = singleFile?.mime || singleFile?.data?.attributes?.mime;
+              const files = Array.isArray(block.files)
+                ? block.files
+                : block.media
+                ? [block.media]
+                : [];
+              const resolvedFiles = files
+                .map((file) => {
+                  const src = resolveMediaUrl(file);
+                  return src ? { file, src, kind: getMediaKind(file, src) } : null;
+                })
+                .filter(Boolean);
+
+              if (resolvedFiles.length === 0) return null;
+
+              // The slider is image-only in Strapi, but keep it resilient when
+              // another media type ends up in the field (e.g. a PDF).
+              const onlyImages = resolvedFiles.every(({ kind }) => kind === 'image');
+              if (!onlyImages) {
                 return (
-                  <div key={`slide-${index}`} className="my-8 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-                    <MediaPlayer
-                      media={{ url: singleFile.url, mime: mimeStr, caption: singleFile.caption }}
-                      alt={singleFile.alt || 'Slide'}
-                    />
+                  <div key={`slider-${index}`} className="my-8 space-y-4">
+                    {resolvedFiles.map(({ file }, fileIndex) => (
+                      <DynamicMedia key={`slide-${fileIndex}`} media={file} className="my-0" />
+                    ))}
                   </div>
                 );
+              }
+
+              const imageItems = resolvedFiles.map(({ file, src }) => {
+                const attrs = getMediaAttributes(file);
+                return {
+                  ...(file && typeof file === 'object' ? file : {}),
+                  url: src,
+                  srcSet: resolveMediaSrcSet(file),
+                  alt: attrs.alt || attrs.alternativeText || '',
+                  caption: attrs.caption || '',
+                };
+              });
+
+              if (imageItems.length === 1) {
+                return <DynamicMedia key={`slide-${index}`} media={resolvedFiles[0].file} className="my-8" />;
               }
 
               return (

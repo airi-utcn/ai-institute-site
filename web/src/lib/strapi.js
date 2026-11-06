@@ -139,6 +139,8 @@ export const resolveMediaData = (media) => {
     url,
     name: attrs.name || '',
     mime: attrs.mime || '',
+    ext: attrs.ext || '',
+    size: typeof attrs.size === 'number' ? attrs.size : null,
     alt: attrs.alternativeText || '',
     caption: attrs.caption || '',
     width: attrs.width || null,
@@ -279,6 +281,22 @@ const PERSON_FIELDS = ['firstName', 'lastName', 'slug', 'title', 'email', 'phone
 const DEPARTMENT_POPULATE = {
   fields: ['name', 'slug', 'summary', 'description'],
 };
+
+// Metadata needed to render dynamic-zone media correctly: images/videos need
+// dimensions and formats, while documents (e.g. PDFs) need name/mime/ext/size
+// so they can be shown as downloadable attachments instead of broken images.
+const DYNAMIC_MEDIA_FIELDS = [
+  'url',
+  'formats',
+  'alternativeText',
+  'caption',
+  'name',
+  'mime',
+  'ext',
+  'size',
+  'width',
+  'height',
+];
 
 const PERSON_FLAT_POPULATE = {
   fields: PERSON_FIELDS,
@@ -871,13 +889,13 @@ export async function getProjectBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
           },
         },
@@ -886,13 +904,13 @@ export async function getProjectBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
+              populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
+              populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'width'] } },
+              populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
           },
         },
@@ -1048,13 +1066,13 @@ export async function getPartnerBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+              populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
           },
         },
@@ -1119,13 +1137,13 @@ const LABORATORY_POPULATE = {
         'shared.rich-text': { fields: ['body'] },
         'shared.section': {
           fields: ['heading', 'subheading', 'body'],
-          populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+          populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
         },
         'shared.media': {
-          populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+          populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
         },
         'shared.slider': {
-          populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height'] } },
+          populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
         },
         'shared.cta': {
           fields: [
@@ -1776,13 +1794,13 @@ export async function getNewsArticleBySlug(slug, locale = null) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.quote': { fields: ['title', 'body'] },
           },
@@ -1853,17 +1871,17 @@ export async function getResultBySlug(slug, locale = null) {
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
               populate: {
-                media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'name', 'mime'] },
+                media: { fields: DYNAMIC_MEDIA_FIELDS },
               },
             },
             'shared.media': {
               populate: {
-                file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'name', 'mime'] },
+                file: { fields: DYNAMIC_MEDIA_FIELDS },
               },
             },
             'shared.slider': {
               populate: {
-                files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'name'] },
+                files: { fields: DYNAMIC_MEDIA_FIELDS },
               },
             },
           },
@@ -1946,17 +1964,17 @@ const DEPARTMENT_BODY_POPULATE = {
     'shared.section': {
       fields: ['heading', 'subheading', 'body'],
       populate: {
-        media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+        media: { fields: DYNAMIC_MEDIA_FIELDS },
       },
     },
     'shared.media': {
       populate: {
-        file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+        file: { fields: DYNAMIC_MEDIA_FIELDS },
       },
     },
     'shared.slider': {
       populate: {
-        files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] },
+        files: { fields: DYNAMIC_MEDIA_FIELDS },
       },
     },
     'shared.quote': { fields: ['title', 'body'] },
@@ -2079,13 +2097,13 @@ export async function getEventBySlug(slug, locale) {
             'shared.rich-text': { fields: ['body'] },
             'shared.section': {
               fields: ['heading', 'subheading', 'body'],
-              populate: { media: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.media': {
-              populate: { file: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.slider': {
-              populate: { files: { fields: ['url', 'formats', 'alternativeText', 'caption', 'width', 'height', 'mime'] } },
+              populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
             },
             'shared.quote': { fields: ['title', 'body'] },
           },
@@ -2460,47 +2478,31 @@ export function transformResultData(strapiResults) {
         const blockData = block?.attributes ?? block ?? {};
         const componentType = block?.__component;
 
-        const mediaFile = blockData.media?.data ?? blockData.media;
-        const mediaData = mediaFile?.attributes ?? mediaFile ?? {};
-
-        const file = blockData.file?.data ?? blockData.file;
-        const fileData = file?.attributes ?? file ?? {};
-
-        const files = toArray(blockData.files?.data ?? blockData.files).map((f) => {
-          const fd = f?.attributes ?? f ?? {};
-          return {
-            url: resolveMediaUrl(f),
-            alt: fd.alternativeText || fd.name || '',
-            caption: fd.caption || '',
-            name: fd.name || '',
-          };
-        });
-
-        return {
-          __component: componentType,
-          heading: blockData.heading || '',
-          subheading: blockData.subheading || '',
-          body: blockData.body || '',
-          media: mediaFile
-            ? {
-                url: resolveMediaUrl(mediaFile),
-                alt: mediaData.alternativeText || mediaData.name || '',
-                caption: mediaData.caption || '',
-                mime: mediaData.mime || '',
-                name: mediaData.name || '',
-              }
-            : null,
-          file: file
-            ? {
-                url: resolveMediaUrl(file),
-                alt: fileData.alternativeText || fileData.name || '',
-                caption: fileData.caption || '',
-                mime: fileData.mime || '',
-                name: fileData.name || '',
-              }
-            : null,
-          files,
-        };
+        switch (componentType) {
+          case 'shared.media':
+            return {
+              ...blockData,
+              __component: componentType,
+              file: resolveMediaData(blockData.file),
+            };
+          case 'shared.section':
+            return {
+              ...blockData,
+              __component: componentType,
+              media: resolveMediaData(blockData.media),
+            };
+          case 'shared.slider':
+            return {
+              ...blockData,
+              __component: componentType,
+              files: toArray(blockData.files).map(resolveMediaData).filter(Boolean),
+            };
+          default:
+            return {
+              ...blockData,
+              __component: componentType,
+            };
+        }
       })
       .filter((block) => block.__component);
 
@@ -2670,17 +2672,17 @@ export function transformProjectData(strapiProjects) {
           case 'shared.media':
             return {
               ...block,
-              file: resolveMediaUrl(block.file),
+              file: resolveMediaData(block.file),
             };
           case 'shared.section':
             return {
               ...block,
-              media: resolveMediaUrl(block.media),
+              media: resolveMediaData(block.media),
             };
           case 'shared.slider':
             return {
               ...block,
-              files: toArray(block.files).map(resolveMediaUrl).filter(Boolean),
+              files: toArray(block.files).map(resolveMediaData).filter(Boolean),
             };
           default:
             return block;
@@ -3583,17 +3585,17 @@ export function transformPartnerData(strapiPartners) {
           case 'shared.media':
             return {
               ...block,
-              file: resolveMediaUrl(block.file),
+              file: resolveMediaData(block.file),
             };
           case 'shared.section':
             return {
               ...block,
-              media: resolveMediaUrl(block.media),
+              media: resolveMediaData(block.media),
             };
           case 'shared.slider':
             return {
               ...block,
-              files: toArray(block.files).map(resolveMediaUrl).filter(Boolean),
+              files: toArray(block.files).map(resolveMediaData).filter(Boolean),
             };
           default:
             return block;

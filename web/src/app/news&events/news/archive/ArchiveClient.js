@@ -5,6 +5,7 @@ import { useLocale } from "@/context/LocaleContext";
 import Link from "next/link";
 import { FaUser } from "react-icons/fa";
 import { usePageState } from "@/lib/usePageState";
+import BackLink from "@/components/BackLink";
 
 const normalizeSearchText = (value) =>
   (value || "")
@@ -76,12 +77,12 @@ export default function ArchiveClient({ newsItems = [], pageData }) {
   return (
     <div className="page-container max-w-5xl mx-auto py-12">
       <div className="mb-8">
-        <Link href="/news&events/news" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-6 font-medium">
+        <BackLink href="/news&events/news" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 transition-colors mb-6 font-medium">
           <svg viewBox="0 0 24 24" className="w-4 h-4 rotate-180" aria-hidden="true">
              <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
           </svg>
           {t("article.backToNews")}
-        </Link>
+        </BackLink>
         <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-gray-900 dark:text-white">{t("archiveTitle")}</h1>
         <div className="relative max-w-md">
           <input

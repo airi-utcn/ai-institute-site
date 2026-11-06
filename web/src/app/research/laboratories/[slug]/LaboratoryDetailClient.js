@@ -30,6 +30,7 @@ import ContentCard from '@/components/ContentCard';
 import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
 import { getPeopleCount } from '@/lib/people';
 import { usePageState } from '@/lib/usePageState';
+import BackLink from '@/components/BackLink';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -138,13 +139,13 @@ export default function LaboratoryDetailClient({
         className="pt-8 pb-10 md:pt-12 md:pb-14"
         contentClassName="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <Link
+        <BackLink
           href="/research/laboratories"
           className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline mb-6"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
           <span>{t('backToLaboratories')}</span>
-        </Link>
+        </BackLink>
 
         {/* Lab Title & Identity */}
         <header className="mb-2">

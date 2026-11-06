@@ -8,6 +8,7 @@ import DynamicZone from "@/components/shared/DynamicZone";
 import RichMarkdown from "@/components/shared/RichMarkdown";
 import { getPhaseColorClasses, getProjectPhase } from "@/lib/projectPhase";
 import PartnerRoleBadge, { getPartnerRoleConfig } from "@/components/PartnerRoleBadge";
+import BackLink from "@/components/BackLink";
 
 const FALLBACK_AVATAR = "/people/Basic_avatar_image.png";
 
@@ -117,12 +118,12 @@ export default function ProjectDetailClient({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Link */}
         <div className="mb-6">
-          <Link
+          <BackLink
             href={`/people/${encodeURIComponent(staffSlug)}`}
             className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {t("backToProfile")}
-          </Link>
+          </BackLink>
         </div>
 
         {/* Hero Header */}

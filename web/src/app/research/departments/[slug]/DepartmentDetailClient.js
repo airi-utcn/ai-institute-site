@@ -25,6 +25,7 @@ import PersonChip from "@/components/shared/PersonChip";
 import PeopleTeamsSection from "@/components/shared/PeopleTeamsSection";
 import { getPeopleCount } from "@/lib/people";
 import { usePageState } from "@/lib/usePageState";
+import BackLink from "@/components/BackLink";
 
 const DEFAULT_TEXTS = {
   backToDepartments: "Back to Departments",
@@ -150,13 +151,13 @@ export default function DepartmentDetailClient({
         <div className="content-wrapper content-padding">
           <div className="empty-state">
             <h1 className="text-2xl font-bold mb-4">{t("notFound")}</h1>
-            <Link
+            <BackLink
               href="/research/departments"
               className="inline-flex items-center gap-2 text-primary-600 dark:text-accent-400 hover:underline"
             >
               <FaArrowLeft className="w-4 h-4" />
               {t("backToDepartments")}
-            </Link>
+            </BackLink>
           </div>
         </div>
       </div>
@@ -188,13 +189,13 @@ export default function DepartmentDetailClient({
         className="pt-8 pb-10 md:pt-12 md:pb-14"
       >
         {/* Breadcrumb / Back button */}
-        <Link
+        <BackLink
           href="/research/departments"
           className="inline-flex items-center gap-2 text-sm font-medium text-primary-600 dark:text-accent-400 hover:underline mb-6"
         >
           <FaArrowLeft className="w-3.5 h-3.5" />
           {t("backToDepartments")}
-        </Link>
+        </BackLink>
 
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div className="flex-1 min-w-0">

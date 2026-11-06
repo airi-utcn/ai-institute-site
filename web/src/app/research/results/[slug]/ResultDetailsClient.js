@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FaArrowLeft, FaDownload, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
 import BodyContentImage from '@/components/shared/BodyContentImage';
 import DynamicZone from '@/components/shared/DynamicZone';
+import BackLink from '@/components/BackLink';
 
 import RichMarkdown from '@/components/shared/RichMarkdown';
 import { useLocale } from '@/context/LocaleContext';
@@ -44,13 +45,13 @@ export default function ResultDetailsClient({ result }) {
         
         {/* Breadcrumb */}
         <div className="mb-10 lg:mb-16">
-          <Link
+          <BackLink
             href={backHref}
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white transition-colors"
           >
             <FaArrowLeft className="w-4 h-4" />
             {backLabel}
-          </Link>
+          </BackLink>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24">

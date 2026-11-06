@@ -7,7 +7,6 @@ import {
   FaArrowLeft,
   FaMapMarkerAlt,
   FaUsers,
-  FaUserTie,
   FaCalendarAlt,
   FaEnvelope,
   FaExternalLinkAlt,
@@ -29,7 +28,8 @@ import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 import PersonChip from '@/components/shared/PersonChip';
 import ContentCard from '@/components/ContentCard';
-import TeamCard from '@/components/TeamCard';
+import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
+import { getPeopleCount } from '@/lib/people';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -45,7 +45,6 @@ const DEFAULT_TEXTS = {
   'people.researchers': 'Researchers',
   'people.teams': 'Teams',
   'people.noPeople': 'No researchers found for this laboratory.',
-  'people.noTeams': 'No teams found for this laboratory.',
   'projects.noProjects': 'No projects found for this laboratory.',
   'publications.noPublications': 'No publications found for this laboratory.',
   'themes.title': 'Research Themes',
@@ -69,30 +68,6 @@ const EmptyState = ({ children }) => (
     {children}
   </div>
 );
-
-const normalizePersonKey = (person) => {
-  const slug = String(person?.slug || '').trim().toLowerCase();
-  const name = String(person?.name || '').trim().toLowerCase();
-  if (slug && slug !== 'null') return `slug:${slug}`;
-  if (name && name !== 'null') return `name:${name}`;
-  return null;
-};
-
-const buildTeamMemberKeySet = (teams) => {
-  const keys = new Set();
-  teams.forEach((team) => {
-    (team?.members || []).forEach((member) => {
-      const key = normalizePersonKey(member?.person);
-      if (key) keys.add(key);
-    });
-  });
-  return keys;
-};
-
-const isTeamMember = (person, teamMemberKeys) => {
-  const key = normalizePersonKey(person);
-  return Boolean(key && teamMemberKeys.has(key));
-};
 
 export default function LaboratoryDetailClient({
   lab,
@@ -127,11 +102,7 @@ export default function LaboratoryDetailClient({
 
   /* Mirror the department logic: a person covered by any team should not also
      show up as an independent researcher. */
-  const teamMemberKeys = buildTeamMemberKeySet(allTeams);
-  const individualResearchers = researchers.filter(
-    (researcher) => !isTeamMember(researcher, teamMemberKeys)
-  );
-  const peopleCount = teamMemberKeys.size + individualResearchers.length;
+  const peopleCount = getPeopleCount(researchers, allTeams);
 
   const TABS = [
     { id: 'overview', label: t('tabs.overview'), icon: FaInfoCircle },
@@ -483,60 +454,14 @@ export default function LaboratoryDetailClient({
               className="space-y-10"
             >
               <motion.section variants={itemVariants}>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                    <FaUserTie className="w-4 h-4" />
-                  </div>
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('people.researchers')}
-                  </h2>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                    {individualResearchers.length}
-                  </span>
-                </div>
-
-                {individualResearchers.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {individualResearchers.map((researcher, index) => (
-                      <div
-                        key={researcher.slug || index}
-                        className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-sm"
-                      >
-                        <PersonChip person={researcher} />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState>{t('people.noPeople')}</EmptyState>
-                )}
-              </motion.section>
-
-              <motion.section variants={itemVariants}>
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
-                    <FaUsers className="w-4 h-4" />
-                  </div>
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {t('people.teams')}
-                  </h2>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
-                    {allTeams.length}
-                  </span>
-                </div>
-
-                {allTeams.length > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {allTeams.map((team, index) => (
-                      <TeamCard
-                        key={team.slug || team.id || index}
-                        team={team}
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState>{t('people.noTeams')}</EmptyState>
-                )}
+                <PeopleTeamsSection
+                  people={researchers}
+                  teams={allTeams}
+                  peopleLabel={t('people.researchers')}
+                  teamsLabel={t('people.teams')}
+                  emptyState={t('people.noPeople')}
+                  t={t}
+                />
               </motion.section>
             </motion.div>
           )}

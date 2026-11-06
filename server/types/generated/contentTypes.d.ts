@@ -2610,13 +2610,6 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'No researchers found for this laboratory.'>;
-    peopleNoTeams: Schema.Attribute.String &
-      Schema.Attribute.SetPluginOptions<{
-        i18n: {
-          localized: true;
-        };
-      }> &
-      Schema.Attribute.DefaultTo<'No teams found for this laboratory.'>;
     peopleResearchers: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

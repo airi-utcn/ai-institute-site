@@ -3,11 +3,11 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog, FaUserTie } from "react-icons/fa";
+import { FaUsers, FaFlask, FaBook, FaInfoCircle, FaArrowLeft, FaEnvelope, FaGlobe, FaStar, FaProjectDiagram, FaUserCog } from "react-icons/fa";
 import ExpandableMarkdown from "@/components/shared/ExpandableMarkdown";
 import RichMarkdown from "@/components/shared/RichMarkdown";
-import TeamCard from "@/components/TeamCard";
-import PersonChip from "@/components/shared/PersonChip";
+import PeopleTeamsSection from "@/components/shared/PeopleTeamsSection";
+import { getPeopleCount } from "@/lib/people";
 
 const PHASE_STYLES = {
   ongoing:   'bg-green-100  dark:bg-green-900/30  text-green-700  dark:text-green-300',
@@ -94,22 +94,9 @@ export default function DepartmentDetailClient({
     return map;
   }, [staff]);
 
-  /* Figure out which people are on a team vs independent */
-  const { teamMemberSlugs, independentStaff } = useMemo(() => {
-    const slugs = new Set();
-    for (const team of teams) {
-      for (const m of team.members || []) {
-        if (m.person?.slug) slugs.add(m.person.slug);
-        else if (m.person?.name) slugs.add(m.person.name);
-      }
-    }
-    const independent = staff.filter((p) => {
-      if (p.slug && slugs.has(p.slug)) return false;
-      if (p.name && slugs.has(p.name)) return false;
-      return true;
-    });
-    return { teamMemberSlugs: slugs, independentStaff: independent };
-  }, [teams, staff]);
+  /* Mirror the shared people/teams logic: someone covered by a team is not
+     also shown as an independent researcher. */
+  const peopleCount = getPeopleCount(staff, teams);
 
   if (!department) {
     return (
@@ -168,7 +155,7 @@ export default function DepartmentDetailClient({
             <div className="flex flex-wrap lg:flex-col gap-2 shrink-0">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm font-medium">
                 <FaUsers className="w-3.5 h-3.5" />
-                <span>{teamMemberSlugs.size + independentStaff.length} {DEFAULT_TEXTS.membersCount}</span>
+                <span>{peopleCount} {DEFAULT_TEXTS.membersCount}</span>
               </div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-sm font-medium">
                 <FaFlask className="w-3.5 h-3.5" />
@@ -187,7 +174,7 @@ export default function DepartmentDetailClient({
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               let count = null;
-              if (tab.id === "members") count = teamMemberSlugs.size + independentStaff.length;
+              if (tab.id === "members") count = peopleCount;
               if (tab.id === "projects") count = projects.length;
               if (tab.id === "publications") count = publications.length;
 
@@ -363,63 +350,15 @@ export default function DepartmentDetailClient({
               exit={{ opacity: 0 }}
               className="space-y-8"
             >
-              {/* ── Teams ────────────────────────────────────── */}
-              {teams.length > 0 && (
-                <div>
-                  <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
-                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-                      <FaUsers className="w-4 h-4" />
-                    </div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("members.teams")}</h2>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                      {teams.length}
-                    </span>
-                  </motion.div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {teams.map((team, i) => (
-                      <TeamCard key={team.id || i} team={team} staffLookup={staffLookup} t={t} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ── Independent researchers ───────────────── */}
-              {independentStaff.length > 0 && (
-                <div>
-                  <motion.div variants={itemVariants} className="flex items-center gap-2.5 mb-4">
-                    <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
-                      <FaUserTie className="w-4 h-4" />
-                    </div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {teams.length > 0 ? t("members.independentResearchers") : t("tabs.members")}
-                    </h2>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
-                      {independentStaff.length}
-                    </span>
-                  </motion.div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {independentStaff.map((p, i) => (
-                      <div
-                        key={p.slug || i}
-                        className="card p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                      >
-                        <PersonChip
-                          person={{ name: p.name, slug: p.slug, title: p.title }}
-                          image={p.image}
-                          imageSrcSet={p.imageSrcSet}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Empty state */}
-              {staff.length === 0 && teams.length === 0 && (
-                <div className="empty-state">
-                  <p>{t("members.noMembers")}</p>
-                </div>
-              )}
+              <PeopleTeamsSection
+                people={staff}
+                teams={teams}
+                staffLookup={staffLookup}
+                peopleLabel={teams.length > 0 ? t("members.independentResearchers") : t("tabs.members")}
+                teamsLabel={t("members.teams")}
+                emptyState={t("members.noMembers")}
+                t={t}
+              />
             </motion.div>
           )}
 

@@ -211,15 +211,6 @@
         }
       }
     },
-    "peopleNoTeams": {
-      "type": "string",
-      "default": "No teams found for this laboratory.",
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
-    },
     "themesTitle": {
       "type": "string",
       "default": "Research Themes",

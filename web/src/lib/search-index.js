@@ -260,8 +260,11 @@ function buildLaboratoryEntries(laboratories) {
         "lab",
         "room",
         lab.roomNumber,
+        lab.coordinator?.name,
+        lab.coCoordinator?.name,
         ...asArray(lab.partners).map((p) => p.name),
         ...asArray(lab.departments).map((d) => d.name),
+        ...asArray(lab.researchThemes).map((theme) => theme.name),
       ],
       snippet: lab.summary || lab.roomNumber || "AIRI Research Laboratory",
     })

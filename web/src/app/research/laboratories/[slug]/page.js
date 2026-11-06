@@ -5,7 +5,9 @@ import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import {
   getLaboratories,
   getLaboratoryBySlug,
+  getPublications,
   transformLaboratoryData,
+  transformPublicationData,
   getSingleType,
 } from "@/lib/strapi";
 import LaboratoryDetailClient from "./LaboratoryDetailClient";
@@ -45,8 +47,9 @@ export default async function LaboratoryPage({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
-  const [labData, pageData] = await Promise.all([
+  const [labData, publicationsData, pageData] = await Promise.all([
     getLaboratoryBySlug(slug, locale),
+    getPublications({ laboratorySlug: slug, locale }),
     getSingleType("laboratories-page", locale),
   ]);
 
@@ -55,14 +58,19 @@ export default async function LaboratoryPage({ params }) {
   }
 
   const lab = transformLaboratoryData([labData])[0];
+  const publications = transformPublicationData(publicationsData);
 
   return (
     <>
-      <FallbackDisclaimer isFallback={lab._isFallback} />
+      <FallbackDisclaimer isFallback={lab._isFallback || pageData?._isFallback} />
       {typeof laboratoryJsonLd === "function" && (
         <JsonLd data={laboratoryJsonLd(lab)} />
       )}
-      <LaboratoryDetailClient lab={lab} pageData={pageData} />
+      <LaboratoryDetailClient
+        lab={lab}
+        pageData={pageData}
+        publications={publications}
+      />
     </>
   );
 }

@@ -1054,6 +1054,7 @@ const LABORATORY_POPULATE = {
       },
     },
     coordinator: PERSON_CARD_POPULATE,
+    coCoordinator: PERSON_CARD_POPULATE,
     researchers: PERSON_CARD_POPULATE,
     departments: DEPARTMENT_POPULATE,
     researchThemes: { fields: ['name', 'slug'] },
@@ -1547,6 +1548,7 @@ export async function getPublications(options = {}) {
   try {
     const {
       domainSlug,
+      laboratorySlug,
       includeUnlisted = false,
       graphEligibleOnly = false,
       sourceKind,
@@ -1556,6 +1558,10 @@ export async function getPublications(options = {}) {
 
     if (domainSlug) {
       filters.domain = { slug: { $eq: domainSlug } };
+    }
+
+    if (laboratorySlug) {
+      filters.laboratories = { slug: { $eq: laboratorySlug } };
     }
 
     if (graphEligibleOnly) {
@@ -3636,6 +3642,7 @@ export function transformLaboratoryData(strapiLaboratories) {
       gallery,
       virtualTour360Url: attributes.virtualTour360Url || '',
       coordinator: normalizePerson(attributes.coordinator?.data ?? attributes.coordinator),
+      coCoordinator: normalizePerson(attributes.coCoordinator?.data ?? attributes.coCoordinator),
       researchers,
       departments,
       researchThemes,

@@ -1,0 +1,10 @@
+worker_service/.model_cache/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+data/
+.git/
+tests/

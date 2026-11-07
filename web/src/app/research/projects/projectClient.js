@@ -1,12 +1,13 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { usePageState } from "@/lib/usePageState";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaSearch, FaTimes, FaFilter, FaChevronDown } from "react-icons/fa";
+import { FaSearch, FaTimes, FaFilter, FaChevronDown, FaFlask } from "react-icons/fa";
 import { slugify } from "@/lib/slug";
 import BackLink from "@/components/BackLink";
 import { containerVariants, itemVariants } from "@/lib/animations";
@@ -91,6 +92,8 @@ const normalizeProject = (p) => {
   return {
     title: p?.title || "",
     slug: p?.slug || "",
+    heroImage: p?.heroImage || "",
+    heroImageSrcSet: p?.heroImageSrcSet || "",
     lead: leadName,
     leadSlug,
     regions: p?.region ? [String(p.region)] : [],
@@ -419,25 +422,38 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                 {filtered.map((p, i) => {
                   const projectSlug = p.slug;
                   const content = (
-                    <div>
-                      <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
+                    <div className="grid grid-cols-[64px_minmax(0,1fr)] grid-rows-[min-content_1fr] gap-x-3 min-[375px]:grid-cols-[88px_minmax(0,1fr)] sm:grid-cols-[112px_minmax(0,1fr)] sm:gap-x-4">
+                      <SmartMediaImage
+                        src={p.heroImage}
+                        srcSet={p.heroImageSrcSet}
+                        sizes="(min-width: 640px) 112px, (min-width: 375px) 88px, 64px"
+                        aspectRatio="aspect-square"
+                        className="row-span-2 self-start rounded-lg border border-gray-200 !bg-slate-500 dark:border-gray-700 dark:!bg-slate-700"
+                        imageClassName="!object-contain p-2"
+                        fallback={
+                          <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-100 to-accent-50 text-primary-600 dark:from-primary-900/50 dark:to-accent-900/30 dark:text-primary-300">
+                            <FaFlask className="h-6 w-6" aria-hidden="true" />
+                          </span>
+                        }
+                      />
+                      <div className="break-words text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
                         {p.title}
                       </div>
-                      <div className="mt-3 text-sm text-muted space-y-1.5">
+                      <div className="col-start-2 mt-3 text-sm text-muted space-y-1.5">
                         {p.lead && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-x-2">
                             <span className="text-gray-500">{t("leadLabel")}</span>
                             <span className="font-medium text-gray-700 dark:text-gray-300">{p.lead}</span>
                           </div>
                         )}
                         {p.domains.length > 0 && (
-                          <div className="flex items-start gap-2">
+                          <div className="flex flex-wrap items-start gap-2">
                             <span className="text-gray-500">{t("dept")}</span>
-                            <div className="flex flex-wrap gap-1">
+                            <div className="flex min-w-0 flex-wrap gap-1">
                               {p.domains.map((d, idx) => (
                                 <span
                                   key={`${d.slug}-${idx}`}
-                                  className="badge-gray"
+                                  className="badge-gray max-w-full break-words"
                                 >
                                   {d.name}
                                 </span>
@@ -446,7 +462,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                           </div>
                         )}
                         {p.regions.length > 0 && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-x-2">
                             <span className="text-gray-500">{t("region")}:</span>
                             <span>{p.regions[0]}</span>
                           </div>

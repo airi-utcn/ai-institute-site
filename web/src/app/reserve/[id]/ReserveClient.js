@@ -1,7 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import PageHeader from "@/components/PageHeader";
+import ManufacturerLogo from "@/components/equipment/ManufacturerLogo";
+import SmartMediaImage from "@/components/shared/SmartMediaImage";
+import { heroSizes } from "@/lib/media";
 
 export default function ReserveClient() {
   const { id } = useParams();
@@ -88,6 +92,51 @@ export default function ReserveClient() {
         title="Reserve Equipment"
         subtitle={asset ? `Complete the form for: ${asset.name}` : "Loading..."}
       />
+
+      {asset && (
+        <section className="card max-w-3xl mx-auto mb-6 overflow-hidden">
+          <SmartMediaImage
+            src={asset.image}
+            alt={asset.name}
+            aspectRatio="aspect-video"
+            sizes={heroSizes(768)}
+            priority
+            fallback={
+              <div className="flex flex-col items-center justify-center gap-2 text-gray-400 dark:text-gray-500">
+                <span className="text-sm font-medium">
+                  No image available
+                </span>
+              </div>
+            }
+            fallbackClassName="bg-gradient-to-br from-gray-50 via-white to-gray-200 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800"
+          />
+
+          <div className="space-y-4 p-5 sm:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <ManufacturerLogo
+                manufacturer={asset.manufacturer}
+                className="h-12 rounded-lg bg-gray-50 px-3 ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
+                imageClassName="h-8 w-auto max-w-[10rem]"
+              />
+
+              {asset.roomNumber && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                  <FaMapMarkerAlt className="h-3 w-3 text-primary-500" />
+                  {asset.roomNumber}
+                </span>
+              )}
+            </div>
+
+            {asset.description ? (
+              <p className="text-body whitespace-pre-line">{asset.description}</p>
+            ) : (
+              <p className="text-muted text-sm">
+                No description provided for this item.
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {asset && !asset.available && (
         <div className="notice notice-warning max-w-lg mx-auto mb-6">

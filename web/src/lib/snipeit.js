@@ -1,35 +1,206 @@
-export async function getAllAssets() {
-  const url = process.env.SNIPEIT_URL || "http://localhost:8000";
-  const res = await fetch(`${url}/api/v1/hardware`, {
-    headers: {
-      'Authorization': `Bearer ${process.env.SNIPEIT_API_KEY}`,
-      'Accept': 'application/json'
-    },
-    cache: 'no-store' 
+const DEFAULT_BASE_URL = 'http://localhost:8000';
+
+const getBaseUrl = () =>
+  (process.env.SNIPEIT_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
+
+const getPublicBaseUrl = () => {
+  const configured =
+    process.env.SNIPEIT_PUBLIC_URL ||
+    process.env.NEXT_PUBLIC_SNIPEIT_URL ||
+    '';
+
+  if (configured) return configured.replace(/\/+$/, '');
+  return process.env.NODE_ENV === 'production' ? '' : DEFAULT_BASE_URL;
+};
+
+const getHeaders = () => ({
+  Authorization: `Bearer ${process.env.SNIPEIT_API_KEY}`,
+  Accept: 'application/json',
+});
+
+async function fetchFromSnipeit(path) {
+  const res = await fetch(`${getBaseUrl()}${path}`, {
+    headers: getHeaders(),
+    cache: 'no-store',
   });
 
   if (!res.ok) {
-    throw new Error('Failed to fetch assets from Snipe-IT');
+    throw new Error(`Failed to fetch ${path} from Snipe-IT`);
   }
 
-  const data = await res.json();
+  return res.json();
+}
+
+const decodeHtmlEntities = (value) =>
+  value
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) =>
+      String.fromCharCode(parseInt(code, 16))
+    )
+    .replace(/&amp;/gi, '&');
+
+const stripHtml = (value) =>
+  typeof value === 'string'
+    ? decodeHtmlEntities(
+        value
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      )
+    : '';
+
+const getRoomNumber = (asset) => {
+  const customFields = asset?.custom_fields;
+
+  if (customFields && typeof customFields === 'object') {
+    const roomField = Object.entries(customFields).find(([name]) =>
+      /room/i.test(name)
+    );
+
+    if (roomField) {
+      const rawValue = roomField[1];
+      const value =
+        rawValue && typeof rawValue === 'object' ? rawValue.value : rawValue;
+      const roomNumber = stripHtml(value);
+
+      if (roomNumber) return roomNumber;
+    }
+  }
+
+  return (
+    stripHtml(asset?.location?.name) ||
+    stripHtml(asset?.rtd_location?.name) ||
+    null
+  );
+};
+
+/**
+ * Snipe-IT returns absolute URLs based on APP_URL. In some deployments that
+ * points at the internal Docker hostname, which the browser cannot resolve.
+ * Rewrite those URLs against the public Snipe-IT base when we have one.
+ */
+export function resolveSnipeitMediaUrl(value) {
+  const raw = (typeof value === 'string' ? value : value?.url || '').trim();
+
+  if (!raw) return null;
+  if (/^(data|blob):/i.test(raw)) return raw;
+
+  const internalBase = getBaseUrl();
+  const publicBase = getPublicBaseUrl();
+
+  try {
+    const url = new URL(raw, internalBase);
+    if (!publicBase) return url.toString();
+
+    const internalUrl = new URL(internalBase);
+    if (url.host !== internalUrl.host) return url.toString();
+
+    const publicUrl = new URL(publicBase);
+    url.protocol = publicUrl.protocol;
+    url.host = publicUrl.host;
+
+    const prefix = publicUrl.pathname.replace(/\/+$/, '');
+    if (
+      prefix &&
+      url.pathname !== prefix &&
+      !url.pathname.startsWith(`${prefix}/`)
+    ) {
+      url.pathname = `${prefix}${url.pathname}`;
+    }
+
+    return url.toString();
+  } catch {
+    return raw;
+  }
+}
+
+export async function getAllAssets() {
+  const data = await fetchFromSnipeit('/api/v1/hardware');
   return data.rows || [];
 }
 
 export async function getAssetById(id) {
-  const url = process.env.SNIPEIT_URL || "http://localhost:8000";
-  const res = await fetch(`${url}/api/v1/hardware/${id}`, {
-    headers: {
-      'Authorization': `Bearer ${process.env.SNIPEIT_API_KEY}`,
-      'Accept': 'application/json'
-    },
-    cache: 'no-store'
+  return fetchFromSnipeit(`/api/v1/hardware/${encodeURIComponent(id)}`);
+}
+
+export async function getManufacturerById(id) {
+  return fetchFromSnipeit(
+    `/api/v1/manufacturers/${encodeURIComponent(id)}`
+  );
+}
+
+async function getManufacturerLogoMap(manufacturerIds = []) {
+  const uniqueIds = Array.from(
+    new Set(
+      manufacturerIds
+        .map((id) => Number(id))
+        .filter((id) => Number.isInteger(id) && id > 0)
+    )
+  );
+
+  if (uniqueIds.length === 0) return new Map();
+
+  const results = await Promise.allSettled(
+    uniqueIds.map((id) => getManufacturerById(id))
+  );
+
+  const logos = new Map();
+
+  results.forEach((result, index) => {
+    if (result.status !== 'fulfilled') return;
+
+    const logo = resolveSnipeitMediaUrl(result.value?.image);
+    if (logo) logos.set(uniqueIds[index], logo);
   });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch asset ${id} from Snipe-IT`);
-  }
+  return logos;
+}
 
-  const data = await res.json();
-  return data;
+function normalizeEquipment(asset, manufacturerLogos = new Map()) {
+  const manufacturerId = Number(asset?.manufacturer?.id) || null;
+
+  return {
+    id: asset.id,
+    name: asset.name || asset.model?.name || asset.asset_tag || 'Unnamed',
+    status: asset.status_label?.name,
+    available: asset.status_label?.status_meta === 'deployable',
+    image: resolveSnipeitMediaUrl(asset.image),
+    description: stripHtml(asset.notes) || null,
+    roomNumber: getRoomNumber(asset),
+    manufacturer: asset.manufacturer
+      ? {
+          id: manufacturerId,
+          name: asset.manufacturer.name || null,
+          logo: manufacturerId
+            ? manufacturerLogos.get(manufacturerId) || null
+            : null,
+        }
+      : null,
+  };
+}
+
+export async function getEquipmentAssets() {
+  const assets = await getAllAssets();
+  const manufacturerLogos = await getManufacturerLogoMap(
+    assets.map((asset) => asset.manufacturer?.id)
+  );
+
+  return assets.map((asset) =>
+    normalizeEquipment(asset, manufacturerLogos)
+  );
+}
+
+export async function getEquipmentAssetById(id) {
+  const asset = await getAssetById(id);
+  const manufacturerLogos = await getManufacturerLogoMap([
+    asset.manufacturer?.id,
+  ]);
+
+  return normalizeEquipment(asset, manufacturerLogos);
 }

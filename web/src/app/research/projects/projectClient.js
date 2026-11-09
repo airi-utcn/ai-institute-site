@@ -11,6 +11,14 @@ import { slugify } from "@/lib/slug";
 import BackLink from "@/components/BackLink";
 import { containerVariants, itemVariants } from "@/lib/animations";
 
+const DEFAULT_CARD_COLORS = "bg-slate-50 before:bg-slate-400 dark:bg-slate-900";
+const CARD_COLORS_BY_REGION = new Map([
+  ["local", "bg-emerald-50 before:bg-emerald-500 dark:bg-emerald-950/60"],
+  ["regional", "bg-amber-50 before:bg-amber-500 dark:bg-amber-950/60"],
+  ["national", "bg-sky-50 before:bg-sky-500 dark:bg-sky-950/60"],
+  ["international", "bg-violet-50 before:bg-violet-500 dark:bg-violet-950/60"],
+]);
+
 const normalizeTeams = (proj) =>
   Array.isArray(proj?.teams)
     ? proj.teams.map((t) => String(t?.name || "").trim()).filter(Boolean)
@@ -418,6 +426,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filtered.map((p, i) => {
                   const projectSlug = p.slug;
+                  const cardColors = CARD_COLORS_BY_REGION.get(p.regions[0]) ?? DEFAULT_CARD_COLORS;
                   const content = (
                     <div>
                       <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-accent-400 transition-colors">
@@ -426,13 +435,13 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                       <div className="mt-3 text-sm text-muted space-y-1.5">
                         {p.lead && (
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500">{t("leadLabel")}</span>
+                            <span>{t("leadLabel")}</span>
                             <span className="font-medium text-gray-700 dark:text-gray-300">{p.lead}</span>
                           </div>
                         )}
                         {p.domains.length > 0 && (
                           <div className="flex items-start gap-2">
-                            <span className="text-gray-500">{t("dept")}</span>
+                            <span>{t("dept")}</span>
                             <div className="flex flex-wrap gap-1">
                               {p.domains.map((d, idx) => (
                                 <span
@@ -459,7 +468,7 @@ export default function ProjectsClient({ projects: rawProjects = [], pageData, i
                     <motion.div
                       key={`${p.title}-${i}`}
                       variants={itemVariants}
-                      className="card card-hover p-5"
+                      className={`card card-hover relative overflow-hidden p-5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1 ${cardColors}`}
                     >
                       {projectSlug ? (
                         <Link

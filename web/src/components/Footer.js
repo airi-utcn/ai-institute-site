@@ -105,6 +105,15 @@ export default function Footer({ footerData: customFooterData }) {
                 </li>
               ))}
             </ul>
+
+            <a
+              href="https://eertis.eu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-primary-600 transition-colors hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-primary-900/40 dark:focus-visible:outline-primary-400"
+            >
+              EERTIS
+            </a>
           </div>
 
           {/* Contact Info */}

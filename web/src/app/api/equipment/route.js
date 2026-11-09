@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAllAssets } from "@/lib/snipeit";
+import { getEquipmentAssets } from "@/lib/snipeit";
 
 export async function GET() {
   try {
-    const assets = await getAllAssets();
+    const equipment = await getEquipmentAssets();
 
-    const simplified = assets.map((a) => ({
-      id: a.id,
-      name: a.name || a.model?.name || a.asset_tag || "Unnamed",
-      status: a.status_label?.name,
-      available: a.status_label?.status_meta === "deployable",
-    }));
-
-    return NextResponse.json(simplified);
+    return NextResponse.json(equipment);
   } catch (err) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

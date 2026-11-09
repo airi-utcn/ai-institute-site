@@ -8,19 +8,13 @@ viewBox="0 0 1051.96 525.48"
  <defs>
   <style type="text/css">
    <![CDATA[
-    .str1 {stroke:#606062;stroke-width:2.61;stroke-miterlimit:2.61313}
-    .str0 {stroke:#373435;stroke-width:1.13;stroke-miterlimit:2.61313}
+    .str1 {stroke:#e0e0e0;stroke-width:2.61;stroke-miterlimit:2.61313}
+    .str0 {stroke:#ffffff;stroke-width:1.13;stroke-miterlimit:2.61313}
     .fil3 {fill:none}
     .fil2 {fill:none;fill-rule:nonzero}
-    .fil0 {fill:#373435}
-    .fil1 {fill:#373435;fill-rule:nonzero}
+    .fil0 {fill:#ffffff}
+    .fil1 {fill:#ffffff;fill-rule:nonzero}
    ]]>
-    @media (prefers-color-scheme: dark) {
-      .str1 {stroke:#e0e0e0;}
-      .str0 {stroke:#ffffff;}
-      .fil0 {fill:#ffffff;}
-      .fil1 {fill:#ffffff;}
-    }
   </style>
  </defs>
  <g id="Layer_x0020_1">

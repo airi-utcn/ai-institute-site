@@ -5,8 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from 'next/link';
 import Image from 'next/image';
 import { FaBars, FaTimes, FaSearch, FaRss } from 'react-icons/fa';
-import EUT_Logo from '../../public/media/Logos/UT&EUT_Logo.png';
+import LogoLight from '../../public/media/Logos/LogoLight.svg';
+import LogoDark from '../../public/media/Logos/LogoDark.svg';
+import EUT_Logo from '../../public/media/Logos/EUT_WideLogo.png';
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useTheme } from "@/components/ThemeProvider";
 import { useGlobalData } from "@/context/LocaleContext";
 
 const strip = (value) =>
@@ -131,6 +134,7 @@ function DesktopDropdown({ link, open, setOpen, items, alignRight = false }) {
 export default function Navbar({ navbarData: customNavbarData }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { isDark } = useTheme();
 
   const globalData = useGlobalData();
   const nav = customNavbarData || globalData?.navbar || {};
@@ -337,15 +341,24 @@ export default function Navbar({ navbarData: customNavbarData }) {
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex items-center">
-          <Link href="/" aria-label="Home">
+          <Link href="/" aria-label="Home" className="flex items-center gap-3 lg:gap-5">
+            <Image
+              src={isDark ? LogoDark : LogoLight}
+              alt="AIRI Logo"
+              width={144}
+              height={40}
+              priority
+              className="h-auto w-36 object-cover md:h-7 md:w-24 lg:h-10 lg:w-36"
+            />
+          </Link>
+          <Link href="https://www.univ-tech.eu/" aria-label="EUT+" className="flex items-center gap-3 lg:gap-5">
             <Image
               src={EUT_Logo}
-              alt="EUT Logo"
-              width={200}
-              height={200}
+              alt="EUT+ Logo"
+              width={130}
+              height={26}
               priority
-              className="ml-4"
-              style={{ cursor: 'pointer' }}
+              className="h-auto w-auto md:h-7 lg:h-8 lg:max-h-9 object-contain"
             />
           </Link>
         </div>

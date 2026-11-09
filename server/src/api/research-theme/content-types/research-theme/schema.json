@@ -8,7 +8,7 @@
     "description": "Taxonomy for grouping projects/publications"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

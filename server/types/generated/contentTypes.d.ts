@@ -3275,7 +3275,7 @@ export interface ApiPartnerPartner extends Struct.CollectionTypeSchema {
     singularName: 'partner';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {
@@ -5034,7 +5034,7 @@ export interface ApiResearchThemeResearchTheme
     singularName: 'research-theme';
   };
   options: {
-    draftAndPublish: false;
+    draftAndPublish: true;
   };
   pluginOptions: {
     i18n: {

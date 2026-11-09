@@ -35,8 +35,25 @@ before(async () => {
 
   await app.plugin('i18n').service('locales').create({ name: 'Romanian (ro)', code: 'ro' });
 
+  const image = await app.db.query('plugin::upload.file').create({
+    data: {
+      name: 'news-test.png', hash: 'news-test', ext: '.png',
+      mime: 'image/png', size: 1, url: '/uploads/news-test.png', provider: 'local',
+    },
+  });
   const person = await app.documents('api::person.person').create({
-    data: { firstName: 'Test', lastName: 'Author' }, status: 'published',
+    data: {
+      firstName: 'Test',
+      lastName: 'Author',
+      bio: 'Test author biography.',
+      portrait: image.id,
+      socialLinks: [{
+        label: 'Email',
+        url: 'mailto:test.author@example.com',
+        icon: 'mail',
+      }],
+    },
+    status: 'published',
   });
   const department = await app.documents('api::department.department').create({
     data: { name: 'Test Department' }, status: 'published', locale: 'en',
@@ -52,12 +69,6 @@ before(async () => {
   await app.documents('api::project.project').update({
     documentId: project.documentId, locale: 'ro', status: 'published',
     data: { title: 'Proiect de test', startDate: '2026-01-01' },
-  });
-  const image = await app.db.query('plugin::upload.file').create({
-    data: {
-      name: 'news-test.png', hash: 'news-test', ext: '.png',
-      mime: 'image/png', size: 1, url: '/uploads/news-test.png', provider: 'local',
-    },
   });
   fixtures = {
     summary: 'A complete news summary.', publishedDate: '2026-10-26',

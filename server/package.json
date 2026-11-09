@@ -15,6 +15,7 @@
     "start": "strapi start",
     "test:draft-access": "node --test tests/draft-access.test.mjs",
     "test:preview": "node --experimental-default-type=module --test tests/preview-targets.test.mjs",
+    "test:slug": "node --test tests/slug.test.mjs",
     "test:news": "node --test tests/news-publication.test.cjs",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",

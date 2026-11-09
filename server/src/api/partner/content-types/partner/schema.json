@@ -8,7 +8,7 @@
     "description": "Organizations collaborating on projects"
   },
   "options": {
-    "draftAndPublish": false
+    "draftAndPublish": true
   },
   "pluginOptions": {
     "i18n": {

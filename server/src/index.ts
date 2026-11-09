@@ -1,5 +1,6 @@
 // import type { Core } from "@strapi/strapi";
 import { registerDraftAccessGuard } from "./utils/draft-access";
+import { generateSlug, registerSlugMiddleware } from "./utils/slug";
 
 const SLUG_COLLECTIONS = [
   "api::publication.publication",
@@ -16,16 +17,6 @@ const SLUG_COLLECTIONS = [
   "api::team.team",
   "api::laboratory.laboratory",
 ];
-
-const generateSlug = (str: any) =>
-  String(str || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
 
 export default {
   /**
@@ -87,76 +78,9 @@ export default {
     });
 
 
-    // Document Service middleware: Force all localizations to inherit and share the canonical slug of the default locale (en)
-    strapi.documents.use(async (ctx: any, next: any) => {
-      if (ctx.action !== "create" && ctx.action !== "update") {
-        return next();
-      }
-
-      if (!ctx.params || !ctx.params.data) {
-        return next();
-      }
-
-      const contentType = strapi.contentType(ctx.uid);
-      if (!contentType?.attributes?.slug) {
-        return next();
-      }
-
-      const isLocalized = Boolean(contentType.pluginOptions?.i18n?.localized);
-      const targetField = contentType.attributes.slug.targetField || "title";
-      const documentId = ctx.params.documentId;
-      const locale = ctx.params.locale;
-
-      // 1. If this is a translation (e.g. locale != "en"), force it to inherit the default locale slug
-      if (isLocalized && documentId && locale && locale !== "en") {
-        try {
-          const defaultEntry: any = await strapi.db.query(ctx.uid).findOne({
-            where: { documentId, locale: "en" },
-            select: ["slug", targetField],
-          });
-
-          if (defaultEntry?.slug) {
-            ctx.params.data.slug = defaultEntry.slug;
-          } else if (defaultEntry?.[targetField]) {
-            ctx.params.data.slug = generateSlug(defaultEntry[targetField]);
-          }
-        } catch (err) {
-          console.error("Error inheriting default locale slug:", err);
-        }
-      }
-
-      // 2. If slug is not set (e.g. creating the default locale entry or no default locale entry yet)
-      if (!ctx.params.data.slug && ctx.params.data[targetField]) {
-        let val = generateSlug(ctx.params.data[targetField]);
-        if (ctx.uid === "api::publication.publication" && ctx.params.data.year) {
-          val = generateSlug(ctx.params.data[targetField] + " " + ctx.params.data.year);
-        }
-        ctx.params.data.slug = val;
-      }
-
-      const result = await next();
-
-      // 3. If saving default locale (en), synchronize the slug to all other localizations of this document
-      const finalSlug = ctx.params.data.slug;
-      const targetDocId = documentId || result?.documentId;
-      if (isLocalized && finalSlug && targetDocId && (!locale || locale === "en")) {
-        try {
-          await strapi.db.query(ctx.uid).updateMany({
-            where: {
-              documentId: targetDocId,
-              locale: { $ne: "en" },
-            },
-            data: {
-              slug: finalSlug,
-            },
-          });
-        } catch (err) {
-          console.error("Error synchronizing slug to other localizations:", err);
-        }
-      }
-
-      return result;
-    });
+    // Document Service middleware: Generate collision-free slugs and keep them
+    // in sync with the target field and across localizations.
+    registerSlugMiddleware(strapi);
   },
 
   /**

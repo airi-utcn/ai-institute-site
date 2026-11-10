@@ -4,8 +4,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+import { requireUser } from "@/lib/auth/session";
 import ReserveClient from "./ReserveClient";
 
-export default function ReservePage() {
-  return <ReserveClient />;
+export default async function ReservePage({ params }) {
+  const { id } = await params;
+  const user = await requireUser(`/reserve/${encodeURIComponent(id)}`);
+
+  return <ReserveClient user={user} />;
 }

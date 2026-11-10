@@ -64,7 +64,7 @@ This is what the students or researchers will do on the public website.
 
 ![Frontend Reservation Form](snipeit-images/view_asset.png)
 
-3. The user clicks on the desired equipment, fills out their details in the reservation form, and submits the request. 
+3. The user clicks on the desired equipment and signs in with their UTCN Microsoft account when prompted. The reservation is submitted under that verified account; they only choose the start and end dates.
 
 ![Frontend Reservation Form](snipeit-images/reserve_asset.png)
 

@@ -105,6 +105,8 @@ ai-institute-site/
 ## Equipment Reservations
 The platform includes an automated equipment reservation system. It syncs Next.js frontend requests through Strapi CMS directly into a self-hosted Snipe-IT instance. For setup, testing instructions, and architecture details - [SNIPEIT_DOCS.md](./SNIPEIT_DOCS.md).
 
+Reservations and the Strapi admin panel use UTCN Microsoft login. See [docs/authentication.md](./docs/authentication.md) for configuration, and [docs/utcn-sso-request.md](./docs/utcn-sso-request.md) for the list of details to request from the identity team.
+
 ## Documentation
 
 - [Development Setup](./SETUP.md) - Detailed setup and troubleshooting

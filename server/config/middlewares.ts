@@ -16,5 +16,6 @@ export default [
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
+  'global::admin-sso-guard',
   'global::upload-security',
 ];

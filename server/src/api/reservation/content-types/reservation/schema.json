@@ -15,6 +15,7 @@
     "userEmail": { "type": "email" },
     "userFirstName": { "type": "string" },
     "userLastName": { "type": "string" },
+    "userObjectId": { "type": "string" },
     "startDate": { "type": "date" },
     "endDate": { "type": "date" },
     "assetStatus": {

@@ -327,5 +327,33 @@ export default {
     } catch (err) {
       console.error("Failed to hide fullName from Content Manager layout:", err);
     }
+
+    // 6. Seed the Strapi admin SSO whitelist from the environment. This keeps
+    // the allowlist in deployment configuration instead of only in the admin UI.
+    try {
+      const allowedEmails = (process.env.ADMIN_SSO_ALLOWED_EMAILS || "")
+        .split(",")
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean);
+
+      if (allowedEmails.length > 0 && strapi.plugin("strapi-plugin-sso")) {
+        const whitelist = strapi.db.query("plugin::strapi-plugin-sso.whitelists");
+        let added = 0;
+
+        for (const email of allowedEmails) {
+          const existing = await whitelist.findOne({ where: { email } });
+          if (!existing) {
+            await whitelist.create({ data: { email } });
+            added++;
+          }
+        }
+
+        if (added > 0) {
+          console.log(`✅ Added ${added} admin SSO whitelist entries`);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to seed admin SSO whitelist:", err);
+    }
   },
 };

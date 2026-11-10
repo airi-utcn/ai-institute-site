@@ -115,36 +115,174 @@ services:
       REPO_PASS: ${REPO_PASS}
     restart: always
 
-  # Automated daily PostgreSQL backups with 7-day retention
+  # Automated daily PostgreSQL backups, retained for BACKUP_RETENTION_DAYS (7 by default).
   db-backup:
     image: public.ecr.aws/docker/library/postgres:16
     depends_on:
       postgres:
         condition: service_healthy
+    # The stock image runs as "postgres"; root lets it write to a root-created bind mount.
+    user: "0:0"
     environment:
       PGHOST: postgres
       PGDATABASE: ${POSTGRES_DB}
       PGUSER: ${POSTGRES_USER}
       PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
     volumes:
-      - ./backups:/backups
-    # Run a backup every day at 3:00 AM, keep last 7 days
+      - "${BACKUP_DIR:-./backups}:/backups"
+    # Dump immediately, then every 24h. Write to a temp file so a failed dump never
+    # leaves a half-written backup behind.
     entrypoint: >
       sh -c '
+        umask 077
         while true; do
           TIMESTAMP=$$(date +%Y-%m-%d_%H-%M-%S)
-          echo "[$$TIMESTAMP] Starting backup..."
-          pg_dump -Fc > /backups/backup_$$TIMESTAMP.dump
-          echo "[$$TIMESTAMP] Backup complete: backup_$$TIMESTAMP.dump"
-          # Delete backups older than 7 days
-          find /backups -name "backup_*.dump" -mtime +7 -delete
-          echo "Cleaned old backups. Sleeping 24h..."
+          TMP=/backups/.backup_$$TIMESTAMP.dump.tmp
+          echo "[$$TIMESTAMP] Starting PostgreSQL backup..."
+          if pg_dump -Fc -f "$$TMP" && pg_restore --list "$$TMP" >/dev/null; then
+            mv "$$TMP" /backups/backup_$$TIMESTAMP.dump
+            echo "[$$TIMESTAMP] Backup complete: backup_$$TIMESTAMP.dump"
+            find /backups -name "backup_*.dump" -mtime +$$BACKUP_RETENTION_DAYS -delete
+          else
+            rm -f "$$TMP"
+            echo "[$$TIMESTAMP] PostgreSQL backup failed; keeping old backups" >&2
+          fi
+          echo "Next PostgreSQL backup in 24h..."
           sleep 86400
         done
       '
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
+
+  # Automated daily MySQL backups for Snipe-IT, following the same pattern as db-backup.
+  snipeit-db-backup:
+    image: public.ecr.aws/docker/library/mysql:8.0
+    depends_on:
+      mysql-snipeit:
+        condition: service_healthy
+    # The stock image runs as "mysql"; root lets it write to a root-created bind mount.
+    user: "0:0"
+    environment:
+      MYSQL_HOST: mysql-snipeit
+      MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - "${BACKUP_DIR:-./backups}:/backups"
+    # Dump immediately, then every 24h. The SQL is fully written before compression,
+    # so a failed mysqldump is not disguised by a successful gzip exit code.
+    entrypoint: >
+      sh -c '
+        umask 077
+        while true; do
+          TIMESTAMP=$$(date +%Y-%m-%d_%H-%M-%S)
+          TMP_SQL=/backups/.snipeit_$$TIMESTAMP.sql.tmp
+          TMP_GZ=/backups/.snipeit_$$TIMESTAMP.sql.gz.tmp
+          echo "[$$TIMESTAMP] Starting Snipe-IT MySQL backup..."
+          if MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysqldump \
+              --host="$$MYSQL_HOST" \
+              --user=root \
+              --single-transaction \
+              --quick \
+              --routines \
+              --triggers \
+              --events \
+              --default-character-set=utf8mb4 \
+              --set-gtid-purged=OFF \
+              "$$MYSQL_DATABASE" > "$$TMP_SQL"; then
+            if gzip -9 -c "$$TMP_SQL" > "$$TMP_GZ" && gzip -t "$$TMP_GZ"; then
+              mv "$$TMP_GZ" /backups/snipeit_$$TIMESTAMP.sql.gz
+              echo "[$$TIMESTAMP] Backup complete: snipeit_$$TIMESTAMP.sql.gz"
+              find /backups -name "snipeit_*.sql.gz" -mtime +$$BACKUP_RETENTION_DAYS -delete
+            else
+              rm -f "$$TMP_GZ"
+              echo "[$$TIMESTAMP] Snipe-IT MySQL backup compression failed; keeping old backups" >&2
+            fi
+          else
+            echo "[$$TIMESTAMP] Snipe-IT MySQL backup failed; keeping old backups" >&2
+          fi
+          rm -f "$$TMP_SQL" "$$TMP_GZ"
+          echo "Next Snipe-IT MySQL backup in 24h..."
+          sleep 86400
+        done
+      '
+    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # Uploaded media lives outside the databases, so it needs its own snapshot.
+  # Strapi uploads are a bind mount; Snipe-IT stores uploads/logs in its named volume.
+  files-backup:
+    image: public.ecr.aws/docker/library/alpine:3.20
+    user: "0:0"
+    environment:
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+    volumes:
+      - ./uploads:/data/strapi-uploads:ro
+      - snipeit-data:/data/snipeit:ro
+      - paper-sync-outputs:/data/paper-sync:ro
+      - "${BACKUP_DIR:-./backups}:/backups"
+    # Snapshot immediately, then every 24h. Archives are written to temp files first
+    # so a failed tar does not masquerade as a usable snapshot.
+    entrypoint: >
+      sh -c '
+        umask 077
+        while true; do
+          TIMESTAMP=$$(date +%Y-%m-%d_%H-%M-%S)
+          TMP_UPLOADS=/backups/.strapi-uploads_$$TIMESTAMP.tar.gz.tmp
+          TMP_SNIPEIT=/backups/.snipeit-data_$$TIMESTAMP.tar.gz.tmp
+          TMP_PAPERSYNC=/backups/.paper-sync-outputs_$$TIMESTAMP.tar.gz.tmp
+          echo "[$$TIMESTAMP] Starting Strapi uploads snapshot..."
+          if tar -czf "$$TMP_UPLOADS" -C /data strapi-uploads && gzip -t "$$TMP_UPLOADS"; then
+            mv "$$TMP_UPLOADS" /backups/strapi-uploads_$$TIMESTAMP.tar.gz
+            echo "[$$TIMESTAMP] Snapshot complete: strapi-uploads_$$TIMESTAMP.tar.gz"
+            find /backups -name "strapi-uploads_*.tar.gz" -mtime +$$BACKUP_RETENTION_DAYS -delete
+          else
+            rm -f "$$TMP_UPLOADS"
+            echo "[$$TIMESTAMP] Strapi uploads snapshot failed; keeping old snapshots" >&2
+          fi
+          echo "[$$TIMESTAMP] Starting Snipe-IT data snapshot..."
+          if tar -czf "$$TMP_SNIPEIT" -C /data snipeit && gzip -t "$$TMP_SNIPEIT"; then
+            mv "$$TMP_SNIPEIT" /backups/snipeit-data_$$TIMESTAMP.tar.gz
+            echo "[$$TIMESTAMP] Snapshot complete: snipeit-data_$$TIMESTAMP.tar.gz"
+            find /backups -name "snipeit-data_*.tar.gz" -mtime +$$BACKUP_RETENTION_DAYS -delete
+          else
+            rm -f "$$TMP_SNIPEIT"
+            echo "[$$TIMESTAMP] Snipe-IT data snapshot failed; keeping old snapshots" >&2
+          fi
+          echo "[$$TIMESTAMP] Starting paper-sync outputs snapshot..."
+          if tar -czf "$$TMP_PAPERSYNC" -C /data paper-sync && gzip -t "$$TMP_PAPERSYNC"; then
+            mv "$$TMP_PAPERSYNC" /backups/paper-sync-outputs_$$TIMESTAMP.tar.gz
+            echo "[$$TIMESTAMP] Snapshot complete: paper-sync-outputs_$$TIMESTAMP.tar.gz"
+            find /backups -name "paper-sync-outputs_*.tar.gz" -mtime +$$BACKUP_RETENTION_DAYS -delete
+          else
+            rm -f "$$TMP_PAPERSYNC"
+            echo "[$$TIMESTAMP] paper-sync outputs snapshot failed; keeping old snapshots" >&2
+          fi
+          echo "Next file snapshot in 24h..."
+          sleep 86400
+        done
+      '
+    restart: always
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
+
+  # One-off helper for restoring file snapshots on the same machine.
+  # It is never started by "docker compose up"; use --profile tools:
+  #   docker compose -f compose.prod.yaml --profile tools run --rm files-restore -c \
+  #     'tar -xzf /backups/strapi-uploads_....tar.gz -C /data'
+  files-restore:
+    image: public.ecr.aws/docker/library/alpine:3.20
+    profiles: ["tools"]
+    user: "0:0"
+    volumes:
+      - ./uploads:/data/strapi-uploads
+      - snipeit-data:/data/snipeit
+      - paper-sync-outputs:/data/paper-sync
+      - "${BACKUP_DIR:-./backups}:/backups:ro\"
+    entrypoint: ["sh"]
 
   paper-sync:
     image: ghcr.io/airi-utcn/ai-institute-site/paper-sync:latest
@@ -166,6 +304,9 @@ services:
       GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE: ${GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE:-3}
       GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES: ${GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES:-2}
       GRAPH_TOP_K: ${GRAPH_TOP_K:-20}
+    volumes:
+      # Keep generated graph artifacts and the fetch cache across container restarts.
+      - paper-sync-outputs:/app/outputs
     depends_on:
       strapi:
         condition: service_healthy
@@ -179,7 +320,9 @@ services:
       MYSQL_USER: ${SNIPEIT_DB_USER}
       MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
+      # The container only receives MYSQL_ROOT_PASSWORD, not SNIPEIT_DB_ROOT_PASSWORD.
+      # "status" (unlike "ping") also fails when authentication is wrong.
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysqladmin status --silent >/dev/null 2>&1 || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -216,3 +359,4 @@ volumes:
   pgdata:
   mysql-snipeit-data:
   snipeit-data:
+  paper-sync-outputs:

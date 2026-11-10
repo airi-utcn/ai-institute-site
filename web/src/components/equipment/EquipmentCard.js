@@ -9,7 +9,6 @@ import {
   FaMapMarkerAlt,
 } from 'react-icons/fa';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
-import ManufacturerLogo from '@/components/equipment/ManufacturerLogo';
 import { gridSizes } from '@/lib/media';
 
 function AvailabilityBadge({ available }) {
@@ -54,12 +53,7 @@ export default function EquipmentCard({ asset, variants }) {
             fallbackClassName="bg-gradient-to-br from-gray-50 via-white to-gray-200 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800"
           />
 
-          <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-between gap-3">
-            <ManufacturerLogo
-              manufacturer={asset.manufacturer}
-              className="min-h-9 max-w-[55%] rounded-lg bg-white/95 px-2 py-1.5 shadow-sm ring-1 ring-black/5 backdrop-blur dark:bg-gray-900/90 dark:ring-white/10"
-              imageClassName="h-6 w-auto max-w-[7.5rem]"
-            />
+          <div className="pointer-events-none absolute inset-x-3 top-3 z-20 flex items-start justify-end gap-3">
             <AvailabilityBadge available={asset.available} />
           </div>
 

@@ -36,6 +36,10 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env
 
+# production state and backups (never commit)
+/backups/
+/uploads/
+
 # vercel
 .vercel
 

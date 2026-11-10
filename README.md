@@ -108,6 +108,7 @@ The platform includes an automated equipment reservation system. It syncs Next.j
 ## Documentation
 
 - [Development Setup](./SETUP.md) - Detailed setup and troubleshooting
+- [Production Backups](./docs/prod-backups.md) - Backup inventory, off-site copies, and restore procedures
 - [Contributing Guide](./CONTRIBUTING.md) - How to contribute to the project
 - [Strapi Author Manual](./docs/StrapiAuthorDocs/) - Guides on using Strapi for content management
 - [Strapi Documentation](https://docs.strapi.io/) - Official CMS docs

@@ -24,26 +24,15 @@ Why mirror at all: Docker Hub rate-limits anonymous pulls, and ECR Public caps a
 
 The mirror packages are private by default and CI authenticates with `GITHUB_TOKEN`. A local build of `snipe-it/` needs `docker login ghcr.io`, or pass `--build-arg SNIPE_IT_IMAGE=snipe/snipe-it:v8.8.3`. The service Dockerfiles work locally without a login because they default to ECR Public.
 
-## Database backup (prod compose)
+## Backups (prod compose)
 
-The production compose file includes a simple backup service that:
-- runs `pg_dump` once per day
-- writes to `./backups` on the server
-- deletes backups older than 7 days
+The production compose file includes daily backup services for both databases
+and for uploaded files. They write to `${BACKUP_DIR:-./backups}` on the server
+and keep the last `BACKUP_RETENTION_DAYS` (default: 7) snapshots.
 
-### Restore DB (example)
-
-1. Pick a backup file name from the server:
-	- backups/backup_YYYY-MM-DD_HH-MM-SS.dump
-2. Restore into the database:
-
-```
-docker compose -f compose.prod.yaml exec -T postgres pg_restore -d $POSTGRES_DB < backups/backup_YYYY-MM-DD_HH-MM-SS.dump
-```
-
-Notes:
-- Run this on the server where the backups live.
-- This is a full database restore from a custom-format dump.
+See [docs/prod-backups.md](../../docs/prod-backups.md) for the full state
+inventory, off-machine copy instructions, restore commands, and verification
+steps.
 
 ## Restore Images from github (example)
 

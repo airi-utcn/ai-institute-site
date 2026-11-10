@@ -44,8 +44,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**:
   - Added comprehensive production migration tutorial in [`docs/i18n-production-migration.md`](./docs/i18n-production-migration.md).
   - Updated [`SETUP.md`](./SETUP.md) with i18n migration instructions for local and Docker development.
+- **Production backup coverage**:
+  - Added verified daily MySQL dumps for Snipe-IT, alongside the existing PostgreSQL dumps.
+  - Added snapshots for Strapi uploads, Snipe-IT files, and paper-sync artifacts/cache.
+  - Made the backup directory and retention configurable via `BACKUP_DIR` and `BACKUP_RETENTION_DAYS`.
+  - Added [`docs/prod-backups.md`](./docs/prod-backups.md) with restore and off-machine copy procedures.
 
 ### Changed
+- **Docker Compose Production Setup**:
+  - Backup dumps now use temp files and integrity checks, and failed backups no longer prune older snapshots.
+  - Fixed the MySQL healthcheck to read the password variable that is actually present in the container and to fail on authentication errors.
 - **Frontend Architecture**:
   - Replaced static file-based localization across all routes with dynamic server-side and client-side Strapi CMS data fetching.
   - `RootLayout` (`web/src/app/layout.js`) dynamically reads `NEXT_LOCALE` cookie and passes localized `global` navigation and footer data to all child components.

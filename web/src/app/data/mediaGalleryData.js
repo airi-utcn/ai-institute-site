@@ -112,6 +112,16 @@ export const flickrAlbums = [
 // this array is completely modular: to add a new article, simply append an object
 export const pressArticles = [
   {
+    id: "agerpres-institutul-francez-ia-arta",
+    title: "Institutul Francez din Cluj-Napoca organizează un program dedicat relației dintre inteligența artificială și artă",
+    outlet: "AGERPRES",
+    date: "2026",
+    url: "https://agerpres.ro/comunicate/2026/11/09/comunicat-de-presa---institutul-francez-din-cluj-napoca--1611448",
+    snippet: "Evenimentul „De la om la IA: printre rânduri”, organizat în perioada 12–22 noiembrie, propune expoziții de artă generativă, instalații interactive, concerte imersive, ateliere și dezbateri despre impactul inteligenței artificiale asupra artei și societății. Benoît Challand, împreună cu echipa de cercetare AIRi@UTCN, va prezenta o explorare artistică și tehnologică a modului în care emoțiile pot fi transpuse în date, imagini și forme sculpturale.",
+    language: "ro",
+    tag: "Tehnologie & Inteligență Artificială",
+  },
+  {
     id: "press-economedia-inaugurare",
     title: "Noul Institut de Cercetare în Inteligență Artificială de la Cluj va fi inaugurat în 18 noiembrie",
     outlet: "Economedia",
@@ -171,6 +181,7 @@ export const pressArticles = [
     language: "ro",
     tag: "Laboratoare",
   },
+
 ];
 
 // institutional documents, presentation files and local assets

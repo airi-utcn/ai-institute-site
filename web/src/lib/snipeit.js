@@ -129,42 +129,7 @@ export async function getAssetById(id) {
   return fetchFromSnipeit(`/api/v1/hardware/${encodeURIComponent(id)}`);
 }
 
-export async function getManufacturerById(id) {
-  return fetchFromSnipeit(
-    `/api/v1/manufacturers/${encodeURIComponent(id)}`
-  );
-}
-
-async function getManufacturerLogoMap(manufacturerIds = []) {
-  const uniqueIds = Array.from(
-    new Set(
-      manufacturerIds
-        .map((id) => Number(id))
-        .filter((id) => Number.isInteger(id) && id > 0)
-    )
-  );
-
-  if (uniqueIds.length === 0) return new Map();
-
-  const results = await Promise.allSettled(
-    uniqueIds.map((id) => getManufacturerById(id))
-  );
-
-  const logos = new Map();
-
-  results.forEach((result, index) => {
-    if (result.status !== 'fulfilled') return;
-
-    const logo = resolveSnipeitMediaUrl(result.value?.image);
-    if (logo) logos.set(uniqueIds[index], logo);
-  });
-
-  return logos;
-}
-
-function normalizeEquipment(asset, manufacturerLogos = new Map()) {
-  const manufacturerId = Number(asset?.manufacturer?.id) || null;
-
+function normalizeEquipment(asset) {
   return {
     id: asset.id,
     name: asset.name || asset.model?.name || asset.asset_tag || 'Unnamed',
@@ -173,34 +138,17 @@ function normalizeEquipment(asset, manufacturerLogos = new Map()) {
     image: resolveSnipeitMediaUrl(asset.image),
     description: stripHtml(asset.notes) || null,
     roomNumber: getRoomNumber(asset),
-    manufacturer: asset.manufacturer
-      ? {
-          id: manufacturerId,
-          name: asset.manufacturer.name || null,
-          logo: manufacturerId
-            ? manufacturerLogos.get(manufacturerId) || null
-            : null,
-        }
-      : null,
   };
 }
 
 export async function getEquipmentAssets() {
   const assets = await getAllAssets();
-  const manufacturerLogos = await getManufacturerLogoMap(
-    assets.map((asset) => asset.manufacturer?.id)
-  );
 
-  return assets.map((asset) =>
-    normalizeEquipment(asset, manufacturerLogos)
-  );
+  return assets.map((asset) => normalizeEquipment(asset));
 }
 
 export async function getEquipmentAssetById(id) {
   const asset = await getAssetById(id);
-  const manufacturerLogos = await getManufacturerLogoMap([
-    asset.manufacturer?.id,
-  ]);
 
-  return normalizeEquipment(asset, manufacturerLogos);
+  return normalizeEquipment(asset);
 }

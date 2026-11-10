@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import PageHeader from "@/components/PageHeader";
-import ManufacturerLogo from "@/components/equipment/ManufacturerLogo";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { heroSizes } from "@/lib/media";
 
@@ -112,13 +111,7 @@ export default function ReserveClient() {
           />
 
           <div className="space-y-4 p-5 sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <ManufacturerLogo
-                manufacturer={asset.manufacturer}
-                className="h-12 rounded-lg bg-gray-50 px-3 ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700"
-                imageClassName="h-8 w-auto max-w-[10rem]"
-              />
-
+            <div className="flex flex-wrap items-center justify-end gap-3">
               {asset.roomNumber && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                   <FaMapMarkerAlt className="h-3 w-3 text-primary-500" />

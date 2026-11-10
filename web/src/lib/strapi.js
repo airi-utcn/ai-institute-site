@@ -484,7 +484,9 @@ export async function fetchAPI(endpoint, options = {}) {
       // try to capture response body for better diagnostics
       let bodyText = '';
       try { bodyText = await response.text(); } catch (e) { /* ignore */ }
-      throw new Error(`Strapi API call failed: ${response.status} ${response.statusText} - ${url} - ${bodyText}`);
+      const error = new Error(`Strapi API call failed: ${response.status} ${response.statusText} - ${url} - ${bodyText}`);
+      error.status = response.status;
+      throw error;
     }
 
     return await response.json();
@@ -497,7 +499,7 @@ export async function fetchAPI(endpoint, options = {}) {
     });
 
     // Return empty data structure instead of throwing to prevent crashes
-    return { data: [], meta: {} };
+    return { data: [], meta: {}, errorStatus: error.status };
   }
 }
 
@@ -964,12 +966,22 @@ export async function getProjectBySlug(slug, locale = null) {
       },
     });
 
-    const projectData = await fetchAPI(`/projects?${projectParams.toString()}`);
+    const fetchProject = async (params) => {
+      const withCoordinator = new URLSearchParams(params);
+      setPopulate(withCoordinator, 'populate[coordinatingPartner]', { fields: ['name', 'slug'] });
+      const result = await fetchAPI(`/projects?${withCoordinator.toString()}`);
+      // Web and Strapi can update separately; older schemas reject this field.
+      return result.errorStatus === 400
+        ? fetchAPI(`/projects?${params.toString()}`)
+        : result;
+    };
+
+    const projectData = await fetchProject(projectParams);
     let project = projectData.data?.[0];
     if (!project && locale && locale !== 'en') {
       const fallbackParams = new URLSearchParams(projectParams);
       fallbackParams.set("locale", "en");
-      const fallbackData = await fetchAPI(`/projects?${fallbackParams.toString()}`);
+      const fallbackData = await fetchProject(fallbackParams);
       if (fallbackData.data?.[0]) {
         project = fallbackData.data[0];
         project._isFallback = true;
@@ -2753,6 +2765,8 @@ export function transformProjectData(strapiProjects) {
 
   return list.map((project) => {
     const attributes = project?.attributes ?? project ?? {};
+    const coordinator = attributes.coordinatingPartner?.data ?? attributes.coordinatingPartner;
+    const coordinatorData = coordinator?.attributes ?? coordinator;
 
     const domains = toArray(attributes.domains?.data ?? attributes.domains).map((department) => {
       const deptData = department?.attributes ?? department ?? {};
@@ -3015,6 +3029,9 @@ export function transformProjectData(strapiProjects) {
       partners: partners.map(p => p.name).filter(Boolean),
       themesData: themes,
       partnersData: partners,
+      coordinatingPartner: coordinatorData?.name
+        ? { name: coordinatorData.name, slug: coordinatorData.slug || '' }
+        : null,
       region: attributes.region || '',
       domains,
       domain: domains.map((d) => d.name).filter(Boolean),

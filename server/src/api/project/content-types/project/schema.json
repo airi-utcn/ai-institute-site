@@ -118,6 +118,11 @@
       "target": "api::partner.partner",
       "inversedBy": "projects"
     },
+    "coordinatingPartner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::partner.partner"
+    },
     "teams": {
       "type": "relation",
       "relation": "manyToMany",

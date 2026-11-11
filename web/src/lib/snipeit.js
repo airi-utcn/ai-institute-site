@@ -18,17 +18,36 @@ const getHeaders = () => ({
   Accept: 'application/json',
 });
 
-async function fetchFromSnipeit(path) {
-  const res = await fetch(`${getBaseUrl()}${path}`, {
-    headers: getHeaders(),
-    cache: 'no-store',
-  });
+export class SnipeitError extends Error {
+  constructor(message, status = 502) {
+    super(message);
+    this.name = 'SnipeitError';
+    this.status = status;
+  }
+}
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${path} from Snipe-IT`);
+const isNumericId = (value) => /^\d+$/.test(String(value ?? '').trim());
+
+async function fetchFromSnipeit(path) {
+  let res;
+  try {
+    res = await fetch(`${getBaseUrl()}${path}`, {
+      headers: getHeaders(),
+      cache: 'no-store',
+    });
+  } catch {
+    throw new SnipeitError('Snipe-IT is unavailable', 502);
   }
 
-  return res.json();
+  if (!res.ok) {
+    throw new SnipeitError('Snipe-IT request failed', res.status);
+  }
+
+  try {
+    return await res.json();
+  } catch {
+    throw new SnipeitError('Snipe-IT returned an invalid response', 502);
+  }
 }
 
 const decodeHtmlEntities = (value) =>
@@ -126,7 +145,11 @@ export async function getAllAssets() {
 }
 
 export async function getAssetById(id) {
-  return fetchFromSnipeit(`/api/v1/hardware/${encodeURIComponent(id)}`);
+  if (!isNumericId(id)) {
+    throw new SnipeitError('Invalid asset id', 400);
+  }
+
+  return fetchFromSnipeit(`/api/v1/hardware/${String(id).trim()}`);
 }
 
 function normalizeEquipment(asset) {

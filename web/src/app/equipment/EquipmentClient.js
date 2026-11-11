@@ -19,12 +19,21 @@ const itemVariants = {
 
 export default function EquipmentClient() {
   const [assets, setAssets] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/equipment")
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Could not load equipment");
+        }
+        return res.json();
+      })
       .then((data) => setAssets(Array.isArray(data) ? data : []))
-      .catch(() => setAssets([]));
+      .catch(() => {
+        setError("Could not load the equipment list. Please try again later.");
+        setAssets([]);
+      });
   }, []);
 
   return (
@@ -41,6 +50,12 @@ export default function EquipmentClient() {
             Browse available equipment and submit a reservation request
           </p>
         </motion.div>
+
+        {error && (
+          <div className="notice notice-warning max-w-lg mx-auto mb-6">
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
 
         {!assets && (
           <p className="text-body text-center py-12">Loading...</p>

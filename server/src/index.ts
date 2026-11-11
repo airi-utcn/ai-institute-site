@@ -1,4 +1,5 @@
 // import type { Core } from "@strapi/strapi";
+import { registerReservationWorkflow } from "./api/reservation/document-middleware";
 import { registerDraftAccessGuard } from "./utils/draft-access";
 import { generateSlug, registerSlugMiddleware } from "./utils/slug";
 
@@ -27,6 +28,7 @@ export default {
     if (!strapi.documents) return;
 
     registerDraftAccessGuard(strapi);
+    registerReservationWorkflow(strapi);
 
     // Document Service middleware: Auto-generate fullName for Person
     strapi.documents.use(async (ctx: any, next: any) => {

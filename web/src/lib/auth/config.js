@@ -1,9 +1,9 @@
 /**
- * Server-only configuration for the institutional Microsoft/OIDC login.
+ * Server-only configuration for the institutional OIDC login.
  *
- * The site can talk directly to Microsoft Entra ID (the usual UTCN setup) or
- * to an OIDC broker run by the university. Set AUTH_OIDC_ISSUER for a broker,
- * or AUTH_MICROSOFT_TENANT_ID for Entra ID.
+ * The site can talk directly to Microsoft Entra ID or to any standard OIDC
+ * provider, including Keycloak. Set AUTH_OIDC_ISSUER for Keycloak or another
+ * provider; AUTH_MICROSOFT_TENANT_ID remains as a convenience for Entra ID.
  */
 
 export class AuthConfigurationError extends Error {
@@ -90,20 +90,62 @@ export function getAuthConfig() {
       ? Math.floor(sessionHours * 60 * 60)
       : 12 * 60 * 60;
 
+  const providerName = firstNonEmpty(
+    process.env.AUTH_PROVIDER_NAME,
+    "institutional account"
+  );
+  const providerLabel = firstNonEmpty(
+    process.env.AUTH_PROVIDER_LABEL,
+    "Continue with institutional login"
+  );
+
+  const requestedTokenAuthMethod = firstNonEmpty(
+    process.env.AUTH_TOKEN_AUTH_METHOD,
+    "client_secret_post"
+  ).toLowerCase();
+  const allowedTokenAuthMethods = new Set([
+    "client_secret_post",
+    "client_secret_basic",
+    "none",
+  ]);
+
+  if (!allowedTokenAuthMethods.has(requestedTokenAuthMethod)) {
+    throw new AuthConfigurationError(
+      `Invalid AUTH_TOKEN_AUTH_METHOD "${requestedTokenAuthMethod}". Use client_secret_post, client_secret_basic, or none.`
+    );
+  }
+
+  const tokenAuthMethod = clientSecret ? requestedTokenAuthMethod : "none";
+
+  // AUTH_ALLOWED_GROUPS is the provider-neutral name. Keep the old
+  // AUTH_ALLOWED_GROUP_IDS variable as a backwards-compatible alias.
+  const allowedGroups = parseList(
+    firstNonEmpty(
+      process.env.AUTH_ALLOWED_GROUPS,
+      process.env.AUTH_ALLOWED_GROUP_IDS
+    )
+  );
+
   return {
     secret,
     issuer: issuer.replace(/\/+$/, ""),
     clientId,
     // Public clients (PKCE, no secret) are supported by leaving this empty.
     clientSecret,
+    // client_secret_post (default), client_secret_basic, or none.
+    tokenAuthMethod,
     redirectUri,
     scopes: firstNonEmpty(process.env.AUTH_SCOPES, "openid profile email"),
     baseUrl,
     sessionMaxAgeSeconds,
-    // Empty means "do not apply an extra domain filter". Entra ID tenant
-    // restrictions still apply.
+    providerName,
+    providerLabel,
+    // Empty means "do not apply an extra domain filter". The provider's own
+    // tenant/realm restrictions still apply.
     allowedEmailDomains: parseList(process.env.AUTH_ALLOWED_EMAIL_DOMAINS),
-    allowedGroupIds: parseList(process.env.AUTH_ALLOWED_GROUP_IDS),
+    allowedGroups,
+    // Backwards-compatible alias for code written against the old name.
+    allowedGroupIds: allowedGroups,
     prompt: clean(process.env.AUTH_PROMPT),
   };
 }

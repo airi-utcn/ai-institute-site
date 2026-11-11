@@ -1,11 +1,12 @@
 /**
  * Minimal OIDC authorization-code flow with PKCE.
  *
- * Works with Microsoft Entra ID and with standards-compliant institutional
- * OIDC brokers. We deliberately verify the ID token locally against the
+ * Works with Microsoft Entra ID, Keycloak, and other standards-compliant
+ * OIDC providers. We deliberately verify the ID token locally against the
  * provider's JWKS before trusting any claim.
  */
 
+import { Buffer } from "node:buffer";
 import { createHash, randomBytes } from "node:crypto";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
@@ -130,14 +131,27 @@ export async function exchangeAuthorizationCode({
     client_id: config.clientId,
     code_verifier: codeVerifier,
   });
-  if (config.clientSecret) body.set("client_secret", config.clientSecret);
+
+  const headers = {
+    accept: "application/json",
+    "content-type": "application/x-www-form-urlencoded",
+  };
+
+  const tokenAuthMethod = config.tokenAuthMethod || "client_secret_post";
+
+  if (config.clientSecret && tokenAuthMethod === "client_secret_basic") {
+    // Keycloak (and other providers) can be configured to accept only HTTP
+    // Basic client authentication at the token endpoint.
+    headers.authorization = `Basic ${Buffer.from(
+      `${config.clientId}:${config.clientSecret}`
+    ).toString("base64")}`;
+  } else if (config.clientSecret && tokenAuthMethod !== "none") {
+    body.set("client_secret", config.clientSecret);
+  }
 
   const response = await fetch(requiredEndpoint(metadata, "token_endpoint"), {
     method: "POST",
-    headers: {
-      accept: "application/json",
-      "content-type": "application/x-www-form-urlencoded",
-    },
+    headers,
     body,
     cache: "no-store",
   });
@@ -239,13 +253,19 @@ function matchesAllowedDomain(email, allowedDomains) {
   });
 }
 
+const normaliseGroup = (value) =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+
 function listClaim(value) {
-  const normalise = (item) => String(item).trim().toLowerCase();
   if (Array.isArray(value)) {
-    return value.map(normalise).filter(Boolean);
+    return value.map(normaliseGroup).filter(Boolean);
   }
   if (typeof value === "string" && value.trim()) {
-    return value.split(/[\s,]+/).map(normalise).filter(Boolean);
+    return value.split(/[\s,]+/).map(normaliseGroup).filter(Boolean);
   }
   return [];
 }
@@ -262,7 +282,7 @@ export async function resolveAuthenticatedUser({
   if (!email) {
     throw new AuthFlowError(
       "domain",
-      "The Microsoft account did not expose an email address. Ask the identity team to include the email claim."
+      `The ${config.providerName || "identity provider"} account did not expose an email address. Ask the identity team to include the email claim.`
     );
   }
 
@@ -276,7 +296,7 @@ export async function resolveAuthenticatedUser({
   if (claims._claim_names?.groups || profile?._claim_names?.groups) {
     throw new AuthFlowError(
       "group",
-      "The identity provider did not include the groups claim (group overage). Configure the app to emit groups or use a smaller group."
+      "The identity provider did not include the groups claim (group overage). Configure the client to emit groups or use a smaller group."
     );
   }
 
@@ -287,9 +307,13 @@ export async function resolveAuthenticatedUser({
     ])
   );
 
+  const allowedGroups = (config.allowedGroups || config.allowedGroupIds || [])
+    .map(normaliseGroup)
+    .filter(Boolean);
+
   if (
-    config.allowedGroupIds.length > 0 &&
-    !config.allowedGroupIds.some((groupId) => groups.includes(groupId))
+    allowedGroups.length > 0 &&
+    !allowedGroups.some((groupId) => groups.includes(groupId))
   ) {
     throw new AuthFlowError(
       "group",

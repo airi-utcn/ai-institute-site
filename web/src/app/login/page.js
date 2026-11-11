@@ -1,21 +1,21 @@
 import { redirect } from "next/navigation";
-import { isAuthConfigured } from "@/lib/auth/config";
+import { getAuthConfig } from "@/lib/auth/config";
 import { getSession, safeReturnTo } from "@/lib/auth/session";
 
 export const metadata = {
   title: "Sign in",
-  description: "Sign in with your UTCN Microsoft account.",
+  description: "Sign in with your institutional account.",
   robots: { index: false, follow: false },
 };
 
 const ERROR_MESSAGES = {
   access_denied:
     "Sign-in was cancelled or your account was not permitted to continue.",
-  auth: "Microsoft could not verify this sign-in. Please try again.",
+  auth: "The identity provider could not verify this sign-in. Please try again.",
   config:
     "Institutional sign-in is not configured yet. Please contact the site administrator.",
   domain:
-    "This account is not allowed to use the reservation system. Use your UTCN Microsoft account.",
+    "This account is not allowed to use the reservation system. Use your institutional account.",
   group:
     "This account does not have access to the reservation system. Ask the AIRi team to add you to the correct group.",
   state:
@@ -32,7 +32,19 @@ export default async function LoginPage({ searchParams }) {
     redirect(returnTo);
   }
 
-  const configured = isAuthConfigured();
+  let authConfig = null;
+  try {
+    authConfig = getAuthConfig();
+  } catch (error) {
+    // The notice below explains the missing configuration; log the detail so
+    // an operator can see which variable is wrong.
+    console.error("Institutional sign-in configuration is invalid", error);
+  }
+
+  const configured = Boolean(authConfig);
+  const providerName = authConfig?.providerName || "institutional account";
+  const providerLabel =
+    authConfig?.providerLabel || "Continue with institutional login";
   const message = ERROR_MESSAGES[error] || "";
 
   return (
@@ -47,7 +59,7 @@ export default async function LoginPage({ searchParams }) {
           </h1>
           <p className="text-body text-sm">
             Reservations are available to authenticated members of the
-            institute. Use your UTCN Microsoft account to continue.
+            institute. Use your {providerName} to continue.
           </p>
         </div>
 
@@ -71,32 +83,37 @@ export default async function LoginPage({ searchParams }) {
             href={`/api/auth/login?returnTo=${encodeURIComponent(returnTo)}`}
             className="btn-primary flex w-full items-center justify-center gap-3"
           >
-            <MicrosoftLogo />
-            Continue with Microsoft
+            <InstitutionalLoginIcon />
+            {providerLabel}
           </a>
         )}
 
         <p className="text-muted text-xs leading-relaxed">
-          You will be redirected to the university identity provider. Your
-          password is never shared with this site.
+          You will be redirected to the identity provider. Your password is
+          never shared with this site.
         </p>
       </section>
     </main>
   );
 }
 
-function MicrosoftLogo() {
+function InstitutionalLoginIcon() {
   return (
     <svg
       aria-hidden="true"
-      viewBox="0 0 23 23"
+      viewBox="0 0 24 24"
       className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path fill="#f25022" d="M1 1h10v10H1z" />
-      <path fill="#7fba00" d="M12 1h10v10H12z" />
-      <path fill="#00a4ef" d="M1 12h10v10H1z" />
-      <path fill="#ffb900" d="M12 12h10v10H12z" />
+      <circle cx="8" cy="15" r="4" />
+      <path d="m10.85 12.15 7.4-7.4a2 2 0 0 1 2.83 2.83l-7.4 7.4" />
+      <path d="m16 6 2 2" />
+      <path d="m18 4 2 2" />
     </svg>
   );
 }

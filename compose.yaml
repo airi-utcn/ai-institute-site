@@ -97,6 +97,22 @@ services:
       SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
       CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
       PREVIEW_SECRET: ${PREVIEW_SECRET}
+      AUTH_MICROSOFT_TENANT_ID: ${AUTH_MICROSOFT_TENANT_ID:-}
+      AUTH_OIDC_ISSUER: ${AUTH_OIDC_ISSUER:-}
+      AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-}
+      AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_REDIRECT_URI: ${AUTH_REDIRECT_URI:-http://localhost:3000/api/auth/callback}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_SCOPES: ${AUTH_SCOPES:-openid profile email}
+      AUTH_TOKEN_AUTH_METHOD: ${AUTH_TOKEN_AUTH_METHOD:-client_secret_post}
+      AUTH_PROVIDER_NAME: "${AUTH_PROVIDER_NAME:-institutional account}"
+      AUTH_PROVIDER_LABEL: "${AUTH_PROVIDER_LABEL:-Continue with institutional login}"
+      AUTH_ALLOWED_EMAIL_DOMAINS: ${AUTH_ALLOWED_EMAIL_DOMAINS:-}
+      AUTH_ALLOWED_GROUPS: ${AUTH_ALLOWED_GROUPS:-}
+      AUTH_ALLOWED_GROUP_IDS: ${AUTH_ALLOWED_GROUP_IDS:-}
+      AUTH_PROMPT: ${AUTH_PROMPT:-}
+      AUTH_SESSION_MAX_AGE_HOURS: ${AUTH_SESSION_MAX_AGE_HOURS:-12}
     ports:
       - "3000:3000"
     depends_on:
@@ -161,6 +177,15 @@ services:
       DB_USERNAME: ${SNIPEIT_DB_USER}
       DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
       DB_PORT: 3306
+      # Checkout/checkin notifications are sent to the reservation email.
+      MAIL_DRIVER: smtp
+      MAIL_PORT_587_TCP_ADDR: ${SMTP_HOST:-}
+      MAIL_PORT_587_TCP_PORT: ${SMTP_PORT:-587}
+      MAIL_ENV_USERNAME: ${SMTP_USERNAME:-}
+      MAIL_ENV_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_ENV_ENCRYPTION: ${SMTP_ENCRYPTION:-tls}
+      MAIL_ENV_FROM_ADDR: ${SMTP_DEFAULT_FROM:-}
+      MAIL_ENV_FROM_NAME: ${SMTP_DEFAULT_FROM_NAME:-AIRi @ UTCN}
     volumes:
       - snipeit-data:/var/lib/snipeit
     depends_on:

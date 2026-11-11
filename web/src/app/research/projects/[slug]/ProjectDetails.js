@@ -12,6 +12,7 @@ import {
   FaMapMarkerAlt,
   FaChartLine,
   FaHandshake,
+  FaBuilding,
   FaLightbulb,
   FaDatabase,
   FaBookOpen,
@@ -39,6 +40,7 @@ const PROJECT_DETAIL_DEFAULTS = {
   region: "Region",
   phase: "Phase",
   partners: "Partners",
+  coordinator: "Coordinator",
   partnerCount: "{count} partner",
   partnerCountPlural: "{count} partners",
   officialWebsite: "Official Website",
@@ -294,7 +296,7 @@ function InfoCard({ icon: Icon, label, value, href, color = 'blue' }) {
   const textClass = colorClasses[color]?.split(' ').slice(2).join(' ') || colorClasses.blue.split(' ').slice(2).join(' ');
   
   const content = (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center gap-3">
+    <div className="h-full bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 flex items-center gap-3">
       <div className={`p-2 ${bgClass} rounded-lg`}>
         <Icon className={`w-5 h-5 ${textClass}`} />
       </div>
@@ -311,7 +313,7 @@ function InfoCard({ icon: Icon, label, value, href, color = 'blue' }) {
 
   if (href) {
     return (
-      <Link href={href} className="hover:scale-105 transition-transform">
+      <Link href={href} className="rounded-xl hover:scale-105 transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 dark:focus-visible:outline-primary-400">
         {content}
       </Link>
     );
@@ -848,6 +850,16 @@ export default function ProjectDetails({ project, pageData }) {
                 ? t("partnerCount", { count: project.partners.length })
                 : t("partnerCountPlural", { count: project.partners.length })
               }
+            />
+          )}
+          {project.coordinatingPartner && (
+            <InfoCard
+              icon={FaBuilding}
+              label={t("coordinator")}
+              value={project.coordinatingPartner.name}
+              href={project.coordinatingPartner.slug
+                ? `/engagement/partners/${encodeURIComponent(project.coordinatingPartner.slug)}`
+                : undefined}
             />
           )}
         </motion.div>

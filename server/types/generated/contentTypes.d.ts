@@ -4053,6 +4053,10 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
         };
       }>;
     contactInfo: Schema.Attribute.Component<'project.contact-info', false>;
+    coordinatingPartner: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::partner.partner'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -4258,6 +4262,13 @@ export interface ApiProjectsPageProjectsPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Contributors'>;
+    coordinator: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Coordinator'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

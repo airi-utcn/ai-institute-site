@@ -150,6 +150,15 @@
         }
       }
     },
+    "coordinator": {
+      "type": "string",
+      "default": "Coordinator",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "partnerCount": {
       "type": "string",
       "default": "{count} partner",

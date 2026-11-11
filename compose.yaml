@@ -178,7 +178,7 @@ services:
       DB_USERNAME: ${SNIPEIT_DB_USER}
       DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
       DB_PORT: 3306
-      # Checkout/checkin notifications are sent to the reservation email.
+      # Kept for Snipe-IT account/admin mail. Reservation emails come from Strapi.
       MAIL_DRIVER: smtp
       MAIL_PORT_587_TCP_ADDR: ${SMTP_HOST:-}
       MAIL_PORT_587_TCP_PORT: ${SMTP_PORT:-587}

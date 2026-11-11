@@ -6,6 +6,7 @@ import LogoDark from "../../public/media/Logos/LogoDark.svg";
 import EUT_Logo from '../../public/media/Logos/EUT_Logo.png';
 import { useTheme } from "@/components/ThemeProvider";
 import { useGlobalData } from "@/context/LocaleContext";
+import NewsletterForm from "@/components/NewsletterForm";
 import { FaLinkedin, FaFlickr, FaYoutube, FaGithub, FaMicrosoft } from "react-icons/fa";
 import { SiHuggingface } from "react-icons/si";
 
@@ -166,6 +167,11 @@ export default function Footer({ footerData: customFooterData }) {
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Newsletter */}
+        <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <NewsletterForm source="footer" />
         </div>
       </div>
 

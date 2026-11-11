@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newsletter_subscribers",
+  "info": {
+    "singularName": "newsletter-subscriber",
+    "pluralName": "newsletter-subscribers",
+    "displayName": "Newsletter Subscriber",
+    "description": "People who asked to receive AIRI news and updates"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "subscribed", "unsubscribed"],
+      "default": "subscribed",
+      "required": true
+    },
+    "consentGiven": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "consentTimestamp": {
+      "type": "datetime"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

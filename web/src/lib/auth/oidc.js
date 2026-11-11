@@ -114,6 +114,11 @@ export function buildAuthorizationUrl({
   url.searchParams.set("nonce", nonce);
   url.searchParams.set("code_challenge", codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");
+  if (config.idpHint) {
+    // Keycloak-specific: skip the realm login form and go straight to the
+    // configured identity provider, such as an Entra ID broker.
+    url.searchParams.set("kc_idp_hint", config.idpHint);
+  }
   if (config.prompt) url.searchParams.set("prompt", config.prompt);
   return url;
 }

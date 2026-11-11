@@ -146,6 +146,9 @@ export function getAuthConfig() {
     allowedGroups,
     // Backwards-compatible alias for code written against the old name.
     allowedGroupIds: allowedGroups,
+    // Optional Keycloak identity-provider alias (for example "UTAzure").
+    // Sent as kc_idp_hint so Keycloak skips its local login form.
+    idpHint: clean(process.env.AUTH_OIDC_IDP_HINT),
     prompt: clean(process.env.AUTH_PROMPT),
   };
 }

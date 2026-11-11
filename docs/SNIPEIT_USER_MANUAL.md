@@ -64,7 +64,7 @@ This is what the students or researchers will do on the public website.
 
 ![Frontend Reservation Form](snipeit-images/view_asset.png)
 
-3. The user clicks on the desired equipment, fills out their details in the reservation form, and submits the request. 
+3. The user clicks on the desired equipment. They must sign in with their UTCN Microsoft account before the reservation form opens; the email and name are taken from that login and cannot be edited in the form. They choose the reservation dates and submit the request.
 
 ![Frontend Reservation Form](snipeit-images/reserve_asset.png)
 
@@ -89,6 +89,14 @@ Once a user submits a request, the laboratory administrator or secretary must ap
 If you want to check that the synchronization worked, you can go to your Snipe-IT dashboard. You will see that the equipment's status has automatically changed to **Deployed** and it is now assigned to the user who requested it.
 
 ![Strapi Approval](snipeit-images/snipeit_checkout.png)
+
+### Confirmation emails
+Two emails are sent to the authenticated address:
+
+1. **Request received** — sent by Strapi immediately after the user submits the request.
+2. **Equipment checked out** — sent by Snipe-IT when you change the status to `checked_out`.
+
+For the Snipe-IT email, configure outgoing mail in Snipe-IT and enable the checkout notification on each equipment **Category**. Send a test email from Snipe-IT before relying on it.
 
 ## 4. Returning Equipment (Check-in)
 When the student or researcher physically brings the equipment back to the laboratory, you must record the return in the system.

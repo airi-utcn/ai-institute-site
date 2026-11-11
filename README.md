@@ -103,7 +103,7 @@ ai-institute-site/
 - **Media Galleries** - Showcase events and institute activities
 
 ## Equipment Reservations
-The platform includes an automated equipment reservation system. It syncs Next.js frontend requests through Strapi CMS directly into a self-hosted Snipe-IT instance. For setup, testing instructions, and architecture details - [SNIPEIT_DOCS.md](./SNIPEIT_DOCS.md).
+The platform includes an automated equipment reservation system. The equipment catalog is public, but creating a reservation requires an institutional login (Microsoft Entra ID or Keycloak). The authenticated email is stored on the reservation and used for confirmation emails. Requests sync through Strapi CMS into a self-hosted Snipe-IT instance. For setup, testing instructions, and architecture details - [SNIPEIT_DOCS.md](./SNIPEIT_DOCS.md). For login configuration - [docs/authentication.md](./docs/authentication.md).
 
 ## Documentation
 

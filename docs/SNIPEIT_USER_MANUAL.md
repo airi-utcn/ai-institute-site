@@ -94,7 +94,7 @@ If you want to check that the synchronization worked, you can go to your Snipe-I
 Strapi sends two emails to the authenticated address:
 
 1. **Request received** — sent immediately after the user submits the request.
-2. **Reservation approved** — sent when you change the status to `checked_out`.
+2. **Reservation approved** — sent the first time you change the status to `checked_out`. Changing it back to `checked_out` later does not resend the email.
 
 These emails use Strapi's SMTP settings. Snipe-IT's own mail settings can stay configured for account and admin mail, but leave the checkout notification disabled on each equipment **Category** so the user does not receive a duplicate email.
 

@@ -184,8 +184,9 @@ from the encrypted session cookie. The browser cannot supply a different email.
 Strapi sends both reservation emails:
 
 1. **Request received** — sent immediately after the reservation is created.
-2. **Reservation approved** — sent when an admin changes the status to
-   `checked_out`.
+2. **Reservation approved** — sent the first time an admin changes the status
+   to `checked_out`. The reservation records `approvalEmailSentAt`, so later
+   status changes do not send it again.
 
 Both use the SMTP settings in `server/config/plugins.ts` (`SMTP_HOST`,
 `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`).

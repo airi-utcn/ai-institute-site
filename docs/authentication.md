@@ -181,23 +181,22 @@ from the encrypted session cookie. The browser cannot supply a different email.
 
 ## 5. Reservation emails
 
-Two emails are sent:
+Strapi sends both reservation emails:
 
-1. **Request received** — sent by Strapi immediately after the reservation is
-   created. This uses the SMTP settings in `server/config/plugins.ts`
-   (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`,
-   `SMTP_DEFAULT_FROM`).
-2. **Equipment checked out** — sent by Snipe-IT when an admin changes the
-   reservation status to `checked_out`. Snipe-IT creates or finds the user by
-   the authenticated email and checks out the asset.
+1. **Request received** — sent immediately after the reservation is created.
+2. **Reservation approved** — sent when an admin changes the status to
+   `checked_out`.
 
-For the Snipe-IT email to work:
+Both use the SMTP settings in `server/config/plugins.ts` (`SMTP_HOST`,
+`SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`).
 
-- Configure Snipe-IT outgoing mail. The compose files pass the `SMTP_*` values
-  as `MAIL_*` variables to the Snipe-IT container.
-- In Snipe-IT, edit each equipment **Category** and enable the checkout
-  notification for users.
-- Send a test email from Snipe-IT before relying on it.
+The `checked_out` status also triggers the Snipe-IT checkout. Strapi sends the
+approval email after the status update and the Snipe-IT sync succeed, so the
+user is only told the reservation is approved once it is actually active.
+
+Snipe-IT still has its own mail settings in the compose files for account and
+admin mail, but it must not send reservation email. To avoid duplicates, leave
+the checkout notification disabled on each equipment **Category** in Snipe-IT.
 
 ---
 
@@ -225,12 +224,15 @@ Recommended additional protection:
    - the “request received” email arrives.
 4. In Strapi, change the status to `checked_out` and confirm:
    - Snipe-IT checks out the asset to that user;
-   - the Snipe-IT checkout email arrives.
-5. Change the status to `returned` and confirm the asset is checked in.
-6. Try `POST /api/reservations` without a session: expect `401`.
-7. Try `POST /api/reservations` with a different `userEmail` in the body:
+   - the Strapi approval email arrives;
+   - no duplicate Snipe-IT checkout email arrives.
+5. Save the same `checked_out` status again and confirm no second approval
+   email is sent.
+6. Change the status to `returned` and confirm the asset is checked in.
+7. Try `POST /api/reservations` without a session: expect `401`.
+8. Try `POST /api/reservations` with a different `userEmail` in the body:
    the body value must be ignored.
-8. Try `/api/equipment/abc` and `/api/equipment/..%2Fusers%2F1`: expect `404`.
+9. Try `/api/equipment/abc` and `/api/equipment/..%2Fusers%2F1`: expect `404`.
 
 ### Keycloak-specific checks
 

@@ -25,8 +25,34 @@ const formatDate = (value: unknown) => {
   });
 };
 
-const assetNameFor = (reservation: any) =>
-  reservation?.assetName || `Asset ${reservation?.assetId ?? ''}`.trim();
+const assetNameFor = (reservation: any) => {
+  const tag = String(reservation?.assetTag || '').trim();
+  const name = String(
+    reservation?.assetName || reservation?.assetModel || ''
+  ).trim();
+
+  if (tag && name && !name.includes(tag)) {
+    return `${tag} — ${name}`;
+  }
+
+  return tag || name || `Asset ${reservation?.assetId ?? ''}`.trim();
+};
+
+const assetDetailsFor = (reservation: any) => {
+  const details = [];
+
+  if (reservation?.assetModel) {
+    details.push(`Model: ${reservation.assetModel}`);
+  }
+  if (reservation?.assetSerial) {
+    details.push(`Serial: ${reservation.assetSerial}`);
+  }
+  if (reservation?.assetLocation) {
+    details.push(`Location: ${reservation.assetLocation}`);
+  }
+
+  return details;
+};
 
 async function sendEmail(
   to: string,
@@ -49,10 +75,14 @@ export async function sendReservationReceivedEmail(reservation: any) {
   const startDate = formatDate(reservation.startDate);
   const endDate = formatDate(reservation.endDate);
 
+  const details = assetDetailsFor(reservation);
+
   const subject = `Reservation request received: ${assetName}`;
   const text = [
     `We received your reservation request for ${assetName}.`,
     '',
+    ...details,
+    ...(details.length ? [''] : []),
     `Period: ${startDate} - ${endDate}`,
     'Status: pending approval',
     '',
@@ -66,6 +96,11 @@ export async function sendReservationReceivedEmail(reservation: any) {
     <p>We received your reservation request for <strong>${escapeHtml(
       assetName
     )}</strong>.</p>
+    ${
+      details.length
+        ? `<p>${details.map((line) => escapeHtml(line)).join('<br />')}</p>`
+        : ''
+    }
     <p><strong>Period:</strong> ${escapeHtml(startDate)} - ${escapeHtml(
       endDate
     )}<br />

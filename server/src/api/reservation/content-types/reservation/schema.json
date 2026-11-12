@@ -12,6 +12,12 @@
   "attributes": {
     "assetId": { "type": "string" },
     "assetName": { "type": "string" },
+    "assetTag": { "type": "string" },
+    "assetModel": { "type": "string" },
+    "assetSerial": { "type": "string" },
+    "assetLocation": { "type": "string" },
+    "assetImageUrl": { "type": "string" },
+    "assetUrl": { "type": "string" },
     "userEmail": { "type": "email" },
     "userFirstName": { "type": "string" },
     "userLastName": { "type": "string" },

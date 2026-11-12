@@ -74,6 +74,15 @@ const stripHtml = (value) =>
       )
     : '';
 
+const cleanText = (value) =>
+  typeof value === 'string' ? value.trim() : '';
+
+const buildAssetUrl = (id) => {
+  const base = getPublicBaseUrl();
+  if (!base || !id) return null;
+  return `${base}/hardware/${id}`;
+};
+
 const getRoomNumber = (asset) => {
   const customFields = asset?.custom_fields;
 
@@ -153,14 +162,25 @@ export async function getAssetById(id) {
 }
 
 function normalizeEquipment(asset) {
+  const tag = cleanText(asset.asset_tag);
+  const model = cleanText(asset.model?.name);
+  const name =
+    cleanText(asset.name) ||
+    [tag, model].filter(Boolean).join(' · ') ||
+    'Unnamed';
+
   return {
     id: asset.id,
-    name: asset.name || asset.model?.name || asset.asset_tag || 'Unnamed',
+    name,
+    tag: tag || null,
+    model: model || null,
+    serial: cleanText(asset.serial) || null,
     status: asset.status_label?.name,
     available: asset.status_label?.status_meta === 'deployable',
     image: resolveSnipeitMediaUrl(asset.image),
     description: stripHtml(asset.notes) || null,
     roomNumber: getRoomNumber(asset),
+    url: buildAssetUrl(asset.id),
   };
 }
 

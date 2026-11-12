@@ -19,6 +19,62 @@ const getBaseUrl = () => {
   return String(baseUrl).replace(/\/+$/, '');
 };
 
+const getPublicBaseUrl = () =>
+  String(process.env.SNIPEIT_PUBLIC_URL || process.env.SNIPEIT_URL || '')
+    .trim()
+    .replace(/\/+$/, '');
+
+const cleanText = (value: unknown) =>
+  typeof value === 'string' ? value.trim() : '';
+
+const buildAssetUrl = (assetId: unknown) => {
+  const base = getPublicBaseUrl();
+  const id = String(assetId ?? '').trim();
+
+  if (!base || !id) return '';
+
+  return `${base}/hardware/${encodeURIComponent(id)}`;
+};
+
+const resolveAssetMediaUrl = (value: unknown) => {
+  const raw =
+    typeof value === 'string' ? value.trim() : cleanText((value as any)?.url);
+
+  if (!raw) return '';
+  if (/^(data|blob):/i.test(raw)) return raw;
+
+  const publicBase = getPublicBaseUrl();
+
+  try {
+    const url = new URL(raw, getBaseUrl());
+
+    if (!publicBase) return url.toString();
+
+    const publicUrl = new URL(publicBase);
+    const internalUrl = new URL(getBaseUrl());
+
+    // Snipe-IT may emit URLs based on its internal Docker host. Rewrite only
+    // those, so externally configured media URLs are left untouched.
+    if (url.host !== internalUrl.host) return url.toString();
+
+    url.protocol = publicUrl.protocol;
+    url.host = publicUrl.host;
+
+    const prefix = publicUrl.pathname.replace(/\/+$/, '');
+    if (
+      prefix &&
+      url.pathname !== prefix &&
+      !url.pathname.startsWith(`${prefix}/`)
+    ) {
+      url.pathname = `${prefix}${url.pathname}`;
+    }
+
+    return url.toString();
+  } catch {
+    return raw;
+  }
+};
+
 const NUMERIC_ID = /^\d+$/;
 
 const assertNumericId = (value: unknown, label: string) => {
@@ -65,7 +121,35 @@ async function request(path: string, options: any = {}) {
   return body;
 }
 
+const buildAssetSnapshot = (asset: any) => {
+  const assetTag = cleanText(asset?.asset_tag);
+  const assetModel = cleanText(asset?.model?.name);
+  const assetName =
+    cleanText(asset?.name) || assetModel || assetTag || '';
+
+  return {
+    assetName,
+    assetTag,
+    assetModel,
+    assetSerial: cleanText(asset?.serial),
+    assetLocation:
+      cleanText(asset?.location?.name) ||
+      cleanText(asset?.rtd_location?.name),
+    assetImageUrl: resolveAssetMediaUrl(asset?.image),
+    assetUrl: buildAssetUrl(asset?.id),
+  };
+};
+
 export const snipeitService = {
+  async getAsset(assetId: string) {
+    const validAssetId = assertNumericId(assetId, 'asset id');
+    const data = await request(`/api/v1/hardware/${validAssetId}`);
+
+    return data && typeof data === 'object' ? data : null;
+  },
+
+  buildAssetSnapshot,
+
   async findOrCreateUser(firstName: string, lastName: string, email: string) {
     const normalizedEmail = String(email || '').trim().toLowerCase();
 

@@ -140,7 +140,13 @@ export async function POST(request) {
   try {
     const reservation = await createReservation({
       assetId,
-      assetName: asset.name,
+      assetName: asset.name || "",
+      assetTag: asset.tag || "",
+      assetModel: asset.model || "",
+      assetSerial: asset.serial || "",
+      assetLocation: asset.roomNumber || "",
+      assetImageUrl: asset.image || "",
+      assetUrl: asset.url || "",
       userEmail: session.email,
       userFirstName: session.givenName || session.name || "",
       userLastName: session.familyName || "",

@@ -88,6 +88,9 @@ Once a user submits a request, the laboratory administrator or secretary must ap
 **Verifying the Checkout in Snipe-IT**
 If you want to check that the synchronization worked, you can go to your Snipe-IT dashboard. You will see that the equipment's status has automatically changed to **Deployed** and it is now assigned to the user who requested it.
 
+**Reservation asset details**
+Each reservation stores a snapshot of the Snipe-IT asset at request time: asset tag, name, model, serial, location, image URL, and a direct link to the Snipe-IT asset. The snapshot keeps the reservation readable in Strapi even if the asset is later renamed or retagged. The `assetId` remains the live Snipe-IT identifier used for checkout and check-in.
+
 ![Strapi Approval](snipeit-images/snipeit_checkout.png)
 
 ### Confirmation emails

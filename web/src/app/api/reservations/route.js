@@ -15,6 +15,10 @@ export async function POST(request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  if (!/^[0-9]+$/.test(assetId)) {
+      return NextResponse.json({ error: "Invalid asset id" }, { status: 400 });
+  }
+
   const isOverlapping = await hasOverlappingReservation(assetId, startDate, endDate);
   
   if (isOverlapping) {

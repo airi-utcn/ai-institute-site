@@ -30,23 +30,38 @@ export const snipeitService = {
         password_confirmation: generatedPassword,
       })
     });
+
+    if(!createRes.ok) {
+      throw new Error(`User creation failed!`);
+    }
+
     const createData = await createRes.json();
     return createData.payload.id;
   },
 
   async checkoutAsset(assetId: string, userId: number, notes: string) {
-    await fetch(`${baseUrl}/api/v1/hardware/${assetId}/checkout`, {
+    if (!/^[0-9]+$/.test(assetId)) {
+      throw new Error("Invalid asset id" );
+    }
+    
+    const id = encodeURIComponent(assetId);
+    if(!await fetch(`${baseUrl}/api/v1/hardware/${id}/checkout`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ checkout_to_type: 'user', assigned_user: userId, note: notes })
-    });
+    }).ok) throw new Error("Asset checkout failed");
   },
 
   async checkinAsset(assetId: string, notes: string) {
-    await fetch(`${baseUrl}/api/v1/hardware/${assetId}/checkin`, {
+    if (!/^[0-9]+$/.test(assetId)) {
+      throw new Error("Invalid asset id" );
+    }
+
+    const id = encodeURIComponent(assetId);
+    if(!await fetch(`${baseUrl}/api/v1/hardware/${id}/checkin`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ note: notes })
-    });
+    }).ok) throw new Error("Asset check-in failed");
   }
 };

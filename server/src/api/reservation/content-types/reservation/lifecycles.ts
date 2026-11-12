@@ -30,7 +30,8 @@ export default {
     } catch (err) {
       console.error("Eroare la comunicarea Strapi -> Snipe-IT:", err);
       
-      throw new Error("Nu s-a putut sincroniza cu sistemul Snipe-IT. Verifică logurile.");
+      throw err;
+      //throw new Error("Nu s-a putut sincroniza cu sistemul Snipe-IT. Verifică logurile.");
     }
   }
 };

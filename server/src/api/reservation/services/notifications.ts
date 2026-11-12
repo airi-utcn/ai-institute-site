@@ -77,39 +77,3 @@ export async function sendReservationReceivedEmail(reservation: any) {
 
   await sendEmail(reservation.userEmail, subject, text, html);
 }
-
-export async function sendReservationApprovedEmail(reservation: any) {
-  if (!reservation?.userEmail) return;
-
-  const assetName = assetNameFor(reservation);
-  const startDate = formatDate(reservation.startDate);
-  const endDate = formatDate(reservation.endDate);
-
-  const subject = `Reservation approved: ${assetName}`;
-  const text = [
-    `Your reservation for ${assetName} has been approved.`,
-    '',
-    `Period: ${startDate} - ${endDate}`,
-    'Status: approved',
-    '',
-    'The AIRi team has approved your request. Please contact them if you have not received pickup instructions.',
-    'If your plans change, let us know so the equipment can be offered to someone else.',
-    '',
-    'AIRi @ UTCN',
-  ].join('\n');
-
-  const html = `
-    <p>Your reservation for <strong>${escapeHtml(
-      assetName
-    )}</strong> has been approved.</p>
-    <p><strong>Period:</strong> ${escapeHtml(startDate)} - ${escapeHtml(
-      endDate
-    )}<br />
-    <strong>Status:</strong> approved</p>
-    <p>The AIRi team has approved your request. Please contact them if you have not received pickup instructions.</p>
-    <p>If your plans change, let us know so the equipment can be offered to someone else.</p>
-    <p>AIRi @ UTCN</p>
-  `;
-
-  await sendEmail(reservation.userEmail, subject, text, html);
-}

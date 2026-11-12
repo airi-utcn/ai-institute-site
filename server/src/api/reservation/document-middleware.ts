@@ -1,16 +1,7 @@
 import { snipeitService } from './services/snipeit';
-import {
-  sendReservationApprovedEmail,
-  sendReservationReceivedEmail,
-} from './services/notifications';
+import { sendReservationReceivedEmail } from './services/notifications';
 
 const RESERVATION_UID = 'api::reservation.reservation';
-
-const mergedReservation = (previous: any, data: any, result: any) => ({
-  ...previous,
-  ...data,
-  ...(result || {}),
-});
 
 export function registerReservationWorkflow(strapi: any) {
   strapi.documents.use(async (ctx: any, next: () => Promise<any>) => {
@@ -81,48 +72,6 @@ export function registerReservationWorkflow(strapi: any) {
       );
     }
 
-    const result = await next();
-
-    // Send the approval email once, and only for the first approval. A
-    // returned reservation that is checked out again must not email the user.
-    const shouldSendApproval =
-      data.assetStatus === 'checked_out' &&
-      !previous.approvalEmailSentAt &&
-      (previous.assetStatus === 'pending' || previous.assetStatus === 'approved');
-
-    if (shouldSendApproval) {
-      const reservation = mergedReservation(previous, data, result);
-
-      if (reservation?.userEmail) {
-        try {
-          await sendReservationApprovedEmail(reservation);
-        } catch (err) {
-          // The status and Snipe-IT checkout are already committed. A mail
-          // outage must not roll them back.
-          console.error('Could not send reservation approval email:', err);
-          return result;
-        }
-
-        try {
-          await strapi.db.query(RESERVATION_UID).update({
-            where: { id: previous.id },
-            data: { approvalEmailSentAt: new Date() },
-          });
-
-          console.info(
-            `Reservation approval email sent for ${previous.documentId}`
-          );
-        } catch (err) {
-          // The mail was sent, but the marker could not be stored. Log it so
-          // an operator can prevent a resend if needed.
-          console.error(
-            'Could not record reservation approval email timestamp:',
-            err
-          );
-        }
-      }
-    }
-
-    return result;
+    return next();
   });
 }

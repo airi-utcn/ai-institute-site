@@ -181,21 +181,17 @@ from the encrypted session cookie. The browser cannot supply a different email.
 
 ## 5. Reservation emails
 
-Strapi sends both reservation emails:
+Strapi currently sends the **request received** email, immediately after the
+reservation is created. It uses the SMTP settings in
+`server/config/plugins.ts` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`,
+`SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`).
 
-1. **Request received** — sent immediately after the reservation is created.
-2. **Reservation approved** — sent the first time an admin changes the status
-   to `checked_out`. The reservation records `approvalEmailSentAt`, so later
-   status changes do not send it again.
+The acceptance/decision email is intentionally not part of this branch. It is
+being developed separately so the reservation workflow and notification rules
+can be reviewed on their own.
 
-Both use the SMTP settings in `server/config/plugins.ts` (`SMTP_HOST`,
-`SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`).
-
-The `checked_out` status also triggers the Snipe-IT checkout. Strapi sends the
-approval email after the status update and the Snipe-IT sync succeed, so the
-user is only told the reservation is approved once it is actually active.
-
-Snipe-IT still has its own mail settings in the compose files for account and
+The `checked_out` status still triggers the Snipe-IT checkout, and `returned`
+triggers the check-in. Snipe-IT keeps its own mail settings for account and
 admin mail, but it must not send reservation email. To avoid duplicates, leave
 the checkout notification disabled on each equipment **Category** in Snipe-IT.
 
@@ -225,10 +221,9 @@ Recommended additional protection:
    - the “request received” email arrives.
 4. In Strapi, change the status to `checked_out` and confirm:
    - Snipe-IT checks out the asset to that user;
-   - the Strapi approval email arrives;
    - no duplicate Snipe-IT checkout email arrives.
-5. Save the same `checked_out` status again and confirm no second approval
-   email is sent.
+5. Save the same `checked_out` status again and confirm Snipe-IT is not called
+   a second time.
 6. Change the status to `returned` and confirm the asset is checked in.
 7. Try `POST /api/reservations` without a session: expect `401`.
 8. Try `POST /api/reservations` with a different `userEmail` in the body:

@@ -91,12 +91,13 @@ If you want to check that the synchronization worked, you can go to your Snipe-I
 ![Strapi Approval](snipeit-images/snipeit_checkout.png)
 
 ### Confirmation emails
-Strapi sends two emails to the authenticated address:
+Strapi currently sends one email to the authenticated address:
 
-1. **Request received** — sent immediately after the user submits the request.
-2. **Reservation approved** — sent the first time you change the status to `checked_out`. Changing it back to `checked_out` later does not resend the email.
+- **Request received** — sent immediately after the user submits the request.
 
-These emails use Strapi's SMTP settings. Snipe-IT's own mail settings can stay configured for account and admin mail, but leave the checkout notification disabled on each equipment **Category** so the user does not receive a duplicate email.
+The acceptance/decision email is being added separately, so changing the status to `checked_out` does not send an email yet.
+
+This email uses Strapi's SMTP settings. Snipe-IT's own mail settings can stay configured for account and admin mail, but leave the checkout notification disabled on each equipment **Category** so the user does not receive a duplicate email.
 
 ## 4. Returning Equipment (Check-in)
 When the student or researcher physically brings the equipment back to the laboratory, you must record the return in the system.

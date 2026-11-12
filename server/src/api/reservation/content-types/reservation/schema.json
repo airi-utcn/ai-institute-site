@@ -16,7 +16,6 @@
     "userFirstName": { "type": "string" },
     "userLastName": { "type": "string" },
     "userObjectId": { "type": "string" },
-    "approvalEmailSentAt": { "type": "datetime" },
     "startDate": { "type": "date" },
     "endDate": { "type": "date" },
     "assetStatus": {

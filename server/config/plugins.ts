@@ -17,6 +17,11 @@ export default ({ env }) => ({
 					user: env('SMTP_USERNAME'),
           pass: env('SMTP_PASSWORD'),
 				},
+				// Do not let a slow or unavailable SMTP server block the
+				// reservation request that triggered the email.
+				connectionTimeout: 10_000,
+				greetingTimeout: 10_000,
+				socketTimeout: 20_000,
 				// ... any custom nodemailer options
 			},
 			settings: {

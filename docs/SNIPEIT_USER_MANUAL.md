@@ -64,7 +64,7 @@ This is what the students or researchers will do on the public website.
 
 ![Frontend Reservation Form](snipeit-images/view_asset.png)
 
-3. The user clicks on the desired equipment, fills out their details in the reservation form, and submits the request. 
+3. The user clicks on the desired equipment. They must sign in with their UTCN Microsoft account before the reservation form opens; the email and name are taken from that login and cannot be edited in the form. They choose the reservation dates and submit the request.
 
 ![Frontend Reservation Form](snipeit-images/reserve_asset.png)
 
@@ -88,7 +88,19 @@ Once a user submits a request, the laboratory administrator or secretary must ap
 **Verifying the Checkout in Snipe-IT**
 If you want to check that the synchronization worked, you can go to your Snipe-IT dashboard. You will see that the equipment's status has automatically changed to **Deployed** and it is now assigned to the user who requested it.
 
+**Reservation asset details**
+Each reservation stores a snapshot of the Snipe-IT asset at request time: asset tag, name, model, serial, location, image URL, and a direct link to the Snipe-IT asset. The snapshot keeps the reservation readable in Strapi even if the asset is later renamed or retagged. The `assetId` remains the live Snipe-IT identifier used for checkout and check-in.
+
 ![Strapi Approval](snipeit-images/snipeit_checkout.png)
+
+### Confirmation emails
+Strapi currently sends one email to the authenticated address:
+
+- **Request received** — sent immediately after the user submits the request.
+
+The acceptance/decision email is being added separately, so changing the status to `checked_out` does not send an email yet.
+
+This email uses Strapi's SMTP settings. Snipe-IT's own mail settings can stay configured for account and admin mail, but leave the checkout notification disabled on each equipment **Category** so the user does not receive a duplicate email.
 
 ## 4. Returning Equipment (Check-in)
 When the student or researcher physically brings the equipment back to the laboratory, you must record the return in the system.
@@ -110,5 +122,11 @@ Here are a few common issues and tips to keep the system running smoothly:
   Double-check the equipment's status in Snipe-IT. The website will *only* display items that have their status set exactly to **Ready to Deploy**. If it is set to "Pending" or "Archived", it will not appear.
 * **Reservation dates:** 
   Always pay attention to the requested date in Strapi. Do not set a reservation to `checked_out` if the user is scheduled to pick up the item next week. Use `approved` instead.
+* **Overlapping reservations:**
+  Strapi rejects a new or edited reservation when the same asset already has an active reservation (`pending`, `approved`, or `checked_out`) for an overlapping period. Change the dates or resolve the other reservation first.
+* **Date limits:**
+  Reservation dates must use the `YYYY-MM-DD` format, the end date cannot be before the start date, and one request can cover at most 365 days. Requests submitted through the public form cannot start in the past, but administrators can still create historical records in Strapi.
+* **New reservations start as pending:**
+  A reservation cannot be created directly as `checked_out`. Create it as `pending` or `approved`, then mark it `checked_out` when the equipment is handed over.
 * **Returning items early:** 
   If a user returns an item before the scheduled end date, you can safely change the status to `returned` in Strapi right away. The system will make the equipment available for others immediately.

@@ -44,6 +44,7 @@ services:
       PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
       STRAPI_ADMIN_URL: ${STRAPI_ADMIN_URL}
       CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
+      SNIPEIT_PUBLIC_URL: ${SNIPEIT_PUBLIC_URL}
       PREVIEW_SECRET: ${PREVIEW_SECRET}
       ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
       JWT_SECRET: ${JWT_SECRET}
@@ -117,6 +118,23 @@ services:
       SNIPEIT_URL: ${SNIPEIT_URL}
       SNIPEIT_PUBLIC_URL: ${SNIPEIT_PUBLIC_URL}
       SNIPEIT_API_KEY: ${SNIPEIT_API_KEY}
+      AUTH_MICROSOFT_TENANT_ID: ${AUTH_MICROSOFT_TENANT_ID:-}
+      AUTH_OIDC_ISSUER: ${AUTH_OIDC_ISSUER:-}
+      AUTH_CLIENT_ID: ${AUTH_CLIENT_ID:-}
+      AUTH_CLIENT_SECRET: ${AUTH_CLIENT_SECRET:-}
+      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_REDIRECT_URI: ${AUTH_REDIRECT_URI:-http://localhost:3000/api/auth/callback}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_SCOPES: ${AUTH_SCOPES:-openid profile email}
+      AUTH_TOKEN_AUTH_METHOD: ${AUTH_TOKEN_AUTH_METHOD:-client_secret_post}
+      AUTH_PROVIDER_NAME: "${AUTH_PROVIDER_NAME:-institutional account}"
+      AUTH_PROVIDER_LABEL: "${AUTH_PROVIDER_LABEL:-Continue with institutional login}"
+      AUTH_OIDC_IDP_HINT: ${AUTH_OIDC_IDP_HINT:-}
+      AUTH_ALLOWED_EMAIL_DOMAINS: ${AUTH_ALLOWED_EMAIL_DOMAINS:-}
+      AUTH_ALLOWED_GROUPS: ${AUTH_ALLOWED_GROUPS:-}
+      AUTH_ALLOWED_GROUP_IDS: ${AUTH_ALLOWED_GROUP_IDS:-}
+      AUTH_PROMPT: ${AUTH_PROMPT:-}
+      AUTH_SESSION_MAX_AGE_HOURS: ${AUTH_SESSION_MAX_AGE_HOURS:-12}
     ports:
       - "3000:3000"
     depends_on:
@@ -147,47 +165,47 @@ services:
         - action: rebuild
           path: ./web/package.json
 
-  # mysql-snipeit:
-  #   image: public.ecr.aws/docker/library/mysql:8.0
-  #   restart: unless-stopped
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
-  #     MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
-  #     MYSQL_USER: ${SNIPEIT_DB_USER}
-  #     MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
-  #   volumes:
-  #     - mysql-snipeit-data:/var/lib/mysql
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 10
-  #     start_period: 15s
+  mysql-snipeit:
+    image: public.ecr.aws/docker/library/mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SNIPEIT_DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${SNIPEIT_DB_DATABASE}
+      MYSQL_USER: ${SNIPEIT_DB_USER}
+      MYSQL_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+    volumes:
+      - mysql-snipeit-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$SNIPEIT_DB_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
-  # snipe-it:
-  #   build:
-  #     context: ./snipe-it
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8000:80"
-  #   environment:
-  #     APP_ENV: local
-  #     APP_URL: ${SNIPEIT_PUBLIC_URL:-http://localhost:8000}
-  #     APP_KEY: ${SNIPEIT_APP_KEY}
-  #     APP_TRUSTED_PROXIES: "*"
-  #     APP_TRUSTED_HEADERS: "HEADER_X_FORWARDED_FOR,HEADER_X_FORWARDED_HOST,HEADER_X_FORWARDED_PROTO,HEADER_X_FORWARDED_PORT,HEADER_X_FORWARDED_PREFIX"
-  #     LIVEWIRE_URL_PREFIX: ${SNIPEIT_LIVEWIRE_PREFIX:-/}
-  #     DB_CONNECTION: mysql
-  #     DB_HOST: mysql-snipeit
-  #     DB_DATABASE: ${SNIPEIT_DB_DATABASE}
-  #     DB_USERNAME: ${SNIPEIT_DB_USER}
-  #     DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
-  #     DB_PORT: 3306
-  #   volumes:
-  #     - snipeit-data:/var/lib/snipeit
-  #   depends_on:
-  #     mysql-snipeit:
-  #       condition: service_healthy
+  snipe-it:
+    build:
+      context: ./snipe-it
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    environment:
+      APP_ENV: production
+      APP_URL: ${SNIPEIT_PUBLIC_URL:-http://localhost:8000}
+      APP_KEY: ${SNIPEIT_APP_KEY}
+      APP_TRUSTED_PROXIES: "*"
+      APP_TRUSTED_HEADERS: "HEADER_X_FORWARDED_FOR,HEADER_X_FORWARDED_HOST,HEADER_X_FORWARDED_PROTO,HEADER_X_FORWARDED_PORT,HEADER_X_FORWARDED_PREFIX"
+      LIVEWIRE_URL_PREFIX: ${SNIPEIT_LIVEWIRE_PREFIX:-/}
+      DB_CONNECTION: mysql
+      DB_HOST: mysql-snipeit
+      DB_DATABASE: ${SNIPEIT_DB_DATABASE}
+      DB_USERNAME: ${SNIPEIT_DB_USER}
+      DB_PASSWORD: ${SNIPEIT_DB_PASSWORD}
+      DB_PORT: 3306
+    volumes:
+      - snipeit-data:/var/lib/snipeit
+    depends_on:
+      mysql-snipeit:
+        condition: service_healthy
 
   # Paper sync scheduler service (containerized cron, similar to prod).
   # Default local schedule runs every 10 minutes for quick validation.
@@ -245,5 +263,5 @@ services:
 
 volumes:
   pgdata:
-  # mysql-snipeit-data:
-  # snipeit-data:
+  mysql-snipeit-data:
+  snipeit-data:

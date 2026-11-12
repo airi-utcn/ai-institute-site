@@ -6,25 +6,50 @@ import PageHeader from "@/components/PageHeader";
 import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { heroSizes } from "@/lib/media";
 
-export default function ReserveClient() {
+export default function ReserveClient({ user }) {
   const { id } = useParams();
   const router = useRouter();
+  const today = new Date().toISOString().slice(0, 10);
 
   const [asset, setAsset] = useState(null);
   const [form, setForm] = useState({
-    userFirstName: "",
-    userLastName: "",
-    userEmail: "",
     startDate: "",
     endDate: "",
   });
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loadError, setLoadError] = useState("");
+
+  const displayName =
+    [user?.givenName, user?.familyName].filter(Boolean).join(" ") ||
+    user?.name ||
+    user?.email;
 
   useEffect(() => {
+    let cancelled = false;
+    setLoadError("");
+
     fetch(`/api/equipment/${id}`)
-      .then((res) => res.json())
-      .then(setAsset);
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Equipment not found");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setAsset(data);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setLoadError(
+            "This equipment could not be found. It may have been removed or the link is invalid."
+          );
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const handleChange = (e) => {
@@ -49,12 +74,19 @@ export default function ReserveClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           assetId: id,
-          assetName: asset?.name,
-          ...form,
+          startDate: form.startDate,
+          endDate: form.endDate,
         }),
       });
 
       const data = await res.json();
+
+      if (res.status === 401) {
+        router.push(
+          `/login?returnTo=${encodeURIComponent(`/reserve/${id}`)}`
+        );
+        return;
+      }
 
       if (!res.ok) {
         setErrorMsg(data.error || "Something went wrong");
@@ -78,6 +110,23 @@ export default function ReserveClient() {
             An administrator will review it shortly.
           </p>
           <button onClick={() => router.push("/equipment")} className="btn-primary mt-4">
+            Back to equipment
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <main className="page-container">
+        <PageHeader title="Reserve Equipment" subtitle="Equipment unavailable" />
+        <div className="notice notice-warning max-w-lg mx-auto">
+          <p className="text-sm">{loadError}</p>
+          <button
+            onClick={() => router.push("/equipment")}
+            className="btn-primary mt-4"
+          >
             Back to equipment
           </button>
         </div>
@@ -137,50 +186,24 @@ export default function ReserveClient() {
         </div>
       )}
 
+      <section className="card content-padding max-w-lg mx-auto mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-subtle text-xs font-semibold uppercase tracking-widest">
+              Signed in as
+            </p>
+            <p className="text-body mt-1 font-semibold">{displayName}</p>
+            <p className="text-muted text-sm">{user?.email}</p>
+          </div>
+          <form action="/api/auth/signout" method="post">
+            <button type="submit" className="btn-secondary text-sm">
+              Sign out
+            </button>
+          </form>
+        </div>
+      </section>
+
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto card content-padding space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="label">First name</label>
-            <input
-              type="text"
-              name="userFirstName"
-              value={form.userFirstName}
-              onChange={handleChange}
-              required
-              className="input"
-              placeholder="Ana"
-            />
-          </div>
-
-          <div>
-            <label className="label">Last name</label>
-            <input
-              type="text"
-              name="userLastName"
-              value={form.userLastName}
-              onChange={handleChange}
-              required
-              className="input"
-              placeholder="Popescu"
-            />
-          </div>
-        </div>
-
-        <div className="flex flex-col">
-          <label className="label mb-1">Email</label>
-          <input
-            type="email"
-            name="userEmail"
-            value={form.userEmail}
-            onChange={handleChange}
-            required
-            className="input w-full"
-            placeholder="name@student.utcluj.ro"
-          />
-        </div>
-
-        <div className="divider" />
-
         <div>
           <p className="label mb-3">Reservation period</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -191,6 +214,7 @@ export default function ReserveClient() {
                 name="startDate"
                 value={form.startDate}
                 onChange={handleChange}
+                min={today}
                 required
                 className="input"
               />
@@ -203,6 +227,7 @@ export default function ReserveClient() {
                 name="endDate"
                 value={form.endDate}
                 onChange={handleChange}
+                min={form.startDate || today}
                 required
                 className="input"
               />
@@ -219,6 +244,10 @@ export default function ReserveClient() {
         <button type="submit" disabled={status === "submitting"} className="btn-primary w-full">
           {status === "submitting" ? "Submitting..." : "Submit request"}
         </button>
+
+        <p className="text-muted text-xs">
+          The reservation will be submitted under {user?.email}.
+        </p>
       </form>
     </main>
   );

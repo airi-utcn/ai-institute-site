@@ -1,24 +1,47 @@
 import { NextResponse } from "next/server";
-import { getEquipmentAssetById } from "@/lib/snipeit";
+import { getEquipmentAssetById, SnipeitError } from "@/lib/snipeit";
+
+export const dynamic = "force-dynamic";
+
+const NUMERIC_ID = /^\d+$/;
 
 export async function GET(request, { params }) {
+  const { id } = await params;
+
+  if (!NUMERIC_ID.test(id)) {
+    return NextResponse.json(
+      { error: "Equipment not found" },
+      { status: 404 }
+    );
+  }
+
   try {
-    const { id } = await params;
-    
-    if (!/^[0-9]+$/.test(id)) {
+    const equipment = await getEquipmentAssetById(id);
+
+    if (!equipment?.id) {
       return NextResponse.json(
-        { error: 'Invalid id' },
-        { status: 400 }
+        { error: "Equipment not found" },
+        { status: 404 }
       );
     }
 
-    const equipment = await getEquipmentAssetById(id);
-
-    return NextResponse.json(equipment);
-    } catch (err) {
+    return NextResponse.json(equipment, {
+      headers: {
+        "Cache-Control": "public, max-age=30, stale-while-revalidate=60",
+      },
+    });
+  } catch (err) {
+    if (err instanceof SnipeitError && err.status === 404) {
       return NextResponse.json(
-        { error: 'Internal server error' },
-        { status: 500 }
+        { error: "Equipment not found" },
+        { status: 404 }
       );
+    }
+
+    console.error(`Could not load equipment ${id}`, err);
+    return NextResponse.json(
+      { error: "Could not load equipment" },
+      { status: 502 }
+    );
   }
 }

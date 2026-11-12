@@ -1,5 +1,4 @@
 import { getNewsArticles, transformNewsData } from '@/lib/strapi';
-import fallbackNewsData from '@/app/data/news&events/newsData.json';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +13,6 @@ const escapeXml = (value) =>
 /**
  * Route handler for the AIRI @ UTCN news RSS feed (/rss.xml).
  * Generates a valid RSS 2.0 XML document containing the latest published news articles.
- * Falls back to local static news records if the CMS is offline.
  */
 export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://airi.utcluj.ro';
@@ -27,30 +25,7 @@ export async function GET() {
     }
   } catch (error) {
     console.error('Error fetching news articles for RSS feed:', error);
-  }
-
-  // Fallback to static news data if Strapi returned no items
-  if (articles.length === 0 && Array.isArray(fallbackNewsData)) {
-    const flattenedFallback = [];
-    fallbackNewsData.forEach((category) => {
-      if (Array.isArray(category.items)) {
-        category.items.forEach((item) => {
-          const year = item.date?.year || 2024;
-          const month = item.date?.mouth || item.date?.month || 1;
-          const day = item.date?.day || 1;
-          const dateObj = new Date(year, month - 1, day);
-
-          flattenedFallback.push({
-            title: item.text || 'AIRI News Update',
-            summary: item.text || '',
-            linkUrl: item.url || siteUrl,
-            slug: item.text ? encodeURIComponent(item.text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')) : '',
-            date: dateObj.toISOString(),
-          });
-        });
-      }
-    });
-    articles = flattenedFallback;
+    return new Response('News feed is temporarily unavailable', { status: 503 });
   }
 
   const itemsXml = articles.map((article) => {

@@ -188,8 +188,8 @@ reservation is created. It uses the SMTP settings in
 Snipe-IT tag, name, model, serial, and location.
 
 The acceptance/decision email is intentionally not part of this branch. It is
-being developed separately so the reservation workflow and notification rules
-can be reviewed on their own.
+preserved on `feat/reservation-acceptance-email` so the reservation workflow
+and notification rules can be reviewed on their own.
 
 The `checked_out` status still triggers the Snipe-IT checkout, and `returned`
 triggers the check-in. Snipe-IT keeps its own mail settings for account and

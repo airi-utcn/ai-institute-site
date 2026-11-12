@@ -1,4 +1,4 @@
-declare const strapi: any;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const escapeHtml = (value: unknown) =>
   String(value ?? '')
@@ -55,6 +55,7 @@ const assetDetailsFor = (reservation: any) => {
 };
 
 async function sendEmail(
+  strapi: any,
   to: string,
   subject: string,
   text: string,
@@ -68,8 +69,11 @@ async function sendEmail(
   });
 }
 
-export async function sendReservationReceivedEmail(reservation: any) {
-  if (!reservation?.userEmail) return;
+export async function sendReservationReceivedEmail(
+  strapi: any,
+  reservation: any
+) {
+  if (!reservation?.userEmail || !EMAIL.test(reservation.userEmail)) return;
 
   const assetName = assetNameFor(reservation);
   const startDate = formatDate(reservation.startDate);
@@ -110,5 +114,5 @@ export async function sendReservationReceivedEmail(reservation: any) {
     <p>AIRi @ UTCN</p>
   `;
 
-  await sendEmail(reservation.userEmail, subject, text, html);
+  await sendEmail(strapi, reservation.userEmail, subject, text, html);
 }

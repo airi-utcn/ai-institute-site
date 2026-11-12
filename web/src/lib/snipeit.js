@@ -1,4 +1,9 @@
 const DEFAULT_BASE_URL = 'http://localhost:8000';
+const ASSETS_PAGE_SIZE = 500;
+const ASSETS_MAX_PAGES = 40;
+const ASSETS_CACHE_TTL_MS = 30_000;
+
+let assetsCache = { rows: [], expiresAt: 0 };
 
 const getBaseUrl = () =>
   (process.env.SNIPEIT_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
@@ -29,11 +34,16 @@ export class SnipeitError extends Error {
 const isNumericId = (value) => /^\d+$/.test(String(value ?? '').trim());
 
 async function fetchFromSnipeit(path) {
+  if (!process.env.SNIPEIT_API_KEY) {
+    throw new SnipeitError('Snipe-IT is not configured', 502);
+  }
+
   let res;
   try {
     res = await fetch(`${getBaseUrl()}${path}`, {
       headers: getHeaders(),
       cache: 'no-store',
+      signal: AbortSignal.timeout(15_000),
     });
   } catch {
     throw new SnipeitError('Snipe-IT is unavailable', 502);
@@ -149,8 +159,64 @@ export function resolveSnipeitMediaUrl(value) {
 }
 
 export async function getAllAssets() {
-  const data = await fetchFromSnipeit('/api/v1/hardware');
-  return data.rows || [];
+  const now = Date.now();
+
+  if (now < assetsCache.expiresAt) {
+    return assetsCache.rows;
+  }
+
+  const rows = [];
+  const seenIds = new Set();
+  let offset = 0;
+  let total = Number.POSITIVE_INFINITY;
+  let pages = 0;
+  let lastFirstId = null;
+
+  while (offset < total && pages < ASSETS_MAX_PAGES) {
+    const data = await fetchFromSnipeit(
+      `/api/v1/hardware?limit=${ASSETS_PAGE_SIZE}&offset=${offset}`
+    );
+    const pageRows = Array.isArray(data?.rows) ? data.rows : [];
+
+    if (pageRows.length === 0) {
+      break;
+    }
+
+    // Defensive guard: some Snipe-IT versions ignore `offset`. If the first
+    // row repeats, stop instead of looping over the same page.
+    const firstId = String(pageRows[0]?.id ?? '');
+    if (firstId && firstId === lastFirstId) {
+      break;
+    }
+    lastFirstId = firstId;
+
+    for (const row of pageRows) {
+      const id = String(row?.id ?? '');
+      if (id && seenIds.has(id)) continue;
+      if (id) seenIds.add(id);
+      rows.push(row);
+    }
+
+    pages += 1;
+
+    const reportedTotal = Number(data?.total);
+    if (Number.isFinite(reportedTotal)) {
+      total = reportedTotal;
+    }
+
+    offset += pageRows.length;
+
+    if (rows.length >= total) {
+      break;
+    }
+  }
+
+  assetsCache = {
+    rows,
+    expiresAt: Date.now() + ASSETS_CACHE_TTL_MS,
+  };
+
+  return rows;
 }
 
 export async function getAssetById(id) {

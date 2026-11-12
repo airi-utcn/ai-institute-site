@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import {
   createReservation,
-  getReservationsByEmail,
+  getReservationsForUser,
   hasOverlappingReservation,
 } from "@/lib/db";
 import { getEquipmentAssetById, SnipeitError } from "@/lib/snipeit";
@@ -11,11 +11,22 @@ export const dynamic = "force-dynamic";
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const NUMERIC_ID = /^\d+$/;
+const MAX_RESERVATION_DAYS = 365;
 
 function isIsoDate(value) {
   if (typeof value !== "string" || !ISO_DATE.test(value)) return false;
   const date = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+}
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function daysBetween(startDate, endDate) {
+  const start = Date.parse(`${startDate}T00:00:00Z`);
+  const end = Date.parse(`${endDate}T00:00:00Z`);
+  return Math.round((end - start) / 86_400_000) + 1;
 }
 
 export async function GET() {
@@ -28,7 +39,11 @@ export async function GET() {
   }
 
   try {
-    const reservations = await getReservationsByEmail(session.email);
+    const reservations = await getReservationsForUser({
+      email: session.email,
+      objectId: session.sub,
+    });
+
     return NextResponse.json(reservations, {
       headers: { "Cache-Control": "private, no-store" },
     });
@@ -79,6 +94,20 @@ export async function POST(request) {
   if (endDate < startDate) {
     return NextResponse.json(
       { error: "End date must be after the start date" },
+      { status: 400 }
+    );
+  }
+
+  if (startDate < todayIso()) {
+    return NextResponse.json(
+      { error: "The reservation start date cannot be in the past" },
+      { status: 400 }
+    );
+  }
+
+  if (daysBetween(startDate, endDate) > MAX_RESERVATION_DAYS) {
+    return NextResponse.json(
+      { error: `A reservation can cover at most ${MAX_RESERVATION_DAYS} days` },
       { status: 400 }
     );
   }
@@ -157,6 +186,27 @@ export async function POST(request) {
 
     return NextResponse.json(reservation, { status: 201 });
   } catch (error) {
+    if (
+      String(error?.message || "")
+        .toLowerCase()
+        .includes("already reserved")
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "This equipment is already reserved for the selected period",
+        },
+        { status: 409 }
+      );
+    }
+
+    if (error?.status === 400) {
+      return NextResponse.json(
+        { error: "Could not create the reservation. Please check the details." },
+        { status: 400 }
+      );
+    }
+
     console.error("Could not create reservation", error);
     return NextResponse.json(
       { error: "Could not create the reservation. Please try again." },

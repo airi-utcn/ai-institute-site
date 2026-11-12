@@ -122,5 +122,11 @@ Here are a few common issues and tips to keep the system running smoothly:
   Double-check the equipment's status in Snipe-IT. The website will *only* display items that have their status set exactly to **Ready to Deploy**. If it is set to "Pending" or "Archived", it will not appear.
 * **Reservation dates:** 
   Always pay attention to the requested date in Strapi. Do not set a reservation to `checked_out` if the user is scheduled to pick up the item next week. Use `approved` instead.
+* **Overlapping reservations:**
+  Strapi rejects a new or edited reservation when the same asset already has an active reservation (`pending`, `approved`, or `checked_out`) for an overlapping period. Change the dates or resolve the other reservation first.
+* **Date limits:**
+  Reservation dates must use the `YYYY-MM-DD` format, the end date cannot be before the start date, and one request can cover at most 365 days. Requests submitted through the public form cannot start in the past, but administrators can still create historical records in Strapi.
+* **New reservations start as pending:**
+  A reservation cannot be created directly as `checked_out`. Create it as `pending` or `approved`, then mark it `checked_out` when the equipment is handed over.
 * **Returning items early:** 
   If a user returns an item before the scheduled end date, you can safely change the status to `returned` in Strapi right away. The system will make the equipment available for others immediately.

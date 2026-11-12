@@ -9,6 +9,7 @@ import { heroSizes } from "@/lib/media";
 export default function ReserveClient({ user }) {
   const { id } = useParams();
   const router = useRouter();
+  const today = new Date().toISOString().slice(0, 10);
 
   const [asset, setAsset] = useState(null);
   const [form, setForm] = useState({
@@ -213,6 +214,7 @@ export default function ReserveClient({ user }) {
                 name="startDate"
                 value={form.startDate}
                 onChange={handleChange}
+                min={today}
                 required
                 className="input"
               />
@@ -225,6 +227,7 @@ export default function ReserveClient({ user }) {
                 name="endDate"
                 value={form.endDate}
                 onChange={handleChange}
+                min={form.startDate || today}
                 required
                 className="input"
               />

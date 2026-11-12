@@ -1,4 +1,6 @@
-const STRAPI_URL = process.env.STRAPI_INTERNAL_URL || "http://strapi:1337";
+const STRAPI_URL = (
+  process.env.STRAPI_INTERNAL_URL || "http://strapi:1337"
+).replace(/\/+$/, "");
 const HEADERS = {
   "Content-Type": "application/json",
   "Authorization": `Bearer ${process.env.STRAPI_API_TOKEN}`,
@@ -9,6 +11,7 @@ async function strapiRequest(path, options = {}) {
     ...options,
     headers: { ...HEADERS, ...options.headers },
     cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
   });
 
   const text = await res.text();
@@ -21,24 +24,32 @@ async function strapiRequest(path, options = {}) {
 
   if (!res.ok) {
     const detail = json?.error?.message || json?.error || res.statusText;
-    throw new Error(`Strapi request failed (${res.status}): ${detail}`);
+    const error = new Error(
+      `Strapi request failed (${res.status}): ${detail}`
+    );
+    error.status = res.status;
+    error.detail = detail;
+    throw error;
   }
 
   return json;
 }
 
-export async function getAllReservations() {
+export async function getReservationsForUser({ email, objectId }) {
   const params = new URLSearchParams();
-  params.set("pagination[pageSize]", "1000");
-  params.set("sort", "startDate:asc");
+  let index = 0;
 
-  const json = await strapiRequest(`/api/reservations?${params.toString()}`);
-  return json?.data || [];
-}
+  if (objectId) {
+    params.set(`filters[$or][${index}][userObjectId][$eq]`, objectId);
+    index += 1;
+  }
 
-export async function getReservationsByEmail(email) {
-  const params = new URLSearchParams();
-  params.set("filters[userEmail][$eq]", email);
+  if (email) {
+    params.set(`filters[$or][${index}][userEmail][$eq]`, email);
+  }
+
+  if (index === 0) return [];
+
   params.set("sort", "startDate:desc");
   params.set("pagination[pageSize]", "100");
 
@@ -72,14 +83,23 @@ export async function updateReservationStatus(documentId, newStatus) {
   return json?.data;
 }
 
-export async function hasOverlappingReservation(assetId, startDate, endDate) {
-  const activeStatuses = ["pending", "approved", "checked_out"];
-  const reservations = await getAllReservations();
+const ACTIVE_STATUSES = ["pending", "approved", "checked_out"];
 
-  const active = reservations.filter((r) =>
-    String(r.assetId) === String(assetId) &&
-    activeStatuses.includes(r.assetStatus)
-  );
+export async function hasOverlappingReservation(
+  assetId,
+  startDate,
+  endDate
+) {
+  const params = new URLSearchParams();
+  params.set("filters[assetId][$eq]", String(assetId));
+  ACTIVE_STATUSES.forEach((status, index) => {
+    params.set(`filters[assetStatus][$in][${index}]`, status);
+  });
+  params.set("filters[startDate][$lte]", endDate);
+  params.set("filters[endDate][$gte]", startDate);
+  params.set("fields[0]", "documentId");
+  params.set("pagination[pageSize]", "1");
 
-  return active.some((r) => startDate <= r.endDate && endDate >= r.startDate);
+  const json = await strapiRequest(`/api/reservations?${params.toString()}`);
+  return (json?.data?.length || 0) > 0;
 }

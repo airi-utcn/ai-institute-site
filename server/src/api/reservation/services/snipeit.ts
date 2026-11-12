@@ -88,6 +88,10 @@ const assertNumericId = (value: unknown, label: string) => {
 };
 
 async function request(path: string, options: any = {}) {
+  if (!process.env.SNIPEIT_API_KEY) {
+    throw new Error('SNIPEIT_API_KEY is not configured');
+  }
+
   const response = await fetch(`${getBaseUrl()}${path}`, {
     ...options,
     headers: { ...getHeaders(), ...(options.headers || {}) },
@@ -111,21 +115,57 @@ async function request(path: string, options: any = {}) {
       response.statusText ||
       'unknown error';
 
-    throw new Error(
+    const error: any = new Error(
       `Snipe-IT request failed (${response.status}): ${
         typeof detail === 'string' ? detail : JSON.stringify(detail)
       }`
     );
+    error.status = response.status;
+    throw error;
   }
 
   return body;
 }
 
+const getAsset = async (assetId: string) => {
+  const validAssetId = assertNumericId(assetId, 'asset id');
+  const data = await request(`/api/v1/hardware/${validAssetId}`);
+
+  return data && typeof data === 'object' ? data : null;
+};
+
+const assignedUserId = (asset: any) => {
+  const assigned = asset?.assigned_to;
+
+  if (assigned === null || assigned === undefined) return null;
+  if (typeof assigned === 'string' || typeof assigned === 'number') {
+    return String(assigned);
+  }
+
+  return assigned.id !== null && assigned.id !== undefined
+    ? String(assigned.id)
+    : null;
+};
+
+const findUserByEmail = async (normalizedEmail: string) => {
+  const searchData = await request(
+    `/api/v1/users?search=${encodeURIComponent(normalizedEmail)}`
+  );
+
+  return searchData?.rows?.find(
+    (candidate: any) =>
+      String(candidate.email || '').toLowerCase() === normalizedEmail
+  );
+};
+
 const buildAssetSnapshot = (asset: any) => {
   const assetTag = cleanText(asset?.asset_tag);
   const assetModel = cleanText(asset?.model?.name);
   const assetName =
-    cleanText(asset?.name) || assetModel || assetTag || '';
+    cleanText(asset?.name) ||
+    assetModel ||
+    assetTag ||
+    (asset?.id ? `Asset ${asset.id}` : '');
 
   return {
     assetName,
@@ -142,10 +182,7 @@ const buildAssetSnapshot = (asset: any) => {
 
 export const snipeitService = {
   async getAsset(assetId: string) {
-    const validAssetId = assertNumericId(assetId, 'asset id');
-    const data = await request(`/api/v1/hardware/${validAssetId}`);
-
-    return data && typeof data === 'object' ? data : null;
+    return getAsset(assetId);
   },
 
   buildAssetSnapshot,
@@ -157,46 +194,63 @@ export const snipeitService = {
       throw new Error('Cannot create a Snipe-IT user without an email address');
     }
 
-    const searchData = await request(
-      `/api/v1/users?search=${encodeURIComponent(normalizedEmail)}`
-    );
-    const user = searchData?.rows?.find(
-      (candidate: any) =>
-        String(candidate.email || '').toLowerCase() === normalizedEmail
-    );
-
-    if (user?.id) {
-      return user.id;
+    const existing = await findUserByEmail(normalizedEmail);
+    if (existing?.id) {
+      return existing.id;
     }
 
     // The password is never shown to the user; they authenticate through the
     // website. Use a CSPRNG rather than Math.random().
     const generatedPassword = `${randomBytes(24).toString('base64url')}Aa1!`;
 
-    const createData = await request('/api/v1/users', {
-      method: 'POST',
-      body: JSON.stringify({
-        first_name: firstName || 'AIRi',
-        last_name: lastName || 'User',
-        username: normalizedEmail,
-        email: normalizedEmail,
-        password: generatedPassword,
-        password_confirmation: generatedPassword,
-      }),
-    });
+    try {
+      const createData = await request('/api/v1/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          first_name: firstName || 'AIRi',
+          last_name: lastName || 'User',
+          username: normalizedEmail,
+          email: normalizedEmail,
+          password: generatedPassword,
+          password_confirmation: generatedPassword,
+        }),
+      });
 
-    const userId = createData?.payload?.id ?? createData?.id;
+      const userId = createData?.payload?.id ?? createData?.id;
 
-    if (!userId) {
-      throw new Error('Snipe-IT did not return the created user id');
+      if (!userId) {
+        throw new Error('Snipe-IT did not return the created user id');
+      }
+
+      return userId;
+    } catch (err) {
+      // A concurrent request may have created the same user. Re-check before
+      // reporting the failure.
+      const concurrent = await findUserByEmail(normalizedEmail);
+      if (concurrent?.id) {
+        return concurrent.id;
+      }
+
+      throw err;
     }
-
-    return userId;
   },
 
   async checkoutAsset(assetId: string, userId: number, notes: string) {
     const validAssetId = assertNumericId(assetId, 'asset id');
     const validUserId = assertNumericId(userId, 'user id');
+    const asset = await getAsset(validAssetId);
+    const assigned = assignedUserId(asset);
+
+    // Idempotent: the asset is already assigned to the same requester.
+    if (assigned && assigned === validUserId) {
+      return;
+    }
+
+    if (assigned) {
+      throw new Error(
+        `Snipe-IT asset ${validAssetId} is already assigned to another user`
+      );
+    }
 
     await request(`/api/v1/hardware/${validAssetId}/checkout`, {
       method: 'POST',
@@ -208,8 +262,26 @@ export const snipeitService = {
     });
   },
 
-  async checkinAsset(assetId: string, notes: string) {
+  async checkinAsset(
+    assetId: string,
+    notes: string,
+    expectedUserId?: string | null
+  ) {
     const validAssetId = assertNumericId(assetId, 'asset id');
+    const asset = await getAsset(validAssetId);
+    const assigned = assignedUserId(asset);
+    const expected = String(expectedUserId ?? '').trim();
+
+    // Idempotent: the asset is already available.
+    if (!assigned) {
+      return;
+    }
+
+    if (expected && assigned !== expected) {
+      throw new Error(
+        `Snipe-IT asset ${validAssetId} is assigned to a different user`
+      );
+    }
 
     await request(`/api/v1/hardware/${validAssetId}/checkin`, {
       method: 'POST',

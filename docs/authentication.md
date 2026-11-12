@@ -184,7 +184,8 @@ from the encrypted session cookie. The browser cannot supply a different email.
 Strapi currently sends the **request received** email, immediately after the
 reservation is created. It uses the SMTP settings in
 `server/config/plugins.ts` (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`,
-`SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`).
+`SMTP_PASSWORD`, `SMTP_DEFAULT_FROM`). The email identifies the asset by its
+Snipe-IT tag, name, model, serial, and location.
 
 The acceptance/decision email is intentionally not part of this branch. It is
 being developed separately so the reservation workflow and notification rules
@@ -229,6 +230,15 @@ Recommended additional protection:
 8. Try `POST /api/reservations` with a different `userEmail` in the body:
    the body value must be ignored.
 9. Try `/api/equipment/abc` and `/api/equipment/..%2Fusers%2F1`: expect `404`.
+10. Submit a reservation with a start date in the past: expect `400`.
+11. Submit a reservation longer than 365 days: expect `400`.
+12. Submit a second reservation that overlaps an active one: expect `409`.
+13. Confirm the Strapi reservation stores `assetTag`, `assetModel`,
+    `assetSerial`, `assetLocation`, `assetImageUrl`, and `assetUrl`.
+14. In Strapi, edit a reservation so it overlaps another active reservation:
+    the save must be rejected.
+15. In Strapi, create a reservation with `checked_out` as the initial status:
+    the save must be rejected. Create it as `pending` first.
 
 ### Keycloak-specific checks
 

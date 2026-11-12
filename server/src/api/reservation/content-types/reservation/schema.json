@@ -18,6 +18,7 @@
     "assetLocation": { "type": "string" },
     "assetImageUrl": { "type": "string" },
     "assetUrl": { "type": "string" },
+    "snipeitUserId": { "type": "string" },
     "userEmail": { "type": "email" },
     "userFirstName": { "type": "string" },
     "userLastName": { "type": "string" },

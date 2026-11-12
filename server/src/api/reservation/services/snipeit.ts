@@ -213,6 +213,12 @@ export const snipeitService = {
           email: normalizedEmail,
           password: generatedPassword,
           password_confirmation: generatedPassword,
+          // These are shadow accounts used only as Snipe-IT checkout targets.
+          // Keep them deactivated so they can never log in or reset a
+          // password; Snipe-IT still allows assets to be assigned to them.
+          activated: 0,
+          ldap_import: 0,
+          send_welcome: 0,
         }),
       });
 

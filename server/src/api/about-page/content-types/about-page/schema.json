@@ -204,12 +204,26 @@
     },
     "roomsCalendarTitle": {
       "type": "string",
-      "default": "Rooms & Calendar",
+      "default": "Calendar",
       "pluginOptions": {
         "i18n": {
           "localized": true
         }
       }
+    },
+    "roomsCalendarIntro": {
+      "type": "text",
+      "default": "Room availability and upcoming events at the Artificial Intelligence Research Institute.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "roomsCalendarUrl": {
+      "type": "string",
+      "description": "Optional Outlook published-calendar URL (.ics or .html). Leave empty to use the institute default.",
+      "default": ""
     },
     "roomsCalendarComingSoon": {
       "type": "string",

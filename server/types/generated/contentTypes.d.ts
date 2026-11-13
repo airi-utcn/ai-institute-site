@@ -620,13 +620,21 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Content coming soon.'>;
+    roomsCalendarIntro: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Room availability and upcoming events at the Artificial Intelligence Research Institute.'>;
     roomsCalendarTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'Rooms & Calendar'>;
+      Schema.Attribute.DefaultTo<'Calendar'>;
+    roomsCalendarUrl: Schema.Attribute.String & Schema.Attribute.DefaultTo<''>;
     sitemapClear: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

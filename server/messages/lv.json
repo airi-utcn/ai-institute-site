@@ -10,7 +10,7 @@
       "title": "Ātrās saites",
       "projects": "Projekti",
       "sitemap": "Vietnes karte",
-      "rooms": "Telpas",
+      "rooms": "Kalendārs",
       "dissemination": "Izplatīšana",
       "contactUs": "Sazināties ar mums"
     },
@@ -49,7 +49,7 @@
       "regulations": "Noteikumi",
       "guidelines": "Vadlīnijas",
       "tour": "Virtuālā tūre",
-      "rooms": "Telpas un kalendārs",
+      "rooms": "Kalendārs",
       "contact": "Kontakti"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "Saturs drīzumā būs pieejams."
     },
     "roomsCalendar": {
-      "title": "Telpas un kalendārs",
-      "comingSoon": "Saturs drīzumā būs pieejams."
+      "title": "Kalendārs",
+      "comingSoon": "Saturs drīzumā būs pieejams.",
+      "intro": "Telpu pieejamība un gaidāmie pasākumi Mākslīgā intelekta pētniecības institūtā."
     },
     "sitemap": {
       "title": "Vietnes karte",
@@ -713,7 +714,7 @@
             "regulations": "Procedūras un noteikumi",
             "guidelines": "Vadlīnijas",
             "virtualTour": "Virtuālā tūre",
-            "roomsCalendar": "Telpas un kalendārs",
+            "roomsCalendar": "Kalendārs",
             "contact": "Kontakti"
           }
         },

@@ -38,7 +38,7 @@ export default async function sitemap() {
     { url: `${SITE_URL}/about`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/about/reports`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/about/procedures-regulations`, changeFrequency: "monthly", priority: 0.4 },
-    { url: `${SITE_URL}/about/rooms-calendar`, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${SITE_URL}/about/calendar`, changeFrequency: "monthly", priority: 0.4 },
     { url: `${SITE_URL}/about/leadership`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${SITE_URL}/about/virtual-tour`, changeFrequency: "yearly", priority: 0.4 },
     { url: `${SITE_URL}/about/guidelines`, changeFrequency: "monthly", priority: 0.4 },

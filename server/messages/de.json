@@ -10,7 +10,7 @@
       "title": "Schnelle Links",
       "projects": "Projekte",
       "sitemap": "Seitenverzeichnis",
-      "rooms": "Räume",
+      "rooms": "Kalender",
       "dissemination": "Verbreitung",
       "contactUs": "Kontakt"
     },
@@ -49,7 +49,7 @@
       "regulations": "Vorschriften",
       "guidelines": "Richtlinien",
       "tour": "Virtueller Rundgang",
-      "rooms": "Räume & Kalender",
+      "rooms": "Kalender",
       "contact": "Kontakt"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "Inhalte folgen in Kürze."
     },
     "roomsCalendar": {
-      "title": "Räume & Kalender",
-      "comingSoon": "Inhalte folgen in Kürze."
+      "title": "Kalender",
+      "comingSoon": "Inhalte folgen in Kürze.",
+      "intro": "Raumverfügbarkeit und kommende Veranstaltungen am Institut für Künstliche Intelligenz."
     },
     "sitemap": {
       "title": "Seitenverzeichnis",
@@ -713,7 +714,7 @@
             "regulations": "Vorschriften",
             "guidelines": "Richtlinien",
             "virtualTour": "Virtueller Rundgang",
-            "roomsCalendar": "Räume & Kalender",
+            "roomsCalendar": "Kalender",
             "contact": "Kontakt"
           }
         },

@@ -10,7 +10,7 @@
       "title": "Link-uri utile",
       "projects": "Proiecte",
       "sitemap": "Hartă site",
-      "rooms": "Săli",
+      "rooms": "Calendar",
       "dissemination": "Diseminare",
       "contactUs": "Contactează-ne"
     },
@@ -49,7 +49,7 @@
       "regulations": "Regulamente",
       "guidelines": "Ghiduri",
       "tour": "Tur virtual",
-      "rooms": "Săli și calendar",
+      "rooms": "Calendar",
       "contact": "Contact"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "Conținutul va fi disponibil în curând."
     },
     "roomsCalendar": {
-      "title": "Săli și Calendar",
-      "comingSoon": "Conținutul va fi disponibil în curând."
+      "title": "Calendar",
+      "comingSoon": "Conținutul va fi disponibil în curând.",
+      "intro": "Disponibilitatea sălilor și evenimentele viitoare la Institutul de Cercetare în Inteligență Artificială."
     },
     "sitemap": {
       "title": "Hartă Site",
@@ -713,7 +714,7 @@
             "regulations": "Proceduri și Regulamente",
             "guidelines": "Linii directoare",
             "virtualTour": "Tur Virtual",
-            "roomsCalendar": "Săli și calendar",
+            "roomsCalendar": "Calendar",
             "contact": "Contact"
           }
         },

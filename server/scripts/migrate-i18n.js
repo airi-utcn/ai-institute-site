@@ -100,7 +100,7 @@ function mapGlobal(msg) {
       menuRegulations: am.regulations || 'Regulations',
       menuGuidelines: am.guidelines || 'Guidelines',
       menuTour: am.tour || 'Virtual Tour',
-      menuRooms: am.rooms || 'Rooms & Calendar',
+      menuRooms: am.rooms || 'Calendar',
       menuContact: am.contact || 'Contact',
       searchPlaceholder: s.placeholder || 'Type to search pages…',
       searchMobilePlaceholder: s.mobilePlaceholder || 'Search…',
@@ -116,7 +116,7 @@ function mapGlobal(msg) {
       quickLinksTitle: ql.title || 'Quick Links',
       projectsLabel: ql.projects || 'Projects',
       sitemapLabel: ql.sitemap || 'Sitemap',
-      roomsLabel: ql.rooms || 'Rooms & Calendar',
+      roomsLabel: ql.rooms || 'Calendar',
       disseminationLabel: ql.dissemination || 'Dissemination Materials',
       contactUsLabel: ql.contactUs || 'Contact Us',
       copyright: f.copyright || '© {year} Artificial Intelligence Research Institute. All rights reserved.',
@@ -193,7 +193,12 @@ function mapAboutPage(msg) {
     regulationsComingSoon: rg.comingSoon || a.regulationsComingSoon || 'Content coming soon.',
     reportsTitle: rp.title || a.reportsTitle || 'Reports',
     reportsComingSoon: rp.comingSoon || a.reportsComingSoon || 'Content coming soon.',
-    roomsCalendarTitle: rc.title || a.roomsCalendarTitle || 'Rooms & Calendar',
+    roomsCalendarTitle: rc.title || a.roomsCalendarTitle || 'Calendar',
+    roomsCalendarIntro:
+      rc.intro ||
+      a.roomsCalendarIntro ||
+      'Room availability and upcoming events at the Artificial Intelligence Research Institute.',
+    roomsCalendarUrl: rc.url || a.roomsCalendarUrl || '',
     roomsCalendarComingSoon: rc.comingSoon || a.roomsCalendarComingSoon || 'Content coming soon.',
     sitemapTitle: sm.title || a.sitemapTitle || 'Sitemap',
     sitemapFilterPlaceholder: sm.filterPlaceholder || a.sitemapFilterPlaceholder || 'Filter pages…',

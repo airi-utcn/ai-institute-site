@@ -2389,6 +2389,20 @@ export interface ApiHomePageHomePage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'About Us'>;
+    contactCardDescription: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Collaboration, partnerships, or questions \u2014 get in touch.'>;
+    contactCardTitle: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Contact'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

@@ -8,6 +8,25 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://api.openalex.org"
 
+_API_KEY = ""
+
+
+def configure(api_key):
+    """Set the optional OpenAlex API key used for subsequent requests."""
+    global _API_KEY
+    _API_KEY = (api_key or "").strip()
+
+
+def _get(endpoint, params):
+    """GET an OpenAlex endpoint, authenticating when an API key is configured."""
+    headers = {}
+    if _API_KEY:
+        headers["Authorization"] = f"Bearer {_API_KEY}"
+
+    response = requests.get(f"{BASE_URL}{endpoint}", params=params, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
 
 def normalize_text(text):
     """Strip newlines, collapse whitespace and trim."""
@@ -28,9 +47,7 @@ def find_author_id(author_name, institution=None):
     if institution:
         params["filter"] = f"last_known_institution.display_name.search:{institution}"
 
-    response = requests.get(f"{BASE_URL}/authors", params=params)
-    response.raise_for_status()
-    data = response.json()
+    data = _get("/authors", params)
 
     if data["results"]:
         author = data["results"][0]
@@ -54,9 +71,7 @@ def get_author_papers(author_id):
 def find_institution_id(institution_name):
     """Search for an institution and return its OpenAlex ID."""
     params = {"search": institution_name, "per-page": 5}
-    response = requests.get(f"{BASE_URL}/institutions", params=params)
-    response.raise_for_status()
-    results = response.json().get("results", [])
+    results = _get("/institutions", params).get("results", [])
 
     if results:
         institution = results[0]
@@ -80,9 +95,7 @@ def get_institution_authors(institution_id, min_works=3):
             "cursor": cursor,
             "sort": "works_count:desc",
         }
-        response = requests.get(f"{BASE_URL}/authors", params=params)
-        response.raise_for_status()
-        data = response.json()
+        data = _get("/authors", params)
 
         for author in data["results"]:
             if author.get("works_count", 0) >= min_works:
@@ -178,9 +191,7 @@ def _get_processed_works(
             "per-page": per_page,
             "cursor": cursor,
         }
-        response = requests.get(f"{BASE_URL}/works", params=params)
-        response.raise_for_status()
-        data = response.json()
+        data = _get("/works", params)
 
         page_papers = [process_work(work) for work in data["results"]]
         papers.extend(page_papers)

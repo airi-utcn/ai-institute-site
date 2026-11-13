@@ -26,6 +26,7 @@ emit_cron_env() {
 {
 	emit_cron_env STRAPI_URL
 	emit_cron_env STRAPI_API_TOKEN
+	emit_cron_env OPENALEX_API_KEY
 	emit_cron_env GRAPH_SIMILARITY_THRESHOLD
 	emit_cron_env GRAPH_DUPLICATE_THRESHOLD
 	emit_cron_env GRAPH_AI_MODEL

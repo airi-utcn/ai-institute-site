@@ -24,6 +24,8 @@ pip install -r requirements.txt
 
 4. Ensure the repository `.env` contains a working `STRAPI_API_TOKEN` and Strapi URL settings.
 
+5. Optional: add `OPENALEX_API_KEY` to `.env` to authenticate OpenAlex requests and get higher rate limits. Create a key at <https://openalex.org> (Settings → API key); when unset, imports use the anonymous free tier.
+
 ## Run
 
 Show current usage:

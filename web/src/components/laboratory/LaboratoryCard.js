@@ -22,9 +22,12 @@ export default function LaboratoryCard({ lab, className = '' }) {
         <SmartMediaImage
           src={imageUrl}
           srcSet={lab.heroImageSrcSet}
+          width={lab.heroImageWidth}
+          height={lab.heroImageHeight}
           sizes={gridSizes({ columns: 3 })}
           alt={lab.heroImageAlt || lab.title}
           focalPoint={lab.focalPoint}
+          fit="contain"
           aspectRatio="aspect-video"
           imageClassName="group-hover:scale-105"
           fallback={<span className="text-sm font-medium">AIRI Laboratory</span>}

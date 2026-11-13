@@ -10,7 +10,7 @@
       "title": "Enlaces rápidos",
       "projects": "Proyectos",
       "sitemap": "Mapa del sitio",
-      "rooms": "Salas",
+      "rooms": "Calendario",
       "dissemination": "Difusión",
       "contactUs": "Contáctenos"
     },
@@ -49,7 +49,7 @@
       "regulations": "Reglamentos",
       "guidelines": "Directrices",
       "tour": "Recorrido Virtual",
-      "rooms": "Salas y calendario",
+      "rooms": "Calendario",
       "contact": "Contacto"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "El contenido estará disponible próximamente."
     },
     "roomsCalendar": {
-      "title": "Salas y calendario",
-      "comingSoon": "El contenido estará disponible próximamente."
+      "title": "Calendario",
+      "comingSoon": "El contenido estará disponible próximamente.",
+      "intro": "Disponibilidad de salas y próximos eventos en el Instituto de Investigación en Inteligencia Artificial."
     },
     "sitemap": {
       "title": "Mapa del sitio",
@@ -713,7 +714,7 @@
             "regulations": "Procedimientos y Reglamentos",
             "guidelines": "Directrices",
             "virtualTour": "Recorrido Virtual",
-            "roomsCalendar": "Salas y calendario",
+            "roomsCalendar": "Calendario",
             "contact": "Contacto"
           }
         },

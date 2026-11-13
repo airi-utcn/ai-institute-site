@@ -243,7 +243,7 @@
     },
     "menuRooms": {
       "type": "string",
-      "default": "Rooms & calendar",
+      "default": "Calendar",
       "pluginOptions": {
         "i18n": {
           "localized": true

@@ -10,7 +10,7 @@
       "title": "Quick Links",
       "projects": "Projects",
       "sitemap": "Sitemap",
-      "rooms": "Rooms",
+      "rooms": "Calendar",
       "dissemination": "Dissemination",
       "contactUs": "Contact Us"
     },
@@ -49,7 +49,7 @@
       "regulations": "Regulations",
       "guidelines": "Guidelines",
       "tour": "Virtual Tour",
-      "rooms": "Rooms & calendar",
+      "rooms": "Calendar",
       "contact": "Contact"
     },
     "search": {
@@ -659,8 +659,9 @@
       "comingSoon": "Content coming soon."
     },
     "roomsCalendar": {
-      "title": "Rooms & Calendar",
-      "comingSoon": "Content coming soon."
+      "title": "Calendar",
+      "comingSoon": "Content coming soon.",
+      "intro": "Room availability and upcoming events at the Artificial Intelligence Research Institute."
     },
     "sitemap": {
       "title": "Sitemap",
@@ -720,7 +721,7 @@
             "regulations": "Procedures & Regulations",
             "guidelines": "Guidelines",
             "virtualTour": "Virtual Tour",
-            "roomsCalendar": "Rooms & calendar",
+            "roomsCalendar": "Calendar",
             "contact": "Contact"
           }
         },

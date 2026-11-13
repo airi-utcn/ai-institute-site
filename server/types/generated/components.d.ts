@@ -313,7 +313,7 @@ export interface LayoutNavbar extends Struct.ComponentSchema {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'Rooms & calendar'>;
+      Schema.Attribute.DefaultTo<'Calendar'>;
     menuSeminars: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

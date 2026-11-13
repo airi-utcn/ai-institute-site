@@ -10,7 +10,7 @@
       "title": "Link Rapidi",
       "projects": "Progetti",
       "sitemap": "Mappa del sito",
-      "rooms": "Stanze",
+      "rooms": "Calendario",
       "dissemination": "Divulgazione",
       "contactUs": "Contattaci"
     },
@@ -49,7 +49,7 @@
       "regulations": "Regolamenti",
       "guidelines": "Linee guida",
       "tour": "Tour Virtuale",
-      "rooms": "Stanze e calendario",
+      "rooms": "Calendario",
       "contact": "Contatti"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "Contenuto in arrivo."
     },
     "roomsCalendar": {
-      "title": "Stanze e calendario",
-      "comingSoon": "Contenuto in arrivo."
+      "title": "Calendario",
+      "comingSoon": "Contenuto in arrivo.",
+      "intro": "Disponibilità delle sale e prossimi eventi presso l'Istituto di ricerca sull'intelligenza artificiale."
     },
     "sitemap": {
       "title": "Mappa del sito",
@@ -713,7 +714,7 @@
             "regulations": "Procedure e Regolamenti",
             "guidelines": "Linee guida",
             "virtualTour": "Tour Virtuale",
-            "roomsCalendar": "Stanze e calendario",
+            "roomsCalendar": "Calendario",
             "contact": "Contatti"
           }
         },

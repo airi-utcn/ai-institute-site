@@ -10,7 +10,7 @@
       "title": "快速链接",
       "projects": "科研项目",
       "sitemap": "网站地图",
-      "rooms": "会议室",
+      "rooms": "日历",
       "dissemination": "推广传播",
       "contactUs": "联系我们"
     },
@@ -48,7 +48,7 @@
       "regulations": "规章制度",
       "guidelines": "指南",
       "tour": "虚拟导览",
-      "rooms": "会议室与日程",
+      "rooms": "日历",
       "contact": "联系方式"
     },
     "search": {
@@ -658,8 +658,9 @@
       "comingSoon": "内容即将推出。"
     },
     "roomsCalendar": {
-      "title": "会议室与日程",
-      "comingSoon": "内容即将推出。"
+      "title": "日历",
+      "comingSoon": "内容即将推出。",
+      "intro": "人工智能研究院的会议室可用情况和即将举行的活动。"
     },
     "sitemap": {
       "title": "网站地图",
@@ -719,7 +720,7 @@
             "regulations": "规章制度与流程",
             "guidelines": "指南",
             "virtualTour": "虚拟导览",
-            "roomsCalendar": "会议室与日程管理",
+            "roomsCalendar": "日历",
             "contact": "联系方式"
           }
         },

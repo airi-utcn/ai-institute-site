@@ -189,7 +189,7 @@ export default function Navbar({ navbarData: customNavbarData }) {
     { href: '/about/procedures-regulations', label: nav.menuRegulations || 'Regulations' },
     { href: '/about/guidelines', label: nav.menuGuidelines || 'Guidelines' },
     { href: '/about/virtual-tour', label: nav.menuTour || 'Virtual Tour' },
-    { href: '/about/rooms-calendar', label: nav.menuRooms || 'Rooms & Calendar' },
+    { href: '/about/calendar', label: nav.menuRooms || 'Calendar' },
     { href: '/contact', label: nav.menuContact || 'Contact' },
   ];
 

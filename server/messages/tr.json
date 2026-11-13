@@ -10,7 +10,7 @@
       "title": "Hızlı Bağlantılar",
       "projects": "Projeler",
       "sitemap": "Site Haritası",
-      "rooms": "Odalar",
+      "rooms": "Takvim",
       "dissemination": "Yaygınlaştırma",
       "contactUs": "Bize Ulaşın"
     },
@@ -49,7 +49,7 @@
       "regulations": "Yönetmelikler",
       "guidelines": "Kılavuzlar",
       "tour": "Sanal Tur",
-      "rooms": "Odalar ve takvim",
+      "rooms": "Takvim",
       "contact": "İletişim"
     },
     "search": {
@@ -652,8 +652,9 @@
       "comingSoon": "İçerik yakında geliyor."
     },
     "roomsCalendar": {
-      "title": "Odalar ve Takvim",
-      "comingSoon": "İçerik yakında geliyor."
+      "title": "Takvim",
+      "comingSoon": "İçerik yakında geliyor.",
+      "intro": "Yapay Zeka Araştırma Enstitüsü’nde salon müsaitliği ve yaklaşan etkinlikler."
     },
     "sitemap": {
       "title": "Site Haritası",
@@ -713,7 +714,7 @@
             "regulations": "Prosedürler ve Yönetmelikler",
             "guidelines": "Kılavuzlar",
             "virtualTour": "Sanal Tur",
-            "roomsCalendar": "Odalar ve takvim",
+            "roomsCalendar": "Takvim",
             "contact": "İletişim"
           }
         },

@@ -72,7 +72,7 @@ export default function Client({ aboutData }) {
         { label: "Regulations", href: "/about/procedures-regulations" },
         { label: "Guidelines", href: "/about/guidelines" },
         { label: "Virtual Tour", href: "/about/virtual-tour" },
-        { label: "Rooms & Calendar", href: "/about/rooms-calendar" },
+        { label: "Calendar", href: "/about/calendar" },
         { label: "Contact", href: "/contact" },
       ],
     },

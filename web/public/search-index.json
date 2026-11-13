@@ -8,7 +8,7 @@
   { "title": "About – Procedures & Regulations", "route": "/about/procedures", "tags": ["about","procedures","regulations","policies"], "snippet": "Proceduri, regulamente, comisii." },
   { "title": "About – Guidelines (Onboarding)", "route": "/about/guidelines", "tags": ["about","guidelines","onboarding","toolkits"], "snippet": "Kituri de onboarding." },
   { "title": "About – Virtual Tour", "route": "/about/virtual-tour", "tags": ["about","virtual tour","3d"], "snippet": "Tur virtual 3D." },
-  { "title": "About – Rooms & Calendar", "route": "/about/rooms-calendar", "tags": ["about","rooms","calendar","presence"], "snippet": "Camere & orar/prezență." },
+  { "title": "About – Calendar", "route": "/about/calendar", "tags": ["about","rooms","calendar","presence"], "snippet": "Disponibilitatea sălilor și calendarul institutului." },
   { "title": "About – Contact", "route": "/about/contact", "tags": ["about","contact","social"], "snippet": "Date de contact și social media." },
 
   { "title": "Research – Overview", "route": "/research", "tags": ["research","overview"], "snippet": "Prezentare cercetare." },

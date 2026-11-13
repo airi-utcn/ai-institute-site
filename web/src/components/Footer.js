@@ -51,7 +51,7 @@ export default function Footer({ footerData: customFooterData }) {
   const quickLinks = [
     { href: '/research/projects', label: footer.quickLinkProjects || 'Projects' },
     { href: '/about/sitemap', label: footer.quickLinkSitemap || 'Sitemap' },
-    { href: 'https://didatec.sharepoint.com/sites/UTCNRooms/SitePages/UTCN-AIRI---Artificial-Intelligence-Research-Institute.aspx', label: footer.quickLinkRooms || 'Rooms & Calendar', external: true },
+    { href: '/about/calendar', label: footer.roomsLabel || footer.quickLinkRooms || 'Calendar' },
     { href: 'https://didatec-my.sharepoint.com/:f:/g/personal/airi_campus_utcluj_ro/IgBfIIZeG9p5SJ_Pde6NBWT5AU_tSajIkfRPaloVwavKIJ4', label: footer.quickLinkDissemination || 'Dissemination Materials', external: true },
     { href: '/contact', label: footer.quickLinkContactUs || 'Contact Us' },
   ];

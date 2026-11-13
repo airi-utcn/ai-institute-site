@@ -31,6 +31,7 @@ shows exactly what the saved draft would look like.
 | Contact Page | `/contact` |
 | Departments Page | `/research/departments` |
 | Engagement Page | `/engagement` |
+| Equipment Page | `/equipment` |
 | Events Page | `/news&events/events` |
 | Global | `/` |
 | Home Page | `/` |

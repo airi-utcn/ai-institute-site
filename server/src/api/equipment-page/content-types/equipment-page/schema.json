@@ -1,0 +1,29 @@
+{
+  "kind": "singleType",
+  "collectionName": "equipment_pages",
+  "info": {
+    "singularName": "equipment-page",
+    "pluralName": "equipment-pages",
+    "displayName": "Equipment Page",
+    "description": "Content for the equipment catalog and reservation page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "notice": {
+      "type": "richtext",
+      "description": "Banner shown at the top of the equipment page. Leave empty to hide the banner.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

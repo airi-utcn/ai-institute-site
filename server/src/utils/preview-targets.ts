@@ -66,6 +66,7 @@ export const previewTargets: Record<string, PreviewTarget> = {
   'api::contact-page.contact-page': staticTarget('/contact'),
   'api::departments-page.departments-page': staticTarget('/research/departments'),
   'api::engagement-page.engagement-page': staticTarget('/engagement'),
+  'api::equipment-page.equipment-page': staticTarget('/equipment'),
   'api::events-page.events-page': staticTarget('/news&events/events'),
   'api::global.global': staticTarget('/'),
   'api::home-page.home-page': staticTarget('/'),

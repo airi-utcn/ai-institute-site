@@ -118,6 +118,7 @@ export default {
         "api::people-page.people-page",
         "api::research-page.research-page",
         "api::resources-page.resources-page",
+        "api::equipment-page.equipment-page",
         "api::media-page.media-page",
         "api::search-page.search-page",
         "api::timeline-page.timeline-page",

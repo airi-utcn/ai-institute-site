@@ -1693,6 +1693,44 @@ export interface ApiEngagementPageEngagementPage
   };
 }
 
+export interface ApiEquipmentPageEquipmentPage extends Struct.SingleTypeSchema {
+  collectionName: 'equipment_pages';
+  info: {
+    description: 'Content for the equipment catalog and reservation page';
+    displayName: 'Equipment Page';
+    pluralName: 'equipment-pages';
+    singularName: 'equipment-page';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::equipment-page.equipment-page'
+    >;
+    notice: Schema.Attribute.RichText &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiEventEvent extends Struct.CollectionTypeSchema {
   collectionName: 'events';
   info: {
@@ -6287,6 +6325,7 @@ declare module '@strapi/strapi' {
       'api::department.department': ApiDepartmentDepartment;
       'api::departments-page.departments-page': ApiDepartmentsPageDepartmentsPage;
       'api::engagement-page.engagement-page': ApiEngagementPageEngagementPage;
+      'api::equipment-page.equipment-page': ApiEquipmentPageEquipmentPage;
       'api::event.event': ApiEventEvent;
       'api::events-page.events-page': ApiEventsPageEventsPage;
       'api::global.global': ApiGlobalGlobal;

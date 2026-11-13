@@ -93,7 +93,11 @@ export default function LaboratoryDetailClient({
 
   const galleryImages = Array.isArray(lab.gallery) ? lab.gallery : [];
   const hasVideo = Boolean(lab.videoFile || lab.videoUrl);
-  const heroSrc = lab.heroImage;
+  const heroSrc = lab.heroImage || lab.videoPoster?.url;
+  const heroSrcSet = lab.heroImage ? lab.heroImageSrcSet : lab.videoPoster?.srcSet;
+  const heroWidth = lab.heroImage ? lab.heroImageWidth : lab.videoPoster?.width;
+  const heroHeight = lab.heroImage ? lab.heroImageHeight : lab.videoPoster?.height;
+  const heroAlt = lab.heroImageAlt || lab.title;
   const posterSrc = lab.videoPoster || lab.heroImage;
   const projects = Array.isArray(lab.projects) ? lab.projects : [];
   const researchers = Array.isArray(lab.researchers) ? lab.researchers : [];
@@ -130,12 +134,6 @@ export default function LaboratoryDetailClient({
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
       <HeroHeader
-        image={lab.heroImage || lab.videoPoster?.url}
-        srcSet={lab.heroImageSrcSet || lab.videoPoster?.srcSet}
-        focalPoint={lab.focalPoint}
-        width={lab.heroImage ? lab.heroImageWidth : lab.videoPoster?.width}
-        height={lab.heroImage ? lab.heroImageHeight : lab.videoPoster?.height}
-        priority
         className="pt-8 pb-10 md:pt-12 md:pb-14"
         contentClassName="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
       >
@@ -189,6 +187,29 @@ export default function LaboratoryDetailClient({
         </header>
       </HeroHeader>
 
+      {/* Full-size hero media: keep the intrinsic aspect ratio instead of
+          cropping the image into a fixed banner. */}
+      {heroSrc && (
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-10">
+          <figure className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-lg">
+            <SmartMediaImage
+              src={heroSrc}
+              srcSet={heroSrcSet}
+              width={heroWidth}
+              height={heroHeight}
+              sizes={heroSizes(1152)}
+              alt={heroAlt}
+              focalPoint={lab.focalPoint}
+              fit="natural"
+              naturalMaxHeightClassName="max-h-[85vh]"
+              priority
+              fallback={<FaFlask className="w-10 h-10 opacity-40" aria-hidden="true" />}
+              fallbackClassName="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-900/20 text-blue-400"
+            />
+          </figure>
+        </section>
+      )}
+
       {/* Navigation tabs */}
       <div className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -239,7 +260,7 @@ export default function LaboratoryDetailClient({
               className="space-y-10"
             >
               {/* Video Theater Showcase (First-Class Feature) */}
-              {hasVideo ? (
+              {hasVideo && (
                 <motion.section variants={itemVariants}>
                   <VideoShowcase
                     videoFile={lab.videoFile}
@@ -249,25 +270,7 @@ export default function LaboratoryDetailClient({
                     description={lab.videoDescription}
                   />
                 </motion.section>
-              ) : heroSrc ? (
-                <motion.section
-                  variants={itemVariants}
-                  className="rounded-2xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800"
-                >
-                  <SmartMediaImage
-                    src={heroSrc}
-                    srcSet={lab.heroImageSrcSet}
-                    sizes={heroSizes(1152)}
-                    alt={lab.heroImageAlt || lab.title}
-                    focalPoint={lab.focalPoint}
-                    aspectRatio="aspect-video"
-                    className="max-h-[500px]"
-                    priority
-                    fallback={<FaFlask className="w-10 h-10 opacity-40" aria-hidden="true" />}
-                    fallbackClassName="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/30 dark:to-indigo-900/20 text-blue-400"
-                  />
-                </motion.section>
-              ) : null}
+              )}
 
               {/* Sponsor Recognition Plaque (Partners only) */}
               {Array.isArray(lab.partners) && lab.partners.length > 0 && (

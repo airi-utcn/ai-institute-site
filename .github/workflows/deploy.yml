@@ -95,7 +95,9 @@ jobs:
       dockerfile: ./server/Dockerfile
       image: server
       public_strapi_url: ${{ vars.PUBLIC_STRAPI_URL }}
-      strapi_admin_url: ${{ vars.STRAPI_ADMIN_URL }}
+      # Relative to PUBLIC_STRAPI_URL. /admin becomes /strapi/admin in prod;
+      # /strapi/admin would become the doubled /strapi/strapi/admin.
+      strapi_admin_url: ${{ vars.STRAPI_ADMIN_URL || '/admin' }}
 
   web:
     needs: [changes, mirrors]

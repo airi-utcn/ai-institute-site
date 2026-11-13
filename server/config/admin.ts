@@ -52,5 +52,9 @@ export default ({ env }) => ({
       },
     },
   },
-  url: env("STRAPI_ADMIN_URL", "/strapi/admin"),
+  // This path is relative to server.url (PUBLIC_STRAPI_URL). Production uses
+  // PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi, so "/admin" becomes
+  // https://airi.utcluj.ro/strapi/admin. Setting "/strapi/admin" here would
+  // produce the doubled /strapi/strapi/admin path.
+  url: env("STRAPI_ADMIN_URL", "/admin"),
 });

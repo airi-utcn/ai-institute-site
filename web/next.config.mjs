@@ -57,11 +57,28 @@ const remotePatterns = [
 const isStaticBuild = process.env.STATIC_BUILD === 'true';
 const isDev = process.env.NODE_ENV === 'development';
 
+// In development the browser loads Strapi media directly from the local
+// Strapi server. It is a different origin from the Next dev server, so it has
+// to be listed explicitly in img-src/media-src/connect-src.
+const devStrapiOrigins = isDev
+  ? [
+      'http://localhost:1337',
+      'http://127.0.0.1:1337',
+      'http://0.0.0.0:1337',
+      'http://host.docker.internal:1337',
+    ]
+  : [];
+
+const withDevStrapiOrigins = (directive) =>
+  devStrapiOrigins.length
+    ? `${directive} ${devStrapiOrigins.join(' ')}`
+    : directive;
+
 // The Strapi admin embeds the frontend in an iframe for previews. Allow the
 // configured Strapi origin in addition to the local and production defaults.
 const frameAncestors = [
   "'self'",
-  ...(isDev ? ['http://localhost:1337'] : []),
+  ...devStrapiOrigins,
   'https://airi.utcluj.ro',
   strapiOrigin,
 ]
@@ -78,10 +95,10 @@ const contentSecurityPolicy = [
   "default-src 'self' https: data: blob:",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://widgets.sociablekit.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  withDevStrapiOrigins("img-src 'self' data: blob: https:"),
   "font-src 'self' data:",
-  "connect-src 'self' https:",
-  "media-src 'self' https:",
+  withDevStrapiOrigins("connect-src 'self' https:"),
+  withDevStrapiOrigins("media-src 'self' https:"),
   "frame-src 'self' https:",
   "worker-src 'self' blob:",
   "object-src 'none'",

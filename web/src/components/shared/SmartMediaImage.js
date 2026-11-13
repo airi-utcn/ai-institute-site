@@ -5,12 +5,17 @@ import { useEffect, useRef, useState } from 'react';
 /**
  * SmartMediaImage
  *
- * Solves the cropping issue in landscape containers:
- * - Wide images: Render full-bleed object-cover with optional focalPoint alignment.
- * - Square/portrait images: Render 100% in view (object-contain) centered over an ambient,
- *   frosted-glass backdrop blur sampled from the image itself.
- *   This prevents awkward crops (e.g. only the middle of a portrait, or just a nose)
- *   and ensures every piece of media displays with pride.
+ * Solves image cropping inside responsive media frames:
+ * - `fit="smart"` (default): wide images render full-bleed with `object-cover`
+ *   and optional focalPoint alignment; square/portrait images are shown whole
+ *   (`object-contain`) over an ambient, frosted-glass backdrop sampled from the
+ *   image itself.
+ * - `fit="cover"`: always full-bleed with `object-cover` (focalPoint aware).
+ * - `fit="contain"`: always show the whole image over the ambient backdrop.
+ *   Used by cards whose subjects use very different aspect ratios.
+ * - `fit="natural"`: no fixed frame at all. The image keeps its intrinsic
+ *   aspect ratio and can grow as tall as it needs, capped only by
+ *   `naturalMaxHeightClassName`; the ambient backdrop fills any side space.
  *
  * Missing or broken images can render a caller-provided `fallback` element instead
  * of the browser's broken-image icon. The fallback is also used when the image
@@ -21,6 +26,10 @@ export default function SmartMediaImage({
   srcSet,
   alt = '',
   aspectRatio = 'aspect-video',
+  fit = 'smart',
+  width,
+  height,
+  naturalMaxHeightClassName = 'max-h-[85vh]',
   className = '',
   imageClassName = '',
   focalPoint = null,
@@ -40,13 +49,26 @@ export default function SmartMediaImage({
   const resolvedSrcSet =
     srcSet ?? (src && typeof src === 'object' ? src.srcSet : '') ?? '';
 
-  const [isNarrow, setIsNarrow] = useState(false);
-  const [narrowSrc, setNarrowSrc] = useState(null);
+  const intrinsicWidth = Number(width ?? (src && typeof src === 'object' ? src.width : 0)) || 0;
+  const intrinsicHeight = Number(height ?? (src && typeof src === 'object' ? src.height : 0)) || 0;
+  const dimensionsKnown = intrinsicWidth > 0 && intrinsicHeight > 0;
+
+  const [isNarrow, setIsNarrow] = useState(
+    () => dimensionsKnown && intrinsicHeight >= intrinsicWidth * 0.85
+  );
+  const [narrowSrc, setNarrowSrc] = useState(
+    () => (dimensionsKnown && srcUrl ? srcUrl : null)
+  );
   const [failedSrc, setFailedSrc] = useState(null);
   const imgRef = useRef(null);
 
+  const isNatural = fit === 'natural';
   const hasError = Boolean(srcUrl) && failedSrc === srcUrl;
-  const showAmbientBackdrop = !hasError && narrowSrc === srcUrl && isNarrow;
+  const showAmbientBackdrop =
+    !hasError &&
+    (fit === 'contain' ||
+      isNatural ||
+      (fit === 'smart' && narrowSrc === srcUrl && isNarrow));
 
   useEffect(() => {
     const img = imgRef.current;
@@ -63,11 +85,13 @@ export default function SmartMediaImage({
     }
   }, [srcUrl]);
 
-  const containerClasses = `relative w-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${aspectRatio} ${className}`.trim();
+  const containerClasses = `relative w-full overflow-hidden bg-gray-100 dark:bg-gray-900 ${
+    isNatural ? '' : aspectRatio
+  } ${className}`.trim();
 
   const renderFallback = () => (
     <div
-      className={`${containerClasses} ${fallbackClassName}`.trim()}
+      className={`${containerClasses} ${isNatural ? 'aspect-video' : ''} ${fallbackClassName}`.trim()}
       role={fallback && alt ? 'img' : undefined}
       aria-label={fallback && alt ? alt : undefined}
     >
@@ -101,9 +125,16 @@ export default function SmartMediaImage({
     onError?.(event);
   };
 
-  const focalStyle = focalPoint?.x != null && focalPoint?.y != null
-    ? { objectPosition: `${focalPoint.x}% ${focalPoint.y}%` }
-    : undefined;
+  const focalStyle =
+    !showAmbientBackdrop && focalPoint?.x != null && focalPoint?.y != null
+      ? { objectPosition: `${focalPoint.x}% ${focalPoint.y}%` }
+      : undefined;
+
+  const foregroundClassName = isNatural
+    ? `relative z-10 block w-full h-auto ${naturalMaxHeightClassName} object-contain mx-auto transition-all duration-300 ${imageClassName}`.trim()
+    : `relative z-10 w-full h-full transition-all duration-300 ${
+        showAmbientBackdrop ? 'object-contain p-2 drop-shadow-md' : 'object-cover'
+      } ${imageClassName}`.trim();
 
   return (
     <div className={containerClasses}>
@@ -131,12 +162,8 @@ export default function SmartMediaImage({
         sizes={sizes}
         onLoad={handleLoad}
         onError={handleError}
-        style={!showAmbientBackdrop ? focalStyle : undefined}
-        className={`relative z-10 w-full h-full transition-all duration-300 ${
-          showAmbientBackdrop
-            ? 'object-contain p-2 drop-shadow-md'
-            : 'object-cover'
-        } ${imageClassName}`.trim()}
+        style={focalStyle}
+        className={foregroundClassName}
         {...props}
       />
 

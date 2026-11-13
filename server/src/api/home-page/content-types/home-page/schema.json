@@ -156,6 +156,24 @@
         }
       }
     },
+    "contactCardTitle": {
+      "type": "string",
+      "default": "Contact",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "contactCardDescription": {
+      "type": "string",
+      "default": "Collaboration, partnerships, or questions — get in touch.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "latestNewsTitle": {
       "type": "string",
       "default": "Latest News",

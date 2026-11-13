@@ -151,6 +151,8 @@ function mapHomePage(msg) {
     peopleCardDescription: cd.people?.description || '',
     resourcesCardTitle: cd.resources?.title || 'Resources',
     resourcesCardDescription: cd.resources?.description || '',
+    contactCardTitle: cd.contact?.title || 'Contact',
+    contactCardDescription: cd.contact?.description || '',
     latestNewsTitle: ln.title || 'Latest News',
     latestNewsViewAll: ln.viewAll || 'View All News →',
     latestNewsViewArticle: ln.viewArticle || 'View article',

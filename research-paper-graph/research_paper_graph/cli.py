@@ -5,6 +5,7 @@ import logging
 
 from .config import load_runtime_settings
 from . import graph as gg
+from . import openalex as oaf
 from .pipeline import build_graph_artifacts
 from .sources import fetch_papers
 from .strapi_sync import (
@@ -17,6 +18,7 @@ from .strapi_sync import (
 )
 
 SETTINGS = load_runtime_settings(__file__)
+oaf.configure(SETTINGS.openalex_api_key)
 
 log = logging.getLogger("paper-sync")
 

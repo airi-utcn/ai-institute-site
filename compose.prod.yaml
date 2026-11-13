@@ -172,6 +172,8 @@ services:
       # Strapi connection (inside Docker network)
       STRAPI_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      # Optional: authenticates OpenAlex requests and raises rate limits
+      OPENALEX_API_KEY: ${OPENALEX_API_KEY:-}
       # Cron schedule & timezone
       PAPER_SYNC_CRON: ${PAPER_SYNC_CRON:-0 0 * * 6}
       TZ: ${PAPER_SYNC_TZ:-UTC}

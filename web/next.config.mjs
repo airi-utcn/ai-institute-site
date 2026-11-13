@@ -55,12 +55,13 @@ const remotePatterns = [
 ];
 
 const isStaticBuild = process.env.STATIC_BUILD === 'true';
+const isDev = process.env.NODE_ENV === 'development';
 
 // The Strapi admin embeds the frontend in an iframe for previews. Allow the
 // configured Strapi origin in addition to the local and production defaults.
 const frameAncestors = [
   "'self'",
-  'http://localhost:1337',
+  ...(isDev ? ['http://localhost:1337'] : []),
   'https://airi.utcluj.ro',
   strapiOrigin,
 ]
@@ -68,8 +69,30 @@ const frameAncestors = [
   .filter((value, index, values) => values.indexOf(value) === index)
   .join(' ');
 
+// This is deliberately not a nonce-based policy: the app uses Next's
+// beforeInteractive theme script and a third-party LinkedIn widget, and the
+// root layout is already dynamic. script-src still blocks unlisted third-party
+// scripts, while the JSON-LD renderer escapes its payload separately.
+// A future step is a nonce in proxy.js and dropping 'unsafe-inline'.
+const contentSecurityPolicy = [
+  "default-src 'self' https: data: blob:",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://widgets.sociablekit.com`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https:",
+  "media-src 'self' https:",
+  "frame-src 'self' https:",
+  "worker-src 'self' blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  `frame-ancestors ${frameAncestors}`,
+].join('; ');
+
 const nextConfig = {
   trailingSlash: false,
+  poweredByHeader: false,
   // basePath: "/icia-staging",
   ...(isStaticBuild ? { output: 'export' } : {}),
   images: {
@@ -124,9 +147,8 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           {
             key: 'Content-Security-Policy',
-            value: `frame-ancestors ${frameAncestors}`,
+            value: contentSecurityPolicy,
           },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],

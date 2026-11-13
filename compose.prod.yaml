@@ -82,6 +82,7 @@ services:
       PORT: "3000"
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
       REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      REVALIDATION_ALLOW_QUERY_SECRET: ${REVALIDATION_ALLOW_QUERY_SECRET:-false}
       PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
       # Browser/public base URL (used to prefix media URLs): should be reachable by end users.
       NEXT_PUBLIC_STRAPI_URL: ${NEXT_PUBLIC_STRAPI_URL:-${PUBLIC_STRAPI_URL}}
@@ -215,6 +216,11 @@ services:
       APP_URL: ${SNIPEIT_PUBLIC_URL:-https://airi.utcluj.ro/snipeit}
       APP_KEY: ${SNIPEIT_APP_KEY}
       APP_FORCE_TLS: "true"
+      # Never let the browser send the Snipe-IT session or XSRF cookie over
+      # plain HTTP. nginx overwrites X-Forwarded-For before this hop, so the
+      # wildcard proxy trust no longer lets clients spoof their address.
+      SESSION_SECURE_COOKIE: "true"
+      SESSION_SAME_SITE: "lax"
       APP_TRUSTED_PROXIES: "*"
       APP_TRUSTED_HEADERS: "HEADER_X_FORWARDED_FOR,HEADER_X_FORWARDED_HOST,HEADER_X_FORWARDED_PROTO,HEADER_X_FORWARDED_PORT,HEADER_X_FORWARDED_PREFIX"
       LIVEWIRE_URL_PREFIX: ${SNIPEIT_LIVEWIRE_PREFIX:-/}

@@ -1,3 +1,19 @@
+const escapeHtml = (value: unknown): string =>
+  String(value).replace(/[&<>"']/g, (character) => {
+    switch (character) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      default:
+        return '&#39;';
+    }
+  });
+
 export default ({ env }: { env: any }) => ({
   notifyEditorsOfDrafts: {
     task: async ({ strapi }: { strapi: any }) => {
@@ -82,11 +98,13 @@ export default ({ env }: { env: any }) => ({
       // 2. Fetch editor accounts matching configured roles
       let editorEmails: string[] = [];
 
-      // Build OR conditions for each target role
+      // Build OR conditions for each target role. Match the whole role name
+      // case-insensitively: a substring match would let "Editor" select
+      // unrelated roles such as "Editorial Assistant".
       const adminRoleConditions = targetRoles.map((role) => ({
         roles: {
           name: {
-            $containsi: role,
+            $eqi: role,
           },
         },
       }));
@@ -107,36 +125,15 @@ export default ({ env }: { env: any }) => ({
         console.warn('Could not query admin::user for editors:', err);
       }
 
-      // Fallback: Check Users & Permissions plugin users if no admin editors were matched
-      if (editorEmails.length === 0) {
-        const upRoleConditions = targetRoles.map((role) => ({
-          role: {
-            name: {
-              $containsi: role,
-            },
-          },
-        }));
-
-        try {
-          const upEditors = await strapi.documents('plugin::users-permissions.user').findMany({
-            filters: {
-              $or: upRoleConditions,
-            },
-          });
-
-          if (upEditors && upEditors.length > 0) {
-            editorEmails = upEditors.map((e: any) => e.email).filter(Boolean);
-          }
-        } catch (err) {
-          console.warn('Could not query plugin::users-permissions.user for editors:', err);
-        }
-      }
-
-      // De-duplicate emails
+      // Do not fall back to plugin::users-permissions.user. Those are public
+      // site accounts, not editors, and a loose role match could send
+      // unpublished titles to them.
       editorEmails = Array.from(new Set(editorEmails));
 
       if (editorEmails.length === 0) {
-        console.log(`No users found with roles [${targetRoles.join(', ')}] to notify.`);
+        console.log(
+          `No admin users found with exact role(s) [${targetRoles.join(', ')}] to notify.`
+        );
         return;
       }
 
@@ -152,14 +149,14 @@ export default ({ env }: { env: any }) => ({
         const typeName = rawName.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
 
         emailText += `\n--- ${typeName} ---\n`;
-        emailHtml += `<h3>${typeName}</h3><ul>`;
+        emailHtml += `<h3>${escapeHtml(typeName)}</h3><ul>`;
 
         for (const draft of drafts) {
           const title = resolveDisplayTitle(draft);
           const updateDate = draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : 'Unknown date';
 
           emailText += `- ${title} (Saved: ${updateDate})\n`;
-          emailHtml += `<li><strong>${title}</strong> <em>(Saved: ${updateDate})</em></li>`;
+          emailHtml += `<li><strong>${escapeHtml(title)}</strong> <em>(Saved: ${escapeHtml(updateDate)})</em></li>`;
         }
         emailHtml += `</ul>`;
       }

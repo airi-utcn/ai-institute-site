@@ -1,0 +1,320 @@
+# =============================================================================
+# airi.utcluj.ro / icia.utcluj.ro origin server
+#
+# TLS is terminated by the university reverse proxy (openresty). This nginx
+# only speaks HTTP to the containers. Do NOT add an 80 -> 443 redirect here:
+# the TLS terminator would follow it back to itself and loop. The redirect
+# belongs on the terminator, not on this origin.
+# =============================================================================
+
+# Real client IP, used for logs and for the rate-limit buckets below.
+# The proxy must APPEND the client address to X-Forwarded-For (the usual
+# $proxy_add_x_forwarded_for behaviour). Add every address the proxy can
+# connect from. If this list is wrong, every client shares one bucket and one
+# noisy user throttles everybody.
+set_real_ip_from 127.0.0.1;
+set_real_ip_from 193.226.7.70;   # webhosting.cloud.utcluj.ro -- verify
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+# Trust the proxy's scheme, but assume HTTPS when the header is missing.
+# The origin itself is HTTP, so $scheme alone would make Next.js think the
+# public site is HTTP and generate the wrong absolute URLs.
+map $http_x_forwarded_proto $airi_client_proto {
+    default $http_x_forwarded_proto;
+    ""      https;
+}
+
+# Only send "Connection: upgrade" when the client actually asked for it.
+# The previous unconditional "upgrade" was sent to Strapi/Snipe-IT on every
+# request, including ordinary page loads.
+map $http_upgrade $airi_connection_upgrade {
+    default upgrade;
+    ""      "";
+}
+
+# Rate limits. Keys use $binary_remote_addr, which is the real client address
+# after the real_ip settings above.
+limit_req_zone $binary_remote_addr zone=reservations:10m rate=10r/m;
+limit_req_zone $binary_remote_addr zone=equipment:10m    rate=2r/s;
+limit_req_zone $binary_remote_addr zone=next_auth:10m    rate=20r/m;
+limit_req_zone $binary_remote_addr zone=revalidate:10m   rate=120r/m;
+limit_req_zone $binary_remote_addr zone=snipeit_api:10m  rate=120r/m;
+
+server {
+        listen          80;
+        listen          [::]:80;
+        server_name     icia.utcluj.ro airi.utcluj.ro;
+
+        server_tokens off;
+
+        # HSTS is only honoured by browsers over HTTPS. Adding it here means
+        # it also reaches clients when the TLS terminator passes the response
+        # through. Remove includeSubDomains if any subdomain is still HTTP.
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+        # Do not advertise Next.js/Strapi behind the proxy, and do not emit
+        # duplicate copies of the headers added above.
+        proxy_hide_header X-Powered-By;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+
+        # Strapi uploads can be large; keep the existing ceiling.
+        client_max_body_size 2G;
+
+        location = /strapi {
+                return 301 /strapi/;
+        }
+
+        # The public site talks to Strapi through the Next.js server over the
+        # internal Docker network. Do not expose the Strapi content API.
+        #
+        # The exact location catches /strapi/api (no trailing slash), which
+        # would otherwise fall into /strapi/ and be proxied. The ^~ prefix
+        # makes sure no future regex location can accidentally override it.
+        location = /strapi/api {
+                return 404;
+        }
+        location ^~ /strapi/api/ {
+                return 404;
+        }
+
+        # All /strapi/... routes go to Strapi. The trailing slash on proxy_pass
+        # strips the public /strapi/ prefix before forwarding.
+        location /strapi/ {
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                # Overwrite instead of appending: the client cannot smuggle
+                # extra addresses into the header Strapi sees.
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_pass_request_headers on;
+
+                # WebSockets / upgrade requests only.
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                # Relaxed response timeout for uploads/builds.
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                proxy_pass http://127.0.0.1:1337/;
+        }
+
+        location = /snipeit {
+                return 301 /snipeit/;
+        }
+
+        # Snipe-IT's REST API has to stay reachable because the admin panel
+        # uses it. A blanket 404 broke the panel, so it is rate-limited rather
+        # than blocked. Keep the limit high enough for normal admin use.
+        #
+        # If the panel is later moved behind a VPN/IP allowlist, add
+        # "allow <CIDR>; deny all;" to both API locations and to
+        # /snipeit/index.php/api.
+        #
+        # The no-trailing-slash form would otherwise fall into /snipeit/.
+        location = /snipeit/api {
+                limit_req zone=snipeit_api burst=60 nodelay;
+                limit_req_status 429;
+                client_max_body_size 100m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                proxy_pass http://127.0.0.1:8000/api;
+        }
+
+        location /snipeit/api/ {
+                limit_req zone=snipeit_api burst=60 nodelay;
+                limit_req_status 429;
+                client_max_body_size 100m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                proxy_pass http://127.0.0.1:8000/api/;
+        }
+
+        # Same API, but when Snipe-IT writes index.php into the path. This was
+        # the bypass around the old blanket 404.
+        location /snipeit/index.php/api {
+                limit_req zone=snipeit_api burst=60 nodelay;
+                limit_req_status 429;
+                client_max_body_size 100m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                proxy_pass http://127.0.0.1:8000/index.php/api;
+        }
+
+        # Some PHP in that app writes /snipeit multiple times. Rewrite the
+        # duplicated Livewire path back to a single /snipeit.
+        location ~ ^/snipeit/(?:snipeit/)+(?<snipeit_livewire_path>livewire/.*)$ {
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header X-Real-IP $remote_addr;
+
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                proxy_pass http://127.0.0.1:8000/$snipeit_livewire_path;
+        }
+
+        # All other /snipeit/... requests go to Snipe-IT's application root by
+        # stripping the public subpath.
+        location /snipeit/ {
+                client_max_body_size 100m;
+                proxy_http_version 1.1;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_pass_request_headers on;
+
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_read_timeout 300s;
+                proxy_send_timeout 300s;
+
+                # Trailing slash: strip /snipeit/ before forwarding.
+                proxy_pass http://127.0.0.1:8000/;
+        }
+
+        # ------------------------------------------------------------------
+        # Next.js API routes that the browser calls directly.
+        # These must stay above the generic location / below.
+        # ------------------------------------------------------------------
+
+        location = /api/reservations {
+                limit_req zone=reservations burst=5 nodelay;
+                limit_req_status 429;
+                client_max_body_size 1m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_pass http://127.0.0.1:3000;
+        }
+
+        location /api/equipment {
+                limit_req zone=equipment burst=20 nodelay;
+                limit_req_status 429;
+                client_max_body_size 1m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_pass http://127.0.0.1:3000;
+        }
+
+        # Login/callback endpoints: slow down credential stuffing.
+        location /api/auth/ {
+                limit_req zone=next_auth burst=10 nodelay;
+                limit_req_status 429;
+                client_max_body_size 1m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_pass http://127.0.0.1:3000;
+        }
+
+        # Strapi -> Next.js revalidation webhook. The endpoint itself checks
+        # the shared secret; this only stops a runaway loop from hammering it.
+        location = /api/revalidate {
+                limit_req zone=revalidate burst=20 nodelay;
+                limit_req_status 429;
+                client_max_body_size 1m;
+
+                proxy_http_version 1.1;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+
+                proxy_pass http://127.0.0.1:3000;
+        }
+
+        location / {
+                client_max_body_size 2m;
+                gzip            on;
+                gzip_buffers    8 256k;
+
+                proxy_http_version 1.1;
+                proxy_pass http://127.0.0.1:3000;
+
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $remote_addr;
+                proxy_set_header X-Forwarded-Host $host;
+                proxy_set_header X-Forwarded-Server $host;
+                proxy_set_header X-Forwarded-Proto $airi_client_proto;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $airi_connection_upgrade;
+        }
+}

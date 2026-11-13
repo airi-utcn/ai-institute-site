@@ -309,7 +309,10 @@ docker compose up --build
 ```
 
 **Problem:** Can't access admin panel
-- Check `STRAPI_ADMIN_URL` in `.env` matches your path
+- `STRAPI_ADMIN_URL` is relative to `PUBLIC_STRAPI_URL`. With
+  `PUBLIC_STRAPI_URL=https://airi.utcluj.ro/strapi`, use `/admin` to get
+  `https://airi.utcluj.ro/strapi/admin`. Using `/strapi/admin` here produces
+  the doubled `/strapi/strapi/admin` path.
 - Verify container is running: `docker compose ps`
 - Check logs: `docker compose logs strapi`
 

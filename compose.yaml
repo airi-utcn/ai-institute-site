@@ -12,7 +12,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -58,7 +58,7 @@ services:
       CLIENT_URL: ${CLIENT_URL:-http://localhost:3000}
       PREVIEW_SECRET: ${PREVIEW_SECRET}
     ports:
-      - "1337:1337"
+      - "127.0.0.1:1337:1337"
     volumes:
       - ./server/public/uploads:/app/public/uploads
     depends_on:
@@ -82,6 +82,7 @@ services:
       PORT: "3000"
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
       REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      REVALIDATION_ALLOW_QUERY_SECRET: ${REVALIDATION_ALLOW_QUERY_SECRET:-false}
       PUBLIC_STRAPI_URL: ${PUBLIC_STRAPI_URL}
       # Browser/public base URL (used to prefix media URLs): should be reachable by end users.
       # Example prod: https://airi.utcluj.ro/strapi
@@ -116,7 +117,7 @@ services:
       AUTH_PROMPT: ${AUTH_PROMPT:-}
       AUTH_SESSION_MAX_AGE_HOURS: ${AUTH_SESSION_MAX_AGE_HOURS:-12}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       strapi:
         condition: service_healthy
@@ -169,7 +170,7 @@ services:
     image: snipe/snipe-it:latest
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "127.0.0.1:8000:80"
     environment:
       APP_URL: ${SNIPEIT_PUBLIC_URL:-http://localhost:8000}
       APP_KEY: ${SNIPEIT_APP_KEY}

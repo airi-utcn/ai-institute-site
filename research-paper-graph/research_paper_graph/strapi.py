@@ -1,14 +1,96 @@
+import ipaddress
 import logging
+import socket
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from io import BytesIO
-from urllib.parse import quote
+from urllib.parse import quote, urljoin, urlparse
 
 import requests
 
 from .utils import normalize_doi, normalize_openalex_id, normalize_title, slugify
 
 log = logging.getLogger(__name__)
+
+MAX_PDF_BYTES = 10 * 1024 * 1024
+
+
+def _validate_public_https_url(url: str) -> None:
+    """Reject anything that is not HTTPS or does not resolve to a public IP."""
+    try:
+        parsed = urlparse(url)
+        port = parsed.port or 443
+    except ValueError as exc:
+        raise ValueError(f"Invalid PDF URL: {url}") from exc
+
+    if parsed.scheme != "https" or not parsed.hostname:
+        raise ValueError(f"PDF URL must be an absolute https URL: {url}")
+
+    try:
+        addresses = {
+            info[4][0]
+            for info in socket.getaddrinfo(
+                parsed.hostname, port, type=socket.SOCK_STREAM
+            )
+        }
+    except socket.gaierror as exc:
+        raise ValueError(f"Could not resolve PDF host: {parsed.hostname}") from exc
+
+    if not addresses:
+        raise ValueError(f"PDF host did not resolve: {parsed.hostname}")
+
+    for address in addresses:
+        try:
+            ip = ipaddress.ip_address(address)
+        except ValueError as exc:
+            raise ValueError(
+                f"PDF host {parsed.hostname} returned an invalid address {address}"
+            ) from exc
+        if not ip.is_global:
+            raise ValueError(
+                f"PDF host {parsed.hostname} resolves to non-public address {address}"
+            )
+
+
+def _download_pdf(url: str) -> bytes:
+    """Download a PDF without following redirects into private networks."""
+    current = url
+    for _ in range(4):
+        _validate_public_https_url(current)
+        with requests.get(
+            current,
+            timeout=15,
+            allow_redirects=False,
+            stream=True,
+            # Do not let HTTP(S)_PROXY in the environment bypass the IP check.
+            proxies={"http": None, "https": None},
+        ) as response:
+            if response.is_redirect:
+                location = response.headers.get("location")
+                if not location:
+                    raise ValueError("PDF redirect has no Location header")
+                current = urljoin(current, location)
+                continue
+
+            response.raise_for_status()
+
+            chunks = []
+            total = 0
+            for chunk in response.iter_content(chunk_size=64 * 1024):
+                if not chunk:
+                    continue
+                total += len(chunk)
+                if total > MAX_PDF_BYTES:
+                    raise ValueError("PDF is larger than the 10 MB limit")
+                chunks.append(chunk)
+
+            content = b"".join(chunks)
+            if not content.startswith(b"%PDF-"):
+                raise ValueError("Downloaded content is not a PDF")
+
+            return content
+
+    raise ValueError("Too many redirects while downloading the PDF")
 
 
 class StrapiClient:
@@ -590,12 +672,11 @@ class StrapiClient:
 
         # Download and upload the PDF
         try:
-            pdf_response = requests.get(result["pdf_url"], timeout=15)
-            pdf_response.raise_for_status()
+            pdf_content = _download_pdf(result["pdf_url"])
             result["downloaded"] = True
 
             files = {
-                "files": (filename, BytesIO(pdf_response.content), "application/pdf"),
+                "files": (filename, BytesIO(pdf_content), "application/pdf"),
             }
             upload_response = requests.post(
                 f"{self.api_url}/upload",

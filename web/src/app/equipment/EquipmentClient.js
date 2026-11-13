@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBoxOpen } from "react-icons/fa";
+import { FaBoxOpen, FaInfoCircle } from "react-icons/fa";
 import EquipmentCard from "@/components/equipment/EquipmentCard";
+import RichMarkdown from "@/components/shared/RichMarkdown";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -17,9 +18,10 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function EquipmentClient() {
+export default function EquipmentClient({ notice = "" }) {
   const [assets, setAssets] = useState(null);
   const [error, setError] = useState("");
+  const hasNotice = typeof notice === "string" && notice.trim().length > 0;
 
   useEffect(() => {
     fetch("/api/equipment")
@@ -50,6 +52,25 @@ export default function EquipmentClient() {
             Browse available equipment and submit a reservation request
           </p>
         </motion.div>
+
+        {hasNotice && (
+          <div
+            className="notice notice-info max-w-3xl mx-auto mb-8 text-left"
+            role="note"
+            aria-label="Equipment request information"
+          >
+            <div className="flex items-start gap-3">
+              <FaInfoCircle
+                className="w-5 h-5 mt-0.5 flex-shrink-0 text-primary-600 dark:text-primary-400"
+                aria-hidden="true"
+              />
+              <RichMarkdown
+                content={notice}
+                className="text-sm leading-relaxed"
+              />
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="notice notice-warning max-w-lg mx-auto mb-6">

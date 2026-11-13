@@ -41,6 +41,12 @@ Visitors only see the published version.
 Single types work the same way. Use **Preview** to check a draft first, see the
 [preview guide](./PREVIEW_GUIDE.md).
 
+## Equipment page banner
+
+The banner at the top of `/equipment` is controlled by the **Equipment Page**
+single type under **Single Types**. Edit the **Notice** field and publish to
+update the text. To hide the banner, clear the **Notice** field and publish.
+
 ## Who last edited an entry
 
 Open the entry and click the `...` button (**More actions**) at the top right, next to the language

@@ -18,7 +18,7 @@
   "attributes": {
     "seminarsTitle": {
       "type": "string",
-      "default": "Seminars",
+      "default": "Scientific Events",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -36,7 +36,7 @@
     },
     "seminarsEmptyState": {
       "type": "string",
-      "default": "No seminars available.",
+      "default": "No scientific events available.",
       "pluginOptions": {
         "i18n": {
           "localized": true
@@ -58,6 +58,24 @@
       "pluginOptions": {
         "i18n": {
           "localized": true
+        }
+      },
+      "seminarsAgenda": {
+        "type": "string",
+        "default": "Agenda",
+        "pluginOptions": {
+          "i18n": {
+            "localized": true
+          }
+        }
+      },
+      "seminarsProject": {
+        "type": "string",
+        "default": "Project",
+        "pluginOptions": {
+          "i18n": {
+            "localized": true
+          }
         }
       }
     }

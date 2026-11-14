@@ -2102,6 +2102,8 @@ export async function getEventBySlug(slug, locale) {
         },
         contactPerson: PERSON_FULL_POPULATE,
         speakers: PERSON_FULL_POPULATE,
+        projects: { fields: ['title', 'slug'] },
+        agenda: { populate: { speakers: PERSON_FLAT_POPULATE } },
         organizers: DEPARTMENT_POPULATE,
         partners: { fields: ['name', 'slug', 'website'] },
         body: {
@@ -2145,9 +2147,25 @@ export async function getEventBySlug(slug, locale) {
 export async function getEvents(options = {}) {
   try {
     const locale = typeof options === 'string' ? options : options?.locale;
+    const filters = typeof options === 'object' && options?.filters ? options.filters : {};
+    if (typeof options === 'object' && options?.scientificOnly) {
+      filters.category = {
+        $in: ['conference', 'workshop', 'project_meeting', 'airi_invited_lecture', 'seminar', 'research_presentation'],
+      };
+      filters.projects = { id: { $notNull: true } };
+    }
+    if (typeof options === 'object' && options?.projectSlug) {
+      filters.projects = { slug: { $eq: options.projectSlug } };
+    }
     return await fetchAllEntries('/events', {
       fields: EVENT_FIELDS,
-      populate: EVENT_POPULATE,
+      populate: {
+        ...EVENT_POPULATE,
+        projects: { fields: ['title', 'slug'] },
+        speakers: PERSON_FLAT_POPULATE,
+        agenda: { populate: { speakers: PERSON_FLAT_POPULATE } },
+      },
+      filters: Object.keys(filters).length ? filters : null,
       sort: 'startDate:desc',
       locale,
     });
@@ -3419,6 +3437,34 @@ export function transformEventData(strapiEvents) {
       };
     });
 
+    const projects = toArray(attributes.projects?.data ?? attributes.projects).map((project) => {
+      const projectData = project?.attributes ?? project ?? {};
+      return {
+        id: project?.id ?? null,
+        title: projectData.title || '',
+        slug: projectData.slug || '',
+      };
+    }).filter((project) => project.title || project.slug);
+
+    const normalizeAgenda = toArray(attributes.agenda).map((item) => {
+      const itemData = item?.attributes ?? item ?? {};
+      const agendaSpeakers = toArray(itemData.speakers?.data ?? itemData.speakers).map((speaker) => {
+        const speakerData = speaker?.attributes ?? speaker ?? {};
+        return {
+          id: speaker?.id ?? null,
+          name: `${speakerData.firstName || ''} ${speakerData.lastName || ''}`.trim(),
+          slug: speakerData.slug || '',
+        };
+      }).filter((speaker) => speaker.name || speaker.slug);
+      return {
+        title: itemData.title || '',
+        startTime: itemData.startTime || '',
+        endTime: itemData.endTime || '',
+        description: itemData.description || '',
+        speakers: agendaSpeakers,
+      };
+    }).filter((item) => item.title);
+
     return {
       id: evt?.id ?? null,
       title: attributes.title || '',
@@ -3455,6 +3501,8 @@ export function transformEventData(strapiEvents) {
       participants: allParticipants,
       organizers,
       partners,
+      projects,
+      agenda: normalizeAgenda,
       startDate: attributes.startDate || null,
       endDate: attributes.endDate || null,
       date: attributes.startDate || null,
@@ -3604,7 +3652,7 @@ const RESOURCE_POPULATE = {
   },
 };
 
-const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description', 'format', 'locationType', 'address', 'roomOrLink', 'language', 'registrationRequired', 'registrationUrl', 'registrationEmail', 'registrationDeadline'];
+const EVENT_FIELDS = ['title', 'slug', 'startDate', 'endDate', 'location', 'category', 'ctaLabel', 'ctaUrl', 'description', 'format', 'locationType', 'address', 'roomOrLink', 'language', 'registrationRequired', 'registrationUrl', 'registrationEmail', 'registrationDeadline', 'host', 'audience', 'audienceCustom'];
 
 const EVENT_POPULATE = {
   heroImage: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },

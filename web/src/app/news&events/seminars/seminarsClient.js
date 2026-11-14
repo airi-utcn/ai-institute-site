@@ -1,149 +1,137 @@
 "use client";
 
 import CatalogNotice from "@/components/CatalogNotice";
-import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { usePageState } from "@/lib/usePageState";
+import PageHeader from "@/components/PageHeader";
+import Link from "next/link";
+import { FaCalendar, FaClock, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 
-/* Animations */
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.15 } },
+const formatDateTime = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toLocaleString("en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
 };
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
 
-function Chevron({ open }) {
-  return (
-    <svg
-      className={`h-5 w-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        fillRule="evenodd"
-        d="M5.23 7.21a.75.75 0 011.06.02L10 10.18l3.71-2.95a.75.75 0 11.94 1.16l-4.24 3.37a.75.75 0 01-.94 0L5.21 8.39a.75.75 0 01.02-1.18z"
-        clipRule="evenodd"
-      />
-    </svg>
-  );
-}
+const formatCategory = (value) =>
+  String(value || "event")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
-function SectionToggle({ label, children, defaultOpen = false, stateKey }) {
-  const [open, setOpen] = usePageState(`section:${stateKey || label}`, defaultOpen);
+export default function SeminarsClient({ events = [], pageData }) {
+  const items = Array.isArray(events) ? events : [];
+  const title = pageData?.seminarsTitle || "Scientific Events";
+  const subtitle =
+    pageData?.seminarsSubtitle ||
+    "Seminars, workshops, conferences, invited lectures, and project meetings organized within AIRi projects.";
+  const emptyState = pageData?.seminarsEmptyState || "No scientific events available.";
+  const agendaLabel = pageData?.seminarsAgenda || "Agenda";
+  const projectLabel = pageData?.seminarsProject || "Project";
 
   return (
-    <div className="mt-4">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="w-full flex items-center justify-between text-left text-sm font-semibold text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
-      >
-        <span>{label}</span>
-        <Chevron open={open} />
-      </button>
+    <main className="page-container relative bg-gray-50 dark:bg-gray-950 min-h-screen">
+      <div className="content-wrapper content-padding py-12 md:py-16">
+        <PageHeader title={title} subtitle={subtitle} />
+        <CatalogNotice className="mb-6" />
 
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            key="content"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="overflow-hidden"
-          >
-            <div className="pt-2">{children}</div>
-          </motion.div>
+        {items.length === 0 ? (
+          <CatalogNotice isEmpty emptyMessage={emptyState} />
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((event) => (
+              <article
+                key={event.id || event.slug}
+                className="flex flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                  <span>{formatCategory(event.category)}</span>
+                  {event.projects?.length ? <span>{projectLabel}</span> : null}
+                </div>
+                <h2 className="mt-3 text-xl font-bold text-gray-900 dark:text-white">
+                  <Link href={`/news&events/events/${event.slug}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                    {event.title}
+                  </Link>
+                </h2>
+                {event.description ? (
+                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                    {event.description}
+                  </p>
+                ) : null}
+
+                <div className="mt-5 space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                  {event.startDate ? (
+                    <div className="flex items-start gap-2">
+                      <FaCalendar className="mt-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <span>
+                        {formatDateTime(event.startDate)}
+                        {event.endDate ? ` – ${formatDateTime(event.endDate)}` : ""}
+                      </span>
+                    </div>
+                  ) : null}
+                  {event.location || event.format ? (
+                    <div className="flex items-start gap-2">
+                      <FaMapMarkerAlt className="mt-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <span>{event.location || event.format}</span>
+                    </div>
+                  ) : null}
+                  {event.participants?.length ? (
+                    <div className="flex items-start gap-2">
+                      <FaUsers className="mt-1 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <span>{event.participants.map((speaker) => speaker.name).filter(Boolean).join(", ")}</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {event.projects?.length ? (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {event.projects.map((project) => (
+                      <Link
+                        key={project.slug || project.id}
+                        href={`/research/projects/${project.slug}`}
+                        className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 hover:underline dark:bg-indigo-950/40 dark:text-indigo-300"
+                      >
+                        {project.title}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+
+                {event.agenda?.length ? (
+                  <details className="mt-5 border-t border-gray-100 pt-4 dark:border-gray-800">
+                    <summary className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                      <FaClock className="text-blue-600 dark:text-blue-400" />
+                      {agendaLabel}
+                    </summary>
+                    <div className="mt-3 space-y-3">
+                      {event.agenda.map((item, index) => (
+                        <div key={`${item.title}-${index}`} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+                          <div className="flex justify-between gap-3 text-sm font-semibold text-gray-900 dark:text-white">
+                            <span>{item.title}</span>
+                            <span className="whitespace-nowrap text-xs text-gray-500">
+                              {item.startTime}{item.endTime ? ` – ${item.endTime}` : ""}
+                            </span>
+                          </div>
+                          {item.speakers?.length ? (
+                            <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                              {item.speakers.map((speaker) => speaker.name).filter(Boolean).join(", ")}
+                            </p>
+                          ) : null}
+                          {item.description ? (
+                            <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">{item.description}</p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </article>
+            ))}
+          </div>
         )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-export default function SeminarsClient({ seminars = [], pageData }) {
-  const items = Array.isArray(seminars) ? seminars : [];
-  const title = pageData?.seminarsTitle || "Seminars";
-  const subtitle = pageData?.seminarsSubtitle || "Research seminars and talks hosted by AIRi at the Technical University of Cluj-Napoca.";
-  const emptyState = pageData?.seminarsEmptyState || "No seminars scheduled at this time.";
-  const whatYouWillLearn = pageData?.seminarsWhatYouWillLearn || "What you'll learn";
-  const modules = pageData?.seminarsModules || "Modules";
-
-  return (
-    <div className="max-w-6xl mx-auto p-6 bg-white dark:bg-gray-950 text-black dark:text-white rounded-lg shadow-lg border border-gray-100 dark:border-gray-800">
-      <motion.h1
-        className="text-4xl font-extrabold text-center mb-8 text-primary-600 dark:text-accent-400"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
-        {title}
-      </motion.h1>
-
-      <motion.p
-        className="text-gray-800 dark:text-gray-200 text-center max-w-3xl mx-auto text-lg mb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.15, duration: 0.6 }}
-      >
-        {subtitle}
-      </motion.p>
-
-      <CatalogNotice className="mt-6 max-w-2xl mx-auto" />
-
-      {items.length === 0 ? (
-        <CatalogNotice isEmpty={true} emptyMessage={emptyState} className="mt-8 max-w-2xl mx-auto" />
-      ) : (
-        <motion.ul
-          className="mt-10 space-y-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {items.map((s, idx) => (
-            <motion.li
-              key={`${s.title}-${idx}`}
-              className="border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 hover:shadow-lg transition-shadow"
-              variants={itemVariants}
-            >
-              <div className="p-5">
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base md:text-lg font-semibold leading-snug transition-colors duration-200 hover:underline hover:text-blue-600 dark:hover:text-yellow-400"
-                >
-                  {s.title}
-                </a>
-
-                {Array.isArray(s.about) && s.about.length > 0 && (
-                  <SectionToggle label={whatYouWillLearn} stateKey={`${s.title}-about`}>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
-                      {s.about.map((point, i) => (
-                        <li key={`about-${idx}-${i}`}>{point}</li>
-                      ))}
-                    </ul>
-                  </SectionToggle>
-                )}
-
-                {Array.isArray(s.modules) && s.modules.length > 0 && (
-                  <SectionToggle label={modules} stateKey={`${s.title}-modules`}>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-200">
-                      {s.modules.map((m, i) => (
-                        <li key={`module-${idx}-${i}`}>{m}</li>
-                      ))}
-                    </ul>
-                  </SectionToggle>
-                )}
-              </div>
-            </motion.li>
-          ))}
-        </motion.ul>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

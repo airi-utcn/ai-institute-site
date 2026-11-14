@@ -3494,6 +3494,105 @@ export function transformSeminarData(strapiSeminars) {
 
 /* --- Resource Fetcher --- */
 
+const SLIDE_FIELDS = [
+  'title',
+  'slug',
+  'description',
+  'presentationDate',
+  'category',
+  'tags',
+];
+
+const SLIDE_POPULATE = {
+  file: { fields: ['name', 'url', 'mime', 'ext', 'size'] },
+  thumbnail: { fields: ['url', 'formats', 'alternativeText', 'width', 'height'] },
+  presenters: { fields: ['firstName', 'lastName', 'slug'] },
+  publications: { fields: ['title', 'slug'] },
+  laboratories: { fields: ['title', 'slug'] },
+  projects: { fields: ['title', 'slug'] },
+};
+
+export async function getSlides(options = {}) {
+  try {
+    const { category, locale, publicationSlug, laboratorySlug, projectSlug } = options;
+    const filters = {};
+    if (category) filters.category = { $eq: category };
+    if (publicationSlug) filters.publications = { slug: { $eq: publicationSlug } };
+    if (laboratorySlug) filters.laboratories = { slug: { $eq: laboratorySlug } };
+    if (projectSlug) filters.projects = { slug: { $eq: projectSlug } };
+
+    return await fetchAllEntries('/slides', {
+      fields: SLIDE_FIELDS,
+      populate: SLIDE_POPULATE,
+      filters: Object.keys(filters).length ? filters : null,
+      sort: ['presentationDate:desc', 'title:asc'],
+      locale,
+    });
+  } catch (error) {
+    console.error('Failed to fetch slides:', error);
+    return [];
+  }
+}
+
+export function transformSlideData(strapiSlides) {
+  const list = Array.isArray(strapiSlides)
+    ? strapiSlides
+    : strapiSlides
+    ? [strapiSlides]
+    : [];
+
+  return list.map((slide) => {
+    const attributes = slide?.attributes ?? slide ?? {};
+    const normalizeLinks = (value) =>
+      toArray(value?.data ?? value).map((entry) => {
+        const entryData = entry?.attributes ?? entry ?? {};
+        return {
+          id: entry?.id ?? null,
+          title: entryData.title || '',
+          slug: entryData.slug || '',
+        };
+      });
+    const file = attributes.file?.data ?? attributes.file;
+    const fileData = file?.attributes ?? file ?? {};
+
+    return {
+      id: slide?.id ?? null,
+      title: attributes.title || '',
+      slug: attributes.slug || '',
+      description: attributes.description || '',
+      presentationDate: attributes.presentationDate || null,
+      category: attributes.category || 'presentation',
+      tags: Array.isArray(attributes.tags) ? attributes.tags : [],
+      file: file
+        ? {
+            id: file?.id ?? null,
+            name: fileData.name || '',
+            url: resolveMediaUrl(file),
+            mime: fileData.mime || '',
+            ext: fileData.ext || '',
+            size: typeof fileData.size === 'number' ? fileData.size : null,
+          }
+        : null,
+      thumbnail: resolveMediaData(attributes.thumbnail),
+      presenters: toArray(attributes.presenters?.data ?? attributes.presenters)
+        .map((person) => {
+          const personData = person?.attributes ?? person ?? {};
+          return {
+            id: person?.id ?? null,
+            name: `${personData.firstName || ''} ${personData.lastName || ''}`.trim(),
+            slug: personData.slug || '',
+          };
+        })
+        .filter((person) => person.name || person.slug),
+      publications: normalizeLinks(attributes.publications),
+      laboratories: normalizeLinks(attributes.laboratories),
+      projects: normalizeLinks(attributes.projects),
+      _strapi: slide,
+      _isFallback: slide._isFallback || false,
+    };
+  });
+}
+
 const RESOURCE_FIELDS = ['title', 'slug', 'description', 'url', 'icon', 'category', 'tags', 'featured'];
 
 const RESOURCE_POPULATE = {

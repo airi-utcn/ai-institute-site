@@ -2,7 +2,7 @@ import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { getProjects, getProjectBySlug, transformProjectData, getSingleType } from "@/lib/strapi";
+import { getProjectBySlug, getSlides, transformProjectData, transformSlideData, getSingleType } from "@/lib/strapi";
 import ProjectDetailsClient from "./ProjectDetails";
 import { JsonLd, projectJsonLd } from "@/lib/jsonld";
 
@@ -38,9 +38,10 @@ export default async function ProjectPage({ params }) {
   const { slug } = await params;
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
-  const [projectData, pageData] = await Promise.all([
+  const [projectData, pageData, slidesData] = await Promise.all([
     getProjectBySlug(slug, locale),
     getSingleType("projects-page", locale),
+    getSlides({ projectSlug: slug, locale }),
   ]);
   if (!projectData) notFound();
   const project = transformProjectData([projectData])[0];
@@ -49,7 +50,7 @@ export default async function ProjectPage({ params }) {
     <>
       <FallbackDisclaimer isFallback={project._isFallback} />
       <JsonLd data={projectJsonLd(project)} />
-      <ProjectDetailsClient project={project} pageData={pageData} />
+      <ProjectDetailsClient project={project} pageData={pageData} slides={transformSlideData(slidesData)} />
     </>
   );
 }

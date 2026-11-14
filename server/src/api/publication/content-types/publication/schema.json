@@ -67,6 +67,9 @@
         }
       }
     },
+    "acknowledgment": {
+      "type": "text"
+    },
     "topics": {
       "type": "json"
     },

@@ -3,6 +3,12 @@
 # IDE
 .idea/
 
+# agents
+.agents/
+
+.model
+
+
 # dependencies
 /node_modules
 /.pnp

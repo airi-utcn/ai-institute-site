@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "export": "STATIC_BUILD=true next build",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:publication-details": "node --test tests/publication.test.mjs"
   },
   "dependencies": {
     "d3-force": "^3.0.0",

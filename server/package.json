@@ -17,6 +17,8 @@
     "test:preview": "node --experimental-default-type=module --test tests/preview-targets.test.mjs",
     "test:slug": "node --test tests/slug.test.mjs",
     "test:news": "node --test tests/news-publication.test.cjs",
+    "test:publication-details": "node --test tests/publication-details.test.cjs",
+    "test:doi-autofill": "node --test tests/doi-autofill.test.cjs",
     "strapi": "strapi",
     "upgrade": "npx @strapi/upgrade latest",
     "upgrade:dry": "npx @strapi/upgrade latest --dry"

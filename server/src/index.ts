@@ -1,5 +1,7 @@
 // import type { Core } from "@strapi/strapi";
 import { registerReservationWorkflow } from "./api/reservation/document-middleware";
+import { registerPublicationAuthorSync } from "./api/publication/document-middleware";
+import { registerDoiLookupRoute } from "./api/publication/doi-route";
 import { registerDraftAccessGuard } from "./utils/draft-access";
 import { generateSlug, registerSlugMiddleware } from "./utils/slug";
 
@@ -29,6 +31,7 @@ export default {
 
     registerDraftAccessGuard(strapi);
     registerReservationWorkflow(strapi);
+    registerPublicationAuthorSync(strapi);
 
     // Document Service middleware: Auto-generate fullName for Person
     strapi.documents.use(async (ctx: any, next: any) => {
@@ -90,6 +93,7 @@ export default {
    * your application gets started.
    */
   async bootstrap({ strapi }: any) {
+    registerDoiLookupRoute(strapi);
     // 1. Set public permissions for read-only access to all content types
     const publicRole = await strapi
       .query("plugin::users-permissions.role")

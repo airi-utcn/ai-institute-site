@@ -7,6 +7,7 @@
 
 import { Eye } from '@strapi/icons';
 import { DoiAutofillPanel } from './publications/DoiAutofillPanel';
+import { AuthorProfilesPanel } from './publications/AuthorProfilesPanel';
 
 export default {
   register(app: any) {
@@ -29,6 +30,6 @@ export default {
     });
   },
   bootstrap(app: any) {
-    app.getPlugin('content-manager').apis.addEditViewSidePanel([DoiAutofillPanel]);
+    app.getPlugin('content-manager').apis.addEditViewSidePanel([DoiAutofillPanel, AuthorProfilesPanel]);
   },
 };

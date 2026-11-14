@@ -96,6 +96,7 @@ function DoiAutofill({ isCreating }: { isCreating: boolean }) {
                             {author.affiliation || 'Affiliation not provided — complete it before publishing.'}
                           </Typography>
                           {author.person && <Typography tag="p" variant="pi" textColor="success600">Linked to AIRi profile: {author.person.firstName} {author.person.lastName}</Typography>}
+                          {!author.person && <Typography tag="p" variant="pi" textColor="neutral600">Publication author only — no People profile will be created. You can choose a profile later in Author credits.</Typography>}
                         </li>)}
                         {!proposal?.authorCredits.length && <Typography>No authors provided by the registry.</Typography>}
                       </ol>

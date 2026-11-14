@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const databaseFile = `.tmp/doi-test-${process.pid}-${randomBytes(6).toString('hex')}.db`;
-let app, metadata, createHandler, formHelpers, person;
+let app, metadata, createHandler, formHelpers, profileHelpers, person;
 const uid = 'api::publication.publication';
 const doi = '10.1234/research';
 const work = {
@@ -36,10 +36,24 @@ before(async () => {
   const js = require('typescript').transpileModule(source, { compilerOptions: { module: require('typescript').ModuleKind.CommonJS } }).outputText;
   formHelpers = {};
   new Function('exports', js)(formHelpers);
+  profileHelpers = {};
+  const profileSource = fs.readFileSync(path.join(root, 'src/admin/publications/author-profiles.ts'), 'utf8');
+  const profileJs = require('typescript').transpileModule(profileSource, { compilerOptions: { module: require('typescript').ModuleKind.CommonJS } }).outputText;
+  new Function('exports', profileJs)(profileHelpers);
   person = await app.documents('api::person.person').create({
     data: { firstName: 'Internal', lastName: 'Author', bio: 'Author biography.', socialLinks: [{ label: 'Email', url: 'mailto:author@example.com', icon: 'mail' }] },
     status: 'draft',
   });
+});
+
+test('profile choices respect saved relations, reordering and pending links or removals', () => {
+  const linked = { id: 2, name: 'Linked Researcher', person: { connect: [], disconnect: [] } };
+  const external = { id: 1, name: 'External Collaborator', person: { connect: [], disconnect: [] } };
+  const persisted = [{ id: 1, person: { count: 0 } }, { id: 2, person: { count: 1 } }];
+  assert.deepEqual(profileHelpers.unlinkedAuthorCredits([linked, external], persisted).map(row => row.name), ['External Collaborator']);
+  assert.deepEqual(profileHelpers.unlinkedAuthorCredits([{ ...linked, person: { connect: [], disconnect: [{ id: 10 }] } }], persisted).map(row => row.name), ['Linked Researcher']);
+  assert.deepEqual(profileHelpers.unlinkedAuthorCredits([{ ...external, person: { connect: [{ id: 10 }], disconnect: [] } }], persisted), []);
+  assert.deepEqual(profileHelpers.unlinkedAuthorCredits([{ ...linked, id: undefined }], persisted).map(row => row.name), ['Linked Researcher']);
 });
 
 after(async () => {

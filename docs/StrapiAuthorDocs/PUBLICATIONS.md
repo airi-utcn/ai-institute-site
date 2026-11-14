@@ -12,6 +12,20 @@ Unique exact name matches can link an author to an existing AIRi profile, subjec
 
 DOI remains optional. If lookup fails or you do not want to use it, complete the normal fields manually. Other content types and the public website are unchanged.
 
+## External authors and optional People profiles
+
+Saving, publishing or importing author credits **never creates a Person**. An author with Name and Affiliation and an empty Person field stays on the publication only, even if their name matches someone already in People. Synchronization manages relations to explicitly selected profiles; it does not create, publish, reclassify or delete people.
+
+The **Author profiles (optional)** panel detects author credits without a selected profile, including DOI suggestions. Open **Profile options** for an author:
+
+- **Keep on publication only** leaves Person empty and creates nothing. This is the default; opening or dismissing the dialog does not change the publication.
+- To use an existing profile, search and select it in that author's **Person** field. Check this before creating a duplicate.
+- **Create People profile** opens Strapi's complete People creation form in a separate tab, preserving the unsaved publication. It suggests the author's first/last name and starts with type **External**. Review the name split, complete the normal profile fields and save through Strapi's usual controls. Publishing a profile makes it visible in the People directory. Return to the publication and select the new profile in the author's **Person** field. It is not automatically linked.
+
+The shortcut requires People creation permission and permission to set the person type. Field permissions and normal profile validation still apply. Starting a Person elsewhere retains the usual defaults. No new API writes, schema fields or automatic People creation are introduced by this choice.
+
+A saved draft profile remains private. To show its profile link and portrait on a published publication, complete and publish the profile too. Otherwise keep the author as an unlinked name and affiliation.
+
 ## Publication fields
 
 - **Authors** keeps the links to institute people, used for person pages and publication filters. People selected in Author credits are added here automatically on save; there is no need to select them twice.

@@ -212,13 +212,36 @@ test('draft edits do not leak into published author links and publishing uses th
   assert.deepEqual(authorIds(await read('draft')), [replacement.documentId]);
 });
 
-test('external-only credits do not create person links', async () => {
+test('saving and publishing external credits never creates or modifies People, even with a matching name', async () => {
+  const existingPeople = await app.db.query('api::person.person').findMany({ orderBy: { id: 'asc' } });
   const publication = await app.documents(uid).create({
-    status: 'published',
-    data: { title: 'External only synchronization test', authorCredits: [{ name: 'External Researcher', affiliation: 'Another University' }] },
+    data: { title: 'External only synchronization test', authorCredits: [
+      { name: 'External Researcher', affiliation: 'Another University' },
+      { name: `${person.firstName} ${person.lastName}`, affiliation: 'Another University' },
+    ] },
     populate: populatedAuthors,
   });
   assert.deepEqual(publication.authors, []);
+  await app.documents(uid).update({ documentId: publication.documentId, data: { year: 2026 } });
+  const published = await app.documents(uid).publish({ documentId: publication.documentId, populate: populatedAuthors });
+  assert.deepEqual(published.entries[0].authors, []);
+  assert.deepEqual(await app.db.query('api::person.person').findMany({ orderBy: { id: 'asc' } }), existingPeople);
+});
+
+test('explicitly linking and unlinking an external profile preserves its type, visibility and existence', async () => {
+  const external = await app.documents('api::person.person').create({
+    data: { firstName: 'External', lastName: 'Collaborator', type: 'external', bio: 'Collaborator biography.', socialLinks: [{ label: 'Email', url: 'mailto:external@example.com', icon: 'mail' }] },
+  });
+  const before = await app.db.query('api::person.person').findMany({ where: { documentId: external.documentId } });
+  const publication = await app.documents(uid).create({
+    populate: populatedAuthors,
+    data: { title: 'Opted-in external profile', authorCredits: [{ name: 'External Collaborator', affiliation: 'Partner University', person: external.documentId }] },
+  });
+  assert.deepEqual(authorIds(publication), [external.documentId]);
+  await app.documents(uid).update({ documentId: publication.documentId, data: { authorCredits: [{ id: publication.authorCredits[0].id, person: null, name: 'External Collaborator', affiliation: 'Partner University' }] } });
+  const published = await app.documents(uid).publish({ documentId: publication.documentId, populate: populatedAuthors });
+  assert.deepEqual(published.entries[0].authors, []);
+  assert.deepEqual(await app.db.query('api::person.person').findMany({ where: { documentId: external.documentId } }), before);
 });
 
 test('duplicating a publication preserves credits and independently selected authors', async () => {

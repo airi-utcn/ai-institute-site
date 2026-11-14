@@ -4,8 +4,10 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaTimes, FaFlask } from 'react-icons/fa';
 import LaboratoryCard from '@/components/laboratory/LaboratoryCard';
+import LaboratoryFloorPlan from '@/components/laboratory/LaboratoryFloorPlan';
 import DynamicZone from '@/components/shared/DynamicZone';
 import { usePageState } from '@/lib/usePageState';
+import { groupLaboratoriesByFloor } from '@/lib/laboratories';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -105,6 +107,11 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
     });
   }, [laboratories, query, selectedDepartment]);
 
+  const floorGroups = useMemo(
+    () => groupLaboratoriesByFloor(filteredLaboratories),
+    [filteredLaboratories]
+  );
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
       {/* Header Section */}
@@ -152,6 +159,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
                 className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm"
               />
               {query && (
@@ -172,6 +180,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                 <button
                   type="button"
                   onClick={() => setSelectedDepartment('all')}
+                  aria-pressed={selectedDepartment === 'all'}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                     selectedDepartment === 'all'
                       ? 'bg-blue-600 text-white shadow-sm'
@@ -185,6 +194,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                     key={dept.slug}
                     type="button"
                     onClick={() => setSelectedDepartment(dept.slug)}
+                    aria-pressed={selectedDepartment === dept.slug}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                       selectedDepartment === dept.slug
                         ? 'bg-blue-600 text-white shadow-sm'
@@ -197,6 +207,20 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
               </div>
             )}
           </div>
+
+          {floorGroups.length > 0 && (
+            <nav aria-label="Laboratories by floor" className="mt-6 flex flex-wrap gap-2">
+              {floorGroups.map((group) => (
+                <a
+                  key={group.id}
+                  href={`#${group.id}`}
+                  className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
+                >
+                  {group.label} ({group.laboratories.length})
+                </a>
+              ))}
+            </nav>
+          )}
         </div>
       </section>
 
@@ -225,18 +249,35 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             )}
           </div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-          >
-            {filteredLaboratories.map((lab) => (
-              <motion.div key={lab.id || lab.slug} variants={itemVariants}>
-                <LaboratoryCard lab={lab} />
-              </motion.div>
+          <div className="space-y-12">
+            {floorGroups.map((group) => (
+              <section key={group.id} id={group.id} aria-labelledby={`${group.id}-heading`} className="scroll-mt-28">
+                <div className="mb-5 flex items-center gap-3">
+                  <h2 id={`${group.id}-heading`} className="text-2xl font-bold text-gray-900 dark:text-white">
+                    {group.label}
+                  </h2>
+                  <span className="rounded-full bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 text-sm font-semibold text-blue-700 dark:text-blue-300">
+                    {group.laboratories.length}
+                  </span>
+                </div>
+                {group.floor !== null && (
+                  <LaboratoryFloorPlan floor={group.floor} label={group.label} />
+                )}
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+                >
+                  {group.laboratories.map((lab) => (
+                    <motion.div key={lab.id || lab.slug} variants={itemVariants}>
+                      <LaboratoryCard lab={lab} className="h-full" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </section>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {/* Dynamic Zone Blocks if present in pageData */}

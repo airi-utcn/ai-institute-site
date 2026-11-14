@@ -147,15 +147,15 @@ export function publicationJsonLd(pub) {
             (typeof author === "object" && author?.affiliation?.name) ||
             (typeof author === "object" && author?.departmentInfo?.name) ||
             (typeof author === "object" && author?.department) ||
-            ORG_NAME;
+            (author?.isExternal ? '' : ORG_NAME);
 
           return {
             "@type": "Person",
             name: authorName,
-            affiliation: {
+            ...(affiliationName ? { affiliation: {
               "@type": "Organization",
               name: affiliationName,
-            },
+            } } : {}),
           };
         })
         .filter(Boolean)

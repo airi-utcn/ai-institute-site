@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { usePageState } from "@/lib/usePageState";
 import BackLink from "@/components/BackLink";
+import PublicationCitation from "@/components/publication/PublicationCitation";
+import VideoShowcase from "@/components/laboratory/VideoShowcase";
+import { FaCode } from "react-icons/fa";
 const PUBLICATION_DETAIL_DEFAULTS = {
   notFound: "Publication not found.",
   backToPublications: "← Back to publications",
@@ -28,7 +31,7 @@ export default function PublicationDetailClient({ publication }) {
   const t = (key) => PUBLICATION_DETAIL_DEFAULTS[key] || key;
   const [activeTab, setActiveTab] = usePageState(
     "tab",
-    publication?.pdfFile?.url ? "pdf" : publication?.bibFile?.url ? "bib" : ""
+    publication?.pdfFile?.url ? "pdf" : (publication?.bibFile?.url || publication?.bibtex) ? "bib" : ""
   );
 
   if (!publication) return <div className="p-6">{t("notFound")}</div>;
@@ -46,6 +49,10 @@ export default function PublicationDetailClient({ publication }) {
     attachments = [],
     pdfFile,
     bibFile,
+    bibtex,
+    codeUrl,
+    videoFile,
+    videoUrl,
     slug,
   } = publication;
 
@@ -79,35 +86,42 @@ export default function PublicationDetailClient({ publication }) {
             </p>
           ) : null}
 
-          {(pdfFile?.url || bibFile?.url) ? (
+          {(pdfFile?.url || bibFile?.url || bibtex) ? (
             <div className="mt-5">
-              <div className="inline-flex rounded-full border border-gray-200 dark:border-gray-800 p-1 bg-gray-50 dark:bg-gray-900">
-                {pdfFile?.url ? (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("pdf")}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
-                      activeTab === "pdf"
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-600 dark:text-gray-300 hover:text-blue-600"
-                    }`}
-                  >
-                    PDF
-                  </button>
-                ) : null}
-                {bibFile?.url ? (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("bib")}
-                    className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
-                      activeTab === "bib"
-                        ? "bg-purple-600 text-white"
-                        : "text-gray-600 dark:text-gray-300 hover:text-purple-600"
-                    }`}
-                  >
-                    BibTeX
-                  </button>
-                ) : null}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="inline-flex rounded-full border border-gray-200 dark:border-gray-800 p-1 bg-gray-50 dark:bg-gray-900">
+                  {pdfFile?.url ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("pdf")}
+                      className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
+                        activeTab === "pdf"
+                          ? "bg-blue-600 text-white"
+                          : "text-gray-600 dark:text-gray-300 hover:text-blue-600"
+                      }`}
+                    >
+                      PDF
+                    </button>
+                  ) : null}
+                  {(bibFile?.url || bibtex) ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("bib")}
+                      className={`px-4 py-1.5 text-xs font-semibold rounded-full transition ${
+                        activeTab === "bib"
+                          ? "bg-purple-600 text-white"
+                          : "text-gray-600 dark:text-gray-300 hover:text-purple-600"
+                      }`}
+                    >
+                      BibTeX
+                    </button>
+                  ) : null}
+                </div>
+                {codeUrl && (
+                  <a href={codeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-gray-800 px-3 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    <FaCode aria-hidden="true" /> Source code
+                  </a>
+                )}
               </div>
 
               {activeTab === "pdf" && pdfFile?.url ? (
@@ -123,19 +137,14 @@ export default function PublicationDetailClient({ publication }) {
                 </div>
               ) : null}
 
-              {activeTab === "bib" && bibFile?.url ? (
-                <div className="mt-3">
-                  <a
-                    href={bibFile.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
-                  >
-                    {t("downloadBibtex")}
-                  </a>
-                </div>
+              {activeTab === "bib" && (bibFile?.url || bibtex) ? (
+                <PublicationCitation key={`${slug}-${bibtex}-${bibFile?.url}`} bibtex={bibtex} bibFile={bibFile} />
               ) : null}
             </div>
+          ) : codeUrl ? (
+            <a href={codeUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+              <FaCode aria-hidden="true" /> Source code
+            </a>
           ) : null}
         </div>
 
@@ -147,21 +156,24 @@ export default function PublicationDetailClient({ publication }) {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {authors.map((author, idx) => {
                     const label = author?.name || author?.slug || "Author";
+                    const content = (
+                      <>
+                        {!author.isExternal && author.image && (
+                          <img src={author.image} srcSet={author.imageSrcSet || undefined} sizes="36px" alt={label} width={36} height={36} loading="lazy" decoding="async" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+                        )}
+                        <span className="min-w-0">
+                          <span className="block font-medium">{label}</span>
+                          {author.affiliation?.name && <span className="mt-0.5 block text-xs leading-relaxed text-gray-500 dark:text-gray-400">{author.affiliation.name}</span>}
+                        </span>
+                      </>
+                    );
+                    const className = "inline-flex items-center gap-2.5 rounded-xl border border-gray-200 dark:border-gray-800 px-3 py-2 text-sm";
                     return author?.slug ? (
-                      <Link
-                        key={`${author.slug}-${idx}`}
-                        href={`/people/${encodeURIComponent(author.slug)}`}
-                        className="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 text-sm hover:underline"
-                      >
-                        {label}
+                      <Link key={`${author.slug}-${idx}`} href={`/people/${encodeURIComponent(author.slug)}`} className={`${className} hover:border-blue-300 dark:hover:border-blue-700 hover:text-blue-600 dark:hover:text-blue-400`}>
+                        {content}
                       </Link>
                     ) : (
-                      <span
-                        key={`${label}-${idx}`}
-                        className="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-800 text-sm"
-                      >
-                        {label}
-                      </span>
+                      <span key={`${label}-${idx}`} className={className}>{content}</span>
                     );
                   })}
                 </div>
@@ -251,6 +263,16 @@ export default function PublicationDetailClient({ publication }) {
             </div>
           </aside>
         </div>
+
+        {(videoFile?.url || videoUrl) && (
+          <section className="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Video presentation</h2>
+            <VideoShowcase key={`${videoFile?.url || ''}-${videoUrl}`} videoFile={videoFile} videoUrl={videoUrl} title={title} badge="Publication video" />
+            {videoUrl && (
+              <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">Watch external video ↗</a>
+            )}
+          </section>
+        )}
 
         <section className="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("attachments")}</h2>

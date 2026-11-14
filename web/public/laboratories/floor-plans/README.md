@@ -11,6 +11,6 @@ Original images supplied by the maintainers in [issue #256](https://github.com/a
 | fourth.png | Fourth | 4d3deaae-daec-416d-86c7-e74f04ddab7e |
 | fifth.png | Fifth (setback floor) | de555e4c-a36e-4998-a961-a8a7bece1128 |
 
-Room marker coordinates live in `web/src/lib/laboratory-floor-plans.js` as percentages of each complete image. If replacing a plan, verify its dimensions and marker positions. The ground-floor plan explicitly labels L001–L004 and S005; do not infer L005/L006 locations from the upper-floor layouts.
+Image paths and dimensions live in `web/src/lib/laboratory-floor-plans.js`. The plans are displayed without interactive room markers. If replacing a plan, verify its dimensions.
 
 The listing derives floors from Strapi's existing `roomNumber` field (L001–L599 or S001–S599, with optional spaces/dashes/dots; bare three-digit numbers are treated as L rooms). Unrecognized locations appear in a separate section. No CMS schema change or data migration is needed.

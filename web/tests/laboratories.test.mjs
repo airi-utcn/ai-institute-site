@@ -50,18 +50,9 @@ test('filtered subsets contain only matching floors and empty results have no gr
   assert.deepEqual(groupLaboratoriesByFloor([]), []);
 });
 
-test('map markers use supplied plans and do not guess absent ground-floor rooms', () => {
+test('all six supplied floor plans are available', () => {
   assert.equal(LABORATORY_FLOOR_PLANS.length, 6);
-  LABORATORY_FLOOR_PLANS.forEach((plan, floor) => {
+  LABORATORY_FLOOR_PLANS.forEach((plan) => {
     assert.ok(existsSync(new URL(`../public${plan.src}`, import.meta.url)));
-    for (const [room, [left, top]] of Object.entries(plan.rooms)) {
-      assert.equal(getLaboratoryLocation(room).floor, floor);
-      assert.ok(left > 0 && left < 100 && top > 0 && top < 100);
-    }
   });
-  assert.equal(LABORATORY_FLOOR_PLANS[0].rooms.L005, undefined);
-  assert.equal(LABORATORY_FLOOR_PLANS[0].rooms.L006, undefined);
-  assert.ok(LABORATORY_FLOOR_PLANS[0].rooms.S005);
-  assert.ok(LABORATORY_FLOOR_PLANS[5].rooms.S510);
-  assert.equal(LABORATORY_FLOOR_PLANS[5].rooms.S511, undefined);
 });

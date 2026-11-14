@@ -261,7 +261,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                   </span>
                 </div>
                 {group.floor !== null && (
-                  <LaboratoryFloorPlan floor={group.floor} label={group.label} laboratories={group.laboratories} />
+                  <LaboratoryFloorPlan floor={group.floor} label={group.label} />
                 )}
                 <motion.div
                   variants={containerVariants}
@@ -270,7 +270,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
                 >
                   {group.laboratories.map((lab) => (
-                    <motion.div key={lab.id || lab.slug} id={`laboratory-${lab.slug}`} tabIndex={-1} className="scroll-mt-28" variants={itemVariants}>
+                    <motion.div key={lab.id || lab.slug} variants={itemVariants}>
                       <LaboratoryCard lab={lab} className="h-full" />
                     </motion.div>
                   ))}

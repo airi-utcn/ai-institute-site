@@ -20,6 +20,7 @@ import {
   FaLock,
   FaBuilding,
   FaUserTie,
+  FaClock,
 } from "react-icons/fa";
 
 export default function EventSlugClient({ event, pageData }) {
@@ -168,6 +169,35 @@ export default function EventSlugClient({ event, pageData }) {
                             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">
                               {displayName.charAt(0).toUpperCase()}
                             </div>
+                          )}
+
+                          {event.agenda && event.agenda.length > 0 && (
+                            <section className="space-y-5 pt-6 border-t border-gray-100 dark:border-gray-800">
+                              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <FaClock className="text-blue-600 dark:text-blue-400" />
+                                {pageData?.agenda || "Agenda"}
+                              </h2>
+                              <div className="space-y-3">
+                                {event.agenda.map((item, index) => (
+                                  <div key={`${item.title}-${index}`} className="rounded-xl border border-gray-200 dark:border-gray-800 p-4">
+                                    <div className="flex flex-wrap justify-between gap-3">
+                                      <h3 className="font-semibold text-gray-900 dark:text-white">{item.title}</h3>
+                                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                                        {item.startTime}{item.endTime ? ` – ${item.endTime}` : ""}
+                                      </span>
+                                    </div>
+                                    {item.speakers?.length ? (
+                                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                                        {item.speakers.map((speaker) => speaker.name).filter(Boolean).join(", ")}
+                                      </p>
+                                    ) : null}
+                                    {item.description ? (
+                                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{item.description}</p>
+                                    ) : null}
+                                  </div>
+                                ))}
+                              </div>
+                            </section>
                           )}
                         </div>
 
@@ -339,6 +369,25 @@ export default function EventSlugClient({ event, pageData }) {
                       <div className="text-gray-600 dark:text-gray-400 capitalize">
                         {event.language.replace(/_/g, " ")}
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {event.projects?.length > 0 && (
+                  <div className="border-t border-gray-200 pt-4 dark:border-gray-800">
+                    <div className="font-semibold text-gray-900 dark:text-white">
+                      {pageData?.projectLabel || "Projects"}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {event.projects.map((project) => (
+                        <Link
+                          key={project.slug || project.id}
+                          href={`/research/projects/${project.slug}`}
+                          className="text-sm text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          {project.title}
+                        </Link>
+                      ))}
                     </div>
                   </div>
                 )}

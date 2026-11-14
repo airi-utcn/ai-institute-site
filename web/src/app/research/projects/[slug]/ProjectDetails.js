@@ -133,6 +133,7 @@ import HeroHeader from '@/components/shared/HeroHeader';
 import { getProjectPhase, getPhaseColorClasses } from '@/lib/projectPhase';
 import ProjectTimeline from '@/components/project/ProjectTimeline';
 import TeamCard from '@/components/TeamCard';
+import RelatedSlides from '@/components/shared/RelatedSlides';
 
 // Helper to get person path
 function getPersonPath(person) {
@@ -683,7 +684,7 @@ function EventCard({ item, t }) {
   );
 }
 
-export default function ProjectDetails({ project, pageData }) {
+export default function ProjectDetails({ project, pageData, slides = [] }) {
   const [activeTab, setActiveTab] = usePageState('tab', 'about');
   const t = (key, params) => {
     let val = PROJECT_DETAIL_DEFAULTS[key] ?? key;
@@ -834,6 +835,9 @@ export default function ProjectDetails({ project, pageData }) {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <RelatedSlides slides={slides} />
+        </div>
         {/* Quick Info Cards */}
         <motion.div
           variants={containerVariants}

@@ -168,6 +168,7 @@ export default function Navbar({ navbarData: customNavbarData }) {
     { href: '/research/projects', label: nav.menuProjects || 'Projects' },
     { href: '/research/laboratories', label: nav.menuLaboratories || 'Laboratories' },
     { href: '/research/publications', label: nav.menuPublications || 'Publications' },
+    { href: '/slides', label: nav.menuSlides || 'Slides' },
     { href: '/resources', label: nav.menuResources || 'Resources' },
   ];
 

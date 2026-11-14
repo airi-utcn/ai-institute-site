@@ -1,0 +1,39 @@
+{
+  "collectionName": "components_event_agenda_items",
+  "info": {
+    "displayName": "Agenda Item",
+    "description": "A scheduled item in an event agenda"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "startTime": {
+      "type": "time",
+      "required": true
+    },
+    "endTime": {
+      "type": "time"
+    },
+    "description": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "speakers": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::person.person"
+    }
+  }
+}

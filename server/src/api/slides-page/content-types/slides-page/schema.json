@@ -1,0 +1,73 @@
+{
+  "kind": "singleType",
+  "collectionName": "slides_pages",
+  "info": {
+    "singularName": "slides-page",
+    "pluralName": "slides-pages",
+    "displayName": "Slides Page",
+    "description": "Content for the centralized slides catalog"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "default": "Slides",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "subtitle": {
+      "type": "text",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "searchPlaceholder": {
+      "type": "string",
+      "default": "Search slides...",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "allCategories": {
+      "type": "string",
+      "default": "All categories",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "noSlidesFound": {
+      "type": "string",
+      "default": "No slides found",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "openSlide": {
+      "type": "string",
+      "default": "Open presentation",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    }
+  }
+}

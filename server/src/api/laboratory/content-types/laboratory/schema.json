@@ -161,6 +161,12 @@
       "target": "api::publication.publication",
       "inversedBy": "laboratories"
     },
+    "slides": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::slide.slide",
+      "mappedBy": "laboratories"
+    },
     "teams": {
       "type": "relation",
       "relation": "oneToMany",

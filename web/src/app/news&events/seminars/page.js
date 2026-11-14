@@ -1,7 +1,7 @@
 import { canonical } from "@/lib/metadata";
 import { cookies } from "next/headers";
 import SeminarsClient from "./seminarsClient";
-import { getSeminars, transformSeminarData, getSingleType } from "@/lib/strapi";
+import { getEvents, transformEventData, getSingleType } from "@/lib/strapi";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -20,10 +20,10 @@ export default async function SeminarsPage() {
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
   const [seminarsData, pageData] = await Promise.all([
-    getSeminars({ locale }),
+    getEvents({ locale, scientificOnly: true }),
     getSingleType("seminars-page", locale),
   ]);
 
-  const seminars = transformSeminarData(seminarsData);
-  return <SeminarsClient seminars={seminars} pageData={pageData} />;
+  const events = transformEventData(eventsData);
+  return <SeminarsClient events={events} pageData={pageData} />;
 }

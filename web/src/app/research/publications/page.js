@@ -6,21 +6,22 @@ export const metadata = {
 };
 
 import { cookies } from "next/headers";
-import { getPublications, getStaff, getSingleType, transformPublicationData, transformStaffData } from "@/lib/strapi";
+import { getPublications, getSlides, getStaff, getSingleType, transformPublicationData, transformSlideData, transformStaffData } from "@/lib/strapi";
 import PublicationsClient from "./publicationsClient";
 
 export default async function PublicationPage() {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
-  const [pubsData, staffData, pageData] = await Promise.all([
+  const [pubsData, staffData, pageData, slidesData] = await Promise.all([
     getPublications({ locale }),
     getStaff(),
     getSingleType("research-page", locale),
+    getSlides({ locale }),
   ]);
 
   const publications = transformPublicationData(pubsData);
   const staff = transformStaffData(staffData);
 
-  return <PublicationsClient publications={publications} staff={staff} pageData={pageData} />;
+  return <PublicationsClient publications={publications} staff={staff} pageData={pageData} slides={transformSlideData(slidesData)} />;
 }

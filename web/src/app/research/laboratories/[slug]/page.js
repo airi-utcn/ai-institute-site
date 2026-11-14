@@ -7,8 +7,10 @@ import {
   getLaboratoryBySlug,
   getLaboratoryTeams,
   getPublications,
+  getSlides,
   transformLaboratoryData,
   transformPublicationData,
+  transformSlideData,
   transformTeamData,
   getSingleType,
 } from "@/lib/strapi";
@@ -49,11 +51,12 @@ export default async function LaboratoryPage({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
-  const [labData, teamsData, publicationsData, pageData] = await Promise.all([
+  const [labData, teamsData, publicationsData, pageData, slidesData] = await Promise.all([
     getLaboratoryBySlug(slug, locale),
     getLaboratoryTeams(slug),
     getPublications({ laboratorySlug: slug, locale }),
     getSingleType("laboratories-page", locale),
+    getSlides({ laboratorySlug: slug, locale }),
   ]);
 
   if (!labData) {
@@ -75,6 +78,7 @@ export default async function LaboratoryPage({ params }) {
         pageData={pageData}
         teams={teams}
         publications={publications}
+        slides={transformSlideData(slidesData)}
       />
     </>
   );

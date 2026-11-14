@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePageState } from "@/lib/usePageState";
 import BackLink from "@/components/BackLink";
+import RelatedSlides from "@/components/shared/RelatedSlides";
 const PUBLICATION_DETAIL_DEFAULTS = {
   notFound: "Publication not found.",
   backToPublications: "← Back to publications",
@@ -24,7 +25,7 @@ const PUBLICATION_DETAIL_DEFAULTS = {
   download: "Download",
 };
 
-export default function PublicationDetailClient({ publication }) {
+export default function PublicationDetailClient({ publication, slides = [] }) {
   const t = (key) => PUBLICATION_DETAIL_DEFAULTS[key] || key;
   const [activeTab, setActiveTab] = usePageState(
     "tab",
@@ -141,6 +142,7 @@ export default function PublicationDetailClient({ publication }) {
 
         <div className="grid gap-6 mt-8 lg:grid-cols-3">
           <section className="lg:col-span-2 space-y-6">
+            <RelatedSlides slides={slides} />
             <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-6">
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t("authors")}</h2>
               {authors.length ? (

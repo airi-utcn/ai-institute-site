@@ -31,6 +31,7 @@ import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
 import { getPeopleCount } from '@/lib/people';
 import { usePageState } from '@/lib/usePageState';
 import BackLink from '@/components/BackLink';
+import RelatedSlides from '@/components/shared/RelatedSlides';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -75,6 +76,7 @@ export default function LaboratoryDetailClient({
   pageData,
   teams = [],
   publications = [],
+  slides = [],
 }) {
   const [activeTab, setActiveTab] = usePageState('tab', 'overview');
 
@@ -404,6 +406,8 @@ export default function LaboratoryDetailClient({
               )}
 
               {/* Research Themes */}
+              <RelatedSlides slides={slides} title="Slides" />
+
               {themes.length > 0 && (
                 <motion.section variants={itemVariants}>
                   <div className="flex items-center gap-2.5 mb-4">

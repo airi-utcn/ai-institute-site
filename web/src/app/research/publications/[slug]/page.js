@@ -2,7 +2,7 @@ import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { getPublications, getPublicationBySlug, transformPublicationData } from "@/lib/strapi";
+import { getPublicationBySlug, getPublications, getSlides, transformPublicationData, transformSlideData } from "@/lib/strapi";
 import PublicationDetailClient from "./PublicationDetailClient";
 import { JsonLd, publicationJsonLd } from "@/lib/jsonld";
 
@@ -26,7 +26,10 @@ export async function generateMetadata({ params }) {
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
   try {
-    const pubEntry = await getPublicationBySlug(slug, locale);
+    const [pubEntry, slidesData] = await Promise.all([
+      getPublicationBySlug(slug, locale),
+      getSlides({ publicationSlug: slug, locale }),
+    ]);
     if (!pubEntry) return { title: "Publication Not Found" };
     const [publication] = transformPublicationData([pubEntry]);
     if (!publication) return { title: "Publication Not Found" };
@@ -87,7 +90,7 @@ export default async function PublicationDetailPage({ params }) {
     <>
       <FallbackDisclaimer isFallback={publication._isFallback} />
       <JsonLd data={publicationJsonLd(publication)} />
-      <PublicationDetailClient publication={publication} />
+      <PublicationDetailClient publication={publication} slides={transformSlideData(slidesData)} />
     </>
   );
 }

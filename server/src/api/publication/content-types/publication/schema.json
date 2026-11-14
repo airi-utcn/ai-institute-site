@@ -132,6 +132,12 @@
         "audios"
       ]
     },
+    "slides": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::slide.slide",
+      "mappedBy": "publications"
+    },
     "metadata": {
       "type": "json"
     },

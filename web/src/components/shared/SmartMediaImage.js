@@ -133,7 +133,7 @@ export default function SmartMediaImage({
   const foregroundClassName = isNatural
     ? `relative z-10 block w-full h-auto ${naturalMaxHeightClassName} object-contain mx-auto transition-all duration-300 ${imageClassName}`.trim()
     : `relative z-10 w-full h-full transition-all duration-300 ${
-        showAmbientBackdrop ? 'object-contain p-2 drop-shadow-md' : 'object-cover'
+        showAmbientBackdrop ? 'object-contain' : 'object-cover'
       } ${imageClassName}`.trim();
 
   return (

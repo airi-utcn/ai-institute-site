@@ -46,45 +46,21 @@ const resolveImageUrl = (image) => {
 
 export default function LaboratoriesClient({ laboratories = [], pageData }) {
   const [query, setQuery] = usePageState('query', '');
-  const [selectedDepartment, setSelectedDepartment] = usePageState('department', 'all');
 
   const title = pageData?.title || 'Laboratories & Spaces';
   const subtitle =
     pageData?.subtitle ||
     'State-of-the-art research environments sponsored by visionary industry leaders and dedicated to advancing AI innovation.';
   const searchPlaceholder = pageData?.searchPlaceholder || 'Search laboratories, sponsors, or rooms...';
-  const allDepartmentsLabel = pageData?.allDepartments || 'All Departments';
   const emptyStateMessage = pageData?.emptyState || 'No laboratories match your search criteria.';
   const heroImageUrl = resolveImageUrl(pageData?.heroImage);
 
-  // Extract distinct departments from laboratories list
-  const departments = useMemo(() => {
-    const map = new Map();
-    laboratories.forEach((lab) => {
-      (lab.departments || []).forEach((dept) => {
-        if (dept?.slug && dept?.name && !map.has(dept.slug)) {
-          map.set(dept.slug, dept.name);
-        }
-      });
-    });
-    return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [laboratories]);
-
-  // Filter laboratories based on search query and selected department
+  // Filter laboratories based on the search query
   const filteredLaboratories = useMemo(() => {
     const q = normalizeText(query.trim());
+    if (!q) return laboratories;
+
     return laboratories.filter((lab) => {
-      // Department filter
-      if (selectedDepartment !== 'all') {
-        const matchesDept = (lab.departments || []).some(
-          (d) => d.slug === selectedDepartment
-        );
-        if (!matchesDept) return false;
-      }
-
-      // Query filter
-      if (!q) return true;
-
       const labTitle = normalizeText(lab.title);
       const labSummary = normalizeText(lab.summary);
       const room = normalizeText(lab.roomNumber);
@@ -103,7 +79,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
         themes.includes(q)
       );
     });
-  }, [laboratories, query, selectedDepartment]);
+  }, [laboratories, query]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
@@ -142,10 +118,9 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             </p>
           </div>
 
-          {/* Search & Filter Bar */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-            {/* Search Box */}
-            <div className="relative flex-1 max-w-md">
+          {/* Search Bar */}
+          <div className="mt-8 max-w-md">
+            <div className="relative">
               <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
@@ -165,37 +140,6 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
                 </button>
               )}
             </div>
-
-            {/* Department Filter Pills */}
-            {departments.length > 0 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setSelectedDepartment('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                    selectedDepartment === 'all'
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                  }`}
-                >
-                  {allDepartmentsLabel}
-                </button>
-                {departments.map((dept) => (
-                  <button
-                    key={dept.slug}
-                    type="button"
-                    onClick={() => setSelectedDepartment(dept.slug)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                      selectedDepartment === dept.slug
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    {dept.name}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -211,13 +155,10 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
               {emptyStateMessage}
             </p>
-            {(query || selectedDepartment !== 'all') && (
+            {query && (
               <button
                 type="button"
-                onClick={() => {
-                  setQuery('');
-                  setSelectedDepartment('all');
-                }}
+                onClick={() => setQuery('')}
                 className="px-4 py-2 rounded-xl text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               >
                 Reset filters

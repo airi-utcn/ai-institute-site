@@ -4,7 +4,7 @@ export default ({ env }) => ({
 	},
 	upload: {
 		config: {
-			sizeLimit: 10 * 1024 * 1024, // 10MB limit handled by upload plugin constraints
+			sizeLimit: 2 * 1024 * 1024 * 1024, // 2GB limit handled by upload plugin constraints
 		},
 	},
 	email: {

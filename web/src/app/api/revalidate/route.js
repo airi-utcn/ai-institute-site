@@ -9,6 +9,30 @@ function safeEqual(left, right) {
   return timingSafeEqual(a, b);
 }
 
+const GLOBAL_PATHS = [
+  "/",
+  "/research/departments",
+  "/research/themes",
+  "/research/projects",
+  "/research/laboratories",
+  "/research/publications",
+  "/engagement",
+  "/people",
+  "/news&events/news",
+  "/news&events/events",
+  "/news&events/seminars",
+  "/news&events/awards",
+  "/news&events/careers",
+  "/news&events/open-project-calls",
+  "/about",
+  "/contact",
+  "/resources",
+  "/media",
+  "/timeline",
+  "/equipment",
+  "/search",
+];
+
 const MODEL_PATH_MAP = {
   "api::person.person": [
     "/people",
@@ -22,6 +46,36 @@ const MODEL_PATH_MAP = {
   "api::event.event": ["/news&events/events"],
   "api::seminar.seminar": ["/news&events/seminars"],
   "api::publication.publication": ["/research/publications", "/research/departments"],
+
+  // Single types. Their copy is used by one or more routes, so each change
+  // needs to invalidate those routes as well.
+  "api::global.global": GLOBAL_PATHS,
+  "api::home-page.home-page": ["/"],
+  "api::about-page.about-page": ["/about"],
+  "api::contact-page.contact-page": ["/contact"],
+  "api::engagement-page.engagement-page": ["/engagement"],
+  "api::people-page.people-page": ["/people"],
+  "api::research-page.research-page": [
+    "/research/departments",
+    "/research/themes",
+    "/research/projects",
+    "/research/laboratories",
+    "/research/publications",
+  ],
+  "api::news-page.news-page": ["/news&events/news"],
+  "api::events-page.events-page": ["/news&events/events"],
+  "api::seminars-page.seminars-page": ["/news&events/seminars"],
+  "api::awards-page.awards-page": ["/news&events/awards"],
+  "api::careers-page.careers-page": ["/news&events/careers"],
+  "api::open-calls-page.open-calls-page": ["/news&events/open-project-calls"],
+  "api::resources-page.resources-page": ["/resources"],
+  "api::media-page.media-page": ["/media"],
+  "api::timeline-page.timeline-page": ["/timeline"],
+  "api::departments-page.departments-page": ["/research/departments"],
+  "api::laboratories-page.laboratories-page": ["/research/laboratories"],
+  "api::projects-page.projects-page": ["/research/projects"],
+  "api::search-page.search-page": ["/search"],
+  "api::equipment-page.equipment-page": ["/equipment"],
 };
 
 const DEFAULT_PATHS = ["/"];

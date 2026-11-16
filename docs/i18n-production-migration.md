@@ -148,6 +148,22 @@ docker cp ./path/to/my/messages/. $(docker compose -f compose.prod.yaml ps -q st
 docker compose -f compose.prod.yaml exec strapi npm run migrate:i18n
 ```
 
+### Single-type saves revert or report “components are not related to the entity”
+If a single type has more than one `document_id` (one document per locale), the
+Content Manager can save to a different document than the one it loaded. Run the
+diagnostic/repair script instead of re-saving or clearing caches:
+
+```bash
+# Dry run, then apply (back up the database first)
+docker compose -f compose.prod.yaml run --rm --no-deps strapi \
+  npm run repair:single-types
+docker compose -f compose.prod.yaml run --rm --no-deps strapi \
+  npm run repair:single-types -- --apply
+```
+
+See [strapi-single-type-documents.md](./strapi-single-type-documents.md) for the
+full procedure and the revalidation webhook check.
+
 ### Clearing Next.js Fetch Cache
 If the Next.js frontend has cached previous API responses:
 ```bash

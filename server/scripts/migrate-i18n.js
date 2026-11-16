@@ -645,14 +645,32 @@ async function migrateSingleType(app, uid, mapper, allMessages) {
     console.log(`  🔄 Updated [${uid}] in locale [en] (docId: ${documentId})`);
   }
 
-  // Delete any orphan documents that have a DIFFERENT documentId
-  const orphanEntries = existingDocs.filter((d) => d.documentId !== documentId);
-  for (const orphan of orphanEntries) {
-    try {
-      await docService.delete({ documentId: orphan.documentId, locale: orphan.locale });
-      console.log(`  🗑️ Deleted orphan [${uid}] docId: ${orphan.documentId} locale: ${orphan.locale}`);
-    } catch (e) {
-      console.warn(`  ⚠️ Failed to delete orphan docId ${orphan.documentId} locale ${orphan.locale}:`, e.message);
+  // Delete any orphan documents that have a DIFFERENT documentId.
+  //
+  // A single type must have exactly one documentId shared by every locale.
+  // `findMany({ locale: '*' })` does not guarantee one entry per locale, so
+  // delete each locale explicitly and only after confirming it exists.
+  // Otherwise leftover locale rows keep the old document alive and the Content
+  // Manager later writes to a different document than the one it loaded.
+  const orphanDocIds = [
+    ...new Set(
+      existingDocs
+        .filter((d) => d.documentId !== documentId)
+        .map((d) => d.documentId)
+    ),
+  ];
+  const localeCodes = Object.keys(LOCALE_NAMES);
+
+  for (const orphanDocId of orphanDocIds) {
+    for (const locale of localeCodes) {
+      try {
+        const existing = await docService.findOne({ documentId: orphanDocId, locale });
+        if (!existing) continue;
+        await docService.delete({ documentId: orphanDocId, locale });
+        console.log(`  🗑️ Deleted orphan [${uid}] docId: ${orphanDocId} locale: ${locale}`);
+      } catch (e) {
+        console.warn(`  ⚠️ Failed to delete orphan docId ${orphanDocId} locale ${locale}:`, e.message);
+      }
     }
   }
 
@@ -685,6 +703,15 @@ async function migrateSingleType(app, uid, mapper, allMessages) {
     } catch (err) {
       console.warn(`    ⚠️ Failed locale ${locale} for [${uid}]:`, err.message);
     }
+  }
+
+  const remainingDocs = await docService.findMany({ locale: '*' });
+  const remainingDocIds = new Set(remainingDocs.map((doc) => doc.documentId));
+  if (remainingDocIds.size > 1) {
+    console.warn(
+      `  ⚠️ [${uid}] still has ${remainingDocIds.size} documents after migration. ` +
+        'Run `npm run repair:single-types` before editing it in the Content Manager.'
+    );
   }
 }
 

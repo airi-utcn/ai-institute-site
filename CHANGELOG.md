@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Newsletter signup**:
+  - Signup form in the footer (email and consent checkbox).
+  - `newsletter-subscriber` content type in Strapi and a public `POST /api/newsletter-subscribers/subscribe` endpoint, reached through a rate-limited `/api/newsletter` route. The subscriber list is not exposed.
+  - No email sending, double opt-in or unsubscribe links yet (see `SETUP.md`).
 - **"Pending review" widget on the Strapi admin homepage**:
   - Lists everything that is not live on the website, grouped by content type: never-published drafts and published entries that have pending edits.
   - Uses the existing, permission-checked Content Manager views (`__status` filters `draft` and `published-modified`), so no new backend endpoints are required and editors only see content types they can read.

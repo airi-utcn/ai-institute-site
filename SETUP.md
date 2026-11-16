@@ -263,6 +263,28 @@ curl -H "Authorization: Bearer $STRAPI_API_TOKEN" \
   'http://localhost:1337/api/projects?status=draft'
 ```
 
+### Newsletter signup
+
+The footer has a signup form (`NewsletterForm`). Subscribers are saved in Strapi, no emails are sent yet.
+
+The form posts to `/api/newsletter` (Next.js), which checks the input, limits requests per IP and calls
+`POST /api/newsletter-subscribers/subscribe` on Strapi (through `STRAPI_INTERNAL_URL`). Strapi lowercases
+the email and saves it with the consent flag and the time.
+
+Responses: 201 subscribed, 200 already subscribed, 400 `invalid_email` or `consent_required`,
+429 too many requests, 502 Strapi not reachable.
+
+The list stays private. The signup POST is the only content API route and the type is not in the public
+permissions in `server/src/index.ts`, so don't give the Public role access to it.
+
+Admins can see the subscribers in Content Manager > Newsletter Subscriber and filter by `status`. To
+unsubscribe someone, set `status` to `unsubscribed`.
+
+Strapi creates a `newsletter_subscribers` table on start. It's a schema change, so tell the maintainers
+before deploying (see [CONTRIBUTING.md](./CONTRIBUTING.md)). Tests: `cd server && npm run test:newsletter`.
+
+Not done yet: double opt-in, unsubscribe links, sending emails, CSV export and translated form text.
+
 ### Admin Panel Tips
 
 - **First run:** Create an admin user at `/strapi/admin`

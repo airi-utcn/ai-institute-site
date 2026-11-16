@@ -38,6 +38,12 @@ Save and publish the publication. Portraits must also be present on the linked p
 
 Author synchronization runs for saves, publication, duplication and restoring a draft from the published version. Draft edits do not change the published author links until the publication is published again. Existing records are synchronized when next saved or published; no database-wide backfill runs on startup.
 
+## Automated imports
+
+Publications with **Source Kind** `openAlexAutomated` are refreshed by the weekly OpenAlex import. The import does not write author credits, BibTeX, video, code or the other new editorial fields. It does merge OpenAlex-matched people back into **Authors**, which is the field it already manages. That agrees with the credit synchronization above, so imported updates never remove credited people.
+
+Removing a Person from **Author credits** on an imported publication can still be undone by the next import when that person is **Import eligible** (`importEligible`) and their name matches an OpenAlex author. To exclude them permanently, clear **Import eligible** on the Person, or keep the publication as `manual`.
+
 ## Deployment
 
-This change adds a repeatable `publication.author-credit` component and optional publication fields. Rebuild and restart Strapi before deploying the frontend, so its new populate queries are accepted. Strapi applies the additive schema changes on startup. Existing author relations and BibTeX uploads are preserved; no content backfill is required. The OpenAlex importer does not write the new editorial fields.
+This change adds a repeatable `publication.author-credit` component and optional publication fields. Rebuild and restart Strapi before deploying the frontend, so its new populate queries are accepted. Strapi applies the additive schema changes on startup. Existing author relations and BibTeX uploads are preserved; no content backfill is required. The OpenAlex importer does not write the new editorial fields; see [Automated imports](#automated-imports).

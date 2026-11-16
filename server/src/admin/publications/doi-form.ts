@@ -13,10 +13,22 @@ export interface DoiProposal {
   }>;
 }
 
-export function initialDoiSelection(proposal: DoiProposal, values: any, allowed: Record<DoiField, boolean>): DoiSelection {
+export function initialDoiSelection(
+  proposal: DoiProposal,
+  values: any,
+  allowed: Record<DoiField, boolean>,
+  persistedAuthors?: any,
+): DoiSelection {
+  // Admin form relations are { connect, disconnect } without a count, so the
+  // persisted document is the only reliable source for the existing links.
+  const persisted = Array.isArray(persistedAuthors)
+    ? persistedAuthors.length
+    : Number(persistedAuthors?.count ?? 0);
   const authors = values.authors;
-  const hasAuthors = Array.isArray(authors) ? authors.length > 0
-    : Boolean(authors?.count || authors?.connect?.length);
+  const relation = authors && !Array.isArray(authors) ? authors : null;
+  const baseline = Array.isArray(authors) ? authors.length : persisted;
+  const hasAuthors = Math.max(0, baseline - (relation?.disconnect?.length || 0))
+    + (relation?.connect?.length || 0) > 0;
   return {
     title: allowed.title && Boolean(proposal.title) && !values.title?.trim(),
     year: allowed.year && Boolean(proposal.year) && !values.year,

@@ -18,16 +18,17 @@ export function publicationExternalUrl(value) {
 // Append older person relations so adding credits never hides existing authors.
 export function mergePublicationAuthors(authors = [], credits = []) {
   const result = [];
-  const seenPeople = new Set();
+  const creditedPeople = new Set();
   const personKey = (person) => person?.documentId || person?.slug || person?.id;
 
+  // Keep every credit row, including the same person credited twice with
+  // different affiliations. Track their keys only to hide duplicate legacy rows.
   for (const credit of credits) {
     const person = credit.person;
     const name = String(credit.name || person?.name || '').trim();
     if (!name) continue;
     const key = personKey(person);
-    if (key && seenPeople.has(key)) continue;
-    if (key) seenPeople.add(key);
+    if (key) creditedPeople.add(key);
     result.push({
       ...person,
       name,
@@ -40,8 +41,7 @@ export function mergePublicationAuthors(authors = [], credits = []) {
 
   for (const author of authors) {
     const key = personKey(author);
-    if (key && seenPeople.has(key)) continue;
-    if (key) seenPeople.add(key);
+    if (key && creditedPeople.has(key)) continue;
     if (author.name) result.push(author);
   }
   return result;

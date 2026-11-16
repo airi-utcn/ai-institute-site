@@ -42,7 +42,11 @@ export function registerPublicationAuthorSync(strapi: any) {
         const credits = creditedPeople(entry);
         const authors = new Set<number>(entry.authors.map((author: any) => author.id));
         // A clone is a new document: none of the source's credit removals apply.
+        // A discarded draft is recreated from the published version, so compare
+        // against the published credits rather than the dropped draft's.
+        const publishedKey = `${entry.locale || 'en'}:published`;
         const oldCredits = ctx.action === 'clone' ? new Set<number>()
+          : ctx.action === 'discardDraft' ? previousCredits.get(publishedKey) || new Set<number>()
           : previousCredits.get(versionKey(entry)) || new Set<number>();
         const connect = [...credits].filter((id) => !authors.has(id));
         const disconnect = [...oldCredits].filter((id) => !credits.has(id) && authors.has(id));

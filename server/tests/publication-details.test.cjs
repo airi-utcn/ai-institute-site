@@ -212,6 +212,39 @@ test('draft edits do not leak into published author links and publishing uses th
   assert.deepEqual(authorIds(await read('draft')), [replacement.documentId]);
 });
 
+test('discarding a draft keeps independent authors that were also added to draft credits', async () => {
+  const created = await app.documents(uid).create({
+    data: {
+      title: 'Discarded draft independent author test',
+      authors: [legacyAuthor.documentId],
+      authorCredits: [{ person: person.documentId, affiliation: 'AIRi' }],
+    },
+    populate: populatedAuthors,
+  });
+  await app.documents(uid).publish({ documentId: created.documentId });
+  const draft = await app.documents(uid).findOne({
+    documentId: created.documentId, status: 'draft', populate: populatedAuthors,
+  });
+  const creditedRow = draft.authorCredits.find((row) => row.person?.documentId === person.documentId);
+  assert.ok(creditedRow);
+
+  // Credit the independent author too, then discard: the new draft is a copy of
+  // the published version, so its author list must not lose that person.
+  await app.documents(uid).update({
+    documentId: created.documentId,
+    data: { authorCredits: [
+      { id: creditedRow.id, person: person.documentId, affiliation: 'AIRi' },
+      { person: legacyAuthor.documentId, affiliation: 'AIRi' },
+    ] },
+  });
+  await app.documents(uid).discardDraft({ documentId: created.documentId });
+
+  const restored = await app.documents(uid).findOne({
+    documentId: created.documentId, status: 'draft', populate: populatedAuthors,
+  });
+  assert.deepEqual(authorIds(restored), [person.documentId, legacyAuthor.documentId].sort());
+});
+
 test('saving and publishing external credits never creates or modifies People, even with a matching name', async () => {
   const existingPeople = await app.db.query('api::person.person').findMany({ orderBy: { id: 'asc' } });
   const publication = await app.documents(uid).create({

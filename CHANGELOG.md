@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Richer publication details and author credits**:
+  - Ordered author credits that link AIRi profiles or keep external authors publication-only, with publication-specific affiliations.
+  - Author portraits on publication detail pages and automatic synchronization of linked credits into the Authors relation.
+  - BibTeX viewing and copying alongside the existing download, uploaded or YouTube/Vimeo presentation videos, and an optional source-code link.
+  - Optional DOI autofill (Crossref/DataCite) with review before applying, and explicit People profile creation for unlinked authors.
 - **"Pending review" widget on the Strapi admin homepage**:
   - Lists everything that is not live on the website, grouped by content type: never-published drafts and published entries that have pending edits.
   - Uses the existing, permission-checked Content Manager views (`__status` filters `draft` and `published-modified`), so no new backend endpoints are required and editors only see content types they can read.

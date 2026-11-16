@@ -317,6 +317,12 @@ const PUBLICATION_AUTHOR_POPULATE = {
   },
 };
 
+// Listing surfaces only render author names. Portraits and department details
+// are fetched by the detail page, which uses PUBLICATION_AUTHOR_POPULATE.
+const PUBLICATION_AUTHOR_LIST_POPULATE = {
+  fields: ['firstName', 'lastName', 'fullName', 'slug', 'type'],
+};
+
 const PERSON_WITH_IMAGE_POPULATE = {
   fields: PERSON_FIELDS,
   populate: {
@@ -1684,8 +1690,8 @@ export async function getPublications(options = {}) {
       filters: Object.keys(filters).length ? filters : null,
       locale,
       populate: {
-        authors: PUBLICATION_AUTHOR_POPULATE,
-        authorCredits: { populate: { person: PUBLICATION_AUTHOR_POPULATE } },
+        authors: PUBLICATION_AUTHOR_LIST_POPULATE,
+        authorCredits: { populate: { person: PUBLICATION_AUTHOR_LIST_POPULATE } },
         projects: { fields: ['title', 'slug'] },
         domain: DEPARTMENT_POPULATE,
         themes: { fields: ['name', 'slug'] },

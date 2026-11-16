@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const databaseFile = `.tmp/doi-test-${process.pid}-${randomBytes(6).toString('hex')}.db`;
-let app, metadata, createHandler, formHelpers, profileHelpers, person;
+let app, metadata, createHandler, formHelpers, profileHelpers, person, compiledDir;
 const uid = 'api::publication.publication';
 const doi = '10.1234/research';
 const work = {
@@ -30,15 +30,26 @@ before(async () => {
   const { compileStrapi, createStrapi } = require('@strapi/strapi');
   app = createStrapi(await compileStrapi({ appDir: root }));
   await app.load();
-  metadata = require('../dist/src/api/publication/doi-metadata.js');
-  createHandler = require('../dist/src/api/publication/doi-route.js').createDoiLookupHandler;
+  // Compile the API modules into one temp dir so the test does not require a
+  // previous `strapi build` (dist is gitignored and absent on a clean checkout).
+  const typescript = require('typescript');
+  compiledDir = fs.mkdtempSync(path.join(root, '.tmp/doi-modules-'));
+  for (const name of ['doi-metadata', 'doi-route']) {
+    const source = fs.readFileSync(path.join(root, 'src/api/publication', `${name}.ts`), 'utf8');
+    const js = typescript.transpileModule(source, {
+      compilerOptions: { module: typescript.ModuleKind.CommonJS, target: typescript.ScriptTarget.ES2022 },
+    }).outputText;
+    fs.writeFileSync(path.join(compiledDir, `${name}.js`), js);
+  }
+  metadata = require(path.join(compiledDir, 'doi-metadata.js'));
+  createHandler = require(path.join(compiledDir, 'doi-route.js')).createDoiLookupHandler;
   const source = fs.readFileSync(path.join(root, 'src/admin/publications/doi-form.ts'), 'utf8');
-  const js = require('typescript').transpileModule(source, { compilerOptions: { module: require('typescript').ModuleKind.CommonJS } }).outputText;
+  const js = typescript.transpileModule(source, { compilerOptions: { module: typescript.ModuleKind.CommonJS } }).outputText;
   formHelpers = {};
   new Function('exports', js)(formHelpers);
   profileHelpers = {};
   const profileSource = fs.readFileSync(path.join(root, 'src/admin/publications/author-profiles.ts'), 'utf8');
-  const profileJs = require('typescript').transpileModule(profileSource, { compilerOptions: { module: require('typescript').ModuleKind.CommonJS } }).outputText;
+  const profileJs = typescript.transpileModule(profileSource, { compilerOptions: { module: typescript.ModuleKind.CommonJS } }).outputText;
   new Function('exports', profileJs)(profileHelpers);
   person = await app.documents('api::person.person').create({
     data: { firstName: 'Internal', lastName: 'Author', bio: 'Author biography.', socialLinks: [{ label: 'Email', url: 'mailto:author@example.com', icon: 'mail' }] },
@@ -58,6 +69,7 @@ test('profile choices respect saved relations, reordering and pending links or r
 
 after(async () => {
   if (app) await app.destroy();
+  if (compiledDir) fs.rmSync(compiledDir, { recursive: true, force: true });
   for (const suffix of ['', '-wal', '-shm']) fs.rmSync(path.join(root, databaseFile + suffix), { force: true });
 });
 
@@ -140,9 +152,18 @@ test('lookup respects publication and person permissions', async () => {
 
 test('existing fields are unselected by default and new author rows use admin relation payloads', () => {
   const all = { title: true, year: true, authorCredits: true, bibtex: true };
-  assert.deepEqual(formHelpers.initialDoiSelection(proposal(), {}, all), all);
-  assert.deepEqual(formHelpers.initialDoiSelection(proposal(), { title: 'My title', year: 2020, authors: { count: 2 }, bibFile: { id: 1 } }, all), { title: false, year: false, authorCredits: false, bibtex: false });
+  const authors = { connect: [], disconnect: [] };
+  assert.deepEqual(formHelpers.initialDoiSelection(proposal(), { authors }, all, { count: 0 }), all);
+  // Admin relation form values never carry a count, so the persisted document
+  // is what keeps an existing author list from being replaced by default.
+  assert.deepEqual(
+    formHelpers.initialDoiSelection(proposal(), { title: 'My title', year: 2020, authors, bibFile: { id: 1 } }, all, { count: 2 }),
+    { title: false, year: false, authorCredits: false, bibtex: false },
+  );
   assert.equal(formHelpers.initialDoiSelection(proposal(), {}, { ...all, authorCredits: false }).authorCredits, false);
+  assert.equal(formHelpers.initialDoiSelection(proposal(), { authors }, all, undefined).authorCredits, true);
+  assert.equal(formHelpers.initialDoiSelection(proposal(), { authors: { connect: [{ id: 1 }], disconnect: [] } }, all, { count: 0 }).authorCredits, false);
+  assert.equal(formHelpers.initialDoiSelection(proposal(), { authors: { connect: [], disconnect: [{ id: 1 }] } }, all, { count: 1 }).authorCredits, true);
   const author = { ...proposal().authorCredits[0], person };
   assert.equal(formHelpers.doiAuthorRow(author).person.connect[0].apiData.documentId, person.documentId);
   assert.deepEqual(formHelpers.doiAuthorRow(proposal().authorCredits[1]).person.connect, []);

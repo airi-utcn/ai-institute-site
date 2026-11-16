@@ -31,6 +31,16 @@ test('unlinked authors with identical names remain distinct', () => {
   assert.equal(authors.length, 2);
 });
 
+test('the same person credited twice keeps both publication-specific affiliations', () => {
+  const internal = { documentId: 'a', slug: 'internal', name: 'Internal Author', isExternal: false };
+  const authors = mergePublicationAuthors([internal], [
+    { person: internal, affiliation: 'AIRi' },
+    { person: internal, affiliation: 'Partner University' },
+  ]);
+  assert.deepEqual(authors.map((author) => author.affiliation.name), ['AIRi', 'Partner University']);
+  assert.equal(authors.length, 2);
+});
+
 test('publication links accept web URLs and reject executable or malformed URLs', () => {
   assert.equal(publicationExternalUrl(' https://github.com/example/repo '), 'https://github.com/example/repo');
   assert.equal(publicationExternalUrl('https://youtu.be/dQw4w9WgXcQ'), 'https://youtu.be/dQw4w9WgXcQ');

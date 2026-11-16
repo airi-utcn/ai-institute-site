@@ -7,7 +7,7 @@ import { doiAuthorRow, initialDoiSelection, type DoiField, type DoiProposal, typ
 const emptySelection: DoiSelection = { title: false, year: false, authorCredits: false, bibtex: false };
 const labels: Record<DoiField, string> = { title: 'Title', year: 'Year', authorCredits: 'Authors and affiliations', bibtex: 'BibTeX' };
 
-function DoiAutofill({ isCreating }: { isCreating: boolean }) {
+function DoiAutofill({ isCreating, persistedAuthors }: { isCreating: boolean; persistedAuthors?: any }) {
   const { get } = useFetchClient();
   const form = useForm('DoiAutofill', (state) => state);
   const values = form.values as any;
@@ -42,7 +42,7 @@ function DoiAutofill({ isCreating }: { isCreating: boolean }) {
         return;
       }
       const data = response.data.data as DoiProposal;
-      setSelected(initialDoiSelection(data, form.getValues(), allowed));
+      setSelected(initialDoiSelection(data, form.getValues(), allowed, persistedAuthors));
       setProposal(data);
     } catch (err: any) {
       if (!controller.signal.aborted) setError(err?.response?.data?.error?.message || 'Could not retrieve DOI metadata. You can still fill the fields manually.');
@@ -118,7 +118,7 @@ function DoiAutofill({ isCreating }: { isCreating: boolean }) {
   );
 }
 
-export const DoiAutofillPanel: PanelComponent = ({ model, activeTab, documentId }) => {
+export const DoiAutofillPanel: PanelComponent = ({ model, activeTab, documentId, document }) => {
   if (model !== 'api::publication.publication' || activeTab === 'published') return null;
-  return { title: 'Fill from DOI (optional)', content: <DoiAutofill key={documentId || 'new'} isCreating={!documentId} /> };
+  return { title: 'Fill from DOI (optional)', content: <DoiAutofill key={documentId || 'new'} isCreating={!documentId} persistedAuthors={document?.authors} /> };
 };

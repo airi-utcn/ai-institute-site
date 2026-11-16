@@ -1,6 +1,6 @@
 import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
-import Image from "next/image";
+import ResearchContinuum from "@/components/ResearchContinuum";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { FaNewspaper } from "react-icons/fa";
@@ -93,20 +93,7 @@ export default async function Home() {
 
   return (
     <div>
-      {/*
-        Hero Section
-
-        The front-page artwork (`logoart.jpeg`) is a 2:1 painting on a light
-        canvas. It is intentionally rendered at its native aspect ratio instead
-        of as a full-bleed `object-cover` background: cropping it to a viewport
-        banner cuts the horizontal bands that make up the composition, and
-        white text over the busy canvas is unreadable. The copy therefore sits
-        above the artwork on a cream "gallery wall", and the painting hangs as
-        a framed, uncropped print aligned with the rest of the site grid.
-
-        The asset is a static front-page design choice (there is no heroImage
-        field on the `home-page` single type); only the copy is CMS-driven.
-      */}
+      {/* Keep the current gallery layout; animate only the 2:1 artwork slot. */}
       <section className="relative isolate overflow-hidden bg-[#f5f0e6] dark:bg-[#121110]">
         <div className="page-container pt-10 sm:pt-14 lg:pt-16 pb-10 sm:pb-14">
           <div className="text-center max-w-4xl mx-auto">
@@ -119,15 +106,7 @@ export default async function Home() {
           </div>
 
           <div className="mt-10 sm:mt-12 overflow-hidden rounded-2xl ring-1 ring-black/10 dark:ring-white/15 shadow-[0_30px_60px_-30px_rgba(64,45,20,0.45)]">
-            <Image
-              src="/homepage/logoart.jpeg"
-              alt={HERO_ART_ALT}
-              width={1600}
-              height={800}
-              priority
-              sizes="(min-width: 1152px) 1088px, 100vw"
-              className="w-full h-auto"
-            />
+            <ResearchContinuum locale={locale} />
           </div>
 
           {noticeText && (

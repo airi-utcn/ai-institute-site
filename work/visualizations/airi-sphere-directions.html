@@ -1,0 +1,220 @@
+<div id="airi-sphere-directions" class="viz-carousel viz-dotted-background" aria-label="Direcții vizuale pentru forma AIRi" data-previous-label="Precedenta" data-next-label="Următoarea">
+  <section data-variant="Membrană fluidă" aria-label="Membrană fluidă">
+    <div class="airi-study" data-kind="membrane">
+      <div class="airi-study-label">Contur continuu · pliuri line</div>
+      <canvas role="img" aria-label="Membrană albastră translucidă, cu suprafață continuă și pliuri moi"></canvas>
+      <div class="airi-study-actions"><span>Membrană fluidă</span><button type="button">Pornește mișcarea</button></div>
+    </div>
+  </section>
+  <section data-variant="Sferă de particule" aria-label="Sferă de particule" hidden>
+    <div class="airi-study" data-kind="particles">
+      <div class="airi-study-label">Puncte luminoase · volum aerat</div>
+      <canvas role="img" aria-label="Volum rotund din puncte albastre luminoase, fără suprafață rigidă"></canvas>
+      <div class="airi-study-actions"><span>Sferă de particule</span><button type="button">Pornește mișcarea</button></div>
+    </div>
+  </section>
+  <section data-variant="Nucleu și orbite" aria-label="Nucleu și orbite" hidden>
+    <div class="airi-study" data-kind="orbits">
+      <div class="airi-study-label">Nucleu translucid · panglici de lumină</div>
+      <canvas role="img" aria-label="Nucleu albastru translucid înconjurat de trei panglici luminoase"></canvas>
+      <div class="airi-study-actions"><span>Nucleu și orbite</span><button type="button">Pornește mișcarea</button></div>
+    </div>
+  </section>
+</div>
+<style>
+#airi-sphere-directions .airi-study {
+  background: #05090f;
+  color: #d8e8fa;
+  border-radius: 16px;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+}
+#airi-sphere-directions .airi-study-label {
+  padding: 20px 22px 0;
+  font-size: 13px;
+  color: #97b6d9;
+  letter-spacing: .02em;
+}
+#airi-sphere-directions canvas { display: block; width: 100%; height: 310px; }
+#airi-sphere-directions .airi-study-actions {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  gap: 12px; padding: 0 22px 20px; font-size: 14px;
+}
+#airi-sphere-directions button {
+  font: inherit; color: #d8e8fa; background: #101f30; border: 1px solid #304b6b;
+  border-radius: 8px; padding: 10px 14px; min-height: 44px;
+}
+#airi-sphere-directions button:hover { background: #1b3048; }
+#airi-sphere-directions button:disabled { opacity: .65; }
+@media(max-width:420px) {
+  #airi-sphere-directions canvas { height: 280px; }
+}
+</style>
+<script>
+(() => {
+  const root = document.getElementById('airi-sphere-directions');
+  const TAU = Math.PI * 2;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const studies = [];
+  const saved = window.openai?.widgetState?.privateContent?.variants || {};
+  function project(p, yaw, scale, w, h) {
+    const x = p[0] * Math.cos(yaw) + p[2] * Math.sin(yaw);
+    const z = -p[0] * Math.sin(yaw) + p[2] * Math.cos(yaw);
+    const y = p[1] * .96 - z * .28;
+    const depth = p[1] * .28 + z * .96;
+    const perspective = 4.5 / (4.5 + depth);
+    return [w/2 + x * perspective * scale, h/2 - y * perspective * scale, depth];
+  }
+  function surface(lat, lon, t, amplitude = 1) {
+    const envelope = Math.cos(lat);
+    const folds = .085 * Math.sin(lon * 3 + t * .7) * envelope * envelope
+      + .045 * Math.sin(lat * 4 - lon * 2 + t * .6) * envelope;
+    const r = 1 + folds * amplitude;
+    return [Math.cos(lon) * envelope * r, Math.sin(lat) * r, Math.sin(lon) * envelope * r];
+  }
+  function rgba(c, a) { return `rgba(${c},${a})`; }
+  function glow(ctx, w, h, scale, opacity) {
+    const g = ctx.createRadialGradient(w/2,h/2,scale*.3,w/2,h/2,scale*1.65);
+    g.addColorStop(0,rgba('25,100,245',.14*opacity));
+    g.addColorStop(.55,rgba('40,140,255',.07*opacity));
+    g.addColorStop(1,rgba('40,140,255',0));
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  }
+  function membrane(ctx, w, h, scale, t, opacity, amplitude=1) {
+    const panels=[]; const rows=24,columns=60;
+    for(let i=0;i<rows;i++)for(let j=0;j<columns;j++) {
+      const a=i/rows*Math.PI-Math.PI/2,b=(i+1)/rows*Math.PI-Math.PI/2;
+      const c=j/columns*TAU,d=(j+1)/columns*TAU;
+      const points=[[a,c],[a,d],[b,d],[b,c]].map(([la,lo])=>project(surface(la,lo,t,amplitude),t*.18,scale,w,h));
+      panels.push({points,z:points.reduce((sum,p)=>sum+p[2],0)/4});
+    }
+    panels.sort((a,b)=>b.z-a.z);
+    for(const {points,z} of panels) {
+      const near=Math.max(0,Math.min(1,.5-z*.45));
+      ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+      const shine=.45+.55*Math.max(0,(points[0][0]-w/2)/scale);
+      ctx.fillStyle=rgba(`24,${Math.round(80+35*shine)},${Math.round(180+50*shine)}`,(.075+.16*near)*opacity);
+      ctx.fill();
+      ctx.strokeStyle=rgba('95,188,255',(.025+.065*near)*opacity);ctx.lineWidth=.55;ctx.stroke();
+    }
+    // A soft, continuous silhouette, rather than holes cut into the body.
+    const silhouette=[];
+    for(let k=0;k<=180;k++) {
+      const a=k/180*TAU;
+      const r=1+.035*Math.sin(a*5+t*.65)+.02*Math.sin(a*3-t*.6);
+      silhouette.push([w/2+Math.cos(a)*scale*r,h/2+Math.sin(a)*scale*r]);
+    }
+    ctx.beginPath();silhouette.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.closePath();
+    ctx.strokeStyle=rgba('80,177,255',.18*opacity);ctx.lineWidth=5;ctx.stroke();
+    ctx.strokeStyle=rgba('132,216,255',.64*opacity);ctx.lineWidth=.8;ctx.stroke();
+  }
+  function particles(ctx,w,h,scale,t,opacity) {
+    const dots=[];
+    const count=1250;
+    for(let i=0;i<count;i++) {
+      const y=1-2*(i+.5)/count;
+      const angle=i*2.399963229728653+t*.13;
+      const lat=Math.asin(y);
+      const p=surface(lat,angle,t,.55);
+      const drift=1+.035*Math.sin(i*.7+t*.8);
+      const q=project(p.map(v=>v*drift),t*.15,scale,w,h);
+      dots.push({q,index:i});
+    }
+    dots.sort((a,b)=>b.q[2]-a.q[2]);
+    ctx.globalCompositeOperation='lighter';
+    for(const {q,index} of dots) {
+      const near=Math.max(.1,.5-q[2]*.43);
+      const a=(.24+near*.75)*opacity;
+      const size=.65+near*.65;
+      ctx.beginPath();ctx.arc(q[0],q[1],size,0,TAU);ctx.fillStyle=rgba('135,207,255',a);ctx.fill();
+      if(index%19===0) {
+        ctx.beginPath();ctx.arc(q[0],q[1],size*3,0,TAU);ctx.fillStyle=rgba('65,150,255',a*.12);ctx.fill();
+      }
+    }
+    ctx.globalCompositeOperation='source-over';
+  }
+  function orbit(ctx,w,h,scale,t,opacity) {
+    membrane(ctx,w,h,scale*.67,t,opacity*.8,.3);
+    const segments=[];
+    for(let ring=0;ring<3;ring++) {
+      const tilt=[.32,1.1,-.8][ring];
+      for(let k=0;k<170;k++) {
+        const pair=[];
+        for(const step of [k,k+1]) {
+          const a=step/170*TAU;
+          const x=Math.cos(a)*1.43,y=Math.sin(a)*1.43;
+          pair.push(project([x,y*Math.cos(tilt),y*Math.sin(tilt)],t*.12+ring*.7,scale,w,h));
+        }
+        segments.push({pair,z:(pair[0][2]+pair[1][2])/2,k,ring});
+      }
+    }
+    segments.sort((a,b)=>b.z-a.z);
+    ctx.globalCompositeOperation='lighter';
+    for(const {pair,z,k,ring} of segments) {
+      const pulse=.5+.5*Math.cos(k/170*TAU-t*.9-ring*1.8);
+      const a=(.14+.75*Math.pow(pulse,3))*(.65-z*.2)*opacity;
+      ctx.beginPath();ctx.moveTo(pair[0][0],pair[0][1]);ctx.lineTo(pair[1][0],pair[1][1]);
+      ctx.strokeStyle=rgba('65,145,255',a*.18);ctx.lineWidth=5;ctx.stroke();
+      ctx.strokeStyle=rgba('135,218,255',a);ctx.lineWidth=1;ctx.stroke();
+    }
+    ctx.globalCompositeOperation='source-over';
+  }
+  function save(kind) {
+    window.openai?.setWidgetState?.({modelContent:{sphereDirection:kind},privateContent:{variants:Object.fromEntries(studies.map(s=>[s.kind,{opacity:s.state.opacity,speed:s.state.speed}]))}})?.catch(()=>{});
+  }
+  for(const element of root.querySelectorAll('.airi-study')) {
+    const kind=element.dataset.kind;
+    const canvas=element.querySelector('canvas'),ctx=canvas.getContext('2d'),button=element.querySelector('button');
+    const memory=saved[kind]||{};
+    const state={opacity:typeof memory.opacity==='number'?memory.opacity:.85,speed:typeof memory.speed==='number'?memory.speed:.65};
+    let playing=false,raf=0,last=0,t=1.6;
+    function render() {
+      const rect=canvas.getBoundingClientRect();if(!rect.width)return;
+      const ratio=Math.min(window.devicePixelRatio||1,2);
+      const w=Math.round(rect.width*ratio),h=Math.round(rect.height*ratio);
+      if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+      ctx.setTransform(ratio,0,0,ratio,0,0);
+      const width=rect.width,height=rect.height,scale=Math.min(width*.27,height*.35);
+      ctx.clearRect(0,0,width,height);glow(ctx,width,height,scale,state.opacity);
+      if(kind==='membrane')membrane(ctx,width,height,scale,t,state.opacity);
+      if(kind==='particles')particles(ctx,width,height,scale,t,state.opacity);
+      if(kind==='orbits')orbit(ctx,width,height,scale*.82,t,state.opacity);
+    }
+    function tick(now) {
+      raf=0;if(!playing)return;
+      if(!last)last=now;
+      t+=Math.min((now-last)/1000,.08)*state.speed;last=now;render();
+      raf=requestAnimationFrame(tick);
+    }
+    button.disabled=motion.matches;
+    if(motion.matches)button.textContent='Mișcare redusă';
+    button.addEventListener('click',()=>{
+      playing=!playing;button.textContent=playing?'Oprește mișcarea':'Pornește mișcarea';
+      button.setAttribute('aria-pressed',String(playing));
+      if(playing){last=0;raf=requestAnimationFrame(tick);}else cancelAnimationFrame(raf);
+      save(kind);
+    });
+    new ResizeObserver(render).observe(canvas);
+    studies.push({kind,state,render});render();
+    if(globalThis.Tweak) {
+      const tweak=new Tweak({container:element,onChange:()=>{render();save(kind);}});
+      tweak.addSlider(state,'opacity',{label:'Densitate',min:.3,max:1,step:.05});
+      tweak.addSlider(state,'speed',{label:'Mișcare',min:.2,max:1.2,step:.05});
+    }
+    motion.addEventListener('change',()=>{
+      playing=false;cancelAnimationFrame(raf);button.disabled=motion.matches;
+      button.textContent=motion.matches?'Mișcare redusă':'Pornește mișcarea';
+      button.setAttribute('aria-pressed','false');render();
+    });
+  }
+  window.addEventListener('openai:set_globals',event=>{
+    const restored=event.detail?.globals?.widgetState?.privateContent?.variants;
+    if(!restored)return;
+    for(const study of studies){const value=restored[study.kind];if(!value)continue;
+      if(typeof value.opacity==='number')study.state.opacity=Math.max(.3,Math.min(1,value.opacity));
+      if(typeof value.speed==='number')study.state.speed=Math.max(.2,Math.min(1.2,value.speed));
+      study.render();
+    }
+  });
+})();
+</script>

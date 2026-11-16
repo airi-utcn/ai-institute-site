@@ -492,6 +492,20 @@ export interface ProjectTimelineEntry extends Struct.ComponentSchema {
   };
 }
 
+export interface PublicationAuthorCredit extends Struct.ComponentSchema {
+  collectionName: 'components_publication_author_credits';
+  info: {
+    description: "Link an AIRi person or enter an external author's name, with their affiliation for this publication";
+    displayName: 'Publication author';
+    icon: 'user';
+  };
+  attributes: {
+    affiliation: Schema.Attribute.String & Schema.Attribute.Required;
+    name: Schema.Attribute.String;
+    person: Schema.Attribute.Relation<'oneToOne', 'api::person.person'>;
+  };
+}
+
 export interface SharedCard extends Struct.ComponentSchema {
   collectionName: 'components_shared_cards';
   info: {
@@ -850,6 +864,7 @@ declare module '@strapi/strapi' {
       'project.contact-info': ProjectContactInfo;
       'project.team-member': ProjectTeamMember;
       'project.timeline-entry': ProjectTimelineEntry;
+      'publication.author-credit': PublicationAuthorCredit;
       'shared.card': SharedCard;
       'shared.card-grid': SharedCardGrid;
       'shared.contact-link': SharedContactLink;

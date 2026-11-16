@@ -1,6 +1,6 @@
 import { getEnv, normalizeBaseUrl, requireEnv } from './env';
 import { buildSrcSetFromFormats } from './media';
-import { normalizePublicationSourceKind } from './publication';
+import { AIRI_AFFILIATION, mergePublicationAuthors, normalizePublicationSourceKind, publicationExternalUrl } from './publication';
 import { getPreviewSession } from './preview-session';
 import { toPublicationSlug } from './slug';
 
@@ -307,6 +307,20 @@ const PERSON_WITH_DEPARTMENT_POPULATE = {
   populate: {
     department: DEPARTMENT_POPULATE,
   },
+};
+
+const PUBLICATION_AUTHOR_POPULATE = {
+  ...PERSON_WITH_DEPARTMENT_POPULATE,
+  populate: {
+    ...PERSON_WITH_DEPARTMENT_POPULATE.populate,
+    portrait: { fields: ['url', 'formats', 'alternativeText', 'width'] },
+  },
+};
+
+// Listing surfaces only render author names. Portraits and department details
+// are fetched by the detail page, which uses PUBLICATION_AUTHOR_POPULATE.
+const PUBLICATION_AUTHOR_LIST_POPULATE = {
+  fields: ['firstName', 'lastName', 'fullName', 'slug', 'type'],
 };
 
 const PERSON_WITH_IMAGE_POPULATE = {
@@ -1676,7 +1690,8 @@ export async function getPublications(options = {}) {
       filters: Object.keys(filters).length ? filters : null,
       locale,
       populate: {
-        authors: PERSON_WITH_DEPARTMENT_POPULATE,
+        authors: PUBLICATION_AUTHOR_LIST_POPULATE,
+        authorCredits: { populate: { person: PUBLICATION_AUTHOR_LIST_POPULATE } },
         projects: { fields: ['title', 'slug'] },
         domain: DEPARTMENT_POPULATE,
         themes: { fields: ['name', 'slug'] },
@@ -1706,7 +1721,9 @@ export async function getPublicationBySlug(slug, locale = null) {
     if (locale) params.set('locale', locale);
     params.set('filters[slug][$eq]', slug);
     params.set('sort', 'year:desc');
-    setPopulate(params, 'populate[authors]', PERSON_WITH_DEPARTMENT_POPULATE);
+    setPopulate(params, 'populate[authors]', PUBLICATION_AUTHOR_POPULATE);
+    setPopulate(params, 'populate[authorCredits]', { populate: { person: PUBLICATION_AUTHOR_POPULATE } });
+    setPopulate(params, 'populate[videoFile]', { fields: ['name', 'url', 'mime', 'ext', 'size'] });
     setPopulate(params, 'populate[projects]', {
       fields: ['title', 'slug'],
       populate: {
@@ -2360,16 +2377,21 @@ export function transformPublicationData(strapiPubs) {
   return list.map((pub) => {
     const attributes = pub?.attributes ?? pub ?? {};
 
-    const authors = toArray(attributes.authors?.data ?? attributes.authors).map((author) => {
+    const normalizeAuthor = (author) => {
       const authorData = author?.attributes ?? author ?? {};
       const departmentEntry = authorData.department?.data ?? authorData.department;
       const departmentAttributes = departmentEntry?.attributes ?? departmentEntry ?? {};
-      const affiliationName = departmentAttributes.name || '';
+      const isExternal = authorData.type === 'external';
+      const affiliationName = isExternal ? '' : [AIRI_AFFILIATION, departmentAttributes.name].filter(Boolean).join(' — ');
       return {
         id: author?.id ?? null,
+        documentId: author?.documentId ?? null,
         slug: authorData.slug || '',
+        isExternal,
+        image: resolveMediaUrl(authorData.portrait),
+        imageSrcSet: resolveMediaData(authorData.portrait)?.srcSet || '',
         // Construct name from firstName and lastName
-        name: `${authorData.firstName || ''} ${authorData.lastName || ''}`.trim(),
+        name: `${authorData.firstName || ''} ${authorData.lastName || ''}`.trim() || authorData.fullName || '',
         affiliation: affiliationName
           ? {
               name: affiliationName,
@@ -2377,7 +2399,14 @@ export function transformPublicationData(strapiPubs) {
             }
           : null,
       };
-    });
+    };
+    const authors = mergePublicationAuthors(
+      toArray(attributes.authors?.data ?? attributes.authors).map(normalizeAuthor),
+      toArray(attributes.authorCredits).map((credit) => {
+        const person = credit.person?.data ?? credit.person;
+        return { ...credit, person: person ? normalizeAuthor(person) : null };
+      })
+    );
 
     const projects = toArray(attributes.projects?.data ?? attributes.projects).map((project) => {
       const projectData = project?.attributes ?? project ?? {};
@@ -2468,6 +2497,10 @@ export function transformPublicationData(strapiPubs) {
       authors,
       pdfFile,
       bibFile,
+      bibtex: attributes.bibtex || '',
+      codeUrl: publicationExternalUrl(attributes.codeUrl),
+      videoUrl: publicationExternalUrl(attributes.videoUrl),
+      videoFile: resolveMediaData(attributes.videoFile),
       themes,
       resources,
       attachments,

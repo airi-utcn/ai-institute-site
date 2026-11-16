@@ -4873,9 +4873,15 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
       'files' | 'images' | 'videos' | 'audios',
       true
     >;
+    authorCredits: Schema.Attribute.Component<
+      'publication.author-credit',
+      true
+    >;
     authors: Schema.Attribute.Relation<'manyToMany', 'api::person.person'>;
     bibFile: Schema.Attribute.Media<'files'>;
+    bibtex: Schema.Attribute.Text;
     cited_by: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    codeUrl: Schema.Attribute.String;
     community: Schema.Attribute.Integer;
     communityLabel: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
@@ -4963,6 +4969,8 @@ export interface ApiPublicationPublication extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    videoFile: Schema.Attribute.Media<'videos'>;
+    videoUrl: Schema.Attribute.String;
     year: Schema.Attribute.Integer;
   };
 }

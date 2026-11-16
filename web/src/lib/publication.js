@@ -3,6 +3,50 @@ export const PUBLICATION_SOURCE_KIND = {
   OPENALEX_AUTOMATED: 'openAlexAutomated',
 };
 
+export const AIRI_AFFILIATION = 'Artificial Intelligence Research Institute, Technical University of Cluj-Napoca';
+
+export function publicationExternalUrl(value) {
+  try {
+    const url = new URL(String(value || '').trim());
+    return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+  } catch {
+    return '';
+  }
+}
+
+// Explicit credits preserve paper order and publication-specific affiliations.
+// Append older person relations so adding credits never hides existing authors.
+export function mergePublicationAuthors(authors = [], credits = []) {
+  const result = [];
+  const creditedPeople = new Set();
+  const personKey = (person) => person?.documentId || person?.slug || person?.id;
+
+  // Keep every credit row, including the same person credited twice with
+  // different affiliations. Track their keys only to hide duplicate legacy rows.
+  for (const credit of credits) {
+    const person = credit.person;
+    const name = String(credit.name || person?.name || '').trim();
+    if (!name) continue;
+    const key = personKey(person);
+    if (key) creditedPeople.add(key);
+    result.push({
+      ...person,
+      name,
+      isExternal: person ? person.isExternal : true,
+      affiliation: credit.affiliation?.trim()
+        ? { name: credit.affiliation.trim() }
+        : person?.affiliation || null,
+    });
+  }
+
+  for (const author of authors) {
+    const key = personKey(author);
+    if (key && creditedPeople.has(key)) continue;
+    if (author.name) result.push(author);
+  }
+  return result;
+}
+
 const OPENALEX_LIKE_VALUES = new Set([
   'openalex',
   'openalexautomated',

@@ -67,9 +67,15 @@ To add a publication by hand, create an entry, leave **Source Kind** on `manual`
 
 - **Title** (required), **Year**, **DOI**, **Kind** (article, conference paper…)
 - **Abstract** and/or **Description**
-- **Authors**: link the Person entries of the institute's authors
+- **Authors**: filled automatically from **Author credits**; other people can still be linked directly
 - **Domain** (department), **Themes**, **Projects**, **Laboratories**
 - **PDF File**, **Bib File**, **Attachments** if you have them
+
+For the ordered full author list (including external co-authors and their affiliations), DOI
+autofill, BibTeX copy, video or a source-code link, see
+[Publication authors, citations, video and code](./PUBLICATIONS.md). On `openAlexAutomated` entries
+the weekly import also merges OpenAlex-matched people back into **Authors**, so removing a credit
+there may not stick; that guide explains how to exclude someone permanently.
 
 Leave the graph and embedding fields (**Graph Eligible**, **Community**, **Embedding**, **Graph
 Macro/Meso**…) alone unless you know what they do. They are explained in the

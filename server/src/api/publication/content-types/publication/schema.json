@@ -113,6 +113,25 @@
         "files"
       ]
     },
+    "authorCredits": {
+      "type": "component",
+      "repeatable": true,
+      "component": "publication.author-credit"
+    },
+    "bibtex": {
+      "type": "text"
+    },
+    "codeUrl": {
+      "type": "string"
+    },
+    "videoUrl": {
+      "type": "string"
+    },
+    "videoFile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["videos"]
+    },
     "bibFile": {
       "type": "media",
       "multiple": false,

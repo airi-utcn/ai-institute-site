@@ -1,0 +1,17 @@
+{
+  "collectionName": "components_publication_author_credits",
+  "info": {
+    "displayName": "Publication author",
+    "description": "Link an AIRi person or enter an external author's name, with their affiliation for this publication",
+    "icon": "user"
+  },
+  "attributes": {
+    "person": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::person.person"
+    },
+    "name": { "type": "string" },
+    "affiliation": { "type": "string", "required": true }
+  }
+}

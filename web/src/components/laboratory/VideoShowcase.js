@@ -39,6 +39,7 @@ export default function VideoShowcase({
   poster,
   title,
   description,
+  badge = 'Lab Tour Video',
   className = '',
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -107,7 +108,7 @@ export default function VideoShowcase({
               <span className="absolute bottom-4 left-4 right-4 text-white sm:bottom-6 sm:left-6 sm:right-6">
                 <span className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1 text-xs font-semibold text-blue-300 backdrop-blur-md">
                   <FaVideo className="h-3 w-3" />
-                  <span>Lab Tour Video</span>
+                  <span>{badge}</span>
                 </span>
                 {title && (
                   <span className="block text-lg font-bold tracking-tight text-white drop-shadow-md sm:text-xl md:text-2xl">

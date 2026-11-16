@@ -1,8 +1,7 @@
 # Strapi Content Manager basics
 
-Everyday tasks that apply to every content type. For page-specific steps see the
-[Engagement page manual](./ENGAGEMENT_CONTENT_MANUAL.md) and the
-[admin preview guide](./PREVIEW_GUIDE.md).
+Everyday tasks that apply to every content type. The [index](./README.md) lists the guides for
+specific content types.
 
 ## Sign in
 
@@ -16,7 +15,7 @@ permissions first.
 
 Open **Content Manager** in the left menu. There are two kinds of content type:
 
-- **Single types** are one entry that controls a whole page, for example Home Page, About Page, News & Events Page and Global.
+- **Single types** are one entry that controls a whole page, for example Home Page, About Page, News Page and Global.
 - **Collection types** are lists with one entry per item, for example Person, News Item, Event, Publication, Project and Partner.
 
 In a list you can search, filter and sort by clicking a column header. The gear icon above the table
@@ -40,6 +39,28 @@ Visitors only see the published version.
 
 Single types work the same way. Use **Preview** to check a draft first, see the
 [preview guide](./PREVIEW_GUIDE.md).
+
+## Content blocks and media
+
+Long text fields such as **Body** are built from blocks. Click **Add a component to body**, pick a
+block, and drag blocks by their handle to reorder them. The blocks you can add depend on the
+content type. The most common are:
+
+| Block | Use it for |
+| --- | --- |
+| **Section** | A heading, optional subheading, formatted text and an optional image |
+| **Rich text** | Formatted text only |
+| **Media** | One image, video or downloadable file |
+| **Slider** | A gallery of several images |
+| **Quote** | A quotation or highlighted statement |
+
+The Engagement page and laboratories have more blocks (cards, calls to action, separators), described
+in the [Engagement page manual](./ENGAGEMENT_CONTENT_MANUAL.md#available-blocks).
+
+Images and files are stored in the **Media Library** (left menu). When you click an image field you
+can pick an existing file or upload a new one. Before uploading, check whether the file is already
+there, and give new files a clear name. Fill in **Alternative text** in the file details so the image
+is described for screen readers.
 
 ## Equipment page banner
 
@@ -76,5 +97,9 @@ The site has 11 locales: `en` (default), `ro`, `bg`, `de`, `el`, `es`, `fr`, `it
 - Switch language with the locale selector at the top of the edit view. **Fill in from another
   locale** copies the content of another language into the one you are editing.
 - Each locale is saved and published separately. Publishing English doesn't publish Romanian.
+- Some content types, such as Person and Team, aren't translated and have no locale selector.
+- In translated content types, text fields, slugs and links to other entries are set per language.
+  Dates, images, dropdowns and checkboxes are shared, so changing them in one language changes them
+  in all. See [Shared and per-language fields](./NEWS_AND_EVENTS.md#shared-and-per-language-fields).
 - Fill in `en` first, then translate. The [Engagement manual](./ENGAGEMENT_CONTENT_MANUAL.md) has a
   localization checklist that works for the other pages too.

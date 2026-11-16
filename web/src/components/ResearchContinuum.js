@@ -1,39 +1,88 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { createResearchContinuumAnimation } from "@/lib/research-continuum";
+import { useEffect, useRef, useState } from "react";
 import styles from "./ResearchContinuum.module.css";
 
+const POSTER = "/homepage/research-continuum-poster.jpg";
+const DESKTOP_GIF = "/homepage/research-continuum.gif";
+const MOBILE_GIF = "/homepage/research-continuum-mobile.gif";
+
 export default function ResearchContinuum({ locale = "en" }) {
-  const canvasRef = useRef(null);
-  const animationRef = useRef(null);
+  const figureRef = useRef(null);
+  const imageRef = useRef(null);
   const [ready, setReady] = useState(false);
+  const [suspended, setSuspended] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const playing = !paused && !suspended && !hasError;
   const ro = locale === "ro";
   const motionLabel = ro
     ? (paused ? "Pornește animația" : "Oprește animația")
     : (paused ? "Play animation" : "Pause animation");
 
-  useLayoutEffect(() => {
-    // Draw at the final canvas size before the hydrated component is painted.
-    if (!canvasRef.current?.getContext("2d")) return;
-    const animation = createResearchContinuumAnimation(canvasRef.current);
-    animationRef.current = animation;
+  useEffect(() => {
+    const figure = figureRef.current;
+    if (!figure) return;
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let visible = true;
+
+    function syncPlayback() {
+      setSuspended(!visible || document.hidden || motionQuery.matches);
+    }
+
+    const observer = window.IntersectionObserver
+      ? new IntersectionObserver(([entry]) => {
+          visible = entry.isIntersecting;
+          syncPlayback();
+        })
+      : null;
+
+    document.addEventListener("visibilitychange", syncPlayback);
+    motionQuery.addEventListener("change", syncPlayback);
+    observer?.observe(figure);
     setReady(true);
+    // A server-rendered image can fail before React attaches its error handler.
+    if (imageRef.current?.complete && imageRef.current.naturalWidth === 0) {
+      setHasError(true);
+    }
+    syncPlayback();
+
     return () => {
-      animation.destroy();
-      animationRef.current = null;
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", syncPlayback);
+      motionQuery.removeEventListener("change", syncPlayback);
     };
   }, []);
 
-  useEffect(() => {
-    animationRef.current?.setPaused(paused);
-  }, [paused]);
-
   return (
-    <div className={styles.figure} role="group" aria-label="Research in continuum">
+    <div ref={figureRef} className={styles.figure} role="group" aria-label="Research in continuum">
       <div className={styles.drawing}>
-        <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+        <img
+          src={POSTER}
+          width="1600"
+          height="800"
+          alt=""
+          className={styles.poster}
+          aria-hidden="true"
+        />
+        {/* Native picture selection works on direct visits before JavaScript loads.
+            A paused GIF is replaced with a still; resuming can restart its loop. */}
+        <picture>
+          <source media="(prefers-reduced-motion: reduce)" srcSet={POSTER} />
+          <source media="(max-width: 720px)" srcSet={playing ? MOBILE_GIF : POSTER} />
+          <img
+            ref={imageRef}
+            src={playing ? DESKTOP_GIF : POSTER}
+            width="1600"
+            height="800"
+            alt=""
+            className={styles.animation}
+            loading="eager"
+            decoding="async"
+            onError={() => setHasError(true)}
+            aria-hidden="true"
+          />
+        </picture>
         <p className={styles.title}>AIRi / Research in continuum</p>
         <p className={styles.caption}>Aspire. Innovate. Research. Impact.</p>
         <p className="sr-only">
@@ -44,7 +93,8 @@ export default function ResearchContinuum({ locale = "en" }) {
         <button
           type="button"
           className={styles.control}
-          disabled={!ready}
+          disabled={!ready || suspended}
+          hidden={hasError}
           onClick={() => setPaused(value => !value)}
           aria-label={motionLabel}
           title={motionLabel}

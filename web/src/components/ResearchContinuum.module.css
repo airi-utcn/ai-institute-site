@@ -11,11 +11,13 @@
   inset: 0;
 }
 
-.canvas {
+.poster,
+.animation {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  object-fit: cover;
   pointer-events: none;
 }
 
@@ -57,6 +59,7 @@
 
 .control:hover { background: #142236; }
 .control:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.control[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .control { display: none; }

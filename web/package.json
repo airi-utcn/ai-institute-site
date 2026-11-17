@@ -8,7 +8,8 @@
     "start": "next start",
     "export": "STATIC_BUILD=true next build",
     "lint": "next lint",
-    "test:publication-details": "node --experimental-default-type=module --test tests/publication.test.mjs"
+    "test:publication-details": "node --experimental-default-type=module --test tests/publication.test.mjs",
+    "test:virtual-tour": "node --experimental-default-type=module --test tests/matterport.test.mjs"
   },
   "dependencies": {
     "d3-force": "^3.0.0",

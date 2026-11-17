@@ -279,6 +279,15 @@
         }
       }
     },
+    "virtualTourLead": {
+      "type": "text",
+      "default": "Explore AIRi's facilities at the Technical University of Cluj-Napoca in an interactive 3D tour.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "virtualTourComingSoon": {
       "type": "string",
       "default": "Content coming soon.",
@@ -287,6 +296,11 @@
           "localized": true
         }
       }
+    },
+    "virtualTourUrl": {
+      "type": "string",
+      "description": "Matterport share URL, for example https://my.matterport.com/show/?m=aCMSqhHHnKV. Shared across locales. Other http(s) links open in a new tab; leave empty to show the coming-soon message.",
+      "default": "https://my.matterport.com/show/?m=aCMSqhHHnKV"
     }
   }
 }

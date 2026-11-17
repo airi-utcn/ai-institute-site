@@ -10,7 +10,9 @@ export async function generateMetadata() {
 
   return {
     title: about?.virtualTourTitle || "Virtual Tour",
-    description: "Take a virtual tour of AIRi's facilities at the Technical University of Cluj-Napoca.",
+    description:
+      about?.virtualTourLead ||
+      "Take a 3D virtual tour of AIRi's facilities at the Technical University of Cluj-Napoca.",
     alternates: canonical('/about/virtual-tour'),
   };
 }

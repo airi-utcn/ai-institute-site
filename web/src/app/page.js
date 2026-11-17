@@ -1,6 +1,6 @@
 import { canonical } from "@/lib/metadata";
 import FallbackDisclaimer from "@/components/FallbackDisclaimer";
-import Image from "next/image";
+import ResearchContinuum from "@/components/ResearchContinuum";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { FaNewspaper } from "react-icons/fa";
@@ -8,9 +8,10 @@ import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { gridSizes } from "@/lib/media";
 import { getNewsArticles, transformNewsData, getSingleType, getGlobal } from "@/lib/strapi";
 
-// The hero artwork is a static front-page asset, so its description is part of
-// the code rather than the CMS. `home-page.heroAltHero` is no longer read.
-const HERO_ART_ALT = "Abstract artwork with colourful wavy bands, circles, and geometric shapes";
+// The social preview is a still frame from the homepage animation, so its
+// description is part of the code rather than the CMS. `home-page.heroAltHero`
+// is no longer read.
+const HERO_OG_ALT = "A translucent blue lattice globe with glowing, organically perforated surfaces, surrounded by energy paths and the AIRi logo";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -25,10 +26,10 @@ export async function generateMetadata() {
   const siteName = globalData?.siteName || "AIRi @ UTCN";
   const socialTitle = `${siteName} – Artificial Intelligence Research Institute`;
   const ogImage = {
-    url: "/homepage/logoart-og.jpg",
+    url: "/homepage/research-continuum-og.jpg",
     width: 1200,
     height: 630,
-    alt: HERO_ART_ALT,
+    alt: HERO_OG_ALT,
   };
 
   return {
@@ -93,20 +94,7 @@ export default async function Home() {
 
   return (
     <div>
-      {/*
-        Hero Section
-
-        The front-page artwork (`logoart.jpeg`) is a 2:1 painting on a light
-        canvas. It is intentionally rendered at its native aspect ratio instead
-        of as a full-bleed `object-cover` background: cropping it to a viewport
-        banner cuts the horizontal bands that make up the composition, and
-        white text over the busy canvas is unreadable. The copy therefore sits
-        above the artwork on a cream "gallery wall", and the painting hangs as
-        a framed, uncropped print aligned with the rest of the site grid.
-
-        The asset is a static front-page design choice (there is no heroImage
-        field on the `home-page` single type); only the copy is CMS-driven.
-      */}
+      {/* Keep the current gallery layout; animate only the 2:1 artwork slot. */}
       <section className="relative isolate overflow-hidden bg-[#f5f0e6] dark:bg-[#121110]">
         <div className="page-container pt-10 sm:pt-14 lg:pt-16 pb-10 sm:pb-14">
           <div className="text-center max-w-4xl mx-auto">
@@ -119,15 +107,7 @@ export default async function Home() {
           </div>
 
           <div className="mt-10 sm:mt-12 overflow-hidden rounded-2xl ring-1 ring-black/10 dark:ring-white/15 shadow-[0_30px_60px_-30px_rgba(64,45,20,0.45)]">
-            <Image
-              src="/homepage/logoart.jpeg"
-              alt={HERO_ART_ALT}
-              width={1600}
-              height={800}
-              priority
-              sizes="(min-width: 1152px) 1088px, 100vw"
-              className="w-full h-auto"
-            />
+            <ResearchContinuum locale={locale} />
           </div>
 
           {noticeText && (

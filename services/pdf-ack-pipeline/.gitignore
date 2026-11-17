@@ -1,0 +1,18 @@
+# Local model cache for sentence-transformers / huggingface
+.model_cache/
+**/worker_service/.model_cache/
+
+# SQLite state databases and temporary PDFs
+data/state/
+*.db
+*.db-shm
+*.db-wal
+
+# Python cache and environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+.env

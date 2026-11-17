@@ -673,6 +673,13 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Content coming soon.'>;
+    virtualTourLead: Schema.Attribute.Text &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Explore AIRi\'s facilities at the Technical University of Cluj-Napoca in an interactive 3D tour.'>;
     virtualTourTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -680,6 +687,8 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
         };
       }> &
       Schema.Attribute.DefaultTo<'Virtual Tour'>;
+    virtualTourUrl: Schema.Attribute.String &
+      Schema.Attribute.DefaultTo<'https://my.matterport.com/show/?m=aCMSqhHHnKV'>;
   };
 }
 

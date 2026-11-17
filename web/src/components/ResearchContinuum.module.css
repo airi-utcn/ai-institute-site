@@ -21,6 +21,9 @@
   pointer-events: none;
 }
 
+.animation { opacity: 0; }
+.animation.playing { opacity: 1; }
+
 .title,
 .caption {
   position: absolute;
@@ -36,31 +39,12 @@
 }
 
 .title { top: 4%; }
-.caption { bottom: 4%; max-width: calc(100% - 80px); }
+.caption { bottom: 4%; right: 4.2%; }
 
 @media (max-width: 359px) {
   .caption { letter-spacing: 0; }
 }
 
-.control {
-  position: absolute;
-  right: 3%;
-  bottom: 3%;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid currentColor;
-  border-radius: 0.5rem;
-  background: #05090f;
-  color: inherit;
-  cursor: pointer;
-}
-
-.control:hover { background: #142236; }
-.control:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
-.control[hidden] { display: none; }
-
 @media (prefers-reduced-motion: reduce) {
-  .control { display: none; }
+  .animation { display: none; }
 }

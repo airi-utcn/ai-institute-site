@@ -1,5 +1,3 @@
-import { networkInterfaces } from 'node:os';
-
 /** @type {import('next').NextConfig} */
 const envStrapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || process.env.PUBLIC_STRAPI_URL || '';
 
@@ -59,15 +57,6 @@ const remotePatterns = [
 const isStaticBuild = process.env.STATIC_BUILD === 'true';
 const isDev = process.env.NODE_ENV === 'development';
 
-// Allow the dev server's own LAN addresses so its HMR connection can start
-// hydration when a phone opens the site over Wi-Fi.
-const devHosts = isDev
-  ? Object.values(networkInterfaces())
-      .flat()
-      .filter((entry) => entry?.family === 'IPv4' && !entry.internal)
-      .map((entry) => entry.address)
-  : [];
-
 // In development the browser loads Strapi media directly from the local
 // Strapi server. It is a different origin from the Next dev server, so it has
 // to be listed explicitly in img-src/media-src/connect-src.
@@ -121,7 +110,6 @@ const contentSecurityPolicy = [
 const nextConfig = {
   trailingSlash: false,
   poweredByHeader: false,
-  ...(isDev ? { allowedDevOrigins: devHosts } : {}),
   // basePath: "/icia-staging",
   ...(isStaticBuild ? { output: 'export' } : {}),
   images: {

@@ -39,12 +39,31 @@
 }
 
 .title { top: 4%; }
-.caption { bottom: 4%; right: 4.2%; }
+.caption { bottom: 4%; max-width: calc(100% - 80px); }
 
 @media (max-width: 359px) {
   .caption { letter-spacing: 0; }
 }
 
+.control {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  background: #05090f;
+  color: inherit;
+  cursor: pointer;
+}
+
+.control:hover { background: #142236; }
+.control:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
 @media (prefers-reduced-motion: reduce) {
   .animation { display: none; }
+  .control { display: none; }
 }

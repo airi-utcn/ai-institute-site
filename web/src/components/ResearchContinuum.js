@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./ResearchContinuum.module.css";
 
 const POSTER = "/homepage/research-continuum-poster.jpg";
@@ -13,8 +13,27 @@ export default function ResearchContinuum({ locale = "en" }) {
   const [videoSrc, setVideoSrc] = useState(null);
   const [suspended, setSuspended] = useState(true);
   const [playing, setPlaying] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [hasError, setHasError] = useState(false);
   const ro = locale === "ro";
+
+  const requestPlayback = useCallback((video, isCancelled = () => false) => {
+    video.play()
+      .then(() => {
+        if (!isCancelled()) setAutoplayBlocked(false);
+      })
+      .catch(error => {
+        if (isCancelled() || error.name === "AbortError") return;
+        if (error.name === "NotAllowedError") {
+          // Muted autoplay can still be denied (notably by iOS Low Power Mode).
+          // Keep the poster and offer a play action instead of treating the
+          // media as broken.
+          setAutoplayBlocked(true);
+          return;
+        }
+        setHasError(true);
+      });
+  }, []);
 
   useEffect(() => {
     const figure = figureRef.current;
@@ -84,17 +103,13 @@ export default function ResearchContinuum({ locale = "en" }) {
     if (!video || suspended || hasError) return;
     let cancelled = false;
 
-    video.play().catch(error => {
-      // Visibility changes can interrupt play(). A denied autoplay request or
-      // an unsupported video should leave the static poster in place.
-      if (!cancelled && error.name !== "AbortError") setHasError(true);
-    });
+    requestPlayback(video, () => cancelled);
 
     return () => {
       cancelled = true;
       video.pause();
     };
-  }, [videoSrc, suspended, hasError]);
+  }, [videoSrc, suspended, hasError, requestPlayback]);
 
   return (
     <div ref={figureRef} className={styles.figure} role="group" aria-label="Research in continuum">
@@ -121,7 +136,10 @@ export default function ResearchContinuum({ locale = "en" }) {
             playsInline
             disablePictureInPicture
             tabIndex={-1}
-            onPlaying={() => setPlaying(true)}
+            onPlaying={() => {
+              setPlaying(true);
+              setAutoplayBlocked(false);
+            }}
             onPause={() => setPlaying(false)}
             onError={() => setHasError(true)}
             aria-hidden="true"
@@ -134,6 +152,23 @@ export default function ResearchContinuum({ locale = "en" }) {
             ? "Un glob albastru translucid, cu o rețea luminoasă și forme organice perforate, înconjurat de trasee de energie, urmat de apariția logo-ului AIRi."
             : "A translucent blue lattice globe with glowing, organically perforated surfaces and surrounding energy paths, followed by the AIRi logo reveal."}
         </p>
+        {/* Only shown when the browser refuses muted autoplay. */}
+        {autoplayBlocked && !suspended && !hasError && (
+          <button
+            type="button"
+            className={styles.control}
+            onClick={() => {
+              const video = videoRef.current;
+              if (video) requestPlayback(video);
+            }}
+            aria-label={ro ? "Pornește animația" : "Play animation"}
+            title={ro ? "Pornește animația" : "Play animation"}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="m5 3 7 5-7 5V3Z" fill="currentColor" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

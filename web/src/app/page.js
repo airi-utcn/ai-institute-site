@@ -8,9 +8,10 @@ import SmartMediaImage from "@/components/shared/SmartMediaImage";
 import { gridSizes } from "@/lib/media";
 import { getNewsArticles, transformNewsData, getSingleType, getGlobal } from "@/lib/strapi";
 
-// The hero artwork is a static front-page asset, so its description is part of
-// the code rather than the CMS. `home-page.heroAltHero` is no longer read.
-const HERO_ART_ALT = "Abstract artwork with colourful wavy bands, circles, and geometric shapes";
+// The social preview is a still frame from the homepage animation, so its
+// description is part of the code rather than the CMS. `home-page.heroAltHero`
+// is no longer read.
+const HERO_OG_ALT = "A translucent blue lattice globe with glowing, organically perforated surfaces, surrounded by energy paths and the AIRi logo";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
@@ -25,10 +26,10 @@ export async function generateMetadata() {
   const siteName = globalData?.siteName || "AIRi @ UTCN";
   const socialTitle = `${siteName} – Artificial Intelligence Research Institute`;
   const ogImage = {
-    url: "/homepage/logoart-og.jpg",
+    url: "/homepage/research-continuum-og.jpg",
     width: 1200,
     height: 630,
-    alt: HERO_ART_ALT,
+    alt: HERO_OG_ALT,
   };
 
   return {

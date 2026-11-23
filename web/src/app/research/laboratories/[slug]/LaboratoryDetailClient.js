@@ -23,6 +23,7 @@ import {
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
 import SponsorPlaque from '@/components/laboratory/SponsorPlaque';
 import LaboratoryEquipment from '@/components/laboratory/LaboratoryEquipment';
+import LaboratorySchedule from '@/components/laboratory/LaboratorySchedule';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
 import HeroHeader from '@/components/shared/HeroHeader';
 import { heroSizes } from '@/lib/media';
@@ -42,6 +43,7 @@ const DEFAULT_TEXTS = {
   'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
+  'tabs.schedule': 'Room schedule',
   'tabs.equipment': 'Equipment',
   'overview.about': 'About',
   'overview.coordinator': 'Coordinator',
@@ -57,6 +59,8 @@ const DEFAULT_TEXTS = {
   'projects.completed': 'Completed',
   'projects.noProjects': 'No projects found for this laboratory.',
   'equipment.noEquipment': 'No equipment is currently listed for this laboratory.',
+  'schedule.description':
+    'Current and upcoming bookings for this room, as published in the UTCN timetable.',
   'publications.noPublications': 'No publications found for this laboratory.',
   'themes.title': 'Research Themes',
 };
@@ -136,6 +140,11 @@ export default function LaboratoryDetailClient({
       label: t('tabs.publications'),
       icon: FaBook,
       count: publications.length,
+    },
+    {
+      id: 'schedule',
+      label: t('tabs.schedule'),
+      icon: FaCalendarAlt,
     },
     {
       id: 'equipment',
@@ -630,6 +639,21 @@ export default function LaboratoryDetailClient({
               ) : (
                 <EmptyState>{t('publications.noPublications')}</EmptyState>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === 'schedule' && (
+            <motion.div
+              key="schedule"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              <p className="mb-5 text-sm text-gray-500 dark:text-gray-400">
+                {t('schedule.description')}
+              </p>
+              <LaboratorySchedule roomNumber={lab.roomNumber} />
             </motion.div>
           )}
 

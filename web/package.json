@@ -9,7 +9,8 @@
     "export": "STATIC_BUILD=true next build",
     "lint": "next lint",
     "test:publication-details": "node --experimental-default-type=module --test tests/publication.test.mjs",
-    "test:virtual-tour": "node --experimental-default-type=module --test tests/matterport.test.mjs"
+    "test:virtual-tour": "node --experimental-default-type=module --test tests/matterport.test.mjs",
+    "test:timetable": "node --experimental-default-type=module --test tests/timetable.test.mjs"
   },
   "dependencies": {
     "d3-force": "^3.0.0",

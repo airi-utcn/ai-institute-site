@@ -12,6 +12,7 @@ import {
   FaFlask,
   FaCube,
   FaProjectDiagram,
+  FaHistory,
   FaImages,
   FaInfoCircle,
   FaBook,
@@ -46,6 +47,11 @@ const DEFAULT_TEXTS = {
   'people.researchers': 'Researchers',
   'people.teams': 'Teams',
   'people.noPeople': 'No researchers found for this laboratory.',
+  'projects.current': 'Current Projects',
+  'projects.previous': 'Previous Projects',
+  'projects.previousDescription':
+    'Projects that have concluded but are still associated with this laboratory.',
+  'projects.completed': 'Completed',
   'projects.noProjects': 'No projects found for this laboratory.',
   'publications.noPublications': 'No publications found for this laboratory.',
   'themes.title': 'Research Themes',
@@ -96,6 +102,8 @@ export default function LaboratoryDetailClient({
   const heroSrc = lab.heroImage;
   const posterSrc = lab.videoPoster || lab.heroImage;
   const projects = Array.isArray(lab.projects) ? lab.projects : [];
+  const activeProjects = projects.filter((project) => !project.isArchived);
+  const previousProjects = projects.filter((project) => project.isArchived);
   const researchers = Array.isArray(lab.researchers) ? lab.researchers : [];
   const themes = Array.isArray(lab.researchThemes) ? lab.researchThemes : [];
   const allTeams = Array.isArray(teams) ? teams : [];
@@ -126,6 +134,37 @@ export default function LaboratoryDetailClient({
       count: publications.length,
     },
   ];
+
+  const renderProjectCards = (items, { completed = false } = {}) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {items.map((project, index) => {
+        const endYear = project.endDate ? new Date(project.endDate).getFullYear() : null;
+        const completedBadge =
+          endYear && !Number.isNaN(endYear)
+            ? `${t('projects.completed')} · ${endYear}`
+            : t('projects.completed');
+
+        return (
+          <motion.div key={project.slug || index} variants={itemVariants}>
+            <ContentCard
+              title={project.title}
+              description={project.abstract}
+              href={
+                project.slug
+                  ? `/research/projects/${encodeURIComponent(project.slug)}`
+                  : undefined
+              }
+              image={project.heroImage}
+              imageSrcSet={project.heroImageSrcSet}
+              imageAlt={project.heroImageAlt}
+              badge={completed ? completedBadge : undefined}
+              className={completed ? 'opacity-90 transition-opacity hover:opacity-100' : ''}
+            />
+          </motion.div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
@@ -476,19 +515,39 @@ export default function LaboratoryDetailClient({
               exit={{ opacity: 0 }}
             >
               {projects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {projects.map((project, index) => (
-                    <motion.div key={project.slug || index} variants={itemVariants}>
-                      <ContentCard
-                        title={project.title}
-                        description={project.abstract}
-                        href={`/research/projects/${project.slug}`}
-                        image={project.heroImage}
-                        imageSrcSet={project.heroImageSrcSet}
-                        imageAlt={project.heroImageAlt}
-                      />
-                    </motion.div>
-                  ))}
+                <div className="space-y-12">
+                  {activeProjects.length > 0 && (
+                    <section>
+                      <div className="flex items-center gap-2 mb-4">
+                        <FaProjectDiagram className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {t('projects.current')}
+                        </h2>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300">
+                          {activeProjects.length}
+                        </span>
+                      </div>
+                      {renderProjectCards(activeProjects)}
+                    </section>
+                  )}
+
+                  {previousProjects.length > 0 && (
+                    <section>
+                      <div className="flex items-center gap-2 mb-1">
+                        <FaHistory className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {t('projects.previous')}
+                        </h2>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
+                          {previousProjects.length}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        {t('projects.previousDescription')}
+                      </p>
+                      {renderProjectCards(previousProjects, { completed: true })}
+                    </section>
+                  )}
                 </div>
               ) : (
                 <EmptyState>{t('projects.noProjects')}</EmptyState>

@@ -862,7 +862,17 @@ export async function getProjects(options = {}) {
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
-        teams: { fields: ['name', 'slug'] },
+        teams: {
+          fields: ['name', 'slug'],
+          // The projects page member filter lists people, not team names.
+          populate: {
+            members: {
+              populate: {
+                person: { fields: ['firstName', 'lastName', 'slug'] },
+              },
+            },
+          },
+        },
         individualContributors: {
           populate: { person: PERSON_WITH_IMAGE_POPULATE },
         },
@@ -1817,7 +1827,7 @@ export async function getNewsArticleBySlug(slug, locale = null) {
             heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
           },
         },
-        featuredPeople: PERSON_FLAT_POPULATE,
+        featuredPeople: PERSON_CARD_POPULATE,
         body: {
           on: {
             'shared.rich-text': { fields: ['body'] },
@@ -3779,6 +3789,9 @@ export function transformLaboratoryData(strapiLaboratories) {
         abstract: projAttr.abstract || '',
         startDate: projAttr.startDate || null,
         endDate: projAttr.endDate || null,
+        // Laboratories keep their past projects in the relation, so derive the
+        // completed flag here to let the detail page separate them from active work.
+        isArchived: isProjectArchived(proj),
         heroImage: resolveMediaUrl(projAttr.heroImage),
         heroImageAlt: resolveMediaData(projAttr.heroImage)?.alt || '',
         heroImageSrcSet: resolveMediaData(projAttr.heroImage)?.srcSet || '',

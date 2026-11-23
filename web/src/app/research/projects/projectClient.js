@@ -19,9 +19,13 @@ const CARD_COLORS_BY_REGION = new Map([
   ["international", "bg-violet-50 before:bg-violet-500 dark:bg-violet-950/60"],
 ]);
 
-const normalizeTeams = (proj) =>
+const normalizeTeamMembers = (proj) =>
   Array.isArray(proj?.teams)
-    ? proj.teams.map((t) => String(t?.name || "").trim()).filter(Boolean)
+    ? proj.teams.flatMap((team) =>
+        Array.isArray(team?.members)
+          ? team.members.map((member) => member?.person).filter(Boolean)
+          : []
+      )
     : [];
 
 const sortStrings = (values) =>
@@ -89,9 +93,11 @@ const normalizeProject = (p) => {
     .filter(Boolean);
 
   // Merge team members + contributors for filter purposes (de-duplicated by name)
-  const teamMemberNames = memberNames.length ? memberNames : normalizeTeams(p);
-  const allMemberNames = [...new Set([...teamMemberNames, ...contributorNames])];
-  const allMemberSlugs = [...new Set([...memberSlugs, ...contributorSlugs])];
+  const teamMemberObjs = normalizeTeamMembers(p);
+  const teamMemberNames = teamMemberObjs.map((m) => m?.name || m).filter(Boolean);
+  const teamMemberSlugs = teamMemberObjs.map((m) => m?.slug).filter(Boolean);
+  const allMemberNames = [...new Set([...memberNames, ...teamMemberNames, ...contributorNames])];
+  const allMemberSlugs = [...new Set([...memberSlugs, ...teamMemberSlugs, ...contributorSlugs])];
 
   const leadName = p?.leadName || p?.lead || "";
   const leadSlug = p?.leadSlug || p?.leadDetails?.slug || "";

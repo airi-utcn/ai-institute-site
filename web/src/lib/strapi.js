@@ -862,7 +862,17 @@ export async function getProjects(options = {}) {
       fields: PROJECT_POPULATE.fields,
       populate: {
         ...PROJECT_POPULATE.populate,
-        teams: { fields: ['name', 'slug'] },
+        teams: {
+          fields: ['name', 'slug'],
+          // The projects page member filter lists people, not team names.
+          populate: {
+            members: {
+              populate: {
+                person: { fields: ['firstName', 'lastName', 'slug'] },
+              },
+            },
+          },
+        },
         individualContributors: {
           populate: { person: PERSON_WITH_IMAGE_POPULATE },
         },

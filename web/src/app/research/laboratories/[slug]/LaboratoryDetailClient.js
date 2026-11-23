@@ -18,9 +18,11 @@ import {
   FaBook,
   FaTags,
   FaFilePdf,
+  FaBoxOpen,
 } from 'react-icons/fa';
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
 import SponsorPlaque from '@/components/laboratory/SponsorPlaque';
+import LaboratoryEquipment from '@/components/laboratory/LaboratoryEquipment';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
 import HeroHeader from '@/components/shared/HeroHeader';
 import { heroSizes } from '@/lib/media';
@@ -40,6 +42,7 @@ const DEFAULT_TEXTS = {
   'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
+  'tabs.equipment': 'Equipment',
   'overview.about': 'About',
   'overview.coordinator': 'Coordinator',
   'overview.coCoordinator': 'Co-Coordinator',
@@ -53,6 +56,7 @@ const DEFAULT_TEXTS = {
     'Projects that have concluded but are still associated with this laboratory.',
   'projects.completed': 'Completed',
   'projects.noProjects': 'No projects found for this laboratory.',
+  'equipment.noEquipment': 'No equipment is currently listed for this laboratory.',
   'publications.noPublications': 'No publications found for this laboratory.',
   'themes.title': 'Research Themes',
 };
@@ -132,6 +136,11 @@ export default function LaboratoryDetailClient({
       label: t('tabs.publications'),
       icon: FaBook,
       count: publications.length,
+    },
+    {
+      id: 'equipment',
+      label: t('tabs.equipment'),
+      icon: FaBoxOpen,
     },
   ];
 
@@ -621,6 +630,25 @@ export default function LaboratoryDetailClient({
               ) : (
                 <EmptyState>{t('publications.noPublications')}</EmptyState>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === 'equipment' && (
+            <motion.div
+              key="equipment"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+                Equipment available in this laboratory. Use the catalog cards to
+                start a reservation.
+              </p>
+              <LaboratoryEquipment
+                roomNumber={lab.roomNumber}
+                emptyMessage={t('equipment.noEquipment')}
+              />
             </motion.div>
           )}
         </AnimatePresence>

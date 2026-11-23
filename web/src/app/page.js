@@ -72,7 +72,9 @@ export default async function Home() {
 
   const heroTitle = home?.heroTitle || "Artificial Intelligence Research Institute";
   const heroSubtitle = home?.heroSubtitle || "Advancing research, innovation, and exploration in artificial intelligence at the Technical University of Cluj-Napoca.";
-  const noticeText = home?.noticeText || "AIRi@UTCN is currently under construction. Stay tuned to our channels for updates.";
+  // An empty Strapi notice means "no notice". Do not fall back to a default
+  // message here: editors cannot hide it otherwise.
+  const noticeText = typeof home?.noticeText === "string" ? home.noticeText.trim() : "";
   const aboutTitle = home?.aboutTitle || "About Us";
   const aboutDescription = home?.aboutDescription || "The Artificial Intelligence Research Institute (AIRi) serves as a hub for collaborative research across the Technical University of Cluj-Napoca.";
   const researchCardTitle = home?.researchCardTitle || "Research";

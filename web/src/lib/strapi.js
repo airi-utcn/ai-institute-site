@@ -3779,6 +3779,9 @@ export function transformLaboratoryData(strapiLaboratories) {
         abstract: projAttr.abstract || '',
         startDate: projAttr.startDate || null,
         endDate: projAttr.endDate || null,
+        // Laboratories keep their past projects in the relation, so derive the
+        // completed flag here to let the detail page separate them from active work.
+        isArchived: isProjectArchived(proj),
         heroImage: resolveMediaUrl(projAttr.heroImage),
         heroImageAlt: resolveMediaData(projAttr.heroImage)?.alt || '',
         heroImageSrcSet: resolveMediaData(projAttr.heroImage)?.srcSet || '',

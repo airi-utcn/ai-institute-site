@@ -147,7 +147,9 @@ export const previewTargets: Record<string, PreviewTarget> = {
   'api::reservation.reservation': staticTarget('/equipment'),
 };
 
-export const PREVIEW_EXCLUDED_CONTENT_TYPES = new Set<string>([]);
+export const PREVIEW_EXCLUDED_CONTENT_TYPES = new Set<string>([
+  'api::lab-desk-reservation.lab-desk-reservation',
+]);
 
 const localeCandidates = (locale?: string): Array<string | undefined> => {
   const candidates = [locale, locale === 'en' ? undefined : 'en', undefined];

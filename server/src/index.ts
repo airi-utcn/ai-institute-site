@@ -1,4 +1,5 @@
 // import type { Core } from "@strapi/strapi";
+import { registerLabDeskReservationAccess } from "./api/lab-desk-reservation/document-middleware";
 import { registerReservationWorkflow } from "./api/reservation/document-middleware";
 import { registerPublicationAuthorSync } from "./api/publication/document-middleware";
 import { registerDoiLookupRoute } from "./api/publication/doi-route";
@@ -30,6 +31,7 @@ export default {
     if (!strapi.documents) return;
 
     registerDraftAccessGuard(strapi);
+    registerLabDeskReservationAccess(strapi);
     registerReservationWorkflow(strapi);
     registerPublicationAuthorSync(strapi);
 

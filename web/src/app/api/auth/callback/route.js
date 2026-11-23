@@ -25,9 +25,10 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function redirectToLogin(code) {
+function redirectToLogin(code, returnTo = "/") {
   const url = new URL("/login", getAuthPublicBaseUrl());
   url.searchParams.set("error", code);
+  if (returnTo !== "/") url.searchParams.set("returnTo", returnTo);
   const response = NextResponse.redirect(url);
   response.cookies.set(OIDC_COOKIE, "", {
     ...oidcCookieOptions(),
@@ -64,13 +65,14 @@ export async function GET(request) {
     return redirectToLogin("state");
   }
 
+  const returnTo = safeReturnTo(transaction.returnTo);
   if (providerError) {
     console.warn("Institutional sign-in was rejected", providerError);
-    return redirectToLogin("access_denied");
+    return redirectToLogin("access_denied", returnTo);
   }
 
   if (!code) {
-    return redirectToLogin("auth");
+    return redirectToLogin("auth", returnTo);
   }
 
   let config;
@@ -78,7 +80,7 @@ export async function GET(request) {
     config = getAuthConfig();
   } catch (error) {
     console.error("Auth callback configuration failed", error);
-    return redirectToLogin("config");
+    return redirectToLogin("config", returnTo);
   }
 
   try {
@@ -103,7 +105,6 @@ export async function GET(request) {
     });
 
     const session = await createSessionToken(user, config);
-    const returnTo = safeReturnTo(transaction.returnTo, "/");
 
     const response = NextResponse.redirect(new URL(returnTo, config.baseUrl));
     response.cookies.set(SESSION_COOKIE, session, sessionCookieOptions(config));
@@ -114,6 +115,6 @@ export async function GET(request) {
     return response;
   } catch (error) {
     console.error("Institutional sign-in failed", error);
-    return redirectToLogin(mapError(error));
+    return redirectToLogin(mapError(error), returnTo);
   }
 }

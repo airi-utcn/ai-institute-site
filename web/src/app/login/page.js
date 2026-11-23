@@ -25,6 +25,10 @@ const ERROR_MESSAGES = {
 export default async function LoginPage({ searchParams }) {
   const params = await searchParams;
   const returnTo = safeReturnTo(params.returnTo, "/");
+  const bookingPage = new URL(returnTo, "http://local.invalid");
+  const isDeskBooking =
+    bookingPage.pathname.startsWith("/research/laboratories/") &&
+    bookingPage.searchParams.get("tab") === "desk-reservations";
   const error = typeof params.error === "string" ? params.error : "";
 
   const session = await getSession();
@@ -55,7 +59,7 @@ export default async function LoginPage({ searchParams }) {
             AIRi @ UTCN
           </p>
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            Sign in to reserve equipment
+            {isDeskBooking ? "Sign in to reserve a desk" : "Sign in to reserve equipment"}
           </h1>
           <p className="text-body text-sm">
             Reservations are available to authenticated members of the

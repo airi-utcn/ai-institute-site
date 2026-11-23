@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lab_desk_reservations",
+  "info": {
+    "singularName": "lab-desk-reservation",
+    "pluralName": "lab-desk-reservations",
+    "displayName": "Laboratory Desk Reservation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": { "visible": false },
+    "content-type-builder": { "visible": false }
+  },
+  "indexes": [
+    {
+      "name": "lab_desk_reservations_schedule_idx",
+      "columns": ["laboratory_document_id", "date", "desk", "start_time"]
+    }
+  ],
+  "attributes": {
+    "laboratoryDocumentId": { "type": "string", "required": true },
+    "date": { "type": "date", "required": true },
+    "desk": { "type": "integer", "required": true, "min": 1, "max": 12 },
+    "startTime": { "type": "string", "required": true, "maxLength": 5 },
+    "endTime": { "type": "string", "required": true, "maxLength": 5 },
+    "bookedBy": { "type": "string", "required": true, "maxLength": 255 },
+    "userObjectId": { "type": "string", "required": true, "private": true }
+  }
+}

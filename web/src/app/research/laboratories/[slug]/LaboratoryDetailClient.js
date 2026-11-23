@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaArrowLeft,
@@ -19,11 +20,13 @@ import {
   FaTags,
   FaFilePdf,
   FaBoxOpen,
+  FaChair,
 } from 'react-icons/fa';
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
 import SponsorPlaque from '@/components/laboratory/SponsorPlaque';
 import LaboratoryEquipment from '@/components/laboratory/LaboratoryEquipment';
 import LaboratorySchedule from '@/components/laboratory/LaboratorySchedule';
+import LaboratoryDeskReservations from '@/components/laboratory/LaboratoryDeskReservations';
 import SmartMediaImage from '@/components/shared/SmartMediaImage';
 import HeroHeader from '@/components/shared/HeroHeader';
 import { heroSizes } from '@/lib/media';
@@ -44,6 +47,7 @@ const DEFAULT_TEXTS = {
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
   'tabs.schedule': 'Room schedule',
+  'tabs.deskReservations': 'Desk reservations',
   'tabs.equipment': 'Equipment',
   'overview.about': 'About',
   'overview.coordinator': 'Coordinator',
@@ -90,7 +94,11 @@ export default function LaboratoryDetailClient({
   teams = [],
   publications = [],
 }) {
-  const [activeTab, setActiveTab] = usePageState('tab', 'overview');
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'desk-reservations'
+    ? 'desk-reservations'
+    : 'overview';
+  const [activeTab, setActiveTab] = usePageState('tab', initialTab);
 
   const t = (key) => {
     let val = DEFAULT_TEXTS[key] ?? key;
@@ -145,6 +153,11 @@ export default function LaboratoryDetailClient({
       id: 'schedule',
       label: t('tabs.schedule'),
       icon: FaCalendarAlt,
+    },
+    {
+      id: 'desk-reservations',
+      label: t('tabs.deskReservations'),
+      icon: FaChair,
     },
     {
       id: 'equipment',
@@ -654,6 +667,22 @@ export default function LaboratoryDetailClient({
                 {t('schedule.description')}
               </p>
               <LaboratorySchedule roomNumber={lab.roomNumber} />
+            </motion.div>
+          )}
+
+          {activeTab === 'desk-reservations' && (
+            <motion.div
+              key="desk-reservations"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              <LaboratoryDeskReservations
+                key={lab.slug}
+                laboratory={lab.slug}
+                loginReturnTo={`/research/laboratories/${encodeURIComponent(lab.slug)}?tab=desk-reservations`}
+              />
             </motion.div>
           )}
 

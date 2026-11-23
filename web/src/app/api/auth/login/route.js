@@ -14,22 +14,24 @@ import {
 
 export const dynamic = "force-dynamic";
 
-function loginErrorRedirect(code) {
+function loginErrorRedirect(code, returnTo) {
   const url = new URL("/login", getAuthPublicBaseUrl());
   url.searchParams.set("error", code);
+  if (returnTo !== "/") url.searchParams.set("returnTo", returnTo);
   return NextResponse.redirect(url);
 }
 
 export async function GET(request) {
+  const returnTo = safeReturnTo(new URL(request.url).searchParams.get("returnTo"));
   let config;
   try {
     config = getAuthConfig();
   } catch (error) {
     if (error instanceof AuthConfigurationError) {
-      return loginErrorRedirect("config");
+      return loginErrorRedirect("config", returnTo);
     }
     console.error("Auth login configuration failed", error);
-    return loginErrorRedirect("config");
+    return loginErrorRedirect("config", returnTo);
   }
 
   try {
@@ -37,11 +39,6 @@ export async function GET(request) {
     const state = createRandomToken();
     const nonce = createRandomToken();
     const { verifier, challenge } = createPkcePair();
-
-    const returnTo = safeReturnTo(
-      new URL(request.url).searchParams.get("returnTo"),
-      "/"
-    );
 
     const transaction = await sealOidcTransaction({
       state,
@@ -63,6 +60,6 @@ export async function GET(request) {
     return response;
   } catch (error) {
     console.error("Could not start institutional sign-in", error);
-    return loginErrorRedirect("config");
+    return loginErrorRedirect("config", returnTo);
   }
 }

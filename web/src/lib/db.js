@@ -6,7 +6,7 @@ const HEADERS = {
   "Authorization": `Bearer ${process.env.STRAPI_API_TOKEN}`,
 };
 
-async function strapiRequest(path, options = {}) {
+export async function strapiRequest(path, options = {}) {
   const res = await fetch(`${STRAPI_URL}${path}`, {
     ...options,
     headers: { ...HEADERS, ...options.headers },

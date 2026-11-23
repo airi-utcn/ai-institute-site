@@ -1,8 +1,8 @@
-# Institutional login for equipment reservations
+# Institutional login for AIRi reservations
 
-The public site uses an institutional OIDC provider to protect equipment
-reservations. The equipment catalog itself stays public; signing in is required
-only when a user opens the reservation form or submits a reservation.
+The public site uses institutional OIDC sign-in for equipment and laboratory
+desk reservations. Visitors can browse the equipment catalog. The equipment
+reservation form and the desk schedule require sign-in.
 
 The frontend works with **Microsoft Entra ID** or **Keycloak** (or any other
 standard OIDC provider). The only difference is configuration.
@@ -176,6 +176,17 @@ and button. They do not affect the OIDC flow.
 
 The reservation email, first name, last name, and stable subject ID are taken
 from the encrypted session cookie. The browser cannot supply a different email.
+
+### Laboratory desk reservations
+
+The **Desk reservations** tab shows the selected day's bookings and researcher
+display names to signed-in users. Users can book any of the 12 desks between
+08:00 and 20:00 Bucharest time and cancel their own upcoming bookings. The
+existing **Room schedule** tab shows room-level bookings from UTCN Timetable.
+
+If `STRAPI_API_TOKEN` is a custom content API token, grant `find`, `create`, and
+`cancel` on `api::lab-desk-reservation.lab-desk-reservation`. Next.js uses that
+token to call Strapi and supplies the researcher's identity from the session.
 
 ---
 

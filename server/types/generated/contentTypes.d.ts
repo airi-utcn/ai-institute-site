@@ -2578,6 +2578,71 @@ export interface ApiHomePageHomePage extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiLabDeskReservationLabDeskReservation
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'lab_desk_reservations';
+  info: {
+    displayName: 'Laboratory Desk Reservation';
+    pluralName: 'lab-desk-reservations';
+    singularName: 'lab-desk-reservation';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    bookedBy: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 255;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date & Schema.Attribute.Required;
+    desk: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 12;
+          min: 1;
+        },
+        number
+      >;
+    endTime: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    laboratoryDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::lab-desk-reservation.lab-desk-reservation'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    startTime: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 5;
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    userObjectId: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiLaboratoriesPageLaboratoriesPage
   extends Struct.SingleTypeSchema {
   collectionName: 'laboratories_pages';
@@ -6372,6 +6437,7 @@ declare module '@strapi/strapi' {
       'api::graph-macro.graph-macro': ApiGraphMacroGraphMacro;
       'api::graph-meso.graph-meso': ApiGraphMesoGraphMeso;
       'api::home-page.home-page': ApiHomePageHomePage;
+      'api::lab-desk-reservation.lab-desk-reservation': ApiLabDeskReservationLabDeskReservation;
       'api::laboratories-page.laboratories-page': ApiLaboratoriesPageLaboratoriesPage;
       'api::laboratory.laboratory': ApiLaboratoryLaboratory;
       'api::media-page.media-page': ApiMediaPageMediaPage;

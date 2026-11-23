@@ -9,7 +9,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { EncryptJWT, jwtDecrypt } from "jose";
-import { getAuthConfig } from "./config";
+import { getAuthConfig, getAuthPublicBaseUrl } from "./config";
 
 export const SESSION_COOKIE = "airi_session";
 export const OIDC_COOKIE = "airi_oidc";
@@ -41,7 +41,7 @@ export function sessionCookieOptions(config) {
 export function oidcCookieOptions() {
   return {
     httpOnly: true,
-    secure: getAuthConfig().baseUrl.startsWith("https://"),
+    secure: getAuthPublicBaseUrl().startsWith("https://"),
     sameSite: "lax",
     path: OIDC_COOKIE_PATH,
     maxAge: 10 * 60,

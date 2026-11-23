@@ -3,6 +3,7 @@ import { normalizeRoomNumber } from './rooms.js';
 const DEFAULT_TIMETABLE_URL = 'https://timetable.utcluj.ro';
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const DATE_TIME = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/;
+const AIRI_BUILDING = /\bAIRI\b/i;
 
 export const MAX_ROOM_SCHEDULE_DAYS = 7;
 export const ROOM_SCHEDULE_TIME_ZONE = 'Europe/Bucharest';
@@ -21,6 +22,14 @@ function roomMatches(value, target) {
     normalized.endsWith(`-${target}`) ||
     normalized.endsWith(`/${target}`)
   );
+}
+
+/**
+ * The timetable has many buildings with similar room numbers. Laboratory
+ * pages on this site only refer to the AIRi building (Observatorului 2).
+ */
+export function isAiriBuilding(value) {
+  return AIRI_BUILDING.test(String(value ?? ''));
 }
 
 function configuredUrl(...names) {
@@ -240,9 +249,10 @@ function toRoomEvent(raw) {
 
 /**
  * Keep only the events assigned to the requested room. The timetable's room
- * query is a substring match, so the exact comparison happens here.
+ * query is a substring match, so the exact comparison happens here. Events
+ * from other buildings with a similar room number are ignored.
  */
-export function extractRoomEvents(payload, room) {
+export function extractRoomEvents(payload, room, { sources = null } = {}) {
   const events = Array.isArray(payload) ? payload : payload?.events;
   const target = normalizeRoomNumber(room);
   if (!target || !Array.isArray(events)) return [];
@@ -252,6 +262,9 @@ export function extractRoomEvents(payload, room) {
 
   for (const raw of events) {
     if (!roomMatches(raw?.room, target)) continue;
+    if (raw?.building && !isAiriBuilding(raw.building)) continue;
+    if (sources && raw?.source && !sources.has(raw.source)) continue;
+
     const event = toRoomEvent(raw);
     if (!event || seen.has(event.id)) continue;
     seen.add(event.id);
@@ -285,6 +298,7 @@ export function findRoomCalendars(payload, room) {
       ([, calendar]) =>
         calendar &&
         calendar.enabled !== 0 &&
+        isAiriBuilding(calendar.building) &&
         roomMatches(calendar.room, target)
     )
     .map(([source, calendar]) => ({
@@ -394,18 +408,20 @@ export async function fetchRoomSchedule({
 
   const calendars = findRoomCalendars(calendarsPayload, room);
   const sources = calendars.map((calendar) => calendar.source);
+  const airiSources = sources.length ? new Set(sources) : null;
 
   return {
     room,
     from,
     to,
-    events: extractRoomEvents(eventsPayload, room),
+    events: extractRoomEvents(eventsPayload, room, { sources: airiSources }),
     timetableUrl:
       sources.length > 0
         ? calendarTimetableUrl(sources, from, getPublicTimetableUrl())
         : roomTimetableUrl(room, from, getPublicTimetableUrl()),
     calendar: {
       source: calendars[0]?.source || '',
+      sources,
       name: calendars[0]?.name || '',
       building: calendars[0]?.building || '',
       verified:

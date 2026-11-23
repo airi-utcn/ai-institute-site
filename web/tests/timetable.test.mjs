@@ -8,6 +8,7 @@ import {
   fetchRoomSchedule,
   findRoomCalendars,
   inclusiveDayCount,
+  isAiriBuilding,
   isAllDayEvent,
   isIsoDate,
   nowInTimetableTimeZone,
@@ -91,6 +92,14 @@ test('only the exact room is returned, deduplicated and sorted', () => {
         title: 'Different room',
       },
       {
+        room: 'L201',
+        building: 'UTCN MUNCII 103-105 Corp G',
+        start: '2026-11-27T09:00:00',
+        end: '2026-11-27T10:00:00',
+        title: 'Other building',
+        source: 'src-other',
+      },
+      {
         room: 'L202',
         start: '2026-11-24T09:00:00',
         end: '2026-11-24T10:00:00',
@@ -153,6 +162,17 @@ test('fetchRoomSchedule queries the timetable and sanitizes the result', async (
                 window: { from: '2026-10-24', to: '2027-07-21' },
               },
             },
+            'src-other': {
+              name: 'UTCN - Muncii - Sala L201',
+              building: 'UTCN MUNCII 103-105 Corp G',
+              room: 'L201',
+              enabled: 1,
+              freshness: {
+                status: 'success',
+                last_success: now,
+                window: { from: '2026-10-24', to: '2027-07-21' },
+              },
+            },
           }),
         };
       }
@@ -168,6 +188,14 @@ test('fetchRoomSchedule queries the timetable and sanitizes the result', async (
             professor: 'Grace Hopper',
             source: 'src-a',
             ignored: 'not exposed',
+          },
+          {
+            room: 'L201',
+            building: 'UTCN MUNCII 103-105 Corp G',
+            start: '2026-11-23T10:00:00',
+            end: '2026-11-23T11:00:00',
+            title: 'Other building lecture',
+            source: 'src-other',
           },
         ],
       };
@@ -188,8 +216,10 @@ test('fetchRoomSchedule queries the timetable and sanitizes the result', async (
   assert.equal(schedule.calendar.verified, true);
   assert.equal(schedule.calendar.name, 'UTCN - AIRI - Sala L201');
   const timetableLink = new URL(schedule.timetableUrl);
+  assert.equal(timetableLink.searchParams.has('room'), false);
   assert.equal(timetableLink.searchParams.get('date'), '2026-11-23');
   assert.equal(timetableLink.hash, '#sources=src-a');
+  assert.deepEqual(schedule.calendar.sources, ['src-a']);
   assert.deepEqual(Object.keys(schedule.events[0]).sort(), [
     'end',
     'endDate',
@@ -238,6 +268,8 @@ test('a missing or stale calendar list makes the schedule unverified', async () 
           ok: true,
           json: async () => ({
             'src-a': {
+              name: 'UTCN - AIRI - Sala L201',
+              building: 'UTCN AIRI',
               room: 'L201',
               enabled: 1,
               freshness: {
@@ -298,13 +330,39 @@ test('calendar verification checks status, age, and window coverage', () => {
   );
 });
 
-test('room calendars are matched by normalized room label', () => {
+test('room calendars are matched by normalized room label and AIRI building', () => {
   const calendars = findRoomCalendars(
     {
-      a: { room: 'L201', enabled: 1, name: 'Room L201' },
-      b: { room: 'Room L201', enabled: 1, name: 'Duplicate' },
-      c: { room: 'L201', enabled: 0, name: 'Disabled' },
-      d: { room: 'L202', enabled: 1, name: 'Other' },
+      a: {
+        room: 'L201',
+        building: 'UTCN AIRI - Artificial Intelligence Research Institute',
+        enabled: 1,
+        name: 'Room L201',
+      },
+      b: {
+        room: 'Room L201',
+        building: 'UTCN AIRI Observatorului 2',
+        enabled: 1,
+        name: 'Duplicate',
+      },
+      c: {
+        room: 'L201',
+        building: 'UTCN AIRI',
+        enabled: 0,
+        name: 'Disabled',
+      },
+      d: {
+        room: 'L202',
+        building: 'UTCN AIRI',
+        enabled: 1,
+        name: 'Other',
+      },
+      e: {
+        room: 'L201',
+        building: 'UTCN MUNCII 103-105 Corp G',
+        enabled: 1,
+        name: 'Other building',
+      },
     },
     'l201'
   );
@@ -313,6 +371,20 @@ test('room calendars are matched by normalized room label', () => {
     calendars.map((calendar) => calendar.name),
     ['Room L201', 'Duplicate']
   );
+});
+
+test('only the AIRI building counts for laboratory schedules', () => {
+  assert.equal(
+    isAiriBuilding('UTCN AIRI - Artificial Intelligence Research Institute'),
+    true
+  );
+  assert.equal(isAiriBuilding('UTCN AIRI Observatorului 2'), true);
+  assert.equal(
+    isAiriBuilding('UTCN CLUJ OBSERVATORULUI 2 Corp Laboratoare'),
+    false
+  );
+  assert.equal(isAiriBuilding('UTCN MUNCII 103-105 Corp G'), false);
+  assert.equal(isAiriBuilding(''), false);
 });
 
 test('fetchRoomSchedule surfaces upstream failures', async () => {
@@ -337,13 +409,11 @@ test('the timetable link opens the room week view', () => {
   assert.equal(url.searchParams.get('date'), '2026-11-23');
 });
 
-test('the calendar link selects the calendar even when it has no events', () => {
+test('the timetable link pins the exact AIRI calendar sources', () => {
   const url = new URL(
     calendarTimetableUrl(['src-a', 'src-b'], '2026-11-23')
   );
 
-  assert.equal(url.searchParams.get('view'), 'week');
-  assert.equal(url.searchParams.get('date'), '2026-11-23');
-  assert.equal(url.searchParams.get('room'), null);
+  assert.equal(url.searchParams.has('room'), false);
   assert.equal(url.hash, '#sources=src-a.src-b');
 });

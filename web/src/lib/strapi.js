@@ -1827,7 +1827,7 @@ export async function getNewsArticleBySlug(slug, locale = null) {
             heroImage: { fields: ['url', 'formats', 'alternativeText', 'width'] },
           },
         },
-        featuredPeople: PERSON_FLAT_POPULATE,
+        featuredPeople: PERSON_CARD_POPULATE,
         body: {
           on: {
             'shared.rich-text': { fields: ['body'] },

@@ -9,6 +9,7 @@ import RichMarkdown from '@/components/shared/RichMarkdown';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
 import HeroHeader from '@/components/shared/HeroHeader';
+import PersonChip from '@/components/shared/PersonChip';
 import BackLink from '@/components/BackLink';
 
 export default function AwardArticleClient({ article, pageData }) {
@@ -232,42 +233,15 @@ export default function AwardArticleClient({ article, pageData }) {
               {tr('featuredPeople', 'Featured People')}
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
-              {featuredPeople.map((person) => {
-                const personName = typeof person === 'string' ? person : person.name;
-                const personSlug = typeof person === 'object' ? person.slug : null;
-                const personTitle = typeof person === 'object' ? person.title : null;
+              {featuredPeople.map((person, index) => {
+                const normalized = typeof person === 'string' ? { name: person } : person;
 
-                return personSlug ? (
-                  <Link
-                    key={personSlug}
-                    href={`/people/${encodeURIComponent(personSlug)}`}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-colors group"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">
-                      {personName?.charAt(0) || 'P'}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                        {personName}
-                      </div>
-                      {personTitle && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {personTitle}
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                ) : (
+                return (
                   <div
-                    key={personName}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-800"
+                    key={normalized.slug || normalized.name || index}
+                    className="rounded-xl border border-gray-200 dark:border-gray-800 transition-colors hover:border-blue-500 dark:hover:border-blue-500"
                   >
-                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 font-semibold">
-                      {personName?.charAt(0) || 'P'}
-                    </div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {personName}
-                    </div>
+                    <PersonChip person={normalized} />
                   </div>
                 );
               })}

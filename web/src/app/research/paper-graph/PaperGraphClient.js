@@ -11,8 +11,8 @@ import { usePageState } from "@/lib/usePageState";
 const MAP_W = 2800;
 const MAP_H = 1800;
 const NODE_R = 18;
-const MIN_DIST = 160;
 const NODE_NAV_DRAG_TOLERANCE = 6;
+const MAX_LABELS_AT_FIT = 28;
 
 // ─── Seeded pseudo-random (LCG) ──────────────────────────────────────────────
 function makeRng(seed) {
@@ -24,48 +24,136 @@ function makeRng(seed) {
 }
 
 // ─── Build star field ────────────────────────────────────────────────────────
-function buildStars(count) {
+function buildStars(count, w, h) {
   const rng = makeRng(0xdeadbeef);
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    cx: rng() * MAP_W,
-    cy: rng() * MAP_H,
+    cx: rng() * w,
+    cy: rng() * h,
     r: rng() * 1.3 + 0.2,
     opacity: rng() * 0.7 + 0.15,
   }));
 }
-const STARS = buildStars(600);
 
-// ─── Position nodes with force relaxation ─────────────────────────────────────
-function buildPositions(items) {
+// ─── Position nodes with a deterministic, link-aware force layout ────────────
+function buildPositions(items, links, width, height) {
   const PAD = 140;
-  const rng = makeRng(0xc0ffee + items.length);
-  const pos = items.map(() => ({
-    x: PAD + rng() * (MAP_W - PAD * 2),
-    y: PAD + rng() * (MAP_H - PAD * 2),
+  const n = items.length;
+  if (!n) return [];
+
+  const rng = makeRng(0xc0ffee + n);
+  const positions = items.map(() => ({
+    x: PAD + rng() * (width - PAD * 2),
+    y: PAD + rng() * (height - PAD * 2),
+    dx: 0,
+    dy: 0,
   }));
 
-  for (let pass = 0; pass < 30; pass++) {
-    for (let i = 0; i < pos.length; i++) {
-      for (let j = i + 1; j < pos.length; j++) {
-        const dx = pos[j].x - pos[i].x;
-        const dy = pos[j].y - pos[i].y;
-        const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        if (d < MIN_DIST) {
-          const f = ((MIN_DIST - d) / d) * 0.5;
-          pos[i].x -= dx * f;
-          pos[i].y -= dy * f;
-          pos[j].x += dx * f;
-          pos[j].y += dy * f;
-          pos[i].x = Math.max(PAD, Math.min(MAP_W - PAD, pos[i].x));
-          pos[i].y = Math.max(PAD, Math.min(MAP_H - PAD, pos[i].y));
-          pos[j].x = Math.max(PAD, Math.min(MAP_W - PAD, pos[j].x));
-          pos[j].y = Math.max(PAD, Math.min(MAP_H - PAD, pos[j].y));
+  const indexById = new Map();
+  items.forEach((item, index) => {
+    if (item.id != null) indexById.set(item.id, index);
+  });
+
+  const edges = [];
+  (links || []).forEach((link) => {
+    const source = indexById.get(link.sourceId);
+    const target = indexById.get(link.targetId);
+    if (source == null || target == null || source === target) return;
+    const score = Number.isFinite(link.score) ? link.score : 0.5;
+    edges.push([source, target, Math.max(0.25, score)]);
+  });
+
+  const usableW = width - PAD * 2;
+  const usableH = height - PAD * 2;
+  const area = usableW * usableH;
+  const ideal = Math.max(105, Math.sqrt(area / n) * 0.62);
+  const iterations = n > 180 ? 90 : 130;
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  for (let iter = 0; iter < iterations; iter++) {
+    const temperature = Math.max(1.5, width * 0.075 * (1 - iter / iterations));
+
+    for (let i = 0; i < n; i++) {
+      positions[i].dx = 0;
+      positions[i].dy = 0;
+    }
+
+    // Repulsion: keeps unrelated papers apart.
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        let dx = positions[j].x - positions[i].x;
+        let dy = positions[j].y - positions[i].y;
+        let d2 = dx * dx + dy * dy;
+        if (d2 < 0.01) {
+          dx = (rng() - 0.5) * 2;
+          dy = (rng() - 0.5) * 2;
+          d2 = dx * dx + dy * dy;
         }
+        const d = Math.sqrt(d2);
+        const force = (ideal * ideal) / d;
+        const ux = dx / d;
+        const uy = dy / d;
+        positions[i].dx -= ux * force;
+        positions[i].dy -= uy * force;
+        positions[j].dx += ux * force;
+        positions[j].dy += uy * force;
+      }
+    }
+
+    // Attraction: related papers form islands instead of a uniform cloud.
+    edges.forEach(([source, target, score]) => {
+      const dx = positions[target].x - positions[source].x;
+      const dy = positions[target].y - positions[source].y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const force = ((d * d) / ideal) * (0.35 + score * 0.75);
+      const ux = dx / d;
+      const uy = dy / d;
+      positions[source].dx += ux * force;
+      positions[source].dy += uy * force;
+      positions[target].dx -= ux * force;
+      positions[target].dy -= uy * force;
+    });
+
+    // Weak gravity keeps disconnected components on the canvas.
+    for (let i = 0; i < n; i++) {
+      positions[i].dx += (centerX - positions[i].x) * 0.018;
+      positions[i].dy += (centerY - positions[i].y) * 0.018;
+    }
+
+    for (let i = 0; i < n; i++) {
+      const dx = positions[i].dx;
+      const dy = positions[i].dy;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const scale = Math.min(distance, temperature) / distance;
+      positions[i].x = Math.max(PAD, Math.min(width - PAD, positions[i].x + dx * scale));
+      positions[i].y = Math.max(PAD, Math.min(height - PAD, positions[i].y + dy * scale));
+    }
+  }
+
+  // Final collision pass so labels have room even in dense mesos.
+  const minDist = Math.max(64, Math.min(150, ideal * 0.78));
+  for (let pass = 0; pass < 12; pass++) {
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = positions[j].x - positions[i].x;
+        const dy = positions[j].y - positions[i].y;
+        const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        if (d >= minDist) continue;
+        const force = ((minDist - d) / d) * 0.5;
+        positions[i].x -= dx * force;
+        positions[i].y -= dy * force;
+        positions[j].x += dx * force;
+        positions[j].y += dy * force;
+        positions[i].x = Math.max(PAD, Math.min(width - PAD, positions[i].x));
+        positions[i].y = Math.max(PAD, Math.min(height - PAD, positions[i].y));
+        positions[j].x = Math.max(PAD, Math.min(width - PAD, positions[j].x));
+        positions[j].y = Math.max(PAD, Math.min(height - PAD, positions[j].y));
       }
     }
   }
-  return pos;
+
+  return positions.map(({ x, y }) => ({ x, y }));
 }
 
 // ─── Link visual style by score ──────────────────────────────────────────────
@@ -92,18 +180,14 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function getVisibleGraphRect(tx, ty, scale, viewportW, viewportH) {
+function getVisibleGraphRect(tx, ty, scale, viewportW, viewportH, mapW, mapH) {
   return {
-    left: clamp((-tx) / scale, 0, MAP_W),
-    top: clamp((-ty) / scale, 0, MAP_H),
-    right: clamp((viewportW - tx) / scale, 0, MAP_W),
-    bottom: clamp((viewportH - ty) / scale, 0, MAP_H),
+    left: clamp((-tx) / scale, 0, mapW),
+    top: clamp((-ty) / scale, 0, mapH),
+    right: clamp((viewportW - tx) / scale, 0, mapW),
+    bottom: clamp((viewportH - ty) / scale, 0, mapH),
   };
 }
-
-// ─── Grid lines ──────────────────────────────────────────────────────────────
-const GRID_COLS = Array.from({ length: Math.ceil(MAP_W / 220) + 1 }, (_, i) => i * 220);
-const GRID_ROWS = Array.from({ length: Math.ceil(MAP_H / 220) + 1 }, (_, i) => i * 220);
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function PaperGraphClient({
@@ -169,19 +253,101 @@ export default function PaperGraphClient({
     return ids;
   }, [visibleLinks]);
 
-  // ── Citation-based node scaling ───────────────────────────────────────────
+  // ── Dynamic canvas size and degree-aware sizing ────────────────────────────
+  const mapSize = useMemo(() => {
+    const count = Math.max(1, papers.length);
+    const width = Math.max(MAP_W, Math.round(Math.sqrt(count) * 310));
+    const height = Math.max(MAP_H, Math.round(width * (MAP_H / MAP_W)));
+    return { width, height };
+  }, [papers.length]);
+
+  const degreeById = useMemo(() => {
+    const degrees = {};
+    visibleLinks.forEach((link) => {
+      degrees[link.sourceId] = (degrees[link.sourceId] || 0) + 1;
+      degrees[link.targetId] = (degrees[link.targetId] || 0) + 1;
+    });
+    return degrees;
+  }, [visibleLinks]);
+
   const nodeRadius = useCallback((paper) => {
     const citations = paper.cited_by || 0;
-    return NODE_R * 0.8 + Math.min(12, Math.sqrt(citations) * 1.2);
-  }, []);
+    const degree = degreeById[paper.id] || 0;
+    return (
+      9.5 +
+      Math.min(10, Math.sqrt(degree) * 2.1) +
+      Math.min(6, Math.sqrt(citations) * 0.85)
+    );
+  }, [degreeById]);
+
+  const labelRank = useMemo(() => {
+    const ordered = [...papers].sort((a, b) => {
+      const degreeDiff = (degreeById[b.id] || 0) - (degreeById[a.id] || 0);
+      if (degreeDiff !== 0) return degreeDiff;
+      return (b.cited_by || 0) - (a.cited_by || 0);
+    });
+    const rank = {};
+    ordered.forEach((paper, index) => {
+      rank[paper.id] = index;
+    });
+    return rank;
+  }, [papers, degreeById]);
 
   // ── Paper positions ───────────────────────────────────────────────────────
   const paperPositions = useMemo(() => {
-    const posArray = buildPositions(papers);
+    const posArray = buildPositions(papers, links, mapSize.width, mapSize.height);
     const m = {};
     papers.forEach((p, i) => { m[p.id] = posArray[i]; });
     return m;
-  }, [papers]);
+  }, [papers, links, mapSize]);
+
+  const stars = useMemo(
+    () => buildStars(600, mapSize.width, mapSize.height),
+    [mapSize]
+  );
+
+  const gridLines = useMemo(() => ({
+    cols: Array.from({ length: Math.ceil(mapSize.width / 220) + 1 }, (_, i) => i * 220),
+    rows: Array.from({ length: Math.ceil(mapSize.height / 220) + 1 }, (_, i) => i * 220),
+  }), [mapSize]);
+
+  const visibleLabelIds = useMemo(() => {
+    if (!papers.length) return new Set();
+    const limit = scale > 1.15
+      ? papers.length
+      : Math.max(12, Math.min(MAX_LABELS_AT_FIT, Math.round(papers.length * 0.22)));
+    const ordered = [...papers].sort(
+      (a, b) => (labelRank[a.id] ?? Number.MAX_SAFE_INTEGER) - (labelRank[b.id] ?? Number.MAX_SAFE_INTEGER)
+    );
+    const invScale = 1 / Math.max(scale, 0.22);
+    const placed = [];
+    const visible = new Set();
+
+    ordered.slice(0, limit).forEach((paper) => {
+      const pos = paperPositions[paper.id];
+      if (!pos) return;
+      const text = String(paper.title || "").slice(0, 30);
+      const width = Math.min(190, text.length * 6.2) * invScale;
+      const height = 14 * invScale;
+      const y = pos.y + nodeRadius(paper) + 15 * invScale;
+      const rect = {
+        left: pos.x - width / 2,
+        right: pos.x + width / 2,
+        top: y - height / 2,
+        bottom: y + height / 2,
+      };
+      const collides = placed.some(
+        (other) =>
+          !(rect.right < other.left || rect.left > other.right || rect.bottom < other.top || rect.top > other.bottom)
+      );
+      if (!collides) {
+        visible.add(paper.id);
+        placed.push(rect);
+      }
+    });
+
+    return visible;
+  }, [papers, paperPositions, scale, labelRank, nodeRadius]);
 
   // ── Link index ────────────────────────────────────────────────────────────
   const linksByPaper = useMemo(() => {
@@ -272,9 +438,13 @@ export default function PaperGraphClient({
     const el = containerRef.current;
     if (!el) return;
     const { width: cw, height: ch } = el.getBoundingClientRect();
-    const s = Math.min(cw / MAP_W, ch / MAP_H) * 1.14;
-    setCamera((cw - MAP_W * s) / 2, (ch - MAP_H * s) / 2, s);
-  }, [setCamera]);
+    const s = Math.min(cw / mapSize.width, ch / mapSize.height) * 1.14;
+    setCamera(
+      (cw - mapSize.width * s) / 2,
+      (ch - mapSize.height * s) / 2,
+      s
+    );
+  }, [setCamera, mapSize]);
   useEffect(() => { fitToScreen(); }, [fitToScreen]);
 
   // ── Pan handlers ──────────────────────────────────────────────────────────
@@ -344,17 +514,17 @@ export default function PaperGraphClient({
       width: miniRect.width - 20,
       height: miniRect.height - 30,
     };
-    const miniScale = Math.min(miniInner.width / MAP_W, miniInner.height / MAP_H);
-    const miniOffsetX = miniInner.left + (miniInner.width - MAP_W * miniScale) / 2;
-    const miniOffsetY = miniInner.top + (miniInner.height - MAP_H * miniScale) / 2;
-    const clickX = clamp(e.clientX - miniRect.left, miniOffsetX, miniOffsetX + MAP_W * miniScale);
-    const clickY = clamp(e.clientY - miniRect.top, miniOffsetY, miniOffsetY + MAP_H * miniScale);
+    const miniScale = Math.min(miniInner.width / mapSize.width, miniInner.height / mapSize.height);
+    const miniOffsetX = miniInner.left + (miniInner.width - mapSize.width * miniScale) / 2;
+    const miniOffsetY = miniInner.top + (miniInner.height - mapSize.height * miniScale) / 2;
+    const clickX = clamp(e.clientX - miniRect.left, miniOffsetX, miniOffsetX + mapSize.width * miniScale);
+    const clickY = clamp(e.clientY - miniRect.top, miniOffsetY, miniOffsetY + mapSize.height * miniScale);
     const targetX = (clickX - miniOffsetX) / miniScale;
     const targetY = (clickY - miniOffsetY) / miniScale;
 
     const currentScale = scaleRef.current;
     setCamera(viewport.width / 2 - targetX * currentScale, viewport.height / 2 - targetY * currentScale, currentScale);
-  }, [setCamera]);
+  }, [setCamera, mapSize]);
 
   // ── Zoom on wheel ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -393,8 +563,8 @@ export default function PaperGraphClient({
   const macroTheme = tooltipData?.paper?.graphMacroPrimary?.name || tooltipData?.paper?.graphMacroPrimary?.slug || '';
   const viewportBox = containerRef.current?.getBoundingClientRect();
   const visibleGraphRect = viewportBox
-    ? getVisibleGraphRect(tx, ty, scale, viewportBox.width, viewportBox.height)
-    : { left: 0, top: 0, right: MAP_W, bottom: MAP_H };
+    ? getVisibleGraphRect(tx, ty, scale, viewportBox.width, viewportBox.height, mapSize.width, mapSize.height)
+    : { left: 0, top: 0, right: mapSize.width, bottom: mapSize.height };
   const minimapW = 188;
   const minimapH = 118;
   const minimapInner = {
@@ -403,9 +573,9 @@ export default function PaperGraphClient({
     width: minimapW - 20,
     height: minimapH - 30,
   };
-  const minimapScale = Math.min(minimapInner.width / MAP_W, minimapInner.height / MAP_H);
-  const minimapOffsetX = minimapInner.left + (minimapInner.width - MAP_W * minimapScale) / 2;
-  const minimapOffsetY = minimapInner.top + (minimapInner.height - MAP_H * minimapScale) / 2;
+  const minimapScale = Math.min(minimapInner.width / mapSize.width, minimapInner.height / mapSize.height);
+  const minimapOffsetX = minimapInner.left + (minimapInner.width - mapSize.width * minimapScale) / 2;
+  const minimapOffsetY = minimapInner.top + (minimapInner.height - mapSize.height * minimapScale) / 2;
   const minimapVisible = {
     x: minimapOffsetX + visibleGraphRect.left * minimapScale,
     y: minimapOffsetY + visibleGraphRect.top * minimapScale,
@@ -535,10 +705,10 @@ export default function PaperGraphClient({
           <rect x="0" y="0" width={minimapW} height={minimapH} rx="14" fill="url(#minimap-bg)" stroke="rgba(255,180,0,0.1)" />
           <rect x={minimapInner.left} y={minimapInner.top} width={minimapInner.width} height={minimapInner.height} rx="10" fill="rgba(255,255,255,0.015)" stroke="rgba(118,169,255,0.08)" />
           <line
-            x1={minimapOffsetX + (MAP_W / 2) * minimapScale}
+            x1={minimapOffsetX + (mapSize.width / 2) * minimapScale}
             y1={minimapOffsetY}
-            x2={minimapOffsetX + (MAP_W / 2) * minimapScale}
-            y2={minimapOffsetY + MAP_H * minimapScale}
+            x2={minimapOffsetX + (mapSize.width / 2) * minimapScale}
+            y2={minimapOffsetY + mapSize.height * minimapScale}
             stroke="rgba(255,200,120,0.18)"
             strokeDasharray="4 5"
           />
@@ -647,8 +817,8 @@ export default function PaperGraphClient({
       {/* SVG */}
       <svg
         ref={svgRef}
-        width={MAP_W}
-        height={MAP_H}
+        width={mapSize.width}
+        height={mapSize.height}
         aria-label="Paper relationship map"
         style={{
           position: "absolute",
@@ -690,20 +860,20 @@ export default function PaperGraphClient({
           </filter>
         </defs>
 
-        <rect width={MAP_W} height={MAP_H} fill="#03070f" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#nebula1)" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#nebula2)" />
+        <rect width={mapSize.width} height={mapSize.height} fill="#03070f" />
+        <rect width={mapSize.width} height={mapSize.height} fill="url(#nebula1)" />
+        <rect width={mapSize.width} height={mapSize.height} fill="url(#nebula2)" />
 
-        {STARS.map((s) => (
+        {stars.map((s) => (
           <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.opacity} />
         ))}
 
-        {GRID_COLS.map((x) => (
-          <line key={`gc${x}`} x1={x} y1={0} x2={x} y2={MAP_H}
+        {gridLines.cols.map((x) => (
+          <line key={`gc${x}`} x1={x} y1={0} x2={x} y2={mapSize.height}
             stroke="rgba(80,160,255,0.035)" strokeWidth="1" />
         ))}
-        {GRID_ROWS.map((y) => (
-          <line key={`gr${y}`} x1={0} y1={y} x2={MAP_W} y2={y}
+        {gridLines.rows.map((y) => (
+          <line key={`gr${y}`} x1={0} y1={y} x2={mapSize.width} y2={y}
             stroke="rgba(80,160,255,0.035)" strokeWidth="1" />
         ))}
 
@@ -738,7 +908,12 @@ export default function PaperGraphClient({
           const isNear = connectedSet?.has(paper.id) && !isHot;
           const isDim = (hovered || highlightedId) && !isHot && !isNear;
           const r = nodeRadius(paper);
-          const showLabel = scale > 0.5 || isHot || isNear || isHighlighted;
+          const labelScale = Math.max(scale, 0.22);
+          const showLabel = isHot || isNear || isHighlighted ||
+            (!hovered && !highlightedId && visibleLabelIds.has(paper.id));
+          const showYear = scale > 0.62 || isHot || isHighlighted;
+          const label = (paper.title ?? "");
+          const truncatedLabel = label.length > 30 ? `${label.slice(0, 30)}…` : label;
 
           return (
             <g
@@ -800,43 +975,44 @@ export default function PaperGraphClient({
                 filter={isHot ? "url(#glow-hot)" : isNear ? "url(#glow)" : undefined}
                 style={{ transition: "all 0.2s" }}
               />
-              <text
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={10.8}
-                fontFamily="monospace"
-                fill={isDim ? "#ffffff1a" : isHot ? "#fff2b8" : "#8ab4ea"}
-                style={{
-                  paintOrder: "stroke fill",
-                  stroke: "rgba(3,7,15,0.95)",
-                  strokeWidth: isHot ? 2.8 : 2.4,
-                  strokeLinejoin: "round",
-                  transition: "all 0.2s",
-                  userSelect: "none",
-                  pointerEvents: "none",
-                }}
-              >
-                {paper.year ?? "?"}
-              </text>
-              {showLabel && (
+              {showYear && (
                 <text
-                  y={r + 15}
                   textAnchor="middle"
-                  fontSize={8.9}
+                  dominantBaseline="middle"
+                  fontSize={10.8 / Math.max(scale, 0.62)}
                   fontFamily="monospace"
-                  fill={isDim ? "#ffffff12" : isHot ? "#fff3c4" : "#c3d4ef"}
+                  fill={isDim ? "#ffffff1a" : isHot ? "#fff2b8" : "#8ab4ea"}
                   style={{
                     paintOrder: "stroke fill",
                     stroke: "rgba(3,7,15,0.95)",
-                    strokeWidth: isHot ? 2.4 : 2.05,
+                    strokeWidth: (isHot ? 2.8 : 2.4) / Math.max(scale, 0.62),
                     strokeLinejoin: "round",
                     transition: "all 0.2s",
                     userSelect: "none",
                     pointerEvents: "none",
                   }}
                 >
-                  {(paper.title ?? "").slice(0, 24)}
-                  {(paper.title ?? "").length > 24 ? "…" : ""}
+                  {paper.year ?? "?"}
+                </text>
+              )}
+              {showLabel && (
+                <text
+                  y={r + 14 / labelScale}
+                  textAnchor="middle"
+                  fontSize={10.4 / labelScale}
+                  fontFamily="monospace"
+                  fill={isDim ? "#ffffff12" : isHot ? "#fff3c4" : "#c3d4ef"}
+                  style={{
+                    paintOrder: "stroke fill",
+                    stroke: "rgba(3,7,15,0.95)",
+                    strokeWidth: (isHot ? 2.6 : 2.2) / labelScale,
+                    strokeLinejoin: "round",
+                    transition: "all 0.2s",
+                    userSelect: "none",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {truncatedLabel}
                 </text>
               )}
             </g>

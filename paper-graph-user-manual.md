@@ -93,6 +93,8 @@ What it does:
   publication listing, detail page, author pages, project pages, and graph
   search.
 - `isActive` lets you pause an exclusion without deleting the note.
+- Deactivating an exclusion does not republish a hidden record; republish it in
+  Strapi when it should return.
 
 Use this for:
 

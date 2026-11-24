@@ -72,6 +72,8 @@ stay out:
 - `hideEverywhere` also unpublishes the record, so it disappears from the public
   listing, detail pages, author pages, project pages, and graph search.
 - Both scopes stop the importer from re-creating the paper.
+- Deactivating an exclusion does not automatically republish a hidden record;
+  republish it in Strapi when it should return.
 - Existing records are updated on the next run before the graph is rebuilt.
   The `hideEverywhere` scope uses Strapi's document-service unpublish action, so
   cached page data should be revalidated by the normal web deployment.
@@ -172,3 +174,7 @@ is needed.
 Graph tuning variables are unchanged: `GRAPH_SIMILARITY_THRESHOLD`,
 `GRAPH_DUPLICATE_THRESHOLD`, `GRAPH_AI_MODEL`, the HDBSCAN settings, and
 `GRAPH_SECONDARY_CLUSTER_DISTANCE_THRESHOLD`.
+
+The Strapi API token used by `paper-sync` must be able to read
+`GraphExclusion`, update `Publication`, and call the publication unpublish
+route. A full-access token satisfies all three.

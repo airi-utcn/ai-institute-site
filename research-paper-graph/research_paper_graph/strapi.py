@@ -975,24 +975,32 @@ class StrapiClient:
             candidates.append(("title", title))
 
         for field, value in candidates:
-            response = self._request(
-                "GET",
-                f"{self.api_url}/publications",
-                headers=self.headers,
-                params={
+            for status in (None, "draft"):
+                params = {
                     f"filters[{field}][$eq]": value,
                     "pagination[pageSize]": 5,
                     "fields[0]": "documentId",
-                },
-            )
-            if not response.ok:
-                continue
-            rows = response.json().get("data") or []
-            for row in rows:
-                document_id = row.get("documentId") or row.get("id")
-                if document_id:
-                    log.info("  Found existing publication remotely by %s", field)
-                    return document_id
+                }
+                if status:
+                    params["status"] = status
+                response = self._request(
+                    "GET",
+                    f"{self.api_url}/publications",
+                    headers=self.headers,
+                    params=params,
+                )
+                if not response.ok:
+                    continue
+                rows = response.json().get("data") or []
+                for row in rows:
+                    document_id = row.get("documentId") or row.get("id")
+                    if document_id:
+                        log.info(
+                            "  Found existing publication remotely by %s%s",
+                            field,
+                            " (draft)" if status else "",
+                        )
+                        return document_id
         return None
 
     def match_authors(self, author_names, author_ids=None):

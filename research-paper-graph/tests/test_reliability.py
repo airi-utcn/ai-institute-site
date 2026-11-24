@@ -211,6 +211,36 @@ class ExclusionTests(unittest.TestCase):
         self.assertEqual(calls, [("doc1", {"graphEligible": False})])
 
 
+class UploadExclusionTests(unittest.TestCase):
+    def test_excluded_paper_is_not_created(self):
+        from research_paper_graph.strapi_sync import upload_publications
+
+        created = []
+
+        class FakeStrapi:
+            def load_existing_publications(self):
+                pass
+
+            def load_existing_people(self):
+                pass
+
+            def match_graph_exclusion(self, **kwargs):
+                return {"scope": "hideEverywhere", "documentId": "exclusion"}
+
+            def create_publication(self, *args, **kwargs):
+                created.append(args)
+
+        _pub_map, stats = upload_publications(
+            FakeStrapi(),
+            [{"title": "Table of contents", "openAlexId": "W1"}],
+            skip_pdf=True,
+        )
+
+        self.assertEqual(stats["excluded"], 1)
+        self.assertEqual(stats["created"], 0)
+        self.assertEqual(created, [])
+
+
 class DedupeTests(unittest.TestCase):
     def test_merges_same_openalex_id(self):
         papers = _dedupe_papers(

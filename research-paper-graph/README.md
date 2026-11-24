@@ -44,8 +44,8 @@ python main.py --person "Adrian Groza"
 
 ## Documentation
 
-- [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md): detailed explanation of embeddings, similarity computation, links, duplicates, and Louvain communities
-- [docs/paper-sync-cli-guide.md](/home/shumy/Projects/ai-institute-site/docs/paper-sync-cli-guide.md): option-by-option CLI guide, usage patterns, and current caveats
+- [docs/paper-graph-operations.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-operations.md): runbook for author identity, coverage, concurrency, PDFs, graph semantics, health checks, and environment variables
+- [paper-graph-user-manual.md](/home/shumy/Projects/ai-institute-site/paper-graph-user-manual.md): editor-facing guide to the graph fields
 
 ## Dependency fallback
 

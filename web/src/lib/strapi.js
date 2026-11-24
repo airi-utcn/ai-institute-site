@@ -1347,16 +1347,6 @@ export async function getGraphPublications(options = {}) {
     const { community, macroSlug } = options;
     const filters = {
       graphEligible: { $eq: true },
-      $or: [
-        { sourceKind: { $ne: 'manual' } },
-        {
-          $and: [
-            { sourceKind: { $eq: 'manual' } },
-            { graphMacroPrimary: { id: { $notNull: true } } },
-            { graphMesoPrimary: { id: { $notNull: true } } },
-          ],
-        },
-      ],
     };
 
     if (typeof macroSlug === 'string' && macroSlug.trim()) {

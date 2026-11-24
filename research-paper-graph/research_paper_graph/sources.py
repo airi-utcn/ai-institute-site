@@ -1,12 +1,14 @@
 import logging
 import sys
 
+log = logging.getLogger(__name__)
+
 from . import openalex as oaf
 from .strapi import StrapiClient
 from .utils import normalize_doi, normalize_openalex_id, normalize_title, slugify
 
 
-def fetch_papers(institution=None, person=None, settings=None, logger=None):
+def fetch_papers(institution=None, person=None, settings=None, logger=None, limit=None, dry_run=False):
     """Fetch papers from the configured source and return (papers, label)."""
     log = logger or logging.getLogger("paper-sync")
 
@@ -15,6 +17,9 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None):
     person_name = (person or "").strip()
 
     # Institution mode: fetch papers for a specific institution
+    oa_only = bool(getattr(settings, "import_oa_only", False))
+    institution_id = getattr(settings, "openalex_institution_id", "") or None
+
     if institution_name:
         inst_id = oaf.find_institution_id(institution_name)
         if not inst_id:
@@ -22,20 +27,24 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None):
             sys.exit(1)
 
         label = institution_name.replace(" ", "_")
-        papers = oaf.get_institution_papers(inst_id)
+        papers = oaf.get_institution_papers(inst_id, oa_only=oa_only)
         papers = _dedupe_papers(papers)
+        if limit:
+            papers = papers[:limit]
         return papers, label
 
     # Person mode: fetch papers for a specific person by name
     if person_name:
-        author_id = oaf.find_author_id(person_name)
+        author_id = oaf.find_author_id(person_name, institution_id=institution_id)
         if not author_id:
             log.error(f"Author '{person_name}' not found in OpenAlex")
             sys.exit(1)
 
         label = slugify(person_name)
-        papers = oaf.get_author_papers(author_id)
+        papers = oaf.get_author_papers(author_id, oa_only=oa_only)
         papers = _dedupe_papers(papers)
+        if limit:
+            papers = papers[:limit]
         return papers, label
 
     # Default: Strapi-people mode - fetch papers for all people in Strapi
@@ -53,22 +62,29 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None):
     total_people = len(people)
 
     for index, person in enumerate(people, start=1):
-        person_name = person["fullName"]
-        person_id = person["documentId"]
-        person_label = slugify(person_name)
+        person_name = person.get("fullName") or person["documentId"]
         log.info(f"Fetching papers for Strapi person {index}/{total_people}: {person_name}")
-        author_id = oaf.find_author_id(person_name)
+        author_id = (person.get("openAlexAuthorId") or "").strip()
+        if not author_id:
+            author_id = oaf.find_author_id(person_name, institution_id=institution_id)
+            if author_id:
+                # Pin the resolved id once so a future homonym cannot silently
+                # replace this author.
+                if not dry_run and strapi.update_person_author_id(person["documentId"], author_id):
+                    person["openAlexAuthorId"] = author_id
         if not author_id:
             log.warning(f"Skipping Strapi person with no OpenAlex match: {person_name}")
             continue
 
-        person_papers = oaf.get_author_papers(author_id)
+        person_papers = oaf.get_author_papers(author_id, oa_only=oa_only)
 
         for paper in person_papers:
             _merge_seed_paper(papers_by_key, paper, person)
 
     papers = list(papers_by_key.values())
     log.info(f"Collected {len(papers)} unique papers across {total_people} Strapi people")
+    if limit:
+        papers = papers[:limit]
     return papers, "strapi_people"
 
 
@@ -88,6 +104,7 @@ def _merge_seed_paper(papers_by_key, paper, person):
     existing["seedPersonIds"] = _merge_unique(existing.get("seedPersonIds", []), [person["documentId"]])
     existing["seedPersonNames"] = _merge_unique(existing.get("seedPersonNames", []), [person["fullName"]])
     existing["authors"] = _merge_unique(existing.get("authors", []), paper.get("authors", []))
+    existing["authorIds"] = _merge_unique(existing.get("authorIds", []), paper.get("authorIds", []))
     existing["topics"] = _merge_unique(existing.get("topics", []), paper.get("topics", []))
 
     if not existing.get("abstract") and paper.get("abstract"):
@@ -129,7 +146,11 @@ def _paper_key(paper):
 def _dedupe_papers(papers):
     """Merge duplicate paper records deterministically for idempotent upserts."""
     merged_by_key = {}
+    skipped_no_title = 0
     for paper in papers or []:
+        if not normalize_title(paper.get("title")):
+            skipped_no_title += 1
+            continue
         key = _paper_key(paper)
         if not key:
             continue
@@ -140,6 +161,7 @@ def _dedupe_papers(papers):
             continue
 
         existing["authors"] = _merge_unique(existing.get("authors", []), paper.get("authors", []))
+        existing["authorIds"] = _merge_unique(existing.get("authorIds", []), paper.get("authorIds", []))
         existing["topics"] = _merge_unique(existing.get("topics", []), paper.get("topics", []))
 
         if not existing.get("abstract") and paper.get("abstract"):
@@ -154,4 +176,6 @@ def _dedupe_papers(papers):
             existing["year"] = paper["year"]
         existing["cited_by"] = max(existing.get("cited_by") or 0, paper.get("cited_by") or 0)
 
+    if skipped_no_title:
+        log.info("Skipped %s works without a title", skipped_no_title)
     return list(merged_by_key.values())

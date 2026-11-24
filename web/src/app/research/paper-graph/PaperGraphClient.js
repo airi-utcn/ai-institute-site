@@ -157,6 +157,15 @@ export default function PaperGraphClient({
     });
   }, [papers, links, minScore, showCrossCluster]);
 
+  const connectedIds = useMemo(() => {
+    const ids = new Set();
+    visibleLinks.forEach((link) => {
+      ids.add(link.sourceId);
+      ids.add(link.targetId);
+    });
+    return ids;
+  }, [visibleLinks]);
+
   // ── Citation-based node scaling ───────────────────────────────────────────
   const nodeRadius = useCallback((paper) => {
     const citations = paper.cited_by || 0;
@@ -469,7 +478,8 @@ export default function PaperGraphClient({
       {/* Top-left HUD */}
       <div className="pointer-events-none absolute top-12 left-5 z-30 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.14)", backdropFilter: "blur(8px)" }}>
         <div className="text-amber-300/65 text-[10px] tracking-widest">
-          {papers.length} PAPERS &nbsp;·&nbsp; {visibleLinks.length} LINKS
+          {papers.length} PAPERS &nbsp;·&nbsp; {connectedIds.size} LINKED &nbsp;·&nbsp;{" "}
+          {papers.length - connectedIds.size} UNLINKED &nbsp;·&nbsp; {visibleLinks.length} LINKS
         </div>
       </div>
 
@@ -538,7 +548,7 @@ export default function PaperGraphClient({
           { color: "#4d7fff", label: "WEAK   0.50–0.65", w: 1 },
           { color: "#ff8c00", label: "MODERATE  0.65–0.80", w: 2 },
           { color: "#ffe066", label: "STRONG  0.80–1.00", w: 3 },
-          { color: "#ffa500", label: "CROSS-CLUSTER", w: 1.5, dash: true },
+          { color: "#ffa500", label: "CROSS-MACRO", w: 1.5, dash: true },
         ].map(({ color, label, w, dash }) => (
           <div key={label} className="flex items-center gap-2 mb-1">
             <svg width="24" height={w + 4}>
@@ -864,20 +874,14 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
             ✦ {macroTheme}
           </div>
         )}
-        {paper.communityLabel && (
+        {paper.graphMesoPrimary?.name && (
           <div className="text-[9px] text-amber-300/60 mb-2 border border-amber-500/20 px-1.5 py-0.5 inline-block">
-            ◈ {paper.communityLabel}
+            ◇ {paper.graphMesoPrimary.name}
           </div>
         )}
-        {paper.secondaryClusters?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {paper.secondaryClusters.map((sc, idx) => (
-              <span key={`${sc.clusterId ?? "cluster"}-${sc.distance ?? "distance"}-${idx}`} className="text-purple-200/80 border border-purple-500/30 px-1.5 py-0.5 bg-purple-950/30"
-                style={{ fontSize: 8, letterSpacing: "0.05em" }}
-                title={`Distance: ${(sc.distance || 0).toFixed(3)}`}>
-                ⟡ {sc.clusterLabel || `Cluster ${sc.clusterId}`}
-              </span>
-            ))}
+        {paper.graphMacroPrimary?.name && paper.graphMacroPrimary.name !== macroTheme && (
+          <div className="text-[9px] text-amber-300/45 mb-2 border border-amber-500/15 px-1.5 py-0.5 inline-block">
+            ✦ {paper.graphMacroPrimary.name}
           </div>
         )}
         {paper.topics?.length > 0 && (
@@ -901,7 +905,7 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
             {strong > 0 && <span style={{ color: "#ffe88a" }}>◆ {strong} strong</span>}
             {moderate > 0 && <span style={{ color: "#ff9d2f" }}>◆ {moderate} moderate</span>}
             {weak > 0 && <span style={{ color: "#6f8eff" }}>◆ {weak} weak</span>}
-            {cross > 0 && <span style={{ color: "#ffb74d" }}>◆ {cross} cross-cluster</span>}
+            {cross > 0 && <span style={{ color: "#ffb74d" }}>◆ {cross} cross-macro</span>}
           </div>
         )}
         {/* Cross-cluster connections section */}
@@ -922,7 +926,7 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
           return (
             <div className="mt-2 pt-2 border-t border-orange-500/20">
               <div className="text-[8px] text-orange-300/75 tracking-wider mb-1.5">
-                ⟡ RELATED IN OTHER CLUSTERS
+                ⟡ RELATED IN OTHER MACROS
               </div>
               <div className="space-y-1">
                 {crossLinks.map(({ paper: p, score }, idx) => (
@@ -934,9 +938,9 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
                       <div className="text-orange-100/85 text-[8px] leading-tight truncate">
                         {p.title}
                       </div>
-                      {p.communityLabel && (
+                      {(p.graphMacroPrimary?.name || p.graphMesoPrimary?.name) && (
                         <div className="text-orange-200/50 text-[7px] truncate">
-                          in {p.communityLabel}
+                          in {p.graphMacroPrimary?.name || p.graphMesoPrimary?.name}
                         </div>
                       )}
                     </div>

@@ -22,10 +22,46 @@ def _build_paper_text(paper):
 
 
 def create_client(settings):
-    return StrapiClient(settings.strapi_api_url, settings.strapi_token)
+    return StrapiClient(
+        settings.strapi_api_url,
+        settings.strapi_token,
+        timeout=settings.strapi_http_timeout,
+        retries=settings.strapi_http_retries,
+        pdf_max_bytes=settings.pdf_max_bytes,
+    )
 
 
-def upload_publications(strapi, papers_to_upload, logger=None):
+def _attach_pdf(strapi, paper, document_id, stats, log, failures):
+    """Download and attach a PDF after the publication write has succeeded."""
+    if strapi.has_publication_pdf(document_id):
+        return
+    pdf_result = strapi.ensure_publication_pdf(paper, existing_document_id=document_id)
+    if pdf_result.get("attempted"):
+        stats["pdf_attempted"] += 1
+    if pdf_result.get("resolved"):
+        stats["pdf_resolved"] += 1
+
+    attachment_id = pdf_result.get("attachment_id")
+    if not attachment_id:
+        return
+    if strapi.update_publication(document_id, {"pdfFile": attachment_id}):
+        stats["pdf_uploaded"] += 1
+    else:
+        # The media upload happened before the attach; remove it so a failed
+        # attach cannot leave an orphaned file in the library.
+        if strapi.delete_media(attachment_id):
+            stats["pdf_orphaned_cleaned"] += 1
+        failures.append(
+            {
+                "stage": "pdf_attach",
+                "title": paper.get("title", "?"),
+                "documentId": document_id,
+                "error": strapi.last_error,
+            }
+        )
+
+
+def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
     """Upsert publications into Strapi and return the publication map and stats."""
     log = logger or logging.getLogger("paper-sync")
 
@@ -39,16 +75,23 @@ def upload_publications(strapi, papers_to_upload, logger=None):
         "skipped": 0,
         "failed": 0,
         "protected_manual": 0,
+        "conflict_resolved": 0,
         "pdf_attempted": 0,
         "pdf_resolved": 0,
         "pdf_uploaded": 0,
+        "pdf_skipped": 0,
+        "pdf_orphaned_cleaned": 0,
     }
+    failures = []
 
     log.info(f"Uploading {len(papers_to_upload)} publications...")
     for paper in papers_to_upload:
         oa_id = paper.get("openAlexId")
         paper_label = paper.get("title", "?")
-        matched_author_ids = strapi.match_authors(paper.get("authors", []))
+        matched_author_ids = strapi.match_authors(
+            paper.get("authors", []),
+            paper.get("authorIds", []),
+        )
         seeded_author_ids = paper.get("seedPersonIds", [])
         author_ids = list(dict.fromkeys([*matched_author_ids, *seeded_author_ids]))
         existing_id, match_type = strapi.find_existing_publication(
@@ -61,84 +104,139 @@ def upload_publications(strapi, papers_to_upload, logger=None):
             if oa_id:
                 pub_map[oa_id] = existing_id
             existing_source = strapi.get_publication_source_kind(existing_id)
-            existing_has_pdf = strapi.has_publication_pdf(existing_id)
 
-            # Ensure imported automated records are routeable by slug pages.
-            if existing_source == "openAlexAutomated":
-                ensure_payload = {}
-                if not strapi.get_publication_slug(existing_id):
-                    ensure_payload["slug"] = strapi.build_publication_slug(paper)
-                if not strapi.is_publication_published(existing_id):
-                    ensure_payload["publishedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-                if ensure_payload:
-                    strapi.update_publication(existing_id, ensure_payload)
-
-            # Update existing automated publications with fresh data
-            if existing_source == "openAlexAutomated":
-                merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)
-                update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
-                pdf_result = strapi.ensure_publication_pdf(paper, existing_document_id=existing_id)
-
-                if pdf_result.get("attempted"):
-                    stats["pdf_attempted"] += 1
-                if pdf_result.get("resolved"):
-                    stats["pdf_resolved"] += 1
-                if pdf_result.get("uploaded"):
-                    stats["pdf_uploaded"] += 1
-                    update_payload["pdfFile"] = pdf_result.get("attachment_id")
-
-                strapi.update_publication(existing_id, update_payload)
-                stats["updated"] += 1
-                log.info(
-                    "  Updated: %s (%s, pdf: %s/%s)",
-                    paper_label[:60],
-                    match_type,
-                    "resolved" if pdf_result.get("resolved") else ("already-present" if existing_has_pdf else "not-found"),
-                    "uploaded" if pdf_result.get("uploaded") else ("already-present" if existing_has_pdf else "not-uploaded"),
-                )
-            else:
+            if existing_source != "openAlexAutomated":
                 stats["protected_manual"] += 1
                 stats["skipped"] += 1
                 log.debug(
-                    f"  Protected curated/manual-priority entry ({match_type}): {paper_label[:60]}"
+                    "  Protected curated/manual-priority entry (%s): %s",
+                    match_type,
+                    paper_label[:60],
                 )
+                continue
+
+            # Ensure imported automated records are routeable by slug pages.
+            ensure_payload = {}
+            if not strapi.get_publication_slug(existing_id):
+                ensure_payload["slug"] = strapi.build_publication_slug(paper)
+            if not strapi.is_publication_published(existing_id):
+                ensure_payload["publishedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+            if ensure_payload and not strapi.update_publication(existing_id, ensure_payload):
+                stats["failed"] += 1
+                failures.append(
+                    {
+                        "stage": "publish",
+                        "title": paper_label,
+                        "documentId": existing_id,
+                        "error": strapi.last_error,
+                    }
+                )
+
+            merged_author_ids = strapi.merge_publication_author_ids(existing_id, author_ids)
+            update_payload = strapi.build_import_update_payload(paper, author_ids=merged_author_ids)
+            if strapi.update_publication(existing_id, update_payload):
+                stats["updated"] += 1
+                log.info("  Updated: %s (%s)", paper_label[:60], match_type)
+            else:
+                stats["failed"] += 1
+                failures.append(
+                    {
+                        "stage": "update",
+                        "title": paper_label,
+                        "documentId": existing_id,
+                        "error": strapi.last_error,
+                    }
+                )
+
+            if not skip_pdf:
+                _attach_pdf(strapi, paper, existing_id, stats, log, failures)
+            else:
+                stats["pdf_skipped"] += 1
             continue
 
         publication_result = strapi.create_publication(paper, author_ids=author_ids or None)
         doc_id = publication_result.get("document_id") if publication_result else None
-        pdf_result = publication_result.get("pdf_result", {}) if publication_result else {}
 
-        if pdf_result.get("attempted"):
-            stats["pdf_attempted"] += 1
-        if pdf_result.get("resolved"):
-            stats["pdf_resolved"] += 1
-        if pdf_result.get("uploaded"):
-            stats["pdf_uploaded"] += 1
+        if not doc_id:
+            # A concurrent run (or a draft invisible to the cached snapshot) may
+            # have created the record between our load and our POST.
+            remote_id = strapi.find_publication_remote(
+                openalex_id=oa_id,
+                doi=paper.get("doi"),
+                title=paper.get("title"),
+            )
+            if remote_id:
+                stats["conflict_resolved"] += 1
+                doc_id = remote_id
+                if oa_id:
+                    pub_map[oa_id] = doc_id
+                update_payload = strapi.build_import_update_payload(paper, author_ids=author_ids or None)
+                if strapi.update_publication(doc_id, update_payload):
+                    stats["updated"] += 1
+                    log.info("  Adopted existing record after create conflict: %s", paper_label[:60])
+                else:
+                    stats["failed"] += 1
+                    failures.append(
+                        {
+                            "stage": "conflict_update",
+                            "title": paper_label,
+                            "documentId": doc_id,
+                            "error": strapi.last_error,
+                        }
+                    )
+            else:
+                stats["failed"] += 1
+                failures.append(
+                    {
+                        "stage": "create",
+                        "title": paper_label,
+                        "error": publication_result.get("error") if publication_result else None,
+                    }
+                )
+                log.error("  Failed to create: %s", paper_label[:80])
+                continue
+
+        if doc_id and oa_id:
+            pub_map[oa_id] = doc_id
+        if publication_result.get("document_id"):
+            stats["created"] += 1
+            log.info("  Created: %s", paper_label[:60])
 
         if doc_id:
-            if oa_id:
-                pub_map[oa_id] = doc_id
-            stats["created"] += 1
-            log.info(
-                "  Created: %s (pdf: %s/%s)",
-                paper_label[:60],
-                "resolved" if pdf_result.get("resolved") else "missing",
-                "uploaded" if pdf_result.get("uploaded") else "not-uploaded",
-            )
-        else:
-            stats["failed"] += 1
+            if not skip_pdf:
+                _attach_pdf(strapi, paper, doc_id, stats, log, failures)
+            else:
+                stats["pdf_skipped"] += 1
 
+    stats["failures"] = failures
     log.info(
-        f"Publications: {stats['created']} created, {stats['updated']} updated, "
-        f"{stats['skipped']} skipped, {stats['protected_manual']} manual protected, {stats['failed']} failed"
+        "Publications: %s created, %s updated, %s skipped, %s manual protected, %s failed, %s conflicts resolved",
+        stats["created"],
+        stats["updated"],
+        stats["skipped"],
+        stats["protected_manual"],
+        stats["failed"],
+        stats["conflict_resolved"],
     )
     log.info(
-        f"PDFs: {stats['pdf_attempted']} attempted, {stats['pdf_resolved']} resolved, {stats['pdf_uploaded']} uploaded"
+        "PDFs: %s attempted, %s resolved, %s uploaded, %s skipped, %s orphan(s) cleaned",
+        stats["pdf_attempted"],
+        stats["pdf_resolved"],
+        stats["pdf_uploaded"],
+        stats["pdf_skipped"],
+        stats["pdf_orphaned_cleaned"],
     )
     return pub_map, stats
 
 
-def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logger=None):
+def upload_graph_links(
+    strapi,
+    links_to_upload,
+    pub_map,
+    communities=None,
+    paper_macro_map=None,
+    logger=None,
+):
     """Create graph links between uploaded publications."""
     log = logger or logging.getLogger("paper-sync")
 
@@ -161,7 +259,11 @@ def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logge
             continue
 
         is_cross = False
-        if communities:
+        if paper_macro_map:
+            src_macro = paper_macro_map.get(source_paper_id)
+            tgt_macro = paper_macro_map.get(target_paper_id)
+            is_cross = bool(src_macro and tgt_macro and src_macro != tgt_macro)
+        elif communities:
             src_comm = communities.get(source_paper_id)
             tgt_comm = communities.get(target_paper_id)
             is_cross = src_comm is not None and tgt_comm is not None and src_comm != tgt_comm
@@ -176,13 +278,27 @@ def upload_graph_links(strapi, links_to_upload, pub_map, communities=None, logge
     return {"created": link_ok, "failed": link_fail}
 
 
-def replace_graph_links(strapi, links_to_upload, pub_map, communities=None, logger=None):
+def replace_graph_links(
+    strapi,
+    links_to_upload,
+    pub_map,
+    communities=None,
+    paper_macro_map=None,
+    logger=None,
+):
     """Replace all derived graph links with a freshly rebuilt set."""
     log = logger or logging.getLogger("paper-sync")
 
     log.info("Replacing graph links from global rebuild...")
     strapi.clear_graph_links()
-    return upload_graph_links(strapi, links_to_upload, pub_map, communities=communities, logger=log)
+    return upload_graph_links(
+        strapi,
+        links_to_upload,
+        pub_map,
+        communities=communities,
+        paper_macro_map=paper_macro_map,
+        logger=log,
+    )
 
 
 def update_community_assignments(strapi, communities, community_labels, pub_map, logger=None):
@@ -628,4 +744,5 @@ def update_meso_assignments(
         skipped_manual,
         skipped_missing,
     )
+    strapi.prune_stale_mesos(set(meso_id_by_cluster.values()), logger=log)
     return updated

@@ -6,12 +6,12 @@ GRAPH_DIR="$ROOT_DIR/research-paper-graph"
 PYTHON_BIN="$GRAPH_DIR/.venv/bin/python"
 
 RUN_MODE="print"
-SOURCE_SELECTOR="--strapi-people"
+SOURCE_SELECTOR=""
 
 usage() {
   cat <<'EOF'
 Usage:
-  scripts/paper-graph-sweep.sh [--run] [--source "--strapi-people|--institution ...|--person ..."]
+  scripts/paper-graph-sweep.sh [--run] [--source "--institution ...|--person ..."]
 
 Default behavior prints commands only.
 Use --run to execute commands.
@@ -19,7 +19,7 @@ Use --run to execute commands.
 Examples:
   scripts/paper-graph-sweep.sh
   scripts/paper-graph-sweep.sh --run
-  scripts/paper-graph-sweep.sh --run --source "--person Adrian Groza"
+  scripts/paper-graph-sweep.sh --run --source "--person \"Adrian Groza\""
 EOF
 }
 
@@ -73,7 +73,7 @@ run_or_print() {
 echo "# Phase A: paper-level clustering sweep"
 for cluster_size in "${PAPER_CLUSTER_SIZES[@]}"; do
   for min_samples in "${PAPER_MIN_SAMPLES[@]}"; do
-    cmd="cd \"$GRAPH_DIR\" && GRAPH_HDBSCAN_MIN_CLUSTER_SIZE=$cluster_size GRAPH_HDBSCAN_MIN_SAMPLES=$min_samples \"$PYTHON_BIN\" main.py $SOURCE_SELECTOR --dry-run"
+    cmd="cd \"$GRAPH_DIR\" && GRAPH_HDBSCAN_MIN_CLUSTER_SIZE=$cluster_size GRAPH_HDBSCAN_MIN_SAMPLES=$min_samples \"$PYTHON_BIN\" main.py $SOURCE_SELECTOR --dry-run --skip-pdf"
     run_or_print "$cmd"
   done
 done
@@ -81,7 +81,7 @@ done
 echo "# Phase B: topic-level clustering sweep"
 for cluster_size in "${TOPIC_CLUSTER_SIZES[@]}"; do
   for min_samples in "${TOPIC_MIN_SAMPLES[@]}"; do
-    cmd="cd \"$GRAPH_DIR\" && GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE=$cluster_size GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES=$min_samples \"$PYTHON_BIN\" main.py $SOURCE_SELECTOR --dry-run"
+    cmd="cd \"$GRAPH_DIR\" && GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE=$cluster_size GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES=$min_samples \"$PYTHON_BIN\" main.py $SOURCE_SELECTOR --dry-run --skip-pdf"
     run_or_print "$cmd"
   done
 done

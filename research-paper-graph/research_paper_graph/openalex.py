@@ -1,6 +1,7 @@
 import logging
 import re
 import time
+from urllib.parse import urlparse
 
 import requests
 
@@ -9,23 +10,77 @@ log = logging.getLogger(__name__)
 BASE_URL = "https://api.openalex.org"
 
 _API_KEY = ""
+_MAILTO = ""
+_TIMEOUT = 30.0
+_RETRIES = 3
+_RETRY_STATUS = {429, 500, 502, 503, 504}
 
 
-def configure(api_key):
-    """Set the optional OpenAlex API key used for subsequent requests."""
-    global _API_KEY
+def configure(api_key, mailto="", timeout=30.0, retries=3):
+    """Configure OpenAlex authentication and HTTP behaviour."""
+    global _API_KEY, _MAILTO, _TIMEOUT, _RETRIES
     _API_KEY = (api_key or "").strip()
+    _MAILTO = (mailto or "").strip()
+    _TIMEOUT = float(timeout or 30.0)
+    _RETRIES = max(1, int(retries or 1))
+
+
+def _headers():
+    headers = {
+        "User-Agent": "airi-paper-sync/1.0"
+        + (f" (mailto:{_MAILTO})" if _MAILTO else "")
+    }
+    if _API_KEY:
+        headers["Authorization"] = f"Bearer {_API_KEY}"
+    return headers
 
 
 def _get(endpoint, params):
-    """GET an OpenAlex endpoint, authenticating when an API key is configured."""
-    headers = {}
-    if _API_KEY:
-        headers["Authorization"] = f"Bearer {_API_KEY}"
+    """GET an OpenAlex endpoint with a timeout and bounded retries."""
+    params = dict(params or {})
+    if _MAILTO:
+        params.setdefault("mailto", _MAILTO)
 
-    response = requests.get(f"{BASE_URL}{endpoint}", params=params, headers=headers)
-    response.raise_for_status()
-    return response.json()
+    last_error = None
+    for attempt in range(_RETRIES):
+        try:
+            response = requests.get(
+                f"{BASE_URL}{endpoint}",
+                params=params,
+                headers=_headers(),
+                timeout=_TIMEOUT,
+            )
+            if response.status_code in _RETRY_STATUS and attempt < _RETRIES - 1:
+                retry_after = response.headers.get("Retry-After")
+                delay = float(retry_after) if retry_after and retry_after.isdigit() else 0.5 * (2**attempt)
+                log.warning(
+                    "OpenAlex %s returned %s; retrying in %.1fs (%s/%s)",
+                    endpoint,
+                    response.status_code,
+                    delay,
+                    attempt + 1,
+                    _RETRIES,
+                )
+                time.sleep(delay)
+                continue
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as exc:
+            last_error = exc
+            if attempt >= _RETRIES - 1:
+                break
+            delay = 0.5 * (2**attempt)
+            log.warning(
+                "OpenAlex %s request failed (%s); retrying in %.1fs (%s/%s)",
+                endpoint,
+                exc,
+                delay,
+                attempt + 1,
+                _RETRIES,
+            )
+            time.sleep(delay)
+
+    raise RuntimeError(f"OpenAlex request failed after {_RETRIES} attempts: {last_error}")
 
 
 def normalize_text(text):
@@ -38,32 +93,69 @@ def normalize_text(text):
     return text.strip()
 
 
-def find_author_id(author_name, institution=None):
-    """Search for an author by name and optional institution."""
+def _normalized_name(value):
+    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+
+
+def find_author_candidates(author_name, institution_id=None):
+    """Return OpenAlex author candidates for a display name.
+
+    When an institution id is supplied the search is restricted to authors whose
+    last known institutions include it.  The old ``display_name.search`` filter
+    silently returned no results and was never actually passed by callers.
+    """
     params = {
         "search": author_name,
-        "per-page": 5,
+        "per-page": 10,
     }
-    if institution:
-        params["filter"] = f"last_known_institution.display_name.search:{institution}"
+    if institution_id:
+        params["filter"] = f"last_known_institutions.id:{institution_id}"
 
     data = _get("/authors", params)
-
-    if data["results"]:
-        author = data["results"][0]
-        log.info(f"Found author: {author['display_name']} ({author['id']})")
-        return author["id"]
-
-    log.warning("No author found.")
-    return None
+    return data.get("results") or []
 
 
-def get_author_papers(author_id):
-    """Retrieve processed papers for a given author."""
+def find_author_id(author_name, institution_id=None):
+    """Search for an author by name and optional institution id."""
+    candidates = find_author_candidates(author_name, institution_id=institution_id)
+    if not candidates:
+        log.warning("No author found for '%s'%s", author_name, f" at {institution_id}" if institution_id else "")
+        return None
+
+    target = _normalized_name(author_name)
+    exact = [
+        candidate
+        for candidate in candidates
+        if _normalized_name(candidate.get("display_name")) == target
+    ]
+    chosen = (exact or candidates)[0]
+    log.info(
+        "Found author: %s (%s, works=%s, institutions=%s)",
+        chosen.get("display_name"),
+        chosen.get("id"),
+        chosen.get("works_count"),
+        [item.get("display_name") for item in (chosen.get("last_known_institutions") or [])][:3],
+    )
+    if len(candidates) > 1:
+        log.info(
+            "  other candidates: %s",
+            [
+                f"{item.get('display_name')} ({item.get('id')})"
+                for item in candidates[1:4]
+            ],
+        )
+    return chosen.get("id")
+
+
+def get_author_papers(author_id, oa_only=False):
+    """Retrieve works for an author, keeping metadata even when no OA PDF exists."""
+    filters = [f"author.id:{author_id}", "is_paratext:false"]
+    if oa_only:
+        filters.append("is_oa:true")
     return _get_processed_works(
-        f"author.id:{author_id},is_oa:true",
+        ",".join(filters),
         description=f"author {author_id}",
-        per_page=50,
+        per_page=200,
         pause_seconds=0.2,
     )
 
@@ -117,14 +209,23 @@ def get_institution_authors(institution_id, min_works=3):
     return authors
 
 
-def get_institution_papers(institution_id):
-    """Retrieve processed papers for an institution."""
+def get_institution_papers(institution_id, oa_only=False):
+    """Retrieve works for an institution."""
+    filters = [f"institutions.id:{institution_id}", "is_paratext:false"]
+    if oa_only:
+        filters.append("is_oa:true")
     return _get_processed_works(
-        f"institutions.id:{institution_id},is_oa:true",
+        ",".join(filters),
         description=f"institution {institution_id}",
         per_page=200,
         pause_seconds=0.1,
     )
+
+
+def _type_name(value):
+    if not value:
+        return None
+    return str(value).rstrip("/").split("/")[-1]
 
 
 def process_work(work):
@@ -132,12 +233,18 @@ def process_work(work):
     abstract_text = _inverted_to_text(work.get("abstract_inverted_index"))
 
     topics = []
-    for topic in work.get("topics", [])[:3]:
-        topics.append(topic["display_name"])
+    for topic in work.get("topics", [])[:5]:
+        if topic.get("display_name"):
+            topics.append(topic["display_name"])
 
     authors = []
+    author_ids = []
     for authorship in work.get("authorships", []):
-        authors.append(authorship.get("author", {}).get("display_name"))
+        author = authorship.get("author", {}) or {}
+        if author.get("display_name"):
+            authors.append(author["display_name"])
+        if author.get("id"):
+            author_ids.append(author["id"])
 
     return {
         "openAlexId": work.get("id"),
@@ -148,6 +255,9 @@ def process_work(work):
         "abstract": normalize_text(abstract_text),
         "topics": topics,
         "authors": authors,
+        "authorIds": author_ids,
+        "kind": _type_name(work.get("type")),
+        "isParatext": bool(work.get("is_paratext")),
         "pdf_url": _extract_pdf_url(work),
     }
 
@@ -166,9 +276,35 @@ def _inverted_to_text(inverted):
     return " ".join(word for word in words if word)
 
 
+def _pdf_candidate(location):
+    if not location:
+        return None
+    for key in ("pdf_url", "landing_page_url"):
+        value = location.get(key)
+        if value:
+            return value
+    return None
+
+
 def _extract_pdf_url(work):
-    if work.get("open_access", {}).get("oa_url"):
-        return work["open_access"]["oa_url"]
+    """Pick the best known PDF/landing URL from an OpenAlex work.
+
+    ``open_access.oa_url`` is often a publisher landing page (or a bot-blocked
+    URL), so prefer explicit PDF locations first, then the best OA location.
+    """
+    candidates = []
+    for key in ("best_oa_location", "primary_location"):
+        candidates.append(_pdf_candidate(work.get(key)))
+    for location in work.get("locations") or []:
+        candidates.append(_pdf_candidate(location))
+    candidates.append((work.get("open_access") or {}).get("oa_url"))
+
+    for candidate in candidates:
+        if not candidate:
+            continue
+        parsed = urlparse(candidate)
+        if parsed.scheme in {"http", "https"}:
+            return candidate
     return None
 
 
@@ -179,7 +315,7 @@ def _get_processed_works(
     per_page,
     pause_seconds,
 ):
-    """Fetch works from OpenAlex API with paging support."""
+    """Fetch works from OpenAlex API with cursor paging support."""
     papers = []
     cursor = "*"
     total_count = "?"

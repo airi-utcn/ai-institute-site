@@ -9,6 +9,8 @@ from collections import Counter, defaultdict
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+from .utils import normalize_doi, normalize_openalex_id, normalize_title
+
 log = logging.getLogger(__name__)
 
 
@@ -237,11 +239,23 @@ def _build_cluster_label(community_id, papers, cluster_indices, topic_counter, e
     return label
 
 
+def _paper_text(paper):
+    """Text used for embeddings: abstract when present, otherwise title + topics."""
+    title = (paper.get("title") or "").strip()
+    abstract = (paper.get("abstract") or "").strip()
+    if abstract:
+        return f"{title} {abstract}".strip()
+    topics = [topic for topic in (paper.get("topics") or []) if isinstance(topic, str)]
+    if topics:
+        return f"{title} {' '.join(topics)}".strip()
+    return title
+
+
 def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
-    """Generate embeddings for papers that have abstracts, reusing stored vectors when valid."""
-    papers_with_text = [paper for paper in papers if paper.get("abstract")]
+    """Generate embeddings for papers that have any usable text, reusing stored vectors."""
+    papers_with_text = [paper for paper in papers if _paper_text(paper)]
     if len(papers_with_text) < 2:
-        log.warning("Not enough papers with abstracts to generate embeddings.")
+        log.warning("Not enough papers with text to generate embeddings.")
         return papers_with_text, np.array([])
 
     reused_count = 0
@@ -257,7 +271,7 @@ def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
             continue
 
         encode_positions.append(index)
-        encode_inputs.append(f"{paper['title']} {paper['abstract']}")
+        encode_inputs.append(_paper_text(paper))
 
     encoded_count = len(encode_inputs)
     if encoded_count:
@@ -292,6 +306,28 @@ def paper_identifier(paper):
     return paper.get("graphId") or paper.get("openAlexId")
 
 
+def _work_identity(paper):
+    keys = set()
+    graph_id = paper.get("graphId")
+    if graph_id:
+        keys.add(str(graph_id))
+    openalex_id = normalize_openalex_id(paper.get("openAlexId"))
+    if openalex_id:
+        keys.add(openalex_id)
+    doi = normalize_doi(paper.get("doi"))
+    if doi:
+        keys.add(f"doi:{doi}")
+    title = normalize_title(paper.get("title"))
+    if title:
+        keys.add(f"title:{title}")
+    return keys
+
+
+def _same_work(left, right):
+    """True only when two records describe the same work, not merely similar text."""
+    return bool(_work_identity(left) & _work_identity(right))
+
+
 def build_embedding_payloads(filtered_papers, embeddings, model_name, indexed_at):
     """Create Strapi-ready embedding metadata keyed by graph paper identifier."""
     if len(filtered_papers) == 0 or len(embeddings) == 0:
@@ -313,8 +349,7 @@ def build_embedding_payloads(filtered_papers, embeddings, model_name, indexed_at
 def embedding_source_hash(paper):
     raw = json.dumps(
         {
-            "title": paper.get("title") or "",
-            "abstract": paper.get("abstract") or "",
+            "text": _paper_text(paper),
         },
         sort_keys=True,
         ensure_ascii=True,
@@ -352,6 +387,7 @@ def generate_links(
     similarity_threshold=0.5,
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
+    top_k=0,
 ):
     """Compute similarity links between papers using brute-force similarity."""
     filtered_papers, embeddings = build_embeddings(papers, model_name)
@@ -361,6 +397,7 @@ def generate_links(
 
     links = []
     duplicate_pairs = []
+    near_duplicate_count = 0
 
     log.info("Computing full similarity matrix...")
     similarity_matrix = embeddings @ embeddings.T
@@ -371,7 +408,17 @@ def generate_links(
             if score < similarity_threshold:
                 continue
 
-            is_duplicate = score >= duplicate_threshold
+            # A high cosine score alone is not proof of a duplicate: different
+            # papers on the same topic routinely exceed 0.92. Only collapse the
+            # link when the records share an identity key (OpenAlex, DOI, title,
+            # or document id). Near-duplicates stay in the graph.
+            same_work = score >= duplicate_threshold and _same_work(
+                filtered_papers[source_index], filtered_papers[target_index]
+            )
+            if score >= duplicate_threshold and not same_work:
+                near_duplicate_count += 1
+
+            is_duplicate = same_work
             source_paper_id = paper_identifier(filtered_papers[source_index])
             target_paper_id = paper_identifier(filtered_papers[target_index])
             if is_duplicate:
@@ -399,8 +446,27 @@ def generate_links(
         if target_paper_id in duplicate_paper_ids:
             link["target_canonical_paper_id"] = canonical_by_duplicate[target_paper_id]
 
+    if top_k and top_k > 0 and links:
+        before = len(links)
+        incident = defaultdict(list)
+        for index, link in enumerate(links):
+            incident[link["source_paper_id"]].append((link["score"], index))
+            incident[link["target_paper_id"]].append((link["score"], index))
+        keep = set()
+        for entries in incident.values():
+            entries.sort(key=lambda item: item[0], reverse=True)
+            keep.update(index for _, index in entries[:top_k])
+        links = [link for index, link in enumerate(links) if index in keep]
+        log.info("Top-k link cap (k=%s): kept %s of %s links", top_k, len(links), before)
+
     duplicate_links = sum(1 for link in links if link["is_duplicate"])
-    log.info(f"Links: {len(links)} total | {len(links) - duplicate_links} clean | {duplicate_links} duplicates")
+    log.info(
+        "Links: %s total | %s clean | %s duplicate | %s high-similarity non-duplicates",
+        len(links),
+        len(links) - duplicate_links,
+        duplicate_links,
+        near_duplicate_count,
+    )
     log.info(f"Duplicate papers: {len(duplicate_paper_ids)}")
 
     return links, duplicate_paper_ids, filtered_papers, embeddings

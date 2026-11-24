@@ -72,6 +72,7 @@ def build_graph_artifacts(
     similarity_threshold=0.5,
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
+    top_k=0,
     logger=None,
 ):
     """Generate graph links and community artifacts, persisting local outputs."""
@@ -92,6 +93,7 @@ def build_graph_artifacts(
         similarity_threshold=similarity_threshold,
         duplicate_threshold=duplicate_threshold,
         model_name=model_name,
+        top_k=top_k,
     )
 
     indexed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")

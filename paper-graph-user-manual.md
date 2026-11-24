@@ -32,11 +32,30 @@ Important:
 - This field does not control whether a person appears on the site.
 - It only controls whether the import pipeline treats the person as a valid source.
 
+### Person: `openAlexAuthorId` and `orcid`
+
+Location: `Person`
+
+What they do:
+
+- `openAlexAuthorId` pins the person to one OpenAlex author identity. Once set, the import pipeline uses it directly and never re-searches by name.
+- `orcid` is stored for reference and future matching.
+
+Use this for:
+
+- every researcher whose publications should be imported
+- anyone whose name is common enough that a name search could resolve to the wrong person
+
+Important:
+
+- If the field is empty, the pipeline searches OpenAlex by name and stores the result. Review the doctor report after a sync and correct the ID in Strapi if it resolved to the wrong person.
+- A person without a portrait cannot be pinned automatically because the Person schema requires a portrait; add one and rerun the sync.
+
 ### Publication: `graphEligible`
 
 Location: `Publication`
 
-Default: `true`
+Default: `false`
 
 What it does:
 
@@ -208,6 +227,11 @@ What not to do:
 
 - do not use meso fields as a manual per-paper override mechanism
 - do not expect paper placement to stay fixed if the pipeline is rerun and the taxonomy changes
+
+Identity and cleanup:
+
+- a meso's identity is its macro-scoped slug (`sc-<macro>-<cluster>`), not its display name; the same label can legitimately appear under two macros
+- pipeline-generated mesos that end up with no tagged or primary publications are pruned after assignment
 
 ## 6. Recommended Editor Workflow
 

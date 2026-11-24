@@ -1,4 +1,4 @@
-import { slugify } from "@/lib/slug";
+import { slugify } from "../../../lib/slug.js";
 
 const DEFAULT_MIN_NODE_PAPERS = 3;
 const DEFAULT_MAX_NODES = 20;
@@ -29,9 +29,16 @@ export function getPublicationMesoMembership(publication) {
     .map((tag) => tag.slug || (tag.id != null ? `meso-${tag.id}` : ""))
     .filter(Boolean);
 
-  if (!primaryKey || !allKeys.length) {
+  if (!primaryKey) {
     return null;
   }
+
+  // A few legacy records have a primary relation but no tag relation. Treat
+  // the primary as a tag so primary and tagged counts cannot disagree.
+  if (!allKeys.includes(primaryKey)) {
+    allKeys.push(primaryKey);
+  }
+
   return {
     key: primaryKey,
     label: primaryLabel,
@@ -46,6 +53,7 @@ function buildNode(publication, membership) {
     label: membership.label,
     memberKeys: [membership.key],
     paperCount: 1,
+    taggedCount: 0,
     years,
   };
 }
@@ -53,12 +61,13 @@ function buildNode(publication, membership) {
 function mergeNodes(nodes) {
   const paperCount = nodes.reduce((sum, node) => sum + node.paperCount, 0);
   const years = nodes.flatMap((node) => node.years);
-  const memberKeys = nodes.flatMap((node) => node.memberKeys);
+  const memberKeys = Array.from(new Set(nodes.flatMap((node) => node.memberKeys)));
   return {
     key: "other-themes",
     label: "Other Themes",
     memberKeys,
     paperCount,
+    taggedCount: 0,
     years,
   };
 }
@@ -69,19 +78,35 @@ export function buildMesoTopics(publications, options = {}) {
   const minNodes = toIntEnv(options.minNodes, MESO_MIN_NODES);
 
   const nodeMap = {};
+  const taggedIdsByKey = new Map();
+
   publications.forEach((publication) => {
     const membership = getPublicationMesoMembership(publication);
     if (!membership) {
       return;
     }
+
+    const paperKey =
+      publication.id != null
+        ? String(publication.id)
+        : `${membership.key}:${publication.title || ""}:${publication.year || ""}`;
+
     const existing = nodeMap[membership.key];
     if (!existing) {
       nodeMap[membership.key] = buildNode(publication, membership);
-      return;
+    } else {
+      existing.paperCount += 1;
+      if (publication.year) existing.years.push(publication.year);
     }
 
-    existing.paperCount += 1;
-    if (publication.year) existing.years.push(publication.year);
+    membership.allKeys.forEach((key) => {
+      let ids = taggedIdsByKey.get(key);
+      if (!ids) {
+        ids = new Set();
+        taggedIdsByKey.set(key, ids);
+      }
+      ids.add(paperKey);
+    });
   });
 
   let nodes = Object.values(nodeMap).sort((a, b) => b.paperCount - a.paperCount);
@@ -116,11 +141,20 @@ export function buildMesoTopics(publications, options = {}) {
   return finalNodes
     .sort((a, b) => b.paperCount - a.paperCount)
     .map((node) => {
+      const taggedIds = new Set();
+      node.memberKeys.forEach((key) => {
+        const ids = taggedIdsByKey.get(key);
+        if (ids) {
+          ids.forEach((id) => taggedIds.add(id));
+        }
+      });
+
       const yearMin = node.years.length ? Math.min(...node.years) : null;
       const yearMax = node.years.length ? Math.max(...node.years) : null;
       const slugBase = node.key === "other-themes" ? "other-themes" : node.key;
       return {
         ...node,
+        taggedCount: taggedIds.size,
         slug: slugify(slugBase) || "other-themes",
         yearRange: yearMin
           ? yearMin === yearMax
@@ -131,17 +165,17 @@ export function buildMesoTopics(publications, options = {}) {
     });
 }
 
-export function filterPublicationsForMesoTopic(publications, topicNode) {
+export function filterPublicationsForMesoTopic(publications, topicNode, options = {}) {
   if (!topicNode) return [];
 
+  const scope = options.scope === "tagged" ? "tagged" : "primary";
   const memberKeys = new Set(topicNode.memberKeys || []);
   return publications.filter((publication) => {
     const membership = getPublicationMesoMembership(publication);
     if (!membership) return false;
-    if (memberKeys.has(membership.key)) {
-      return true;
+    if (scope === "primary") {
+      return memberKeys.has(membership.key);
     }
-
     return membership.allKeys.some((key) => memberKeys.has(key));
   });
 }

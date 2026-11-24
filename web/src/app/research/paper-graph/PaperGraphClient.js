@@ -113,6 +113,9 @@ export default function PaperGraphClient({
   backLabel,
   topicLabel,
   accentColor = "#4ecdc4",
+  topicScope = null,
+  topicScopeLinks = null,
+  topicScopeCounts = null,
 }) {
   const papers = publications;
   const router = useRouter();
@@ -476,11 +479,37 @@ export default function PaperGraphClient({
       )}
 
       {/* Top-left HUD */}
-      <div className="pointer-events-none absolute top-12 left-5 z-30 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.14)", backdropFilter: "blur(8px)" }}>
-        <div className="text-amber-300/65 text-[10px] tracking-widest">
+      <div className="absolute top-12 left-5 z-30 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.14)", backdropFilter: "blur(8px)" }}>
+        <div className="pointer-events-none text-amber-300/65 text-[10px] tracking-widest">
           {papers.length} PAPERS &nbsp;·&nbsp; {connectedIds.size} LINKED &nbsp;·&nbsp;{" "}
           {papers.length - connectedIds.size} UNLINKED &nbsp;·&nbsp; {visibleLinks.length} LINKS
         </div>
+        {topicScope && (
+          <div className="mt-2 flex items-center gap-1.5 text-[9px] tracking-widest">
+            <Link
+              href={topicScopeLinks?.primary || "#"}
+              className="rounded border px-2 py-0.5 transition-colors"
+              style={{
+                borderColor: topicScope === "primary" ? "rgba(255,210,100,0.65)" : "rgba(255,180,0,0.2)",
+                background: topicScope === "primary" ? "rgba(255,180,0,0.16)" : "transparent",
+                color: topicScope === "primary" ? "#ffe6a3" : "rgba(255,227,153,0.55)",
+              }}
+            >
+              PRIMARY {topicScopeCounts?.primary ?? papers.length}
+            </Link>
+            <Link
+              href={topicScopeLinks?.tagged || "#"}
+              className="rounded border px-2 py-0.5 transition-colors"
+              style={{
+                borderColor: topicScope === "tagged" ? "rgba(255,210,100,0.65)" : "rgba(255,180,0,0.2)",
+                background: topicScope === "tagged" ? "rgba(255,180,0,0.16)" : "transparent",
+                color: topicScope === "tagged" ? "#ffe6a3" : "rgba(255,227,153,0.55)",
+              }}
+            >
+              ALL TAGGED {topicScopeCounts?.tagged ?? papers.length}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Top-right HUD */}

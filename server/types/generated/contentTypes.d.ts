@@ -114,6 +114,43 @@ export interface AdminApiTokenPermission extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface AdminAuditLog extends Struct.CollectionTypeSchema {
+  collectionName: 'strapi_audit_logs';
+  info: {
+    displayName: 'Audit Log';
+    pluralName: 'audit-logs';
+    singularName: 'audit-log';
+  };
+  options: {
+    draftAndPublish: false;
+    timestamps: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    action: Schema.Attribute.String & Schema.Attribute.Required;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.DateTime & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'admin::audit-log'> &
+      Schema.Attribute.Private;
+    payload: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
+  };
+}
+
 export interface AdminPermission extends Struct.CollectionTypeSchema {
   collectionName: 'admin_permissions';
   info: {
@@ -679,7 +716,7 @@ export interface ApiAboutPageAboutPage extends Struct.SingleTypeSchema {
           localized: true;
         };
       }> &
-      Schema.Attribute.DefaultTo<'Explore AIRi\'s facilities at the Technical University of Cluj-Napoca in an interactive 3D tour.'>;
+      Schema.Attribute.DefaultTo<"Explore AIRi's facilities at the Technical University of Cluj-Napoca in an interactive 3D tour.">;
     virtualTourTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2348,9 +2385,7 @@ export interface ApiGraphMesoGraphMeso extends Struct.CollectionTypeSchema {
       'manyToOne',
       'api::graph-macro.graph-macro'
     >;
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
     publications: Schema.Attribute.Relation<
       'manyToMany',
       'api::publication.publication'
@@ -4046,6 +4081,8 @@ export interface ApiPersonPerson extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     location: Schema.Attribute.String;
+    openAlexAuthorId: Schema.Attribute.String;
+    orcid: Schema.Attribute.String;
     phone: Schema.Attribute.String;
     portrait: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
     publications: Schema.Attribute.Relation<
@@ -5177,11 +5214,17 @@ export interface ApiReservationReservation extends Struct.CollectionTypeSchema {
   };
   attributes: {
     assetId: Schema.Attribute.String;
+    assetImageUrl: Schema.Attribute.String;
+    assetLocation: Schema.Attribute.String;
+    assetModel: Schema.Attribute.String;
     assetName: Schema.Attribute.String;
+    assetSerial: Schema.Attribute.String;
     assetStatus: Schema.Attribute.Enumeration<
       ['pending', 'approved', 'checked_out', 'returned']
     > &
       Schema.Attribute.DefaultTo<'pending'>;
+    assetTag: Schema.Attribute.String;
+    assetUrl: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -5193,6 +5236,7 @@ export interface ApiReservationReservation extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    snipeitUserId: Schema.Attribute.String;
     startDate: Schema.Attribute.Date;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -5200,6 +5244,7 @@ export interface ApiReservationReservation extends Struct.CollectionTypeSchema {
     userEmail: Schema.Attribute.Email;
     userFirstName: Schema.Attribute.String;
     userLastName: Schema.Attribute.String;
+    userObjectId: Schema.Attribute.String;
   };
 }
 
@@ -5873,6 +5918,9 @@ export interface PluginContentReleasesRelease
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    failureReason: Schema.Attribute.Enumeration<
+      ['missed_schedule', 'failed_before_upgrade']
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -5881,13 +5929,21 @@ export interface PluginContentReleasesRelease
       Schema.Attribute.Private;
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    releaseCondition: Schema.Attribute.Enumeration<
+      ['all_or_nothing', 'allow_partial']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'all_or_nothing'>;
     releasedAt: Schema.Attribute.DateTime;
     scheduledAt: Schema.Attribute.DateTime;
     status: Schema.Attribute.Enumeration<
-      ['ready', 'blocked', 'failed', 'done', 'empty']
+      ['ready', 'blocked', 'failed', 'done', 'partial', 'empty']
     > &
       Schema.Attribute.Required;
     timezone: Schema.Attribute.String;
+    totalPublishedEntries: Schema.Attribute.Integer;
+    totalSkippedEntries: Schema.Attribute.Integer;
+    totalUnpublishedEntries: Schema.Attribute.Integer;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -5926,7 +5982,19 @@ export interface PluginContentReleasesReleaseAction
       'plugin::content-releases.release-action'
     > &
       Schema.Attribute.Private;
+    outcome: Schema.Attribute.Enumeration<
+      [
+        'published',
+        'unpublished',
+        'skipped_invalid',
+        'skipped_not_approved',
+        'skipped_error',
+        'skipped_held',
+        'skipped_missed',
+      ]
+    >;
     publishedAt: Schema.Attribute.DateTime;
+    reason: Schema.Attribute.JSON;
     release: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::content-releases.release'
@@ -6351,6 +6419,7 @@ declare module '@strapi/strapi' {
     export interface ContentTypeSchemas {
       'admin::api-token': AdminApiToken;
       'admin::api-token-permission': AdminApiTokenPermission;
+      'admin::audit-log': AdminAuditLog;
       'admin::permission': AdminPermission;
       'admin::role': AdminRole;
       'admin::session': AdminSession;

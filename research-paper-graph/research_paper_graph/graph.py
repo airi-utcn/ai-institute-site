@@ -1,7 +1,6 @@
 import json
 import hashlib
 import logging
-import os
 import re
 from functools import lru_cache
 from collections import Counter, defaultdict
@@ -1186,26 +1185,3 @@ def compute_graph_quality_metrics(
         )
 
     return metrics
-
-
-def save_index(embeddings, papers, path):
-    """Persist embeddings and paper IDs for reuse."""
-    data = {
-        "paper_ids": [paper_identifier(paper) for paper in papers],
-        "embeddings": embeddings.tolist(),
-    }
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(data, handle)
-    log.info(f"Saved index ({len(papers)} papers) to {path}")
-
-
-def load_index(path):
-    """Load a previously saved index."""
-    if not os.path.exists(path):
-        return None, None
-    with open(path, "r", encoding="utf-8") as handle:
-        data = json.load(handle)
-    paper_ids = data.get("paper_ids", data.get("openalex_ids", []))
-    embeddings = np.array(data.get("embeddings", []), dtype=np.float32)
-    log.info(f"Loaded existing index ({len(paper_ids)} papers) from {path}")
-    return paper_ids, embeddings

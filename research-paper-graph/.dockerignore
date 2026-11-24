@@ -7,8 +7,7 @@ __pycache__
 .mypy_cache
 .ruff_cache
 
-# Local runtime data (mounted as a volume by Docker Compose)
-outputs
+# Local runtime data
 graph_links.json
 
 # Local environment files

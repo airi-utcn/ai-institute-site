@@ -95,5 +95,5 @@ def load_runtime_settings(current_file=None):
         graph_topic_hdbscan_min_cluster_size=_env_int("GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE", 3),
         graph_topic_hdbscan_min_samples=_env_int("GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES", 2),
         pdf_max_bytes=_env_int("PDF_MAX_BYTES", 10 * 1024 * 1024),
-        sync_lock_path=os.getenv("PAPER_SYNC_LOCK_PATH", "outputs/.paper-sync.lock"),
+        sync_lock_path=os.getenv("PAPER_SYNC_LOCK_PATH", "/var/run/paper-sync/sync.lock"),
     )

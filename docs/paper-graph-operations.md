@@ -47,10 +47,39 @@ rebuilds the graph from the complete Strapi corpus.
 
 ## Concurrency
 
-Runs take an advisory file lock at `outputs/.paper-sync.lock` (override with
-`PAPER_SYNC_LOCK_PATH`). A second run exits immediately unless `--wait-for-lock`
-is passed. Do not remove the lock file while a run is active; the file itself is
-harmless when no process holds the lock.
+Runs take an advisory file lock at `/var/run/paper-sync/sync.lock` (override
+with `PAPER_SYNC_LOCK_PATH`). The container uses a small named volume so cron
+and `docker compose run` invocations share the same lock. A second run exits
+immediately unless `--wait-for-lock` is passed. The lock file is harmless when
+no process holds it.
+
+## Exclusions
+
+Deleting a publication is not durable on its own: the next import will create it
+again. Use **Graph Exclusion** (`GraphExclusion` in Strapi) for papers that must
+stay out:
+
+| Field | Meaning |
+|---|---|
+| `label` | Human-readable note |
+| `openAlexId`, `doi`, `title` | Matching keys; exact match only |
+| `scope` | `graphOnly` or `hideEverywhere` |
+| `reason` | Optional editorial note |
+| `isActive` | Toggle the exclusion without deleting it |
+
+- `graphOnly` removes the paper from graph rebuilds but leaves the publication
+  page visible.
+- `hideEverywhere` also unpublishes the record, so it disappears from the public
+  listing, detail pages, author pages, project pages, and graph search.
+- Both scopes stop the importer from re-creating the paper.
+- Existing records are updated on the next run before the graph is rebuilt.
+  The `hideEverywhere` scope uses Strapi's document-service unpublish action, so
+  cached page data should be revalidated by the normal web deployment.
+
+For an existing paper that should keep its page but leave the graph, toggling
+`Publication.graphEligible` off is still the right switch. The importer no
+longer republishes an existing automated record, so an editorial unpublish is
+respected across runs.
 
 ## Author identity
 
@@ -99,6 +128,11 @@ as a missing publication.
 - **Meso names** are not globally unique. Mesos are keyed by macro-scoped slug
   (`sc-<macro>-<cluster>`). Unused pipeline-generated mesos are pruned after
   assignment.
+- **Meso counts** show `primary / tagged`. The node size uses the primary
+  partition; the detail page opens the primary set by default and has an
+  `ALL TAGGED` toggle for the wider membership.
+- **Paper-level views** use a link-aware layout and zoom-dependent labels, so
+  large mesos stay readable without changing the underlying graph.
 - HDBSCAN communities remain a diagnostic; the UI navigates by macro/meso.
 
 ## Health checks after a run
@@ -112,10 +146,14 @@ Run `python main.py --doctor` and check:
 - people with no publications;
 - importEligible people without an OpenAlex ID;
 - mesos without publications;
-- unattached PDFs in the media library.
+- unattached PDFs in the media library;
+- active exclusions, exclusions with no or multiple matches, exclusions still
+  graph-eligible, and `hideEverywhere` exclusions that are still published.
 
-Each run also writes `outputs/sync_report_<runId>.json` with counts and the list
-of failures (including Strapi response bodies).
+Runs write their counts and failure details to the structured container logs
+(`docker compose logs paper-sync`). There are no JSON artifacts on disk; use
+`python main.py --doctor --doctor-json` when a machine-readable health snapshot
+is needed.
 
 ## Environment
 
@@ -128,7 +166,7 @@ of failures (including Strapi response bodies).
 | `OPENALEX_MAILTO` | empty | Polite-pool contact |
 | `OPENALEX_INSTITUTION_ID` | empty | Institution filter for author search |
 | `PAPER_IMPORT_OA_ONLY` | `false` | Import only OA works |
-| `PAPER_SYNC_LOCK_PATH` | `outputs/.paper-sync.lock` | Advisory lock path |
+| `PAPER_SYNC_LOCK_PATH` | `/var/run/paper-sync/sync.lock` | Advisory lock path |
 | `PDF_MAX_BYTES` | `10485760` | Max PDF download size |
 
 Graph tuning variables are unchanged: `GRAPH_SIMILARITY_THRESHOLD`,

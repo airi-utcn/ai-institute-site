@@ -4,9 +4,10 @@ The sync pipeline performs read-modify-write cycles across Strapi and must not
 run twice at the same time: two overlapping runs otherwise race on publication
 creation and every loser gets a 400 unique-constraint response.
 
-The lock lives in the mounted ``outputs`` directory so it is shared by cron and
-manual ``docker compose run`` invocations, and by a host-side ``python main.py``
-when those all point at the same checkout.
+The lock lives in a small runtime directory (by default
+``/var/run/paper-sync/sync.lock``) so it is shared by cron and manual
+``docker compose run`` invocations. Override it with
+``PAPER_SYNC_LOCK_PATH`` when running outside the container.
 """
 
 import fcntl

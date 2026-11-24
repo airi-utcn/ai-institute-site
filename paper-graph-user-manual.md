@@ -73,6 +73,48 @@ Important:
 - `graphEligible` is not the same as `sourceKind`.
 - A publication can be manual and still graph-eligible.
 - A publication can be graph-ineligible even if it is otherwise valid content.
+- The importer no longer republishes an existing automated record. If you
+  unpublish a paper, it stays unpublished until an editor republishes it.
+
+### Graph Exclusion
+
+Location: `Graph Exclusion`
+
+Default: no exclusion
+
+What it does:
+
+- Keeps a paper out of the importer even after the publication record is
+  deleted.
+- `GraphExclusion` matches on exact OpenAlex ID, DOI, or normalized title.
+- `scope=graphOnly` removes the paper from graph rebuilds but keeps its
+  publication page.
+- `scope=hideEverywhere` also unpublishes it, so it disappears from the public
+  publication listing, detail page, author pages, project pages, and graph
+  search.
+- `isActive` lets you pause an exclusion without deleting the note.
+
+Use this for:
+
+- placeholder records such as `Table of contents` or other papers with no real
+  content;
+- papers that must never be reimported;
+- papers that should be buried from the site entirely.
+
+Practical rule:
+
+- To hide an existing paper from the graph but keep its page, toggle
+  `graphEligible` off.
+- To remove a paper from the site and prevent the weekly import from bringing it
+  back, create a `GraphExclusion` with `scope=hideEverywhere` and then delete or
+  unpublish the publication.
+
+Important:
+
+- Exclusion matching is exact. Do not rely on partial titles or fuzzy names.
+- If a paper has no DOI or OpenAlex ID, use its exact stored title.
+- `hideEverywhere` unpublishes rather than hard-deletes, so editors can review
+  the draft later.
 
 ## 2. Ownership: Manual vs Automated
 
@@ -156,6 +198,14 @@ Pipeline rule:
 
 - For non-manual publications, these relations are regenerated on each global graph rebuild.
 - For manual publications, the pipeline is intended to leave editorial ownership alone.
+
+Reading the graph:
+
+- A meso node shows `primary / tagged` counts. `primary` is the paper's main
+  meso and forms a clean partition of the macro; `tagged` includes papers whose
+  secondary topics also match.
+- The meso detail page opens the primary set by default. Use the
+  `ALL TAGGED` toggle to see the wider membership.
 
 ## 4. Macro Taxonomy: `GraphMacro`
 

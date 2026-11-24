@@ -1,6 +1,4 @@
-import json
 import logging
-import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -75,7 +73,7 @@ def build_graph_artifacts(
     top_k=0,
     logger=None,
 ):
-    """Generate graph links and community artifacts, persisting local outputs."""
+    """Generate graph links and community artifacts for the current run."""
     log = logger or logging.getLogger("paper-sync")
     paper_metadata = {}
     for paper in papers:
@@ -107,8 +105,6 @@ def build_graph_artifacts(
     communities = {}
     community_labels = {}
     secondary_clusters = {}
-    output_dir = "outputs"
-    os.makedirs(output_dir, exist_ok=True)
 
     if len(filtered_papers) > 2:
         clean_links = [link for link in all_links if not link["is_duplicate"]]
@@ -126,20 +122,6 @@ def build_graph_artifacts(
         log.info("Building topic hierarchy...")
         topic_hierarchy = gg.build_topic_hierarchy(filtered_papers, model_name)
         paper_topic_superclusters = gg.build_paper_topic_superclusters(filtered_papers, topic_hierarchy)
-        
-        # Save topic hierarchy to JSON
-        topic_path = os.path.join(output_dir, f"topic_hierarchy_{label}.json")
-        # Convert numpy array to list for JSON serialization
-        serializable_hierarchy = {
-            "topics": topic_hierarchy.get("topics", []),
-            "topic_to_cluster": topic_hierarchy.get("topic_to_cluster", {}),
-            "cluster_to_topics": topic_hierarchy.get("cluster_to_topics", {}),
-            "cluster_labels": topic_hierarchy.get("cluster_labels", {}),
-            "paper_superclusters": paper_topic_superclusters,
-        }
-        with open(topic_path, "w", encoding="utf-8") as handle:
-            json.dump(serializable_hierarchy, handle, indent=2)
-        log.info(f"Saved topic hierarchy to {topic_path}")
 
     quality_metrics = gg.compute_graph_quality_metrics(
         filtered_papers,
@@ -150,10 +132,6 @@ def build_graph_artifacts(
         all_links=all_links,
         duplicate_ids=duplicate_ids,
     )
-    quality_path = os.path.join(output_dir, f"quality_{label}.json")
-    with open(quality_path, "w", encoding="utf-8") as handle:
-        json.dump(quality_metrics, handle, indent=2)
-    log.info(f"Saved quality metrics to {quality_path}")
     _log_quality_metrics_summary(log, label, quality_metrics)
 
     return GraphArtifacts(

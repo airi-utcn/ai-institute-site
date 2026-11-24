@@ -127,6 +127,10 @@ def run(args):
     model_name = SETTINGS.graph_ai_model
 
     strapi = create_client(SETTINGS)
+    strapi.load_graph_exclusions()
+    if not args.dry_run:
+        strapi.load_existing_publications()
+        strapi.apply_graph_exclusions()
 
     if args.graph_only:
         papers = []
@@ -170,7 +174,7 @@ def run(args):
     log.info(f"Global rebuild: {len(global_papers)} eligible publications, {len(links_to_upload)} links")
 
     if args.dry_run:
-        log.info("Dry run complete: no Strapi writes (outputs/ was updated)")
+        log.info("Dry run complete: no Strapi writes")
         return stats
 
     # Macro assignment runs before link upload so the cross-cluster flag can be
@@ -218,40 +222,26 @@ def run(args):
     )
 
     log.info(
-        "Done. %s created, %s updated, %s skipped, %s manual, %s failed.",
+        "Done. %s created, %s updated, %s skipped, %s manual, %s excluded, %s failed.",
         stats.get("created", 0),
         stats.get("updated", 0),
         stats.get("skipped", 0),
         stats.get("protected_manual", 0),
+        stats.get("excluded", 0),
         stats.get("failed", 0),
     )
 
-    from .run_context import get_run_id
-
-    report = {
-        "runId": get_run_id(),
-        "label": label,
-        "fetched": len(papers),
-        "publications": stats,
-        "graph": {
-            "eligible": len(global_papers),
-            "embedded": len(global_graph.filtered_papers),
-            "links": len(links_to_upload),
-            "duplicates": len(global_graph.duplicate_ids),
-            "communities": len(global_graph.communities),
-        },
-    }
-    try:
-        import json
-        import os
-
-        os.makedirs("outputs", exist_ok=True)
-        path = os.path.join("outputs", f"sync_report_{report['runId']}.json")
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=2, sort_keys=True)
-        log.info("Run report written to %s", path)
-    except Exception as exc:  # pragma: no cover - report is best effort
-        log.warning("Could not write run report: %s", exc)
+    failures = stats.get("failures") or []
+    if failures:
+        log.warning("Publication failures: %s", len(failures))
+        for failure in failures[:50]:
+            log.warning(
+                "  [%s] %s (%s): %s",
+                failure.get("stage"),
+                failure.get("title"),
+                failure.get("documentId"),
+                failure.get("error"),
+            )
     return stats
 
 

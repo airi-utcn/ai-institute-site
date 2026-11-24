@@ -1,4 +1,3 @@
 venv/
-outputs/
 __pycache__/
 graph_links.json

@@ -91,6 +91,11 @@ def build_parser():
         help="Fetch and evaluate the graph but do not write publications, links, macros, or mesos",
     )
     p.add_argument(
+        "--graph-only",
+        action="store_true",
+        help="Rebuild links/macros/mesos from the current Strapi corpus without importing or fetching PDFs",
+    )
+    p.add_argument(
         "--wait-for-lock",
         action="store_true",
         help="Wait for a running sync to finish instead of exiting immediately",
@@ -121,27 +126,34 @@ def run(args):
     dup_thresh = SETTINGS.graph_duplicate_threshold
     model_name = SETTINGS.graph_ai_model
 
-    papers, label = fetch_papers(
-        institution=args.institution,
-        person=args.person,
-        settings=SETTINGS,
-        logger=log,
-        limit=args.limit,
-        dry_run=args.dry_run,
-    )
-    log.info(f"Fetched {len(papers)} papers ({label})")
-
     strapi = create_client(SETTINGS)
-    if args.dry_run:
-        stats = {"dryRun": True}
-        log.info("Dry run: skipping publication import")
+
+    if args.graph_only:
+        papers = []
+        label = "graph_only"
+        stats = {"graphOnly": True}
+        log.info("Graph-only rebuild: skipping author import and PDFs")
     else:
-        _pub_map, stats = upload_publications(
-            strapi,
-            papers,
+        papers, label = fetch_papers(
+            institution=args.institution,
+            person=args.person,
+            settings=SETTINGS,
             logger=log,
-            skip_pdf=args.skip_pdf,
+            limit=args.limit,
+            dry_run=args.dry_run,
         )
+        log.info(f"Fetched {len(papers)} papers ({label})")
+
+        if args.dry_run:
+            stats = {"dryRun": True}
+            log.info("Dry run: skipping publication import")
+        else:
+            _pub_map, stats = upload_publications(
+                strapi,
+                papers,
+                logger=log,
+                skip_pdf=args.skip_pdf,
+            )
 
     global_papers, global_pub_map = strapi.load_graph_eligible_publications()
     global_graph = build_graph_artifacts(

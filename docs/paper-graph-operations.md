@@ -34,6 +34,9 @@ python main.py --skip-pdf
 # Fetch + evaluate the graph, do not write anything to Strapi
 python main.py --dry-run --skip-pdf
 
+# Rebuild links/macros/mesos from the current corpus (no import, no PDFs)
+python main.py --graph-only
+
 # Read-only health report
 python main.py --doctor
 python main.py --doctor --doctor-json

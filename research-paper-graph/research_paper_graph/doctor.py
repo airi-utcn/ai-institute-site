@@ -322,7 +322,7 @@ def run_doctor(settings, json_output=False):
     print("==================")
     print(f"Graph eligible:            {s['graphEligible']}")
     print(f"Embedded/linkable:         {s['embedded']}")
-    print(f"No abstract (unindexed):   {s['noAbstract']}")
+    print(f"No abstract (title+topic): {s['noAbstract']}")
     print(f"No PDF:                    {s['noPdf']}")
     print(f"Graph links:               {s['links']}")
     print(f"Isolated graph papers:     {s['isolated']}")

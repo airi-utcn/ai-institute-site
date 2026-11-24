@@ -42,6 +42,7 @@ python main.py --institution "Technical University of Cluj-Napoca"
 python main.py --person "Adrian Groza"
 python main.py --skip-pdf
 python main.py --dry-run --skip-pdf
+python main.py --graph-only
 python main.py --doctor
 ```
 

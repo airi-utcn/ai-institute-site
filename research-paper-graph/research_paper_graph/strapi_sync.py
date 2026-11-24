@@ -75,6 +75,7 @@ def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
         "skipped": 0,
         "failed": 0,
         "protected_manual": 0,
+        "excluded": 0,
         "conflict_resolved": 0,
         "pdf_attempted": 0,
         "pdf_resolved": 0,
@@ -88,6 +89,20 @@ def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
     for paper in papers_to_upload:
         oa_id = paper.get("openAlexId")
         paper_label = paper.get("title", "?")
+        exclusion = strapi.match_graph_exclusion(
+            openalex_id=oa_id,
+            doi=paper.get("doi"),
+            title=paper_label,
+        )
+        if exclusion:
+            stats["excluded"] += 1
+            log.info(
+                "  Excluded (%s): %s",
+                exclusion["scope"],
+                paper_label[:60],
+            )
+            continue
+
         matched_author_ids = strapi.match_authors(
             paper.get("authors", []),
             paper.get("authorIds", []),
@@ -116,11 +131,11 @@ def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
                 continue
 
             # Ensure imported automated records are routeable by slug pages.
+            # Do not republish an existing record: an editorial unpublish must
+            # remain durable across syncs.
             ensure_payload = {}
             if not strapi.get_publication_slug(existing_id):
                 ensure_payload["slug"] = strapi.build_publication_slug(paper)
-            if not strapi.is_publication_published(existing_id):
-                ensure_payload["publishedAt"] = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
             if ensure_payload and not strapi.update_publication(existing_id, ensure_payload):
                 stats["failed"] += 1
                 failures.append(
@@ -210,11 +225,12 @@ def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
 
     stats["failures"] = failures
     log.info(
-        "Publications: %s created, %s updated, %s skipped, %s manual protected, %s failed, %s conflicts resolved",
+        "Publications: %s created, %s updated, %s skipped, %s manual protected, %s excluded, %s failed, %s conflicts resolved",
         stats["created"],
         stats["updated"],
         stats["skipped"],
         stats["protected_manual"],
+        stats["excluded"],
         stats["failed"],
         stats["conflict_resolved"],
     )

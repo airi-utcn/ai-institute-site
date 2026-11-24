@@ -2276,6 +2276,43 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiGraphExclusionGraphExclusion
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'graph_exclusions';
+  info: {
+    displayName: 'Graph Exclusion';
+    pluralName: 'graph-exclusions';
+    singularName: 'graph-exclusion';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    doi: Schema.Attribute.String;
+    isActive: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::graph-exclusion.graph-exclusion'
+    > &
+      Schema.Attribute.Private;
+    openAlexId: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    reason: Schema.Attribute.Text;
+    scope: Schema.Attribute.Enumeration<['graphOnly', 'hideEverywhere']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'graphOnly'>;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGraphLinkGraphLink extends Struct.CollectionTypeSchema {
   collectionName: 'graph_links';
   info: {
@@ -6437,6 +6474,7 @@ declare module '@strapi/strapi' {
       'api::event.event': ApiEventEvent;
       'api::events-page.events-page': ApiEventsPageEventsPage;
       'api::global.global': ApiGlobalGlobal;
+      'api::graph-exclusion.graph-exclusion': ApiGraphExclusionGraphExclusion;
       'api::graph-link.graph-link': ApiGraphLinkGraphLink;
       'api::graph-macro.graph-macro': ApiGraphMacroGraphMacro;
       'api::graph-meso.graph-meso': ApiGraphMesoGraphMeso;

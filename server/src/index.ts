@@ -2,6 +2,7 @@
 import { registerReservationWorkflow } from "./api/reservation/document-middleware";
 import { registerPublicationAuthorSync } from "./api/publication/document-middleware";
 import { registerDoiLookupRoute } from "./api/publication/doi-route";
+import { registerGraphPublicationRoutes } from "./api/publication/graph-route";
 import { registerDraftAccessGuard } from "./utils/draft-access";
 import { generateSlug, registerSlugMiddleware } from "./utils/slug";
 
@@ -94,6 +95,7 @@ export default {
    */
   async bootstrap({ strapi }: any) {
     registerDoiLookupRoute(strapi);
+    registerGraphPublicationRoutes(strapi);
     // 1. Set public permissions for read-only access to all content types
     const publicRole = await strapi
       .query("plugin::users-permissions.role")

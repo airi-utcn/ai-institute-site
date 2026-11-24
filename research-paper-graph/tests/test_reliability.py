@@ -5,7 +5,7 @@ import unittest
 from research_paper_graph.graph import _paper_text, _same_work, cap_links_top_k
 from research_paper_graph.sources import _dedupe_papers
 from research_paper_graph.strapi import StrapiClient
-from research_paper_graph.utils import normalize_person_name, normalize_title
+from research_paper_graph.utils import normalize_doi, normalize_openalex_id, normalize_person_name, normalize_title
 
 
 class SameWorkTests(unittest.TestCase):
@@ -104,6 +104,111 @@ class AuthorMatchingTests(unittest.TestCase):
 
     def test_does_not_match_unrelated_name(self):
         self.assertEqual(self.client.match_authors(["Someone Else"]), [])
+
+
+class ExclusionTests(unittest.TestCase):
+    def setUp(self):
+        self.client = StrapiClient("http://example.invalid", "token")
+        self.client._graph_exclusions = [
+            {
+                "documentId": "id",
+                "label": "by id",
+                "openAlexId": normalize_openalex_id("https://openalex.org/W1"),
+                "doi": "",
+                "title": "",
+                "scope": "graphOnly",
+            },
+            {
+                "documentId": "doi",
+                "label": "by doi",
+                "openAlexId": "",
+                "doi": normalize_doi("10.1/ABC"),
+                "title": "",
+                "scope": "hideEverywhere",
+            },
+            {
+                "documentId": "title",
+                "label": "by title",
+                "openAlexId": "",
+                "doi": "",
+                "title": normalize_title("Table of Contents"),
+                "scope": "hideEverywhere",
+            },
+        ]
+
+    def test_matches_openalex_id(self):
+        match = self.client.match_graph_exclusion(
+            openalex_id="https://openalex.org/W1/"
+        )
+        self.assertEqual(match["documentId"], "id")
+
+    def test_matches_doi(self):
+        match = self.client.match_graph_exclusion(doi="https://doi.org/10.1/abc")
+        self.assertEqual(match["documentId"], "doi")
+
+    def test_matches_exact_normalized_title(self):
+        match = self.client.match_graph_exclusion(title="Table  of Contents")
+        self.assertEqual(match["documentId"], "title")
+
+    def test_does_not_fuzzy_match_titles(self):
+        self.assertIsNone(
+            self.client.match_graph_exclusion(title="Table of Contents and Index")
+        )
+
+    def test_hide_everywhere_unpublishes_and_removes_from_graph(self):
+        self.client._graph_exclusions = [self.client._graph_exclusions[2]]
+        self.client._pub_records = {
+            "doc1": {
+                "openAlexId": "",
+                "doi": "",
+                "title": normalize_title("Table of Contents"),
+            }
+        }
+        self.client._pub_graph_eligible = {"doc1": True}
+        self.client._pub_published = {"doc1": True}
+        calls = []
+        unpublished = []
+
+        def fake_update(document_id, payload):
+            calls.append((document_id, payload))
+            return True
+
+        def fake_unpublish(document_id):
+            unpublished.append(document_id)
+            return True
+
+        self.client.update_publication = fake_update
+        self.client.unpublish_publication = fake_unpublish
+        stats = self.client.apply_graph_exclusions()
+
+        self.assertEqual(stats["matched"], 1)
+        self.assertEqual(stats["unpublished"], 1)
+        self.assertEqual(unpublished, ["doc1"])
+        self.assertEqual(calls, [("doc1", {"graphEligible": False})])
+
+    def test_graph_only_keeps_publication_visible(self):
+        self.client._graph_exclusions = [self.client._graph_exclusions[0]]
+        self.client._pub_records = {
+            "doc1": {
+                "openAlexId": normalize_openalex_id("https://openalex.org/W1"),
+                "doi": "",
+                "title": "",
+            }
+        }
+        self.client._pub_graph_eligible = {"doc1": True}
+        self.client._pub_published = {"doc1": True}
+        calls = []
+
+        def fake_update(document_id, payload):
+            calls.append((document_id, payload))
+            return True
+
+        self.client.update_publication = fake_update
+        stats = self.client.apply_graph_exclusions()
+
+        self.assertEqual(stats["graph_updated"], 1)
+        self.assertEqual(stats["unpublished"], 0)
+        self.assertEqual(calls, [("doc1", {"graphEligible": False})])
 
 
 class DedupeTests(unittest.TestCase):

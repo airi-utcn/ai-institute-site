@@ -156,7 +156,10 @@ class StrapiClient:
         self._pub_source_kind = {}
         self._pub_slug = {}
         self._pub_published = {}
+        self._pub_graph_eligible = {}
         self._pub_has_pdf = {}
+        self._pub_records = {}
+        self._graph_exclusions = []
         self._person_by_name = {}
         self._person_by_oaid = {}
         self.last_error = None
@@ -422,6 +425,7 @@ class StrapiClient:
                 "fields[4]": "sourceKind",
                 "fields[5]": "slug",
                 "fields[6]": "publishedAt",
+                "fields[7]": "graphEligible",
                 "populate[pdfFile][fields][0]": "id",
             },
         )
@@ -431,10 +435,16 @@ class StrapiClient:
             self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
             self._pub_slug[document_id] = attributes.get("slug") or ""
             self._pub_published[document_id] = bool(attributes.get("publishedAt"))
+            self._pub_graph_eligible[document_id] = bool(attributes.get("graphEligible"))
             self._pub_has_pdf[document_id] = bool(self._extract_relation_items(attributes.get("pdfFile")))
             normalized_oaid = normalize_openalex_id(attributes.get("openAlexId"))
             normalized_doi = normalize_doi(attributes.get("doi"))
             normalized_title = normalize_title(attributes.get("title"))
+            self._pub_records[document_id] = {
+                "openAlexId": normalized_oaid,
+                "doi": normalized_doi,
+                "title": normalized_title,
+            }
             if normalized_oaid:
                 self._pub_by_oaid[normalized_oaid] = document_id
             if normalized_doi:
@@ -446,6 +456,121 @@ class StrapiClient:
             len(self._pub_by_oaid),
             len(self._pub_title_duplicates),
         )
+
+    def load_graph_exclusions(self):
+        """Load active GraphExclusion records, tolerating a not-yet-migrated Strapi."""
+        try:
+            rows = self._fetch_all_pages(
+                "graph-exclusions",
+                {
+                    "filters[isActive][$eq]": "true",
+                    "fields[0]": "documentId",
+                    "fields[1]": "label",
+                    "fields[2]": "openAlexId",
+                    "fields[3]": "doi",
+                    "fields[4]": "title",
+                    "fields[5]": "scope",
+                    "fields[6]": "isActive",
+                },
+            )
+        except Exception as exc:  # pragma: no cover - depends on deployment state
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status == 404:
+                log.warning(
+                    "GraphExclusion content type is not deployed yet; continuing without exclusions"
+                )
+            else:
+                log.warning("Could not load graph exclusions: %s", exc)
+            self._graph_exclusions = []
+            return []
+
+        exclusions = []
+        for row in rows:
+            attributes = row.get("attributes", row)
+            if attributes.get("isActive") is False:
+                continue
+            exclusion = {
+                "documentId": row.get("documentId") or row.get("id"),
+                "label": attributes.get("label") or "",
+                "openAlexId": normalize_openalex_id(attributes.get("openAlexId")),
+                "doi": normalize_doi(attributes.get("doi")),
+                "title": normalize_title(attributes.get("title")),
+                "scope": "hideEverywhere"
+                if attributes.get("scope") == "hideEverywhere"
+                else "graphOnly",
+            }
+            if not (exclusion["openAlexId"] or exclusion["doi"] or exclusion["title"]):
+                log.warning(
+                    "Graph exclusion %r has no OpenAlex ID, DOI, or title; ignoring",
+                    exclusion["label"] or exclusion["documentId"],
+                )
+                continue
+            exclusions.append(exclusion)
+
+        self._graph_exclusions = exclusions
+        log.info("Loaded %s active graph exclusion(s)", len(exclusions))
+        return exclusions
+
+    def match_graph_exclusion(self, *, openalex_id=None, doi=None, title=None):
+        """Return the first active exclusion matching a publication's identity keys."""
+        normalized_oaid = normalize_openalex_id(openalex_id)
+        normalized_doi = normalize_doi(doi)
+        normalized_title = normalize_title(title)
+
+        for exclusion in self._graph_exclusions:
+            if exclusion["openAlexId"] and normalized_oaid == exclusion["openAlexId"]:
+                return exclusion
+            if exclusion["doi"] and normalized_doi == exclusion["doi"]:
+                return exclusion
+            if exclusion["title"] and normalized_title == exclusion["title"]:
+                return exclusion
+        return None
+
+    def apply_graph_exclusions(self):
+        """Apply exclusions to existing publications before fetching or rebuilding."""
+        stats = {"matched": 0, "graph_updated": 0, "unpublished": 0, "failed": 0}
+        if not self._graph_exclusions:
+            return stats
+
+        if not self._pub_records:
+            self.load_existing_publications()
+
+        matched = {}
+        for exclusion in self._graph_exclusions:
+            for document_id, record in self._pub_records.items():
+                if exclusion["openAlexId"] and record.get("openAlexId") == exclusion["openAlexId"]:
+                    matched.setdefault(document_id, exclusion)
+                elif exclusion["doi"] and record.get("doi") == exclusion["doi"]:
+                    matched.setdefault(document_id, exclusion)
+                elif exclusion["title"] and record.get("title") == exclusion["title"]:
+                    matched.setdefault(document_id, exclusion)
+
+        for document_id, exclusion in matched.items():
+            stats["matched"] += 1
+            if (
+                exclusion["scope"] == "hideEverywhere"
+                and self._pub_published.get(document_id)
+            ):
+                if self.unpublish_publication(document_id):
+                    stats["unpublished"] += 1
+                else:
+                    stats["failed"] += 1
+
+            if self._pub_graph_eligible.get(document_id):
+                if self.update_publication(document_id, {"graphEligible": False}):
+                    stats["graph_updated"] += 1
+                    self._pub_graph_eligible[document_id] = False
+                else:
+                    stats["failed"] += 1
+
+        log.info(
+            "Graph exclusions: %s matched, %s removed from graph, %s unpublished, %s failed",
+            stats["matched"],
+            stats["graph_updated"],
+            stats["unpublished"],
+            stats["failed"],
+        )
+        return stats
 
     def load_graph_eligible_publications(self):
         """Load all graph-eligible publications in a graph-builder friendly shape."""
@@ -478,6 +603,13 @@ class StrapiClient:
         for publication in publications:
             attributes = publication.get("attributes", publication)
             document_id = publication.get("documentId") or publication.get("id")
+            if self.match_graph_exclusion(
+                openalex_id=attributes.get("openAlexId"),
+                doi=attributes.get("doi"),
+                title=attributes.get("title"),
+            ):
+                log.debug("  Skipping excluded publication: %s", attributes.get("title"))
+                continue
             graph_id = attributes.get("openAlexId") or f"publication:{document_id}"
 
             authors = []
@@ -1071,6 +1203,26 @@ class StrapiClient:
             "error": self.last_error,
         }
 
+    def unpublish_publication(self, document_id):
+        """Unpublish a document through the custom content API route."""
+        response = self._request(
+            "POST",
+            f"{self.api_url}/publications/{document_id}/unpublish",
+            headers=self.headers,
+            json={},
+        )
+        if not response.ok:
+            self.last_error = self._response_error(response)
+            log.error(
+                "Failed to unpublish publication %s: %s %s",
+                document_id,
+                response.status_code,
+                response.text[:1000],
+            )
+            return False
+        self._pub_published[document_id] = False
+        return True
+
     def update_publication(self, document_id, update_data):
         """Partial update of an existing publication.
 
@@ -1109,6 +1261,8 @@ class StrapiClient:
                     self._pub_slug[document_id] = payload.get("slug") or ""
                 if "publishedAt" in payload:
                     self._pub_published[document_id] = bool(payload.get("publishedAt"))
+                if "graphEligible" in payload:
+                    self._pub_graph_eligible[document_id] = bool(payload.get("graphEligible"))
                 if "pdfFile" in payload:
                     self._pub_has_pdf[document_id] = bool(payload.get("pdfFile"))
                 return True

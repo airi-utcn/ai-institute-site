@@ -87,7 +87,48 @@ def _collect(strapi, settings):
             "populate[publicationsPrimary][fields][0]": "documentId",
         },
     )
-    return publications, people, links, mesos
+    exclusion_error = None
+    try:
+        exclusions = strapi._fetch_all_pages(
+            "graph-exclusions",
+            {
+                "fields[0]": "label",
+                "fields[1]": "openAlexId",
+                "fields[2]": "doi",
+                "fields[3]": "title",
+                "fields[4]": "scope",
+                "fields[5]": "isActive",
+            },
+        )
+    except Exception as exc:  # pragma: no cover - depends on deployment state
+        exclusions = []
+        exclusion_error = str(exc)
+
+    try:
+        draft_publications = strapi._fetch_all_pages(
+            "publications",
+            {
+                "status": "draft",
+                "fields[0]": "title",
+                "fields[1]": "openAlexId",
+                "fields[2]": "doi",
+                "fields[3]": "documentId",
+                "fields[4]": "publishedAt",
+                "fields[5]": "graphEligible",
+            },
+        )
+    except Exception:
+        draft_publications = []
+
+    return (
+        publications,
+        people,
+        links,
+        mesos,
+        exclusions,
+        exclusion_error,
+        draft_publications,
+    )
 
 
 def _publication_metrics(publications):
@@ -250,6 +291,82 @@ def _meso_metrics(mesos):
     }
 
 
+def _exclusion_metrics(publications, exclusions, error=None, draft_publications=None):
+    combined = {}
+    for publication in publications:
+        attributes = _as_attributes(publication)
+        document_id = publication.get("documentId") or publication.get("id")
+        if document_id:
+            combined[document_id] = attributes
+    for publication in draft_publications or []:
+        attributes = _as_attributes(publication)
+        document_id = publication.get("documentId") or publication.get("id")
+        if document_id and document_id not in combined:
+            combined[document_id] = attributes
+
+    active = 0
+    misconfigured = 0
+    no_match = 0
+    multiple_matches = 0
+    still_graph_eligible = 0
+    hidden_still_published = 0
+    samples = []
+
+    for entry in exclusions:
+        attrs = _as_attributes(entry)
+        if attrs.get("isActive") is False:
+            continue
+        active += 1
+
+        openalex_id = normalize_openalex_id(attrs.get("openAlexId"))
+        doi = normalize_doi(attrs.get("doi"))
+        title = normalize_title(attrs.get("title"))
+        if not (openalex_id or doi or title):
+            misconfigured += 1
+            continue
+
+        matches = []
+        for pub_attrs in combined.values():
+            if (
+                (openalex_id and normalize_openalex_id(pub_attrs.get("openAlexId")) == openalex_id)
+                or (doi and normalize_doi(pub_attrs.get("doi")) == doi)
+                or (title and normalize_title(pub_attrs.get("title")) == title)
+            ):
+                matches.append(pub_attrs)
+
+        if not matches:
+            no_match += 1
+        if len(matches) > 1:
+            multiple_matches += 1
+
+        scope = "hideEverywhere" if attrs.get("scope") == "hideEverywhere" else "graphOnly"
+        for pub_attrs in matches:
+            if pub_attrs.get("graphEligible"):
+                still_graph_eligible += 1
+            if scope == "hideEverywhere" and pub_attrs.get("publishedAt") is not None:
+                hidden_still_published += 1
+
+        samples.append(
+            {
+                "label": attrs.get("label") or "",
+                "scope": scope,
+                "matches": len(matches),
+            }
+        )
+
+    return {
+        "error": error,
+        "total": len(exclusions),
+        "active": active,
+        "misconfigured": misconfigured,
+        "noMatches": no_match,
+        "multipleMatches": multiple_matches,
+        "stillGraphEligible": still_graph_eligible,
+        "hiddenStillPublished": hidden_still_published,
+        "samples": samples[:10],
+    }
+
+
 def _orphan_media(strapi, publications, recent=200):
     """Find recently uploaded PDFs that are not attached to a publication."""
     attached = set()
@@ -288,14 +405,26 @@ def _orphan_media(strapi, publications, recent=200):
 
 def build_report(settings):
     strapi = create_client(settings)
-    publications, people, links, mesos = _collect(strapi, settings)
+    (
+        publications,
+        people,
+        links,
+        mesos,
+        exclusions,
+        exclusion_error,
+        draft_publications,
+    ) = _collect(strapi, settings)
     pub_metrics, graph_publications = _publication_metrics(publications)
+    exclusion_metrics = _exclusion_metrics(
+        publications, exclusions, exclusion_error, draft_publications
+    )
     report = {
         "publications": pub_metrics,
         "duplicates": _duplicate_metrics(publications),
         "people": _people_metrics(people),
         "links": _link_metrics(links, graph_publications),
         "mesos": _meso_metrics(mesos),
+        "exclusions": exclusion_metrics,
         "media": _orphan_media(strapi, publications),
     }
     report["summary"] = {
@@ -307,6 +436,7 @@ def build_report(settings):
         "links": report["links"]["links"],
         "importEligiblePeople": report["people"]["importEligible"],
         "peopleWithoutPublications": report["people"]["peopleWithoutPublications"],
+        "activeExclusions": exclusion_metrics["active"],
     }
     return report
 
@@ -328,6 +458,27 @@ def run_doctor(settings, json_output=False):
     print(f"Isolated graph papers:     {s['isolated']}")
     print(f"Importable people:         {s['importEligiblePeople']}")
     print(f"People with no publications:{s['peopleWithoutPublications']:>4}")
+    print(f"Active exclusions:         {s['activeExclusions']}")
+
+    print("\nExclusions")
+    exclusion = report["exclusions"]
+    if exclusion.get("error"):
+        print(f"  error: {exclusion['error']}")
+    for key in (
+        "total",
+        "active",
+        "misconfigured",
+        "noMatches",
+        "multipleMatches",
+        "stillGraphEligible",
+        "hiddenStillPublished",
+    ):
+        print(f"  {key}: {exclusion.get(key)}")
+    for sample in exclusion.get("samples", []):
+        print(
+            f"    {sample['scope']}: {sample['label'][:80]!r} -> "
+            f"{sample['matches']} match(es)"
+        )
 
     print("\nGraph links")
     for key in ("badEndpoints", "isCrossClusterFlagged", "actualMacroCross", "crossFlagMismatch"):

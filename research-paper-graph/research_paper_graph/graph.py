@@ -382,6 +382,31 @@ def _normalize_embeddings(embeddings):
     return embeddings / norms
 
 
+def cap_links_top_k(links, top_k):
+    """Keep a graph whose maximum degree is ``top_k``.
+
+    Sorting edges by score and greedily accepting an edge only when both
+    endpoints still have capacity guarantees the cap for every paper.  A simple
+    per-node top-k union does not: a low-degree neighbour can re-admit an edge
+    that the high-degree endpoint already rejected.
+    """
+    if not top_k or top_k <= 0 or not links:
+        return links
+
+    ordered = sorted(enumerate(links), key=lambda item: item[1].get("score", 0), reverse=True)
+    degree = defaultdict(int)
+    keep = set()
+    for index, link in ordered:
+        source = link["source_paper_id"]
+        target = link["target_paper_id"]
+        if degree[source] >= top_k or degree[target] >= top_k:
+            continue
+        degree[source] += 1
+        degree[target] += 1
+        keep.add(index)
+    return [link for index, link in enumerate(links) if index in keep]
+
+
 def generate_links(
     papers,
     similarity_threshold=0.5,
@@ -448,15 +473,7 @@ def generate_links(
 
     if top_k and top_k > 0 and links:
         before = len(links)
-        incident = defaultdict(list)
-        for index, link in enumerate(links):
-            incident[link["source_paper_id"]].append((link["score"], index))
-            incident[link["target_paper_id"]].append((link["score"], index))
-        keep = set()
-        for entries in incident.values():
-            entries.sort(key=lambda item: item[0], reverse=True)
-            keep.update(index for _, index in entries[:top_k])
-        links = [link for index, link in enumerate(links) if index in keep]
+        links = cap_links_top_k(links, top_k)
         log.info("Top-k link cap (k=%s): kept %s of %s links", top_k, len(links), before)
 
     duplicate_links = sum(1 for link in links if link["is_duplicate"])

@@ -40,6 +40,17 @@ Common examples:
 python main.py
 python main.py --institution "Technical University of Cluj-Napoca"
 python main.py --person "Adrian Groza"
+python main.py --skip-pdf
+python main.py --dry-run --skip-pdf
+python main.py --doctor
+```
+
+## Tests
+
+The reliability helpers have network-free unit tests:
+
+```bash
+python -m unittest discover -s tests
 ```
 
 ## Documentation

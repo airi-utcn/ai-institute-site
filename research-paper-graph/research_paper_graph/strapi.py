@@ -866,14 +866,23 @@ class StrapiClient:
     def match_authors(self, author_names, author_ids=None):
         """Map imported authors to Person ids, preferring OpenAlex author ids."""
         matched = []
+        names = list(author_names or [])
+        ids = list(author_ids or [])
+        paired = list(zip(ids, names))
+        if len(names) > len(ids):
+            paired.extend((None, name) for name in names[len(ids):])
+        paired.extend((raw_id, None) for raw_id in ids[len(names):])
 
-        for raw_id in author_ids or []:
-            author_key = self._openalex_author_key(raw_id)
-            info = self._person_by_oaid.get(author_key)
-            if info:
-                matched.append(info["documentId"])
+        for raw_id, name in paired:
+            if raw_id:
+                author_key = self._openalex_author_key(raw_id)
+                info = self._person_by_oaid.get(author_key)
+                if info:
+                    # An OpenAlex id is authoritative; do not also fuzzy-match
+                    # this author's name to a different person record.
+                    matched.append(info["documentId"])
+                    continue
 
-        for name in author_names or []:
             normalized_name = normalize_person_name(name)
             if not normalized_name:
                 continue

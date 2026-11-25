@@ -573,9 +573,9 @@ export default function PaperGraphClient({
     const invScale = 1 / Math.max(scale, 0.22);
     const maxChars = scale < 0.8 ? 20 : scale < 1.2 ? 32 : 52;
     const maxLabels =
-      scale < 0.78 ? 6 :
-      scale < 1.05 ? 12 :
-      scale < 1.4 ? 22 :
+      scale < 0.78 ? 8 :
+      scale < 1.05 ? 14 :
+      scale < 1.4 ? 24 :
       papers.length;
     const pool = Math.min(papers.length, Math.max(maxLabels, maxLabels * 3));
     const ordered = [...papers].sort(
@@ -611,9 +611,10 @@ export default function PaperGraphClient({
       const r = nodeRadius(paper);
       const near = r + gap;
       const far = near + 30 * invScale;
+      const far2 = far + 55 * invScale;
       const candidates = [];
 
-      [near, far].forEach((distance, ring) => {
+      [near, far, far2].forEach((distance, ring) => {
         const diagonal = distance * 0.72;
         candidates.push(
           { x: pos.x, y: pos.y + distance + height / 2, anchor: "middle", ring },

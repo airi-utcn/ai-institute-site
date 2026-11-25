@@ -73,8 +73,8 @@ Important:
 - `graphEligible` is not the same as `sourceKind`.
 - A publication can be manual and still graph-eligible.
 - A publication can be graph-ineligible even if it is otherwise valid content.
-- The importer no longer republishes an existing automated record. If you
-  unpublish a paper, it stays unpublished until an editor republishes it.
+- The importer updates a draft without republishing it. If you unpublish a
+  paper, it stays unpublished until an editor republishes it.
 
 ### Import scope
 

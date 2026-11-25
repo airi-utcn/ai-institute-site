@@ -440,11 +440,19 @@ class StrapiClient:
         return " ".join(parts).strip()
 
     def load_existing_publications(self):
-        """Pre-fetch all publications for dedup lookups."""
+        """Pre-fetch all publications, including drafts, for dedup lookups.
+
+        Strapi returns only published rows by default. Drafts must participate in
+        dedup too: otherwise an editorial unpublish is invisible to the sync, the
+        importer tries to re-create the work, and the create-conflict path can
+        update (and republish) the draft. ``status=all`` returns one draft-shaped
+        row per document, so a separate published-id query supplies the state.
+        """
         log.info("Loading existing publications from Strapi...")
         publications = self._fetch_all_pages(
             "publications",
             {
+                "status": "all",
                 "fields[0]": "openAlexId",
                 "fields[1]": "title",
                 "fields[2]": "doi",
@@ -458,12 +466,36 @@ class StrapiClient:
                 "populate[pdfFile][fields][0]": "id",
             },
         )
+        published = self._fetch_all_pages(
+            "publications",
+            {
+                "status": "published",
+                "fields[0]": "documentId",
+            },
+        )
+        published_ids = {
+            row.get("documentId") or row.get("id")
+            for row in published
+            if row.get("documentId") or row.get("id")
+        }
+
+        self._pub_by_oaid.clear()
+        self._pub_by_doi.clear()
+        self._pub_by_title.clear()
+        self._pub_title_duplicates.clear()
+        self._pub_source_kind.clear()
+        self._pub_slug.clear()
+        self._pub_published.clear()
+        self._pub_graph_eligible.clear()
+        self._pub_has_pdf.clear()
+        self._pub_records.clear()
+
         for publication in publications:
             attributes = publication.get("attributes", publication)
             document_id = publication.get("documentId") or publication.get("id")
             self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
             self._pub_slug[document_id] = attributes.get("slug") or ""
-            self._pub_published[document_id] = bool(attributes.get("publishedAt"))
+            self._pub_published[document_id] = document_id in published_ids
             self._pub_graph_eligible[document_id] = bool(attributes.get("graphEligible"))
             self._pub_has_pdf[document_id] = bool(self._extract_relation_items(attributes.get("pdfFile")))
             normalized_oaid = normalize_openalex_id(attributes.get("openAlexId"))
@@ -483,8 +515,9 @@ class StrapiClient:
                 self._pub_by_doi[normalized_doi] = document_id
             self._remember_title(normalized_title, document_id)
         log.info(
-            "  Loaded %s publications (%s with openAlexId, %s duplicate titles)",
+            "  Loaded %s publications (%s published, %s with openAlexId, %s duplicate titles)",
             len(publications),
+            len(published_ids),
             len(self._pub_by_oaid),
             len(self._pub_title_duplicates),
         )
@@ -1107,6 +1140,13 @@ class StrapiClient:
                     f"filters[{field}][$eq]": value,
                     "pagination[pageSize]": 5,
                     "fields[0]": "documentId",
+                    "fields[1]": "openAlexId",
+                    "fields[2]": "doi",
+                    "fields[3]": "title",
+                    "fields[4]": "sourceKind",
+                    "fields[5]": "slug",
+                    "fields[6]": "publishedAt",
+                    "fields[7]": "graphEligible",
                 }
                 if status:
                     params["status"] = status
@@ -1120,8 +1160,10 @@ class StrapiClient:
                     continue
                 rows = response.json().get("data") or []
                 for row in rows:
+                    attributes = row.get("attributes", row)
                     document_id = row.get("documentId") or row.get("id")
                     if document_id:
+                        self._remember_remote_publication(document_id, attributes)
                         log.info(
                             "  Found existing publication remotely by %s%s",
                             field,
@@ -1129,6 +1171,22 @@ class StrapiClient:
                         )
                         return document_id
         return None
+
+    def _remember_remote_publication(self, document_id, attributes):
+        """Cache a publication discovered outside the bulk snapshot."""
+        self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
+        self._pub_slug[document_id] = attributes.get("slug") or ""
+        self._pub_published[document_id] = bool(attributes.get("publishedAt"))
+        self._pub_graph_eligible[document_id] = bool(attributes.get("graphEligible"))
+        normalized_oaid = normalize_openalex_id(attributes.get("openAlexId"))
+        normalized_doi = normalize_doi(attributes.get("doi"))
+        normalized_title = normalize_title(attributes.get("title"))
+        if normalized_oaid:
+            self._pub_by_oaid[normalized_oaid] = document_id
+        if normalized_doi:
+            self._pub_by_doi[normalized_doi] = document_id
+        if normalized_title:
+            self._remember_title(normalized_title, document_id)
 
     def match_authors(self, author_names, author_ids=None):
         """Map imported authors to Person ids, preferring OpenAlex author ids."""
@@ -1376,10 +1434,15 @@ class StrapiClient:
 
         last_response = None
         for label, payload in attempts:
+            # A plain REST PUT republishes a draft-and-publish entry. Keep an
+            # editorially unpublished record draft, while published records still
+            # update their public version with the new metadata.
+            params = {"status": "draft"} if self._pub_published.get(document_id) is False else None
             response = self._request(
                 "PUT",
                 f"{self.api_url}/publications/{document_id}",
                 headers=self.headers,
+                params=params,
                 json={"data": payload},
             )
             last_response = response

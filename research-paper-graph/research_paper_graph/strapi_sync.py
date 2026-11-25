@@ -240,6 +240,15 @@ def upload_publications(strapi, papers_to_upload, logger=None, skip_pdf=False):
                 doc_id = remote_id
                 if oa_id:
                     pub_map[oa_id] = doc_id
+                remote_source = strapi.get_publication_source_kind(doc_id)
+                if remote_source != "openAlexAutomated":
+                    stats["protected_manual"] += 1
+                    stats["skipped"] += 1
+                    log.info(
+                        "  Protected curated/manual record discovered after create conflict: %s",
+                        paper_label[:60],
+                    )
+                    continue
                 update_payload = strapi.build_import_update_payload(paper, author_ids=author_ids or None)
                 if strapi.update_publication(doc_id, update_payload):
                     stats["updated"] += 1

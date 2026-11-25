@@ -79,9 +79,10 @@ stay out:
   cached page data should be revalidated by the normal web deployment.
 
 For an existing paper that should keep its page but leave the graph, toggling
-`Publication.graphEligible` off is still the right switch. The importer no
-longer republishes an existing automated record, so an editorial unpublish is
-respected across runs.
+`Publication.graphEligible` off is still the right switch. The importer loads
+draft and published records in its dedup snapshot, and updates an unpublished
+record with `status=draft`, so an editorial unpublish is respected across runs
+instead of being republished by the next metadata refresh.
 
 ## Author identity
 

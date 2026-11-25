@@ -5,7 +5,7 @@ import unittest
 from research_paper_graph.graph import _paper_text, _same_work, cap_links_top_k, label_topic_clusters
 from research_paper_graph.import_scope import is_importable_work, out_of_scope_reason
 from research_paper_graph.sources import _dedupe_papers
-from research_paper_graph.strapi_sync import _macro_scores, replace_graph_links
+from research_paper_graph.strapi_sync import _macro_scores, replace_graph_links, upload_publications
 from research_paper_graph.strapi import StrapiClient
 from research_paper_graph.utils import normalize_doi, normalize_openalex_id, normalize_person_name, normalize_title
 
@@ -353,6 +353,124 @@ class ImportScopeCleanupTests(unittest.TestCase):
         self.assertEqual(second["out_of_scope"], 0)
         self.assertEqual(second["already_clean"], 1)
         self.assertEqual(events, [])
+
+
+class DraftVisibilityTests(unittest.TestCase):
+    class FakeResponse:
+        def __init__(self, payload):
+            self._payload = payload
+            self.ok = True
+            self.status_code = 200
+            self.text = ""
+            self.headers = {}
+
+        def json(self):
+            return self._payload
+
+    def setUp(self):
+        self.client = StrapiClient("http://example.invalid", "token")
+
+    def test_bulk_load_includes_drafts_and_tracks_published_state(self):
+        def fake_fetch(endpoint, params=None):
+            if (params or {}).get("status") == "published":
+                return [{"documentId": "published"}]
+            return [
+                {
+                    "documentId": "published",
+                    "title": "Published paper",
+                    "openAlexId": "https://openalex.org/W1",
+                    "sourceKind": "openAlexAutomated",
+                    "graphEligible": True,
+                },
+                {
+                    "documentId": "draft",
+                    "title": "Editorially hidden paper",
+                    "openAlexId": "https://openalex.org/W2",
+                    "sourceKind": "openAlexAutomated",
+                    "graphEligible": False,
+                },
+            ]
+
+        self.client._fetch_all_pages = fake_fetch
+        self.client.load_existing_publications()
+
+        self.assertTrue(self.client.is_publication_published("published"))
+        self.assertFalse(self.client.is_publication_published("draft"))
+        self.assertEqual(
+            self.client.find_existing_publication(openalex_id="https://openalex.org/W2")[0],
+            "draft",
+        )
+
+    def test_update_keeps_a_draft_unpublished(self):
+        calls = []
+
+        def fake_request(method, url, **kwargs):
+            calls.append((method, url, kwargs))
+            return self.FakeResponse({"data": {"documentId": "draft"}})
+
+        self.client._pub_published = {"draft": False, "published": True}
+        self.client._request = fake_request
+
+        self.assertTrue(self.client.update_publication("draft", {"year": 2024}))
+        self.assertEqual(calls[-1][2]["params"], {"status": "draft"})
+
+        self.assertTrue(self.client.update_publication("published", {"year": 2024}))
+        self.assertIsNone(calls[-1][2]["params"])
+
+    def test_remote_lookup_remembers_a_draft(self):
+        responses = []
+
+        def fake_request(method, url, **kwargs):
+            params = kwargs.get("params") or {}
+            if params.get("status") == "draft":
+                responses.append(
+                    {
+                        "documentId": "draft",
+                        "openAlexId": "https://openalex.org/W2",
+                        "title": "Editorially hidden paper",
+                        "sourceKind": "openAlexAutomated",
+                        "graphEligible": False,
+                    }
+                )
+                return self.FakeResponse({"data": responses})
+            return self.FakeResponse({"data": []})
+
+        self.client._request = fake_request
+        document_id = self.client.find_publication_remote(
+            openalex_id="https://openalex.org/W2"
+        )
+
+        self.assertEqual(document_id, "draft")
+        self.assertFalse(self.client.is_publication_published("draft"))
+        self.assertEqual(self.client.get_publication_source_kind("draft"), "openAlexAutomated")
+
+    def test_create_conflict_does_not_adopt_a_manual_draft(self):
+        self.client.load_existing_publications = lambda: None
+        self.client.load_existing_people = lambda: None
+        self.client.match_graph_exclusion = lambda **kwargs: None
+        self.client.match_authors = lambda names, ids=None: []
+        self.client.find_existing_publication = lambda **kwargs: (None, None)
+        self.client.create_publication = lambda paper, author_ids=None: {
+            "document_id": None,
+            "error": "conflict",
+        }
+        self.client.find_publication_remote = lambda **kwargs: "manual-draft"
+        self.client.get_publication_source_kind = lambda document_id: "manual"
+
+        def fail_update(document_id, payload):
+            raise AssertionError("manual draft must not be updated")
+
+        self.client.update_publication = fail_update
+
+        _pub_map, stats = upload_publications(
+            self.client,
+            [{"title": "A manual draft", "openAlexId": "https://openalex.org/W3"}],
+            skip_pdf=True,
+        )
+
+        self.assertEqual(stats["protected_manual"], 1)
+        self.assertEqual(stats["skipped"], 1)
+        self.assertEqual(stats["conflict_resolved"], 1)
 
 
 class ReplaceGraphLinksTests(unittest.TestCase):

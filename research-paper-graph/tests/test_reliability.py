@@ -367,6 +367,9 @@ class DraftVisibilityTests(unittest.TestCase):
         def json(self):
             return self._payload
 
+        def raise_for_status(self):
+            return None
+
     def setUp(self):
         self.client = StrapiClient("http://example.invalid", "token")
 
@@ -416,6 +419,21 @@ class DraftVisibilityTests(unittest.TestCase):
 
         self.assertTrue(self.client.update_publication("published", {"year": 2024}))
         self.assertIsNone(calls[-1][2]["params"])
+
+    def test_author_merge_reads_the_draft_version(self):
+        calls = []
+
+        def fake_request(method, url, **kwargs):
+            calls.append(kwargs)
+            return self.FakeResponse({"data": {"authors": [{"documentId": "author-1"}]}})
+
+        self.client._pub_published = {"draft": False}
+        self.client._request = fake_request
+
+        authors = self.client.load_publication_author_ids("draft")
+
+        self.assertEqual(authors, ["author-1"])
+        self.assertEqual(calls[-1]["params"]["status"], "draft")
 
     def test_remote_lookup_remembers_a_draft(self):
         responses = []

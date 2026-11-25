@@ -1056,15 +1056,18 @@ class StrapiClient:
     def load_publication_author_ids(self, document_id):
         """Load current author relations for a publication so imports can merge additively."""
         try:
+            params = {
+                "populate[authors][fields][0]": "documentId",
+                "populate[authors][fields][1]": "id",
+                "populate[pdfFile][fields][0]": "id",
+            }
+            if self._pub_published.get(document_id) is False:
+                params["status"] = "draft"
             response = self._request(
                 "GET",
                 f"{self.api_url}/publications/{document_id}",
                 headers=self.headers,
-                params={
-                    "populate[authors][fields][0]": "documentId",
-                    "populate[authors][fields][1]": "id",
-                    "populate[pdfFile][fields][0]": "id",
-                },
+                params=params,
             )
             response.raise_for_status()
             data = response.json().get("data", {})

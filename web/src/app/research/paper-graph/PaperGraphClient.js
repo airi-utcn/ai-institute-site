@@ -381,10 +381,10 @@ function buildPositions(items, links, width, height) {
 
 // ─── Link visual style by score ──────────────────────────────────────────────
 function linkStyle(score, isCross) {
-  if (isCross) return { stroke: "#ffa500", width: 1.0, opacity: 0.34, dash: "6 4" };
+  if (isCross) return { stroke: "#ffa500", width: 1.0, opacity: 0.38, dash: "6 4" };
   if (score >= 0.8) return { stroke: "#ffe066", width: 1.9, opacity: 0.55, dash: "none" };
-  if (score >= 0.65) return { stroke: "#ff8c00", width: 1.2, opacity: 0.38, dash: "none" };
-  return { stroke: "#4d7fff", width: 0.7, opacity: 0.18, dash: "none" };
+  if (score >= 0.65) return { stroke: "#ff8c00", width: 1.2, opacity: 0.44, dash: "none" };
+  return { stroke: "#4d7fff", width: 0.85, opacity: 0.26, dash: "none" };
 }
 
 function drawTextWithHalo(ctx, text, x, y, font, fill, stroke = "rgba(3,7,15,0.95)", lineWidth = 4) {
@@ -1380,17 +1380,10 @@ export default function PaperGraphClient({
               role={isNavigable ? "link" : undefined}
               tabIndex={isNavigable ? 0 : undefined}
               aria-label={isNavigable ? `Open publication: ${paper.title}` : undefined}
-              onMouseEnter={() => {
-                setHovered(paper.id);
-                setHoveredLinkId(null);
-              }}
-              onMouseLeave={() => setHovered(null)}
-              onMouseDown={(e) => onNodeMouseDown(e, paper.id)}
-              onMouseUp={(e) => onNodeMouseUp(e, paper)}
               onKeyDown={(e) => onNodeKeyDown(e, paper)}
             >
               {isHighlighted && (
-                <g className="sonar-beacon">
+                <g className="sonar-beacon" style={{ pointerEvents: "none" }}>
                   {/* Expanding pulsing radar rings */}
                   <circle r={r + 14} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="4 3">
                     <animate attributeName="r" values={`${r + 12};${r + 55}`} dur="1.8s" repeatCount="indefinite" />
@@ -1414,6 +1407,7 @@ export default function PaperGraphClient({
                   r={r * 3.5}
                   fill={isHot ? "url(#ng-hot)" : "url(#ng)"}
                   opacity={isDim ? 0 : isHot ? 0.9 : 0.55}
+                  style={{ pointerEvents: "none" }}
                 />
               )}
               {(isHub || isHot || isNear) && (
@@ -1424,7 +1418,7 @@ export default function PaperGraphClient({
                   strokeWidth={isHot ? 1.5 : 1}
                   strokeDasharray={isHot ? "none" : "5 4"}
                   opacity={isDim ? 0.08 : isHot ? 1 : isNear ? 0.7 : isHub ? 0.45 : 0.3}
-                  style={{ transition: "all 0.2s" }}
+                  style={{ transition: "all 0.2s", pointerEvents: "none" }}
                 />
               )}
               <circle
@@ -1434,13 +1428,27 @@ export default function PaperGraphClient({
                 strokeWidth={isHot ? 2.5 : isHub ? 1.9 : 1.5}
                 opacity={isDim ? 0.15 : 1}
                 filter={isHot ? "url(#glow-hot)" : isNear ? "url(#glow)" : undefined}
-                style={{ transition: "all 0.2s" }}
+                style={{ transition: "all 0.2s", pointerEvents: "none" }}
               />
               <circle
                 r={Math.max(1.8, r * 0.28)}
                 fill={isHot ? "#ffe066" : isNear ? "#ff8c00" : isHub ? "#4a97e0" : "#3b7fc4"}
                 opacity={isDim ? 0.12 : isHot ? 0.95 : isNear ? 0.8 : isHub ? 0.65 : 0.4}
                 style={{ transition: "all 0.2s", pointerEvents: "none" }}
+              />
+              {/* Tight invisible hit target: a few screen pixels of slop so tiny
+                  nodes stay clickable without borrowing a neighbour's area. */}
+              <circle
+                r={r + 2.5 / Math.max(scale, 0.25)}
+                fill="transparent"
+                style={{ pointerEvents: "all" }}
+                onMouseEnter={() => {
+                  setHovered(paper.id);
+                  setHoveredLinkId(null);
+                }}
+                onMouseLeave={() => setHovered(null)}
+                onMouseDown={(e) => onNodeMouseDown(e, paper.id)}
+                onMouseUp={(e) => onNodeMouseUp(e, paper)}
               />
               {leader && (
                 <line

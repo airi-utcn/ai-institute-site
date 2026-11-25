@@ -95,6 +95,32 @@ respected across runs.
 - If a person has no OpenAlex match, fix the name or set the ID manually in
   Strapi. The doctor reports both cases.
 
+## Import scope
+
+The importer only accepts works that look like research publications. The
+default allowlist is `article`, `review`, `conference-paper`, `preprint`,
+`data-paper`, `dissertation`, `book`, `book-chapter`, `reference-entry`,
+`editorial`, `conference-abstract`, `dataset`, `report`, and `other`.
+
+Book chapters, books, reference entries, editorials, conference abstracts,
+datasets, reports, and other non-paper types additionally require an abstract.
+This is what keeps a single puzzle book from producing records such as
+`Love and Marriage`, `Island of Truth`, and `Lady and Tigers`. Front/back
+matter titles (`Contents`, `Preface`, `Index`, `Introduction`, ...) are rejected
+regardless of type.
+
+Automated records already in Strapi are checked on every run. A record that no
+longer passes the scope rules is unpublished and its `graphEligible` flag is
+cleared, so it disappears from the graph, listing, and search without waiting
+for a manual cleanup. Explicit active `GraphExclusion` records take precedence.
+
+Override the defaults with a comma-separated list when needed:
+
+```bash
+PAPER_IMPORT_TYPES=article,conference-paper,preprint
+PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES=book,book-chapter
+```
+
 ## Coverage and OA
 
 `PAPER_IMPORT_OA_ONLY` defaults to `false`: metadata is imported for all works,
@@ -133,6 +159,12 @@ as a missing publication.
 - **Meso counts** show `primary / tagged`. The node size uses the primary
   partition; the detail page opens the primary set by default and has an
   `ALL TAGGED` toggle for the wider membership.
+- **Link replacement** uploads the new edge set before deleting the previous
+  one. Readers therefore never see a populated meso with zero links during a
+  rebuild; the frontend collapses the brief overlap by source/target pair.
+- **Hiding a record** sets `graphEligible=false` before unpublishing it. A REST
+  `PUT` on a draft-and-publish entry republishes it, so the reverse order would
+  silently put the record back on the public site.
 - **Paper-level views** use a link-aware layout and zoom-dependent labels, so
   large mesos stay readable without changing the underlying graph. Hubs stay
   near a dense core while low-degree papers and disconnected islands orbit it
@@ -172,6 +204,8 @@ is needed.
 | `OPENALEX_MAILTO` | empty | Polite-pool contact |
 | `OPENALEX_INSTITUTION_ID` | empty | Institution filter for author search |
 | `PAPER_IMPORT_OA_ONLY` | `false` | Import only OA works |
+| `PAPER_IMPORT_TYPES` | see Import scope | Comma-separated OpenAlex work types to import |
+| `PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES` | see Import scope | Types that must have an abstract |
 | `PAPER_SYNC_LOCK_PATH` | `/var/run/paper-sync/sync.lock` | Advisory lock path |
 | `PDF_MAX_BYTES` | `10485760` | Max PDF download size |
 

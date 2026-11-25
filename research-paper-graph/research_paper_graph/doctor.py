@@ -7,6 +7,7 @@ prints a funnel plus the anomalies that most often explain a bad graph.
 import json
 from collections import Counter, defaultdict
 
+from .import_scope import out_of_scope_reason
 from .strapi_sync import create_client
 from .utils import normalize_doi, normalize_openalex_id, normalize_title
 
@@ -167,6 +168,18 @@ def _publication_metrics(publications):
         ),
         "manualGraphEligible": count(
             lambda a: a.get("sourceKind") == "manual", graph
+        ),
+        "graphEligibleOutOfScope": count(
+            lambda a: a.get("sourceKind") != "manual"
+            and out_of_scope_reason(
+                {
+                    "title": a.get("title"),
+                    "kind": a.get("kind"),
+                    "abstract": a.get("abstract"),
+                }
+            )
+            is not None,
+            graph,
         ),
         "missingKind": count(lambda a: not (a.get("kind") or "").strip(), publications),
     }, graph
@@ -431,6 +444,7 @@ def build_report(settings):
         "graphEligible": pub_metrics["graphEligible"],
         "embedded": pub_metrics["graphEligible"] - pub_metrics["graphEligibleWithoutEmbedding"],
         "noAbstract": pub_metrics["graphEligibleWithoutAbstract"],
+        "outOfScope": pub_metrics["graphEligibleOutOfScope"],
         "noPdf": pub_metrics["graphEligibleWithoutPdf"],
         "isolated": report["links"]["isolatedGraphEligible"],
         "links": report["links"]["links"],
@@ -453,6 +467,7 @@ def run_doctor(settings, json_output=False):
     print(f"Graph eligible:            {s['graphEligible']}")
     print(f"Embedded/linkable:         {s['embedded']}")
     print(f"No abstract (title+topic): {s['noAbstract']}")
+    print(f"Out of import scope:       {s['outOfScope']}")
     print(f"No PDF:                    {s['noPdf']}")
     print(f"Graph links:               {s['links']}")
     print(f"Isolated graph papers:     {s['isolated']}")

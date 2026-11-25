@@ -76,6 +76,20 @@ Important:
 - The importer no longer republishes an existing automated record. If you
   unpublish a paper, it stays unpublished until an editor republishes it.
 
+### Import scope
+
+The importer is deliberately narrower than OpenAlex. It keeps journal articles,
+conference papers, preprints, reviews, dissertations, and data papers even when
+OpenAlex has no abstract. Book chapters, books, editorials, conference
+abstracts, datasets, and similar records must have an abstract, and front/back
+matter titles such as `Contents`, `Preface`, or `Index` are always rejected.
+
+If an automated record is already in Strapi but no longer passes these rules,
+the next sync unpublishes it and removes it from the graph. This is automatic;
+you do not need to create an exclusion for ordinary book front matter. Use a
+`GraphExclusion` only when you need a durable, explicit exception or want to
+keep a record out even though it looks like a normal paper.
+
 ### Graph Exclusion
 
 Location: `Graph Exclusion`

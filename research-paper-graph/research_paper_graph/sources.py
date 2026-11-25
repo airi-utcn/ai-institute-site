@@ -4,8 +4,38 @@ import sys
 log = logging.getLogger(__name__)
 
 from . import openalex as oaf
+from .import_scope import out_of_scope_reason
 from .strapi import StrapiClient
 from .utils import normalize_doi, normalize_openalex_id, normalize_title, slugify
+
+
+def _filter_importable_papers(papers, settings, log):
+    """Drop works that do not belong in a research-publication graph."""
+    allowed_types = getattr(settings, "import_types", None) if settings else None
+    abstract_required_types = (
+        getattr(settings, "import_abstract_required_types", None) if settings else None
+    )
+
+    kept = []
+    reasons = {}
+    for paper in papers:
+        reason = out_of_scope_reason(
+            paper,
+            allowed_types=allowed_types,
+            abstract_required_types=abstract_required_types,
+        )
+        if reason:
+            reasons[reason] = reasons.get(reason, 0) + 1
+            continue
+        kept.append(paper)
+
+    skipped = len(papers) - len(kept)
+    if skipped:
+        detail = ", ".join(
+            f"{reason}={count}" for reason, count in sorted(reasons.items())
+        )
+        log.info("Skipped %s out-of-scope works (%s)", skipped, detail)
+    return kept
 
 
 def fetch_papers(institution=None, person=None, settings=None, logger=None, limit=None, dry_run=False):
@@ -28,6 +58,7 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None, limi
 
         label = institution_name.replace(" ", "_")
         papers = oaf.get_institution_papers(inst_id, oa_only=oa_only)
+        papers = _filter_importable_papers(papers, settings, log)
         papers = _dedupe_papers(papers)
         if limit:
             papers = papers[:limit]
@@ -42,6 +73,7 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None, limi
 
         label = slugify(person_name)
         papers = oaf.get_author_papers(author_id, oa_only=oa_only)
+        papers = _filter_importable_papers(papers, settings, log)
         papers = _dedupe_papers(papers)
         if limit:
             papers = papers[:limit]
@@ -82,6 +114,7 @@ def fetch_papers(institution=None, person=None, settings=None, logger=None, limi
             _merge_seed_paper(papers_by_key, paper, person)
 
     papers = list(papers_by_key.values())
+    papers = _filter_importable_papers(papers, settings, log)
     log.info(f"Collected {len(papers)} unique papers across {total_people} Strapi people")
     if limit:
         papers = papers[:limit]

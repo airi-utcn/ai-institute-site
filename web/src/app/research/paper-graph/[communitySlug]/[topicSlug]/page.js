@@ -58,10 +58,15 @@ export default async function TopicPublicationsPage({ params, searchParams }) {
   const publications = filterPublicationsForMesoTopic(allPublications, selectedTopic, { scope });
   if (publications.length === 0) notFound();
 
-  // Build links scoped to visible publications only
+  // Build links scoped to visible publications only. Passing the whole global
+  // link set to the client made every meso page parse thousands of unrelated
+  // edges and could show zero links if the global fetch was truncated.
   const oaToId = {};
   publications.forEach((p) => { if (p.openAlexId) oaToId[p.openAlexId] = p.id; });
-  const links = transformGraphLinkData(linksRaw, oaToId);
+  const visibleIds = new Set(publications.map((p) => p.id));
+  const links = transformGraphLinkData(linksRaw, oaToId).filter(
+    (link) => visibleIds.has(link.sourceId) && visibleIds.has(link.targetId),
+  );
 
   const topicLabel = selectedTopic.label;
   const macroLabel = macro?.name || macroSlug;

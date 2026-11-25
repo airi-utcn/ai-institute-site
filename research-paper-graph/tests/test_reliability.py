@@ -2,8 +2,10 @@
 
 import unittest
 
-from research_paper_graph.graph import _paper_text, _same_work, cap_links_top_k
+from research_paper_graph.graph import _paper_text, _same_work, cap_links_top_k, label_topic_clusters
+from research_paper_graph.import_scope import is_importable_work, out_of_scope_reason
 from research_paper_graph.sources import _dedupe_papers
+from research_paper_graph.strapi_sync import _macro_scores, replace_graph_links
 from research_paper_graph.strapi import StrapiClient
 from research_paper_graph.utils import normalize_doi, normalize_openalex_id, normalize_person_name, normalize_title
 
@@ -168,12 +170,15 @@ class ExclusionTests(unittest.TestCase):
         self.client._pub_published = {"doc1": True}
         calls = []
         unpublished = []
+        events = []
 
         def fake_update(document_id, payload):
+            events.append("update")
             calls.append((document_id, payload))
             return True
 
         def fake_unpublish(document_id):
+            events.append("unpublish")
             unpublished.append(document_id)
             return True
 
@@ -185,6 +190,7 @@ class ExclusionTests(unittest.TestCase):
         self.assertEqual(stats["unpublished"], 1)
         self.assertEqual(unpublished, ["doc1"])
         self.assertEqual(calls, [("doc1", {"graphEligible": False})])
+        self.assertEqual(events, ["update", "unpublish"])
 
     def test_graph_only_keeps_publication_visible(self):
         self.client._graph_exclusions = [self.client._graph_exclusions[0]]
@@ -209,6 +215,174 @@ class ExclusionTests(unittest.TestCase):
         self.assertEqual(stats["graph_updated"], 1)
         self.assertEqual(stats["unpublished"], 0)
         self.assertEqual(calls, [("doc1", {"graphEligible": False})])
+
+
+class ImportScopeTests(unittest.TestCase):
+    def test_book_chapter_without_abstract_is_rejected(self):
+        paper = {"title": "Love and Marriage", "kind": "book-chapter", "abstract": ""}
+        self.assertFalse(is_importable_work(paper))
+        self.assertIn("without abstract", out_of_scope_reason(paper))
+
+    def test_puzzle_book_chapter_is_rejected_even_with_textual_topics(self):
+        paper = {
+            "title": "Island of Truth",
+            "kind": "book-chapter",
+            "abstract": "",
+            "topics": ["Logic, Reasoning, and Knowledge"],
+        }
+        self.assertFalse(is_importable_work(paper))
+
+    def test_book_chapter_with_abstract_is_allowed(self):
+        paper = {
+            "title": "Multi-agent Reinforcement Learning: An Overview",
+            "kind": "book-chapter",
+            "abstract": "A survey of multi-agent reinforcement learning.",
+        }
+        self.assertTrue(is_importable_work(paper))
+
+    def test_article_without_abstract_is_allowed(self):
+        paper = {"title": "A useful paper", "kind": "article", "abstract": ""}
+        self.assertTrue(is_importable_work(paper))
+
+    def test_front_matter_title_is_rejected(self):
+        self.assertFalse(is_importable_work({"title": "Contents", "kind": None}))
+        self.assertFalse(is_importable_work({"title": "Table of Contents", "kind": "book"}))
+
+    def test_unknown_type_is_rejected(self):
+        paper = {"title": "Peer review report", "kind": "peer-review", "abstract": "text"}
+        self.assertIn("unsupported type", out_of_scope_reason(paper))
+
+
+class MacroScoreTests(unittest.TestCase):
+    def test_keyword_scores_favor_the_matching_macro(self):
+        import numpy as np
+
+        # Macro 0 has one keyword close to the paper; macro 1 has three weak
+        # keywords. The per-keyword top mean must prefer macro 0.
+        keywords = np.array(
+            [
+                [1.0, 0.0],
+                [0.2, 1.0],
+                [0.1, 1.0],
+                [0.0, 1.0],
+            ],
+            dtype=np.float32,
+        )
+        spans = [(0, 1), (1, 4)]
+        paper = np.array([1.0, 0.0], dtype=np.float32)
+        scores = _macro_scores(spans, keywords, paper)
+        self.assertGreater(scores[0], scores[1])
+
+
+class TopicLabelTests(unittest.TestCase):
+    def test_topic_label_uses_paper_weight_not_insertion_order(self):
+        topics = {
+            0: [
+                "Logic, Reasoning, and Knowledge",
+                "Aging, Elder Care, and Social Issues",
+                "Semantic Web and Ontologies",
+            ]
+        }
+        counts = {
+            "Logic, Reasoning, and Knowledge": 29,
+            "Aging, Elder Care, and Social Issues": 1,
+            "Semantic Web and Ontologies": 8,
+        }
+        labels = label_topic_clusters(topics, counts)
+        self.assertIn("Logic", labels[0])
+        self.assertIn("Semantic Web", labels[0])
+        self.assertNotIn("Aging", labels[0])
+
+
+class ImportScopeCleanupTests(unittest.TestCase):
+    def setUp(self):
+        self.client = StrapiClient("http://example.invalid", "token")
+        self.client._pub_records = {
+            "book": {
+                "openAlexId": "",
+                "doi": "",
+                "title": normalize_title("Love and Marriage"),
+                "rawTitle": "Love and Marriage",
+                "kind": "book-chapter",
+                "abstract": "",
+            },
+            "paper": {
+                "openAlexId": "",
+                "doi": "",
+                "title": normalize_title("A useful paper"),
+                "rawTitle": "A useful paper",
+                "kind": "article",
+                "abstract": "",
+            },
+        }
+        self.client._pub_source_kind = {
+            "book": "openAlexAutomated",
+            "paper": "openAlexAutomated",
+        }
+        self.client._pub_graph_eligible = {"book": True, "paper": True}
+        self.client._pub_published = {"book": True, "paper": True}
+
+    def test_unpublishes_and_disables_out_of_scope_automated_record(self):
+        calls = []
+        unpublished = []
+        events = []
+
+        def fake_update(document_id, payload):
+            events.append("update")
+            calls.append((document_id, payload))
+            return True
+
+        def fake_unpublish(document_id):
+            events.append("unpublish")
+            unpublished.append(document_id)
+            return True
+
+        self.client.update_publication = fake_update
+        self.client.unpublish_publication = fake_unpublish
+        stats = self.client.apply_import_scope()
+
+        self.assertEqual(stats["out_of_scope"], 1)
+        self.assertEqual(unpublished, ["book"])
+        self.assertEqual(calls, [("book", {"graphEligible": False})])
+        self.assertEqual(events, ["update", "unpublish"])
+        self.assertEqual(self.client._pub_graph_eligible["paper"], True)
+
+        # A second pass must not call Strapi again for the already-cleaned row.
+        events.clear()
+        second = self.client.apply_import_scope()
+        self.assertEqual(second["out_of_scope"], 0)
+        self.assertEqual(second["already_clean"], 1)
+        self.assertEqual(events, [])
+
+
+class ReplaceGraphLinksTests(unittest.TestCase):
+    def test_new_links_are_uploaded_before_old_links_are_deleted(self):
+        from unittest.mock import patch
+
+        events = []
+
+        class FakeStrapi:
+            def load_graph_link_ids(self):
+                events.append("load-old")
+                return ["old-link"]
+
+            def delete_graph_links(self, ids):
+                events.append(("delete-old", ids))
+                return len(ids)
+
+        def fake_upload(strapi, links, pub_map, **kwargs):
+            events.append("upload-new")
+            return {"created": len(links), "failed": 0}
+
+        with patch(
+            "research_paper_graph.strapi_sync.upload_graph_links", fake_upload
+        ):
+            result = replace_graph_links(
+                FakeStrapi(), [{"source_paper_id": "a", "target_paper_id": "b"}], {}
+            )
+
+        self.assertEqual(events, ["load-old", "upload-new", ("delete-old", ["old-link"])])
+        self.assertEqual(result["created"], 1)
 
 
 class UploadExclusionTests(unittest.TestCase):

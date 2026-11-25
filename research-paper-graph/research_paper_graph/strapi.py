@@ -9,6 +9,7 @@ from urllib.parse import quote, urljoin, urlparse
 
 import requests
 
+from .import_scope import out_of_scope_reason
 from .utils import (
     normalize_doi,
     normalize_openalex_id,
@@ -319,7 +320,10 @@ class StrapiClient:
     def _fetch_all_pages(self, endpoint, params=None):
         """Paginate through all entries in a Strapi collection."""
         results = []
+        seen = set()
         page = 1
+        expected_total = 0
+        empty_retries = 0
         base_params = params or {}
         while True:
             paged = {**base_params, "pagination[page]": page, "pagination[pageSize]": 100}
@@ -336,10 +340,33 @@ class StrapiClient:
                 )
             response.raise_for_status()
             payload = response.json()
-            data = payload.get("data", [])
-            results.extend(data)
+            data = payload.get("data", []) or []
             meta = payload.get("meta", {}).get("pagination", {})
-            if not meta.get("pageCount") or page >= meta["pageCount"]:
+
+            # A concurrent rebuild can make pageCount/total shrink between
+            # requests. Keep the largest total seen and stop on an empty page
+            # instead of trusting a possibly stale pageCount.
+            total = meta.get("total")
+            if isinstance(total, int) and total > expected_total:
+                expected_total = total
+
+            if not data:
+                if expected_total > len(results) and empty_retries < 3:
+                    empty_retries += 1
+                    time.sleep(0.15 * empty_retries)
+                    continue
+                break
+
+            empty_retries = 0
+            for row in data:
+                key = row.get("documentId") if isinstance(row, dict) else None
+                if key is not None:
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                results.append(row)
+
+            if expected_total and len(results) >= expected_total:
                 break
             page += 1
         return results
@@ -426,6 +453,8 @@ class StrapiClient:
                 "fields[5]": "slug",
                 "fields[6]": "publishedAt",
                 "fields[7]": "graphEligible",
+                "fields[8]": "kind",
+                "fields[9]": "abstract",
                 "populate[pdfFile][fields][0]": "id",
             },
         )
@@ -444,6 +473,9 @@ class StrapiClient:
                 "openAlexId": normalized_oaid,
                 "doi": normalized_doi,
                 "title": normalized_title,
+                "rawTitle": attributes.get("title"),
+                "kind": attributes.get("kind"),
+                "abstract": attributes.get("abstract"),
             }
             if normalized_oaid:
                 self._pub_by_oaid[normalized_oaid] = document_id
@@ -547,6 +579,17 @@ class StrapiClient:
 
         for document_id, exclusion in matched.items():
             stats["matched"] += 1
+
+            # Update first, then unpublish. A REST PUT on a draft-and-publish
+            # entry republishes it, so unpublishing before the graph flag update
+            # silently put hidden records back on the public site.
+            if self._pub_graph_eligible.get(document_id):
+                if self.update_publication(document_id, {"graphEligible": False}):
+                    stats["graph_updated"] += 1
+                    self._pub_graph_eligible[document_id] = False
+                else:
+                    stats["failed"] += 1
+
             if (
                 exclusion["scope"] == "hideEverywhere"
                 and self._pub_published.get(document_id)
@@ -556,6 +599,80 @@ class StrapiClient:
                 else:
                     stats["failed"] += 1
 
+        log.info(
+            "Graph exclusions: %s matched, %s removed from graph, %s unpublished, %s failed",
+            stats["matched"],
+            stats["graph_updated"],
+            stats["unpublished"],
+            stats["failed"],
+        )
+        return stats
+
+    def apply_import_scope(self, allowed_types=None, abstract_required_types=None):
+        """Remove automated records that no longer belong in the publication graph.
+
+        This is the durable counterpart to the import filter: when a previous
+        run imported book front matter or a work type that is now out of scope,
+        the record is taken off the public site and out of the graph instead of
+        lingering until someone cleans it by hand.
+        """
+        stats = {
+            "checked": 0,
+            "out_of_scope": 0,
+            "already_clean": 0,
+            "graph_updated": 0,
+            "unpublished": 0,
+            "failed": 0,
+        }
+
+        if not self._pub_records:
+            self.load_existing_publications()
+
+        for document_id, record in self._pub_records.items():
+            if self._pub_source_kind.get(document_id) != "openAlexAutomated":
+                continue
+            stats["checked"] += 1
+
+            openalex_id = record.get("openAlexId") or ""
+            doi = record.get("doi") or ""
+            title = record.get("rawTitle") or record.get("title") or ""
+            if self.match_graph_exclusion(
+                openalex_id=openalex_id,
+                doi=doi,
+                title=title,
+            ):
+                # Explicit editorial exclusions win; they have their own scope.
+                continue
+
+            paper = {
+                "title": title,
+                "kind": record.get("kind"),
+                "abstract": record.get("abstract"),
+            }
+            reason = out_of_scope_reason(
+                paper,
+                allowed_types=allowed_types,
+                abstract_required_types=abstract_required_types,
+            )
+            if not reason:
+                continue
+
+            needs_graph_update = bool(self._pub_graph_eligible.get(document_id))
+            needs_unpublish = bool(self._pub_published.get(document_id))
+            if not needs_graph_update and not needs_unpublish:
+                stats["already_clean"] += 1
+                continue
+
+            stats["out_of_scope"] += 1
+            log.info(
+                "  Out of import scope (%s): %s",
+                reason,
+                (title or document_id)[:80],
+            )
+
+            # Update first, then unpublish (see apply_graph_exclusions): a PUT
+            # republishes the entry, so the reverse order made the cleanup a
+            # no-op on the public site.
             if self._pub_graph_eligible.get(document_id):
                 if self.update_publication(document_id, {"graphEligible": False}):
                     stats["graph_updated"] += 1
@@ -563,9 +680,19 @@ class StrapiClient:
                 else:
                     stats["failed"] += 1
 
+            if self._pub_published.get(document_id):
+                if self.unpublish_publication(document_id):
+                    stats["unpublished"] += 1
+                    self._pub_published[document_id] = False
+                else:
+                    stats["failed"] += 1
+
         log.info(
-            "Graph exclusions: %s matched, %s removed from graph, %s unpublished, %s failed",
-            stats["matched"],
+            "Import scope: %s automated records checked, %s out of scope, "
+            "%s already clean, %s removed from graph, %s unpublished, %s failed",
+            stats["checked"],
+            stats["out_of_scope"],
+            stats["already_clean"],
             stats["graph_updated"],
             stats["unpublished"],
             stats["failed"],
@@ -1468,6 +1595,7 @@ class StrapiClient:
                 "fields[0]": "documentId",
                 "fields[1]": "slug",
                 "fields[2]": "name",
+                "fields[3]": "keywords",
                 "populate[publications][fields][0]": "documentId",
                 "populate[publicationsPrimary][fields][0]": "documentId",
             },
@@ -1479,7 +1607,10 @@ class StrapiClient:
             slug = attrs.get("slug") or ""
             if not document_id or document_id in keep:
                 continue
-            if not slug.startswith(MESO_SLUG_PREFIX):
+            # Older runs used a name-based slug and left those rows behind when
+            # the pipeline switched to macro-scoped `sc-` slugs. They are still
+            # pipeline-generated when `keywords` is set, so prune them too.
+            if not slug.startswith(MESO_SLUG_PREFIX) and not (attrs.get("keywords") or "").strip():
                 continue
             if self._extract_relation_items(attrs.get("publications")):
                 continue
@@ -1491,8 +1622,8 @@ class StrapiClient:
             log.info("Pruned %s stale graph mesos", deleted)
         return deleted
 
-    def clear_graph_links(self):
-        """Delete all existing graph links so derived graph state can be rebuilt cleanly."""
+    def load_graph_link_ids(self):
+        """Return the document ids of every current graph link."""
         graph_links = self._fetch_all_pages(
             "graph-links",
             {
@@ -1500,10 +1631,16 @@ class StrapiClient:
                 "fields[1]": "id",
             },
         )
+        return [
+            graph_link.get("documentId") or graph_link.get("id")
+            for graph_link in graph_links
+            if graph_link.get("documentId") or graph_link.get("id")
+        ]
 
+    def delete_graph_links(self, document_ids):
+        """Delete graph links by document id and return the deleted count."""
         deleted = 0
-        for graph_link in graph_links:
-            document_id = graph_link.get("documentId") or graph_link.get("id")
+        for document_id in document_ids:
             response = self._request(
                 "DELETE", f"{self.api_url}/graph-links/{document_id}", headers=self.headers
             )
@@ -1516,6 +1653,10 @@ class StrapiClient:
                     response.status_code,
                     response.text[:500],
                 )
+        return deleted
 
+    def clear_graph_links(self):
+        """Delete all existing graph links so derived graph state can be rebuilt cleanly."""
+        deleted = self.delete_graph_links(self.load_graph_link_ids())
         log.info(f"Cleared {deleted} graph links")
         return deleted

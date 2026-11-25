@@ -522,13 +522,17 @@ async function fetchAllEntries(endpoint, baseOptions = {}, pageSize = 100, fetch
   // Requesting larger values causes page index/offset mismatches and silent data loss.
   const safePageSize = Math.max(1, Math.min(Number(pageSize) || 100, 100));
   const results = [];
+  const seen = new Set();
   let page = 1;
+  let expectedTotal = 0;
+  let emptyRetries = 0;
   const maxPages = 10000;
 
-  // Stop based on how many rows the server actually returned, not on the
-  // pagination metadata from the first page. During a graph rebuild the total
-  // grows while pages are being cached; trusting a stale pageCount makes the
-  // caller silently stop at an old subset of links.
+  // Pagination metadata is not a safe stopping condition on its own. A graph
+  // rebuild replaces links while a page is being rendered, so a page can come
+  // back short or empty even though later pages still have rows. Keep the
+  // largest total we have seen and only stop on an empty page that we cannot
+  // explain (or after we have collected that many unique rows).
   while (page <= maxPages) {
     const params = createParams({
       ...baseOptions,
@@ -537,17 +541,35 @@ async function fetchAllEntries(endpoint, baseOptions = {}, pageSize = 100, fetch
 
     const data = await fetchAPI(`${endpoint}?${params.toString()}`, fetchOptions);
     const rows = Array.isArray(data?.data) ? data.data : [];
-    results.push(...rows);
 
-    if (rows.length === 0) break;
+    const total = Number(data?.meta?.pagination?.total);
+    if (Number.isFinite(total) && total > expectedTotal) {
+      expectedTotal = total;
+    }
 
-    const metaPageSize = Number(data?.meta?.pagination?.pageSize);
-    const serverPageSize =
-      Number.isFinite(metaPageSize) && metaPageSize > 0
-        ? Math.min(metaPageSize, safePageSize)
-        : safePageSize;
+    if (rows.length === 0) {
+      if (expectedTotal > results.length && emptyRetries < 3) {
+        emptyRetries += 1;
+        await new Promise((resolve) => setTimeout(resolve, 150 * emptyRetries));
+        continue;
+      }
+      break;
+    }
 
-    if (rows.length < serverPageSize) break;
+    emptyRetries = 0;
+    for (const row of rows) {
+      const key = row?.documentId ?? row?.id;
+      if (key != null) {
+        if (seen.has(key)) continue;
+        seen.add(key);
+      }
+      results.push(row);
+    }
+
+    if (expectedTotal > 0 && results.length >= expectedTotal) {
+      break;
+    }
+
     page += 1;
   }
 
@@ -1634,36 +1656,49 @@ export function transformGraphPublicationData(strapiPublications) {
  */
 export function transformGraphLinkData(strapiLinks, oaToIdMap = {}) {
   const list = Array.isArray(strapiLinks) ? strapiLinks : strapiLinks ? [strapiLinks] : [];
+  const byPair = new Map();
 
-  return list
-    .map((link) => {
-      const attributes = link?.attributes ?? link ?? {};
-      const sourceEntry = attributes.source?.data ?? attributes.source;
-      const targetEntry = attributes.target?.data ?? attributes.target;
+  for (const link of list) {
+    const attributes = link?.attributes ?? link ?? {};
+    const sourceEntry = attributes.source?.data ?? attributes.source;
+    const targetEntry = attributes.target?.data ?? attributes.target;
 
-      const sourceData = sourceEntry?.attributes ?? sourceEntry ?? {};
-      const targetData = targetEntry?.attributes ?? targetEntry ?? {};
+    const sourceData = sourceEntry?.attributes ?? sourceEntry ?? {};
+    const targetData = targetEntry?.attributes ?? targetEntry ?? {};
 
-      const sourceOpenAlexId = sourceData.openAlexId || '';
-      const targetOpenAlexId = targetData.openAlexId || '';
+    const sourceOpenAlexId = sourceData.openAlexId || '';
+    const targetOpenAlexId = targetData.openAlexId || '';
 
-      const sourceId = sourceEntry?.documentId ?? sourceEntry?.id ?? oaToIdMap[sourceOpenAlexId] ?? null;
-      const targetId = targetEntry?.documentId ?? targetEntry?.id ?? oaToIdMap[targetOpenAlexId] ?? null;
+    const sourceId = sourceEntry?.documentId ?? sourceEntry?.id ?? oaToIdMap[sourceOpenAlexId] ?? null;
+    const targetId = targetEntry?.documentId ?? targetEntry?.id ?? oaToIdMap[targetOpenAlexId] ?? null;
+    if (sourceId === null || targetId === null || sourceId === targetId) continue;
 
-      const scoreValue = Number(attributes.score);
-      const score = Number.isFinite(scoreValue) ? scoreValue : 0;
+    const scoreValue = Number(attributes.score);
+    const score = Number.isFinite(scoreValue) ? scoreValue : 0;
 
-      return {
-        id: link?.id ?? `${sourceOpenAlexId}->${targetOpenAlexId}`,
-        sourceId,
-        targetId,
-        sourceOpenAlexId,
-        targetOpenAlexId,
-        isCrossCluster: !!attributes.isCrossCluster,
-        score,
-      };
-    })
-    .filter((link) => link.sourceId !== null && link.targetId !== null && link.sourceId !== link.targetId);
+    const transformed = {
+      id: link?.id ?? `${sourceOpenAlexId}->${targetOpenAlexId}`,
+      sourceId,
+      targetId,
+      sourceOpenAlexId,
+      targetOpenAlexId,
+      isCrossCluster: !!attributes.isCrossCluster,
+      score,
+    };
+
+    // Link replacement uploads the new set before deleting the old one, so the
+    // same pair can briefly appear twice. Keep the strongest copy instead of
+    // rendering overlapping edges.
+    const pairKey = sourceId < targetId
+      ? `${sourceId}::${targetId}`
+      : `${targetId}::${sourceId}`;
+    const existing = byPair.get(pairKey);
+    if (!existing || transformed.score > existing.score) {
+      byPair.set(pairKey, transformed);
+    }
+  }
+
+  return Array.from(byPair.values());
 }
 
 /**

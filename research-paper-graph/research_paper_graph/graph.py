@@ -834,8 +834,17 @@ def cluster_topics(topics, embeddings, min_cluster_size=None, min_samples=None):
     return topic_to_cluster, dict(clusters_to_topics)
 
 
-def label_topic_clusters(clusters_to_topics):
-    """Generate labels for topic superclusters from strongest topic phrases."""
+def label_topic_clusters(clusters_to_topics, topic_paper_counts=None):
+    """Generate labels for topic superclusters from their most common topics.
+
+    A supercluster is a set of topics, so every topic used to appear once in
+    ``clusters_to_topics``. Ranking by that set meant ties were resolved by
+    insertion order, which produced labels such as "Logic & Aging, Elder Care,
+    and Social Issues" for a cluster that is overwhelmingly about logic. Weight
+    each topic by the number of papers that carry it so the label follows the
+    actual content of the cluster.
+    """
+    topic_paper_counts = topic_paper_counts or {}
     labels = {}
     for cluster_id, topics in clusters_to_topics.items():
         if not topics:
@@ -846,12 +855,14 @@ def label_topic_clusters(clusters_to_topics):
         token_counts = Counter()
         for topic in topics:
             cleaned_topic = _sanitize_topic_phrase(topic)
-            if cleaned_topic:
-                phrase_counts[cleaned_topic] += 1
-                for token in _tokenize_text(cleaned_topic):
-                    if token in LABEL_STOPWORDS or token in LABEL_GENERIC_TOKENS:
-                        continue
-                    token_counts[token] += 1
+            if not cleaned_topic:
+                continue
+            weight = max(1, int(topic_paper_counts.get(topic, 1)))
+            phrase_counts[cleaned_topic] += weight
+            for token in _tokenize_text(cleaned_topic):
+                if token in LABEL_STOPWORDS or token in LABEL_GENERIC_TOKENS:
+                    continue
+                token_counts[token] += weight
 
         candidates = [(phrase, float(count) * 2.0) for phrase, count in phrase_counts.most_common(10)]
         for token, count in token_counts.most_common(6):
@@ -864,7 +875,7 @@ def label_topic_clusters(clusters_to_topics):
             selected = [topics[0][:40] if topics else f"Topic Group {cluster_id}"]
 
         labels[cluster_id] = " & ".join(selected[:LABEL_MAX_PARTS])
-    
+
     return labels
 
 
@@ -891,7 +902,12 @@ def build_topic_hierarchy(papers, model_name="all-MiniLM-L6-v2"):
     
     embeddings = generate_topic_embeddings(topics, model_name)
     topic_to_cluster, cluster_to_topics = cluster_topics(topics, embeddings)
-    cluster_labels = label_topic_clusters(cluster_to_topics)
+    topic_paper_counts = Counter()
+    for paper in papers:
+        for topic in set(paper.get("topics") or []):
+            if isinstance(topic, str) and topic:
+                topic_paper_counts[topic] += 1
+    cluster_labels = label_topic_clusters(cluster_to_topics, topic_paper_counts)
     
     log.info(f"Topic hierarchy: {len(topics)} topics -> {len(cluster_to_topics)} superclusters")
     for cid, label in sorted(cluster_labels.items()):

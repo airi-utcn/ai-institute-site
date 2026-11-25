@@ -131,6 +131,10 @@ def run(args):
     if not args.dry_run:
         strapi.load_existing_publications()
         strapi.apply_graph_exclusions()
+        strapi.apply_import_scope(
+            allowed_types=SETTINGS.import_types,
+            abstract_required_types=SETTINGS.import_abstract_required_types,
+        )
 
     if args.graph_only:
         papers = []

@@ -17,6 +17,8 @@ class RuntimeSettings:
     openalex_http_retries: int
     openalex_institution_id: str
     import_oa_only: bool
+    import_types: tuple
+    import_abstract_required_types: tuple
     graph_similarity_threshold: float
     graph_duplicate_threshold: float
     graph_top_k: int
@@ -51,6 +53,14 @@ def _env_int(name, default):
     return int(value)
 
 
+def _env_list(name):
+    value = os.getenv(name)
+    if value is None:
+        return None
+    items = tuple(item.strip() for item in value.split(",") if item.strip())
+    return items or None
+
+
 def _find_env_file(start_path):
     path = Path(start_path).resolve()
     search_roots = [path.parent, *path.parents]
@@ -83,6 +93,10 @@ def load_runtime_settings(current_file=None):
         openalex_http_retries=_env_int("OPENALEX_HTTP_RETRIES", 3),
         openalex_institution_id=os.getenv("OPENALEX_INSTITUTION_ID", "").strip(),
         import_oa_only=_env_bool("PAPER_IMPORT_OA_ONLY", False),
+        import_types=_env_list("PAPER_IMPORT_TYPES"),
+        import_abstract_required_types=_env_list(
+            "PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES"
+        ),
         graph_similarity_threshold=_env_float("GRAPH_SIMILARITY_THRESHOLD", 0.5),
         graph_duplicate_threshold=_env_float("GRAPH_DUPLICATE_THRESHOLD", 0.92),
         graph_top_k=_env_int("GRAPH_TOP_K", 20),

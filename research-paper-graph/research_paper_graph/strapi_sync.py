@@ -1,16 +1,71 @@
 import logging
 from datetime import datetime, timezone
 
+import numpy as np
+
 from . import graph as gg
 from .strapi import StrapiClient
 
 DEFAULT_MACRO_TAG_TOP_N = 3
+DEFAULT_MACRO_KEYWORD_TOP_K = 3
 MESO_SLUG_PREFIX = "sc-"
 
 
 def _build_macro_text(macro):
     parts = [macro.get("name"), macro.get("keywords"), macro.get("description")]
     return " ".join(part.strip() for part in parts if isinstance(part, str) and part.strip())
+
+
+def _macro_keyword_lists(macros):
+    """Return per-macro keyword spans into one flat, embeddable list."""
+    spans = []
+    keywords = []
+    for macro in macros:
+        raw = macro.get("keywords") or ""
+        items = [
+            part.strip()
+            for part in raw.replace("\n", ",").split(",")
+            if part.strip()
+        ]
+        if not items:
+            name = (macro.get("name") or "").strip()
+            items = [name] if name else []
+        items = list(dict.fromkeys(items))
+        start = len(keywords)
+        keywords.extend(items)
+        spans.append((start, len(keywords)))
+    return spans, keywords
+
+
+def _build_macro_keyword_embeddings(macros, model_name):
+    spans, keywords = _macro_keyword_lists(macros)
+    if not keywords:
+        return spans, None
+    embeddings = gg.build_text_embeddings(keywords, model_name)
+    if len(embeddings) == 0:
+        return spans, None
+    return spans, embeddings
+
+
+def _macro_scores(spans, keyword_embeddings, paper_embedding, top_k=DEFAULT_MACRO_KEYWORD_TOP_K):
+    """Score each macro by its best-matching keywords, not one blob of keywords.
+
+    A single embedding of "Machine Learning, Deep Learning, ..." is close to a
+    generic computer-science vector, so unrelated papers all scored within a
+    few thousandths of each other. Scoring against each keyword separately made
+    the intended macro win by a wide margin in diagnostics.
+    """
+    scores = np.zeros(len(spans), dtype=np.float32)
+    if keyword_embeddings is None:
+        return scores
+    for index, (start, end) in enumerate(spans):
+        if end <= start:
+            continue
+        sims = keyword_embeddings[start:end].dot(paper_embedding)
+        k = min(max(1, int(top_k)), len(sims))
+        top = np.sort(sims)[-k:]
+        scores[index] = float(top.mean())
+    return scores
 
 
 def _build_paper_text(paper):
@@ -302,12 +357,19 @@ def replace_graph_links(
     paper_macro_map=None,
     logger=None,
 ):
-    """Replace all derived graph links with a freshly rebuilt set."""
+    """Replace all derived graph links with a freshly rebuilt set.
+
+    Upload the new links first, then delete the old ones. Clearing first made
+    the graph empty for the whole upload window, so readers could see a meso
+    with papers but zero links. With this ordering the old set stays available
+    until the new one is complete; the frontend collapses the brief overlap by
+    source/target pair.
+    """
     log = logger or logging.getLogger("paper-sync")
 
     log.info("Replacing graph links from global rebuild...")
-    strapi.clear_graph_links()
-    return upload_graph_links(
+    previous_ids = strapi.load_graph_link_ids()
+    result = upload_graph_links(
         strapi,
         links_to_upload,
         pub_map,
@@ -315,6 +377,14 @@ def replace_graph_links(
         paper_macro_map=paper_macro_map,
         logger=log,
     )
+    deleted = strapi.delete_graph_links(previous_ids)
+    log.info(
+        "Graph links replaced: %s old removed, %s new created, %s failed",
+        deleted,
+        result.get("created", 0),
+        result.get("failed", 0),
+    )
+    return result
 
 
 def update_community_assignments(strapi, communities, community_labels, pub_map, logger=None):
@@ -399,11 +469,20 @@ def update_macro_assignments(
         len(active_macros),
     )
 
-    macro_texts = [_build_macro_text(macro) for macro in active_macros]
-    macro_embeddings = gg.build_text_embeddings(macro_texts, model_name)
-    if len(macro_embeddings) == 0:
-        log.warning("No macro embeddings produced; skipping macro assignment")
-        return 0, {}
+    macro_spans, macro_keyword_embeddings = _build_macro_keyword_embeddings(
+        active_macros, model_name
+    )
+    if macro_keyword_embeddings is None:
+        log.warning(
+            "No macro keyword embeddings produced; falling back to macro text embeddings"
+        )
+        macro_texts = [_build_macro_text(macro) for macro in active_macros]
+        fallback_embeddings = gg.build_text_embeddings(macro_texts, model_name)
+        if len(fallback_embeddings) == 0:
+            log.warning("No macro embeddings produced; skipping macro assignment")
+            return 0, {}
+        macro_spans = [(index, index + 1) for index in range(len(active_macros))]
+        macro_keyword_embeddings = fallback_embeddings
 
     macro_ids = [macro["documentId"] for macro in active_macros]
 
@@ -460,7 +539,7 @@ def update_macro_assignments(
             skipped_missing += 1
             continue
 
-        scores = macro_embeddings.dot(embedding)
+        scores = _macro_scores(macro_spans, macro_keyword_embeddings, embedding)
         ranked = sorted(range(len(macro_ids)), key=lambda idx: float(scores[idx]), reverse=True)
         if not ranked:
             skipped_missing += 1

@@ -42,12 +42,19 @@ function buildPositions(items, links, width, height) {
   if (!n) return [];
 
   const rng = makeRng(0xc0ffee + n);
-  const positions = items.map(() => ({
-    x: PAD + rng() * (width - PAD * 2),
-    y: PAD + rng() * (height - PAD * 2),
-    dx: 0,
-    dy: 0,
-  }));
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const initialRadius = Math.min(width, height) * 0.34;
+  const positions = items.map(() => {
+    const angle = rng() * Math.PI * 2;
+    const radius = Math.sqrt(rng()) * initialRadius;
+    return {
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+      dx: 0,
+      dy: 0,
+    };
+  });
 
   const indexById = new Map();
   items.forEach((item, index) => {
@@ -63,13 +70,18 @@ function buildPositions(items, links, width, height) {
     edges.push([source, target, Math.max(0.25, score)]);
   });
 
+  const degrees = new Array(n).fill(0);
+  edges.forEach(([source, target]) => {
+    degrees[source] += 1;
+    degrees[target] += 1;
+  });
+
   const usableW = width - PAD * 2;
   const usableH = height - PAD * 2;
   const area = usableW * usableH;
-  const ideal = Math.max(105, Math.sqrt(area / n) * 0.62);
-  const iterations = n > 180 ? 90 : 130;
-  const centerX = width / 2;
-  const centerY = height / 2;
+  const ideal = Math.max(110, Math.sqrt(area / n) * 0.68);
+  const repulsionCutoff = ideal * 2.4;
+  const iterations = n > 180 ? 120 : 160;
 
   for (let iter = 0; iter < iterations; iter++) {
     const temperature = Math.max(1.5, width * 0.075 * (1 - iter / iterations));
@@ -79,12 +91,13 @@ function buildPositions(items, links, width, height) {
       positions[i].dy = 0;
     }
 
-    // Repulsion: keeps unrelated papers apart.
+    // Local repulsion: distant papers should not push the whole graph apart.
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         let dx = positions[j].x - positions[i].x;
         let dy = positions[j].y - positions[i].y;
         let d2 = dx * dx + dy * dy;
+        if (d2 > repulsionCutoff * repulsionCutoff) continue;
         if (d2 < 0.01) {
           dx = (rng() - 0.5) * 2;
           dy = (rng() - 0.5) * 2;
@@ -101,12 +114,13 @@ function buildPositions(items, links, width, height) {
       }
     }
 
-    // Attraction: related papers form islands instead of a uniform cloud.
+    // Attraction: related papers form islands, but hubs do not collapse.
     edges.forEach(([source, target, score]) => {
       const dx = positions[target].x - positions[source].x;
       const dy = positions[target].y - positions[source].y;
       const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
-      const force = ((d * d) / ideal) * (0.35 + score * 0.75);
+      const hubDamping = 1 / Math.sqrt(Math.max(1, degrees[source], degrees[target]));
+      const force = ((d * d) / ideal) * (0.28 + score * 0.55) * hubDamping;
       const ux = dx / d;
       const uy = dy / d;
       positions[source].dx += ux * force;
@@ -115,10 +129,12 @@ function buildPositions(items, links, width, height) {
       positions[target].dy -= uy * force;
     });
 
-    // Weak gravity keeps disconnected components on the canvas.
+    // Gravity keeps low-degree papers near the graph instead of at the edge.
     for (let i = 0; i < n; i++) {
-      positions[i].dx += (centerX - positions[i].x) * 0.018;
-      positions[i].dy += (centerY - positions[i].y) * 0.018;
+      const gravity =
+        degrees[i] === 0 ? 0.12 : degrees[i] === 1 ? 0.085 : degrees[i] === 2 ? 0.055 : 0.032;
+      positions[i].dx += (centerX - positions[i].x) * gravity;
+      positions[i].dy += (centerY - positions[i].y) * gravity;
     }
 
     for (let i = 0; i < n; i++) {
@@ -131,9 +147,9 @@ function buildPositions(items, links, width, height) {
     }
   }
 
-  // Final collision pass so labels have room even in dense mesos.
-  const minDist = Math.max(64, Math.min(150, ideal * 0.78));
-  for (let pass = 0; pass < 12; pass++) {
+  // Final collision pass so the force-layout core has room for its labels.
+  const minDist = Math.max(80, Math.min(190, ideal * 0.95));
+  for (let pass = 0; pass < 16; pass++) {
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
         const dx = positions[j].x - positions[i].x;
@@ -152,6 +168,169 @@ function buildPositions(items, links, width, height) {
       }
     }
   }
+
+  // Pack connected components into a compact spiral layout. Components have no
+  // links between them, so laying them out as separate islands avoids long
+  // links and stops isolated papers from being pushed to the canvas edge.
+  const adjacency = Array.from({ length: n }, () => []);
+  edges.forEach(([source, target]) => {
+    adjacency[source].push(target);
+    adjacency[target].push(source);
+  });
+
+  const visited = new Array(n).fill(false);
+  const components = [];
+  for (let i = 0; i < n; i++) {
+    if (visited[i]) continue;
+    const queue = [i];
+    const indices = [];
+    visited[i] = true;
+    while (queue.length) {
+      const current = queue.pop();
+      indices.push(current);
+      adjacency[current].forEach((neighbour) => {
+        if (!visited[neighbour]) {
+          visited[neighbour] = true;
+          queue.push(neighbour);
+        }
+      });
+    }
+    components.push({ indices });
+  }
+
+  components.sort((a, b) => b.indices.length - a.indices.length);
+
+  const layoutComponent = (component, isCore) => {
+    const m = component.indices.length;
+    const rest = ideal * (isCore ? 1.12 : 1.18);
+
+    if (m === 1) return [{ x: 0, y: 0 }];
+    if (m === 2) {
+      return [
+        { x: -rest / 2, y: 0 },
+        { x: rest / 2, y: 0 },
+      ];
+    }
+    if (m === 3) {
+      const radius = rest / Math.sqrt(3);
+      return [0, 1, 2].map((index) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / 3;
+        return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      });
+    }
+    if (m === 4) {
+      const radius = rest / Math.sqrt(2);
+      return [0, 1, 2, 3].map((index) => {
+        const angle = Math.PI / 4 + (index * Math.PI) / 2;
+        return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      });
+    }
+
+    const points = component.indices.map((index) => positions[index]);
+    const cx = points.reduce((sum, point) => sum + point.x, 0) / m;
+    const cy = points.reduce((sum, point) => sum + point.y, 0) / m;
+    const local = points.map((point) => ({ x: point.x - cx, y: point.y - cy }));
+    const extent = Math.max(...local.map((point) => Math.hypot(point.x, point.y)), 1);
+    const target = isCore
+      ? Math.min(Math.min(width, height) * 0.27, ideal * Math.sqrt(m) * 0.58)
+      : Math.min(ideal * Math.sqrt(m) * 0.62, Math.min(width, height) * 0.20);
+    const scale = target / extent;
+    return local.map((point) => ({ x: point.x * scale, y: point.y * scale }));
+  };
+
+  const componentItems = components.map((component, index) => {
+    const local = layoutComponent(component, index === 0);
+    const xs = local.map((point) => point.x);
+    const ys = local.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    return {
+      component,
+      local,
+      minX,
+      maxX,
+      minY,
+      maxY,
+      width: maxX - minX,
+      height: maxY - minY,
+    };
+  });
+
+  componentItems.sort(
+    (a, b) => Math.max(b.width, b.height) - Math.max(a.width, a.height)
+  );
+
+  const gap = ideal * 0.55;
+  const boxes = componentItems.map((item) => ({
+    ...item,
+    boxW: Math.max(ideal * 0.55, item.width) + gap,
+    boxH: Math.max(ideal * 0.55, item.height) + gap,
+  }));
+
+  const totalArea = boxes.reduce((sum, box) => sum + box.boxW * box.boxH, 0);
+  const maxShelfWidth = width - PAD * 2;
+  const shelfWidth = Math.max(
+    maxShelfWidth * 0.5,
+    Math.min(maxShelfWidth, Math.sqrt(totalArea * (width / height)) * 1.02)
+  );
+
+  const rows = [];
+  let row = { boxes: [], width: 0, height: 0 };
+  boxes.forEach((box) => {
+    if (row.boxes.length > 0 && row.width + box.boxW > shelfWidth) {
+      rows.push(row);
+      row = { boxes: [], width: 0, height: 0 };
+    }
+    row.boxes.push(box);
+    row.width += box.boxW;
+    row.height = Math.max(row.height, box.boxH);
+  });
+  if (row.boxes.length) rows.push(row);
+
+  const placements = [];
+  let rowTop = 0;
+  rows.forEach((currentRow) => {
+    let cursorX = (shelfWidth - currentRow.width) / 2;
+    currentRow.boxes.forEach((box) => {
+      placements.push({
+        box,
+        cx: cursorX + box.boxW / 2,
+        cy: rowTop + box.boxH / 2,
+      });
+      cursorX += box.boxW;
+    });
+    rowTop += currentRow.height;
+  });
+
+  const contentLeft = Math.min(
+    ...placements.map((placement) => placement.cx - placement.box.boxW / 2)
+  );
+  const contentRight = Math.max(
+    ...placements.map((placement) => placement.cx + placement.box.boxW / 2)
+  );
+  const contentTop = Math.min(
+    ...placements.map((placement) => placement.cy - placement.box.boxH / 2)
+  );
+  const contentBottom = Math.max(
+    ...placements.map((placement) => placement.cy + placement.box.boxH / 2)
+  );
+  const offsetX = (width - (contentRight - contentLeft)) / 2 - contentLeft;
+  const offsetY = (height - (contentBottom - contentTop)) / 2 - contentTop;
+
+  placements.forEach((placement) => {
+    const targetCenterX = placement.cx + offsetX;
+    const targetCenterY = placement.cy + offsetY;
+    const localCenterX = (placement.box.minX + placement.box.maxX) / 2;
+    const localCenterY = (placement.box.minY + placement.box.maxY) / 2;
+    placement.box.component.indices.forEach((index, localIndex) => {
+      positions[index] = {
+        x: targetCenterX + (placement.box.local[localIndex].x - localCenterX),
+        y: targetCenterY + (placement.box.local[localIndex].y - localCenterY),
+      };
+    });
+  });
 
   return positions.map(({ x, y }) => ({ x, y }));
 }
@@ -224,6 +403,11 @@ export default function PaperGraphClient({
 
   // Hover state
   const [hovered, setHovered] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
 
   // ── Paper lookup ──────────────────────────────────────────────────────────
@@ -300,6 +484,30 @@ export default function PaperGraphClient({
     papers.forEach((p, i) => { m[p.id] = posArray[i]; });
     return m;
   }, [papers, links, mapSize]);
+
+  const contentBounds = useMemo(() => {
+    const points = Object.values(paperPositions);
+    if (!points.length) {
+      return { left: 0, top: 0, right: mapSize.width, bottom: mapSize.height };
+    }
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    points.forEach((point) => {
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    });
+    const padding = 150;
+    return {
+      left: Math.max(0, minX - padding),
+      top: Math.max(0, minY - padding),
+      right: Math.min(mapSize.width, maxX + padding),
+      bottom: Math.min(mapSize.height, maxY + padding),
+    };
+  }, [paperPositions, mapSize]);
 
   const stars = useMemo(
     () => buildStars(600, mapSize.width, mapSize.height),
@@ -438,13 +646,17 @@ export default function PaperGraphClient({
     const el = containerRef.current;
     if (!el) return;
     const { width: cw, height: ch } = el.getBoundingClientRect();
-    const s = Math.min(cw / mapSize.width, ch / mapSize.height) * 1.14;
+    const contentWidth = Math.max(1, contentBounds.right - contentBounds.left);
+    const contentHeight = Math.max(1, contentBounds.bottom - contentBounds.top);
+    const s = Math.min(cw / contentWidth, ch / contentHeight) * 0.94;
+    const centerX = (contentBounds.left + contentBounds.right) / 2;
+    const centerY = (contentBounds.top + contentBounds.bottom) / 2;
     setCamera(
-      (cw - mapSize.width * s) / 2,
-      (ch - mapSize.height * s) / 2,
-      s
+      cw / 2 - centerX * s,
+      ch / 2 - centerY * s,
+      Math.max(0.2, Math.min(4, s))
     );
-  }, [setCamera, mapSize]);
+  }, [setCamera, contentBounds]);
   useEffect(() => { fitToScreen(); }, [fitToScreen]);
 
   // ── Pan handlers ──────────────────────────────────────────────────────────
@@ -695,6 +907,7 @@ export default function PaperGraphClient({
         onPointerDown={onMinimapPointerDown}
       >
         <div className="px-1 pb-1 text-[8px] tracking-[0.32em] text-amber-300/60">OVERVIEW</div>
+        {mounted && (
         <svg width={minimapW} height={minimapH} viewBox={`0 0 ${minimapW} ${minimapH}`} className="block overflow-visible">
           <defs>
             <linearGradient id="minimap-bg" x1="0" x2="0" y1="0" y2="1">
@@ -737,6 +950,7 @@ export default function PaperGraphClient({
             strokeWidth="1.2"
           />
         </svg>
+        )}
         <div className="mt-1 px-1 text-[7px] tracking-[0.22em] text-amber-200/35">CLICK TO RECENTER</div>
       </div>
 
@@ -815,6 +1029,7 @@ export default function PaperGraphClient({
       </div>
 
       {/* SVG */}
+      {mounted && (
       <svg
         ref={svgRef}
         width={mapSize.width}
@@ -1019,6 +1234,7 @@ export default function PaperGraphClient({
           );
         })}
       </svg>
+      )}
 
       {/* Intel tooltip */}
       {tooltipData && (

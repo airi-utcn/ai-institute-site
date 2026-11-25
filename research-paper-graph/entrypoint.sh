@@ -34,6 +34,8 @@ emit_cron_env() {
 	emit_cron_env OPENALEX_HTTP_TIMEOUT
 	emit_cron_env OPENALEX_HTTP_RETRIES
 	emit_cron_env PAPER_IMPORT_OA_ONLY
+	emit_cron_env PAPER_IMPORT_TYPES
+	emit_cron_env PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES
 	emit_cron_env PAPER_SYNC_LOCK_PATH
 	emit_cron_env PDF_MAX_BYTES
 	emit_cron_env GRAPH_SIMILARITY_THRESHOLD

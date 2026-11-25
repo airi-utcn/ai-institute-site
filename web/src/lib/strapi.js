@@ -523,19 +523,31 @@ async function fetchAllEntries(endpoint, baseOptions = {}, pageSize = 100, fetch
   const safePageSize = Math.max(1, Math.min(Number(pageSize) || 100, 100));
   const results = [];
   let page = 1;
-  let pageCount = 1;
+  const maxPages = 10000;
 
-  while (page <= pageCount) {
+  // Stop based on how many rows the server actually returned, not on the
+  // pagination metadata from the first page. During a graph rebuild the total
+  // grows while pages are being cached; trusting a stale pageCount makes the
+  // caller silently stop at an old subset of links.
+  while (page <= maxPages) {
     const params = createParams({
       ...baseOptions,
       pagination: { page, pageSize: safePageSize },
     });
 
     const data = await fetchAPI(`${endpoint}?${params.toString()}`, fetchOptions);
-    if (Array.isArray(data?.data)) results.push(...data.data);
+    const rows = Array.isArray(data?.data) ? data.data : [];
+    results.push(...rows);
 
-    const metaPageCount = data?.meta?.pagination?.pageCount;
-    pageCount = typeof metaPageCount === 'number' ? metaPageCount : pageCount;
+    if (rows.length === 0) break;
+
+    const metaPageSize = Number(data?.meta?.pagination?.pageSize);
+    const serverPageSize =
+      Number.isFinite(metaPageSize) && metaPageSize > 0
+        ? Math.min(metaPageSize, safePageSize)
+        : safePageSize;
+
+    if (rows.length < serverPageSize) break;
     page += 1;
   }
 

@@ -134,9 +134,11 @@ as a missing publication.
   partition; the detail page opens the primary set by default and has an
   `ALL TAGGED` toggle for the wider membership.
 - **Paper-level views** use a link-aware layout and zoom-dependent labels, so
-  large mesos stay readable without changing the underlying graph. Connected
-  components are packed as separate islands, which keeps unrelated papers near
-  the graph instead of pushing them to the canvas edge.
+  large mesos stay readable without changing the underlying graph. Hubs stay
+  near a dense core while low-degree papers and disconnected islands orbit it
+  on a concentric halo instead of being pushed into rows below the graph.
+  Hovering a link highlights and labels its endpoint papers; hovering a paper
+  highlights its links.
 - HDBSCAN communities remain a diagnostic; the UI navigates by macro/meso.
 
 ## Health checks after a run

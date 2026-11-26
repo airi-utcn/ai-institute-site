@@ -43,11 +43,7 @@
       "type": "enumeration",
       "enum": [
         "announcement",
-        "construction",
-        "collaboration",
-        "award",
-        "press",
-        "other"
+        "award"
       ],
       "default": "announcement"
     },

@@ -12,7 +12,7 @@ the guide for the content you are working on.
 | Add author credits, DOI autofill, video or code to a publication | [Publication authors and media](./PUBLICATIONS.md) |
 | Edit the Engagement page and its tabs | [Engagement page manual](./ENGAGEMENT_CONTENT_MANUAL.md) |
 | Check a draft before it goes live | [Admin preview guide](./PREVIEW_GUIDE.md) |
-| Understand the publication graph fields (`importEligible`, `graphEligible`, macro/meso topics) | [Paper graph user manual](../../paper-graph-user-manual.md) |
+| Understand the publication graph fields (`importEligible`, `graphEligible`, macro/meso topics) | [Paper graph author guide](./PAPER_GRAPH.md) |
 
 ## Quick answers
 

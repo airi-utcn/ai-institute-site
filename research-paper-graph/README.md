@@ -56,8 +56,8 @@ python -m unittest discover -s tests
 
 ## Documentation
 
-- [docs/paper-graph-operations.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-operations.md): runbook for author identity, coverage, concurrency, PDFs, graph semantics, health checks, and environment variables
-- [paper-graph-user-manual.md](/home/shumy/Projects/ai-institute-site/paper-graph-user-manual.md): editor-facing guide to the graph fields
+- [docs/paper-graph-operations.md](../docs/paper-graph-operations.md): runbook for author identity, coverage, concurrency, PDFs, graph semantics, health checks, and environment variables
+- [docs/StrapiAuthorDocs/PAPER_GRAPH.md](../docs/StrapiAuthorDocs/PAPER_GRAPH.md): editor-facing guide to the graph fields
 
 ## Dependency fallback
 

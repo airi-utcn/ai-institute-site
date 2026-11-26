@@ -1,6 +1,6 @@
-# Research Paper Graph Author Guide
+# Paper Graph Author Guide
 
-This guide explains the graph-related Strapi fields introduced on this branch and how they are meant to be used by editors, authors, and maintainers.
+This guide explains the graph-related Strapi fields and how editors, authors, and maintainers should use them. It is part of the [Strapi author docs](./README.md).
 
 The key idea is simple:
 

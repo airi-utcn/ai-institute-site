@@ -47,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added Strapi client helpers (`getGlobal(locale)`, `getSingleType(endpoint, locale)`) in `web/src/lib/strapi.js` with query parameter encoding.
   - Updated `LanguageSwitcher` to support all 11 languages with cookie-based persistence (`NEXT_LOCALE`) and synchronized reloads.
 - **Documentation**:
-  - Added comprehensive production migration tutorial in [`docs/i18n-production-migration.md`](./docs/i18n-production-migration.md).
+  - Added a comprehensive production migration tutorial.
   - Updated [`SETUP.md`](./SETUP.md) with i18n migration instructions for local and Docker development.
 
 ### Changed

@@ -4,7 +4,10 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { FaSearch, FaTimes, FaFlask } from 'react-icons/fa';
 import LaboratoryCard from '@/components/laboratory/LaboratoryCard';
+import LaboratoryFloorPlan from '@/components/laboratory/LaboratoryFloorPlan';
 import DynamicZone from '@/components/shared/DynamicZone';
+import { useLocale } from '@/context/LocaleContext';
+import { getLaboratoryRoom, groupLaboratoriesByFloor } from '@/lib/laboratory-floors';
 import { usePageState } from '@/lib/usePageState';
 
 const containerVariants = {
@@ -27,6 +30,27 @@ const itemVariants = {
   },
 };
 
+const FLOOR_TEXT = {
+  en: {
+    labels: ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor'],
+    unknown: 'Floor to be confirmed',
+    navigation: 'Laboratories by floor',
+    plan: 'Floor plan',
+    scroll: 'Scroll sideways to see the full plan.',
+    fullPlan: 'Open full-size plan (new tab)',
+    sharedRoom: (room) => `Laboratories in room ${room}`,
+  },
+  ro: {
+    labels: ['Parter', 'Etajul 1', 'Etajul 2', 'Etajul 3', 'Etajul 4', 'Etajul 5'],
+    unknown: 'Etaj neconfirmat',
+    navigation: 'Laboratoare pe etaje',
+    plan: 'Planul etajului',
+    scroll: 'Derulați orizontal pentru a vedea planul complet.',
+    fullPlan: 'Deschideți planul la dimensiune completă (filă nouă)',
+    sharedRoom: (room) => `Laboratoare în sala ${room}`,
+  },
+};
+
 const normalizeText = (val) =>
   (val || '')
     .toString()
@@ -46,6 +70,7 @@ const resolveImageUrl = (image) => {
 
 export default function LaboratoriesClient({ laboratories = [], pageData }) {
   const [query, setQuery] = usePageState('query', '');
+  const floorText = useLocale() === 'ro' ? FLOOR_TEXT.ro : FLOOR_TEXT.en;
 
   const title = pageData?.title || 'Laboratories & Spaces';
   const subtitle =
@@ -64,6 +89,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
       const labTitle = normalizeText(lab.title);
       const labSummary = normalizeText(lab.summary);
       const room = normalizeText(lab.roomNumber);
+      const roomCode = getLaboratoryRoom(lab.roomNumber)?.room.toLowerCase();
       const coordinator = normalizeText(lab.coordinator?.name);
       const coCoordinator = normalizeText(lab.coCoordinator?.name);
       const partners = (lab.partners || []).map((p) => normalizeText(p.name)).join(' ');
@@ -73,6 +99,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
         labTitle.includes(q) ||
         labSummary.includes(q) ||
         room.includes(q) ||
+        roomCode?.includes(q) ||
         coordinator.includes(q) ||
         coCoordinator.includes(q) ||
         partners.includes(q) ||
@@ -80,6 +107,12 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
       );
     });
   }, [laboratories, query]);
+
+  const floorGroups = useMemo(
+    () => groupLaboratoriesByFloor(filteredLaboratories),
+    [filteredLaboratories]
+  );
+  const floorLabel = (floor) => floorText.labels[floor] || floorText.unknown;
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
@@ -123,11 +156,12 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             <div className="relative">
               <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
-                type="text"
+                type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm"
+                aria-label={searchPlaceholder}
+                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm [&::-webkit-search-cancel-button]:hidden"
               />
               {query && (
                 <button
@@ -141,6 +175,15 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
               )}
             </div>
           </div>
+          {floorGroups.length > 1 && (
+            <nav aria-label={floorText.navigation} className="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+              {floorGroups.map(({ floor }) => (
+                <a key={floor ?? 'unknown'} href={`#floor-${floor ?? 'unknown'}`} className="link-accent text-sm font-medium">
+                  {floorLabel(floor)}
+                </a>
+              ))}
+            </nav>
+          )}
         </div>
       </section>
 
@@ -166,18 +209,40 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             )}
           </div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-          >
-            {filteredLaboratories.map((lab) => (
-              <motion.div key={lab.id || lab.slug} variants={itemVariants}>
-                <LaboratoryCard lab={lab} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="space-y-12">
+            {floorGroups.map(({ floor, laboratories: labs }) => {
+              const id = `floor-${floor ?? 'unknown'}`;
+              const label = floorLabel(floor);
+
+              return (
+                <section key={id} id={id} aria-labelledby={`${id}-heading`} className="scroll-mt-28">
+                  <h2 id={`${id}-heading`} className="mb-5 text-2xl font-bold text-gray-900 dark:text-white">
+                    {label}
+                  </h2>
+                  {floor !== null && (
+                    <LaboratoryFloorPlan floor={floor} label={label} laboratories={labs} text={floorText} />
+                  )}
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3"
+                  >
+                    {labs.map((lab) => (
+                      <motion.div
+                        key={lab.id || lab.slug}
+                        id={lab.slug ? `laboratory-${lab.slug}` : undefined}
+                        variants={itemVariants}
+                        className="scroll-mt-28"
+                      >
+                        <LaboratoryCard lab={lab} className="h-full" />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </section>
+              );
+            })}
+          </div>
         )}
 
         {/* Dynamic Zone Blocks if present in pageData */}

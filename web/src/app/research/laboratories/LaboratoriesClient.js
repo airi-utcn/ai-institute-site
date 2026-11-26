@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { FaSearch, FaTimes, FaFlask } from 'react-icons/fa';
 import LaboratoryCard from '@/components/laboratory/LaboratoryCard';
 import DynamicZone from '@/components/shared/DynamicZone';
+import { useLocale } from '@/context/LocaleContext';
+import { groupLaboratoriesByFloor } from '@/lib/laboratory-floors';
 import { usePageState } from '@/lib/usePageState';
 
 const containerVariants = {
@@ -27,6 +29,11 @@ const itemVariants = {
   },
 };
 
+const FLOOR_LABELS = {
+  en: ['Ground floor', 'First floor', 'Second floor', 'Third floor', 'Fourth floor', 'Fifth floor'],
+  ro: ['Parter', 'Etajul 1', 'Etajul 2', 'Etajul 3', 'Etajul 4', 'Etajul 5'],
+};
+
 const normalizeText = (val) =>
   (val || '')
     .toString()
@@ -46,6 +53,7 @@ const resolveImageUrl = (image) => {
 
 export default function LaboratoriesClient({ laboratories = [], pageData }) {
   const [query, setQuery] = usePageState('query', '');
+  const locale = useLocale() === 'ro' ? 'ro' : 'en';
 
   const title = pageData?.title || 'Laboratories & Spaces';
   const subtitle =
@@ -80,6 +88,11 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
       );
     });
   }, [laboratories, query]);
+
+  const floorGroups = useMemo(
+    () => groupLaboratoriesByFloor(filteredLaboratories),
+    [filteredLaboratories],
+  );
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-gray-100">
@@ -146,7 +159,7 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
 
       {/* Laboratories Grid */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-        {filteredLaboratories.length === 0 ? (
+        {floorGroups.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 p-12 text-center">
             <FaFlask className="w-10 h-10 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
@@ -166,18 +179,34 @@ export default function LaboratoriesClient({ laboratories = [], pageData }) {
             )}
           </div>
         ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
-          >
-            {filteredLaboratories.map((lab) => (
-              <motion.div key={lab.id || lab.slug} variants={itemVariants}>
-                <LaboratoryCard lab={lab} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="space-y-12">
+            {floorGroups.map(({ floor, laboratories: labs }) => {
+              const headingId = `laboratory-floor-${floor ?? 'unknown'}`;
+              const label = floor === null
+                ? (locale === 'ro' ? 'Etaj neconfirmat' : 'Floor to be confirmed')
+                : FLOOR_LABELS[locale][floor];
+
+              return (
+                <section key={headingId} aria-labelledby={headingId}>
+                  <h2 id={headingId} className="mb-5 text-2xl font-bold text-gray-900 dark:text-white">
+                    {label}
+                  </h2>
+                  <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+                  >
+                    {labs.map((lab) => (
+                      <motion.div key={lab.id || lab.slug} variants={itemVariants}>
+                        <LaboratoryCard lab={lab} />
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </section>
+              );
+            })}
+          </div>
         )}
 
         {/* Dynamic Zone Blocks if present in pageData */}

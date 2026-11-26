@@ -1131,8 +1131,10 @@ export async function getPartnerBySlug(slug, locale = null) {
   }
 }
 
+const RESULT_FIELDS = ['title', 'slug', 'description', 'publishedDate'];
+
 const RESULT_DETAIL_POPULATE = {
-  fields: ['title', 'slug', 'description', 'publishedDate'],
+  fields: RESULT_FIELDS,
   populate: {
     attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText', 'caption'] },
     body: {
@@ -1357,7 +1359,7 @@ export async function getLaboratoryBySlug(slug, locale = null) {
   }
 }
 
-/** Fetch result content separately to keep the laboratory detail query short. */
+/** Fetch the result summaries for the laboratory's Results tab. */
 export async function getLaboratoryResults(slug, locale = null) {
   try {
     if (!slug) return [];
@@ -1365,7 +1367,12 @@ export async function getLaboratoryResults(slug, locale = null) {
       filters: { slug: { $eq: slug } },
       locale,
       fields: ['slug'],
-      populate: { results: RESULT_DETAIL_POPULATE },
+      populate: {
+        results: {
+          fields: RESULT_FIELDS,
+          populate: { attachments: { fields: ['url'] } },
+        },
+      },
     });
     let data = await fetchAPI(`/laboratories?${params.toString()}`);
     if (!data.data?.length && !data.errorStatus && locale && locale !== 'en') {
@@ -1918,7 +1925,7 @@ export async function getResults(options = {}) {
     const params = createParams({
       sort: 'publishedDate:desc',
       locale,
-      fields: ['title', 'slug', 'description', 'publishedDate'],
+      fields: RESULT_FIELDS,
       populate: {
         attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats'] },
         projects: { fields: ['title', 'slug'] },
@@ -1948,6 +1955,7 @@ export async function getResultBySlug(slug, locale = null) {
       populate: {
         ...RESULT_DETAIL_POPULATE.populate,
         projects: { fields: ['title', 'slug'] },
+        laboratories: { fields: ['title', 'slug'] },
       },
     });
 
@@ -2610,6 +2618,11 @@ export function transformResultData(strapiResults) {
       };
     });
 
+    const laboratories = toArray(attributes.laboratories?.data ?? attributes.laboratories)
+      .map((laboratory) => laboratory?.attributes ?? laboratory)
+      .filter((laboratory) => laboratory?.slug)
+      .map(({ slug, title }) => ({ slug, title }));
+
     const body = normalizeBodyBlocks(attributes.body);
 
     const normalizeDate = (value) => {
@@ -2626,6 +2639,7 @@ export function transformResultData(strapiResults) {
       description: attributes.description || '',
       publishedDate: normalizeDate(attributes.publishedDate),
       projects,
+      laboratories,
       attachments,
       body,
       _strapi: result,

@@ -1,43 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { FaArrowLeft, FaDownload, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
-import BodyContentImage from '@/components/shared/BodyContentImage';
+import { FaArrowLeft, FaCalendarAlt, FaFolderOpen } from 'react-icons/fa';
 import DynamicZone from '@/components/shared/DynamicZone';
+import MediaAttachment from '@/components/shared/MediaAttachment';
 import BackLink from '@/components/BackLink';
 
-import RichMarkdown from '@/components/shared/RichMarkdown';
 import { useLocale } from '@/context/LocaleContext';
 
 export default function ResultDetailsClient({ result }) {
   const locale = useLocale();
   const projects = Array.isArray(result?.projects) ? result.projects : [];
-  const attachments = Array.isArray(result?.attachments) ? result.attachments : [];
+  const laboratories = result.laboratories || [];
+  const attachments = (result.attachments || []).filter((file) => file.url);
   const bodyBlocks = Array.isArray(result?.body) ? result.body : [];
-  const markdownClassName = 'prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300';
 
-  // Determine the "back" link - if there's exactly one project, go to it; otherwise go to projects list
-  const backHref = projects.length === 1 && projects[0].slug 
-    ? `/research/projects/${encodeURIComponent(projects[0].slug)}?tab=results`
-    : '/research/projects';
-  const backLabel = projects.length === 1 && projects[0].title
-    ? projects[0].title
-    : 'Back to Projects';
+  const showLaboratories = projects.length === 0 && laboratories.length > 0;
+  const parentPath = showLaboratories ? '/research/laboratories' : '/research/projects';
+  const parents = showLaboratories ? laboratories : projects;
+  const parent = parents.length === 1 ? parents[0] : null;
+  const backHref = parent?.slug ? `${parentPath}/${encodeURIComponent(parent.slug)}?tab=results` : parentPath;
+  const backLabel = parent?.title || (showLaboratories ? 'Back to Laboratories' : 'Back to Projects');
 
-  const formatFileSize = (bytes) => {
-    if (!bytes) return '';
-    const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
-    return `${(kb / 1024).toFixed(1)} MB`;
-  };
-
-  const getFileIcon = (mime) => {
-    if (mime?.includes('image')) return '🖼️';
-    if (mime?.includes('video')) return '🎥';
-    if (mime?.includes('audio')) return '🎵';
-    if (mime?.includes('pdf')) return '📄';
-    return '📎';
-  };
+  const attachmentCards = attachments.map((file) => (
+    <MediaAttachment
+      key={file.id ?? file.url}
+      media={{ ...file, size: file.size * 1000 }}
+      caption={file.caption}
+      className="min-w-0"
+      download
+    />
+  ));
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
@@ -117,29 +110,7 @@ export default function ResultDetailsClient({ result }) {
                     </span>
                   </div>
                   <div className="space-y-2">
-                    {attachments.map((file, i) => (
-                      <a
-                        key={file.id || i}
-                        href={file.url}
-                        download
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group flex items-center justify-between p-3 rounded-xl bg-white dark:bg-[#1a1a1a] border border-blue-100 dark:border-gray-800 shadow-sm hover:shadow transition-all"
-                      >
-                        <div className="flex items-center gap-3 min-w-0 pr-2">
-                          <span className="text-lg">{getFileIcon(file.mime)}</span>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {file.name}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              {formatFileSize(file.size)}
-                            </p>
-                          </div>
-                        </div>
-                        <FaDownload className="w-3.5 h-3.5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
-                      </a>
-                    ))}
+                    {attachmentCards}
                   </div>
                 </div>
               )}
@@ -171,29 +142,7 @@ export default function ResultDetailsClient({ result }) {
                   Attachments
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {attachments.map((file, i) => (
-                    <a
-                      key={file.id || i}
-                      href={file.url}
-                      download
-                      target="_blank"
-                      rel="noreferrer"
-                      className="group flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-[#141414] border border-gray-200 dark:border-gray-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all"
-                    >
-                      <div className="flex items-center gap-3 min-w-0 pr-2">
-                        <span className="text-xl">{getFileIcon(file.mime)}</span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {formatFileSize(file.size)}
-                          </p>
-                        </div>
-                      </div>
-                      <FaDownload className="w-4 h-4 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors shrink-0" />
-                    </a>
-                  ))}
+                  {attachmentCards}
                 </div>
               </div>
             )}

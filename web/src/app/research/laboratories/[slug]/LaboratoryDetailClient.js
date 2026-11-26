@@ -17,6 +17,7 @@ import {
   FaInfoCircle,
   FaBook,
   FaCog,
+  FaPaperclip,
   FaTags,
   FaFilePdf,
   FaBoxOpen,
@@ -30,13 +31,13 @@ import HeroHeader from '@/components/shared/HeroHeader';
 import { heroSizes } from '@/lib/media';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
-import MediaAttachment from '@/components/shared/MediaAttachment';
 import PersonChip from '@/components/shared/PersonChip';
 import ContentCard from '@/components/ContentCard';
 import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
 import { getPeopleCount } from '@/lib/people';
 import { usePageState } from '@/lib/usePageState';
 import BackLink from '@/components/BackLink';
+import { useLocale } from '@/context/LocaleContext';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -95,8 +96,10 @@ export default function LaboratoryDetailClient({
   teams = [],
   publications = [],
   results = [],
+  initialTab = 'overview',
 }) {
-  const [activeTab, setActiveTab] = usePageState('tab', 'overview');
+  const [activeTab, setActiveTab] = usePageState('tab', initialTab);
+  const locale = useLocale();
 
   const t = (key) => {
     let val = DEFAULT_TEXTS[key] ?? key;
@@ -662,43 +665,45 @@ export default function LaboratoryDetailClient({
               initial="hidden"
               animate="show"
               exit={{ opacity: 0 }}
-              className="space-y-10"
             >
               {results.length > 0 ? (
-                results.map((result) => {
-                  const attachments = result.attachments.filter((file) => file.url);
-                  return (
-                    <motion.article
-                      key={result.id}
-                      variants={itemVariants}
-                      className="space-y-6 border-b border-gray-200 pb-10 last:border-b-0 last:pb-0 dark:border-gray-800"
-                    >
-                      <header className="space-y-2">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                          {result.title}
-                        </h2>
-                        {result.description && (
-                          <p className="text-gray-600 dark:text-gray-300">{result.description}</p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  {results.map((result) => {
+                    const attachmentCount = result.attachments.filter((file) => file.url).length;
+
+                    return (
+                      <ContentCard
+                        key={result.slug}
+                        href={`/research/results/${encodeURIComponent(result.slug)}`}
+                        title={result.title}
+                        description={result.description}
+                        className="block h-full focus-visible:ring-2 focus-visible:ring-blue-500"
+                        animate
+                        animationVariants={itemVariants}
+                      >
+                        {(result.publishedDate || attachmentCount > 0) && (
+                          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+                            {result.publishedDate && (
+                              <time dateTime={result.publishedDate.slice(0, 10)}>
+                                {new Date(result.publishedDate).toLocaleDateString(locale === 'ro' ? 'ro-RO' : 'en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  timeZone: 'UTC',
+                                })}
+                              </time>
+                            )}
+                            {attachmentCount > 0 && (
+                              <span className="inline-flex items-center gap-1.5">
+                                <FaPaperclip aria-hidden="true" />
+                                {t('results.attachments')} ({attachmentCount})
+                              </span>
+                            )}
+                          </div>
                         )}
-                      </header>
-                      {result.body.length > 0 && <DynamicZone blocks={result.body} />}
-                      {attachments.length > 0 && (
-                        <div className="space-y-3">
-                          <h3 className="text-lg font-semibold">{t('results.attachments')}</h3>
-                          {attachments.map((file) => (
-                            <MediaAttachment
-                              key={file.id ?? file.url}
-                              media={{ ...file, size: file.size * 1000 }}
-                              caption={file.caption}
-                              className="max-w-xl"
-                              download
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </motion.article>
-                  );
-                })
+                      </ContentCard>
+                    );
+                  })}
+                </div>
               ) : (
                 <EmptyState>{t('results.noResults')}</EmptyState>
               )}

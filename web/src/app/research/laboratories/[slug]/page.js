@@ -46,8 +46,8 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function LaboratoryPage({ params }) {
-  const { slug } = await params;
+export default async function LaboratoryPage({ params, searchParams }) {
+  const [{ slug }, { tab }] = await Promise.all([params, searchParams]);
   const cookieStore = await cookies();
   const locale = cookieStore.get("NEXT_LOCALE")?.value || "en";
 
@@ -66,7 +66,7 @@ export default async function LaboratoryPage({ params }) {
   const lab = transformLaboratoryData([labData])[0];
   const teams = transformTeamData(teamsData).filter((team) => !team.isArchived);
   const publications = transformPublicationData(publicationsData);
-  const results = transformResultData(resultsData);
+  const results = transformResultData(resultsData).filter((result) => result.slug);
 
   return (
     <>
@@ -80,6 +80,7 @@ export default async function LaboratoryPage({ params }) {
         teams={teams}
         publications={publications}
         results={results}
+        initialTab={tab === "results" ? "results" : "overview"}
       />
     </>
   );

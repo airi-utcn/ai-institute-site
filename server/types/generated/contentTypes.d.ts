@@ -3079,16 +3079,7 @@ export interface ApiNewsArticleNewsArticle extends Struct.CollectionTypeSchema {
           localized: true;
         };
       }>;
-    category: Schema.Attribute.Enumeration<
-      [
-        'announcement',
-        'construction',
-        'collaboration',
-        'award',
-        'press',
-        'other',
-      ]
-    > &
+    category: Schema.Attribute.Enumeration<['announcement', 'award']> &
       Schema.Attribute.DefaultTo<'announcement'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &

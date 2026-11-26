@@ -257,6 +257,34 @@ test('validates the Romanian summary independently from the English version', as
   }));
 });
 
+test('news categories accept announcements and awards and reject retired values', async () => {
+  const news = app.documents(uid);
+  const defaultDraft = await news.create({ data: newsData(), locale: 'en' });
+  assert.equal(defaultDraft.category, 'announcement');
+
+  for (const category of ['announcement', 'award']) {
+    const article = await news.create({
+      data: { ...newsData(), category }, locale: 'en', status: 'published',
+    });
+    assert.equal(article.category, category);
+    assert.ok(article.publishedAt);
+  }
+
+  for (const category of ['construction', 'collaboration', 'press', 'other']) {
+    await assert.rejects(
+      news.create({ data: { ...newsData(), category }, locale: 'en' }),
+      missingField('category'),
+    );
+    await assert.rejects(
+      news.update({ documentId: defaultDraft.documentId, data: { category }, locale: 'en' }),
+      missingField('category'),
+    );
+  }
+
+  const draft = await news.findOne({ documentId: defaultDraft.documentId, locale: 'en' });
+  assert.equal(draft.category, 'announcement');
+});
+
 test('REST API permits incomplete drafts and returns 400 for blank published text', async () => {
   // The token and HTTP listener exist only in this disposable test application.
   const token = await app.admin.services['api-token'].create({

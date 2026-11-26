@@ -15,7 +15,7 @@ The **Category** decides where the item is listed:
 | Category | Listed on |
 | --- | --- |
 | `award` | `/news&events/awards` (and not on the news page) |
-| `announcement`, `construction`, `collaboration`, `press`, `other` | `/news&events/news`, with a filter per category |
+| `announcement` | `/news&events/news` |
 
 The homepage shows the six most recent published news items in the visitor's language, sorted by
 **Published Date**. Set that date to when the news happened, not when you typed it in. It controls

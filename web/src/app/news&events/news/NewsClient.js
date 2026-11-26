@@ -85,7 +85,6 @@ const Highlight = ({ text = "", highlight = "" }) => {
 
 export default function NewsClient({ newsItems = [], pageData }) {
   const items = Array.isArray(newsItems) ? newsItems : [];
-  const [category, setCategory] = usePageState("category", "all");
   const [query, setQuery] = usePageState("query", "");
 
   const locale = useLocale();
@@ -94,12 +93,10 @@ export default function NewsClient({ newsItems = [], pageData }) {
   // ── i18n ──
   const t = (key) => {
     const map = {
-      latest: pageData?.newsLatest || "Latest from AIRi",
       title: pageData?.newsTitle || "News & Stories",
       subtitle:
         pageData?.newsSubtitle ||
         "Updates, breakthroughs, and community highlights from the Artificial Intelligence Research Institute.",
-      quickFilters: pageData?.newsQuickFilters || "Filter by topic",
       searchLabel: pageData?.newsSearchLabel || "Search stories",
       searchPlaceholder:
         pageData?.newsSearchPlaceholder ||
@@ -114,7 +111,6 @@ export default function NewsClient({ newsItems = [], pageData }) {
       emptyState:
         pageData?.newsEmptyState || "No news found matching your criteria.",
       noImage: pageData?.newsNoImage || "No image available",
-      "categories.all": pageData?.categoryAll || "All",
       goToArchive: "View News Archive",
     };
     return map[key] || key;
@@ -135,12 +131,7 @@ export default function NewsClient({ newsItems = [], pageData }) {
   const getCategoryLabel = (value) => {
     const labels = {
       announcement: pageData?.categoryAnnouncement || "Announcement",
-      construction: pageData?.categoryConstruction || "Construction",
-      collaboration: pageData?.categoryCollaboration || "Collaboration",
       award: pageData?.categoryAward || "Award",
-      press: pageData?.categoryPress || "Press",
-      other: pageData?.categoryOther || "Other",
-      all: pageData?.categoryAll || "All",
     };
     return (
       labels[value] ||
@@ -175,18 +166,11 @@ export default function NewsClient({ newsItems = [], pageData }) {
   // ── Derived state ──
   const heroImageUrl = resolveImageUrl(pageData?.heroImage);
 
-  const categories = useMemo(() => {
-    const set = new Set(["all"]);
-    for (const item of items) {
-      if (item.category) set.add(item.category);
-    }
-    return Array.from(set);
-  }, [items]);
-
   const filtered = useMemo(() => {
     const terms = parseSearchTerms(query);
+    if (!terms.length) return items;
+
     return items.filter((item) => {
-      const matchCategory = category === "all" || item.category === category;
       const searchable = normalizeSearchText(
         [
           item.title,
@@ -199,11 +183,9 @@ export default function NewsClient({ newsItems = [], pageData }) {
           .filter(Boolean)
           .join(" ")
       );
-      const matchQuery =
-        !terms.length || terms.every((term) => searchable.includes(term));
-      return matchCategory && matchQuery;
+      return terms.every((term) => searchable.includes(term));
     });
-  }, [items, category, query]);
+  }, [items, query]);
 
   const hero = filtered[0] || null;
   const heroKey = hero ? (hero.id ?? hero.slug ?? hero.title) : null;
@@ -243,10 +225,6 @@ export default function NewsClient({ newsItems = [], pageData }) {
 
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 mb-4">
-              <FaNewspaper className="w-3 h-3" />
-              <span>{t("latest")}</span>
-            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
               {t("title")}
             </h1>
@@ -255,49 +233,25 @@ export default function NewsClient({ newsItems = [], pageData }) {
             </p>
           </div>
 
-          {/* Search + Filter Bar */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t("searchPlaceholder")}
-                aria-label={t("searchLabel")}
-                className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Clear search"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                >
-                  <FaTimes className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* Category Filter Pills */}
-            {categories.length > 1 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    onClick={() => setCategory(cat)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                      category === cat
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
-                  >
-                    {cat === "all" ? t("categories.all") : getCategoryLabel(cat)}
-                  </button>
-                ))}
-              </div>
+          <div className="relative mt-8 max-w-md">
+            <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchLabel")}
+              className="w-full pl-10 pr-9 py-2.5 text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <FaTimes className="w-3.5 h-3.5" />
+              </button>
             )}
           </div>
         </div>
@@ -394,11 +348,8 @@ export default function NewsClient({ newsItems = [], pageData }) {
           <CatalogNotice
             isEmpty={true}
             emptyMessage={t("emptyState")}
-            hasActiveFilters={Boolean(query || category !== "all")}
-            onClearFilters={() => {
-              setQuery("");
-              setCategory("all");
-            }}
+            hasActiveFilters={Boolean(query)}
+            onClearFilters={() => setQuery("")}
           />
         )}
 

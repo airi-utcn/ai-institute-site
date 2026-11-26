@@ -127,7 +127,7 @@ test('special preview targets build the expected routes', async () => {
   const news = await resolvePreviewPath(
     'api::news-article.news-article',
     { documentId: 'doc-1', status: 'draft' },
-    fakeStrapi({ ...sampleDocument, category: 'press' }),
+    fakeStrapi({ ...sampleDocument, category: 'announcement' }),
   );
   assert.equal(news, '/news&events/news/sample-slug');
 

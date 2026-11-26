@@ -16,6 +16,8 @@ import {
   FaImages,
   FaInfoCircle,
   FaBook,
+  FaCog,
+  FaPaperclip,
   FaTags,
   FaFilePdf,
   FaBoxOpen,
@@ -35,6 +37,7 @@ import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
 import { getPeopleCount } from '@/lib/people';
 import { usePageState } from '@/lib/usePageState';
 import BackLink from '@/components/BackLink';
+import { useLocale } from '@/context/LocaleContext';
 
 const DEFAULT_TEXTS = {
   backToLaboratories: 'Back to Laboratories',
@@ -43,6 +46,7 @@ const DEFAULT_TEXTS = {
   'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
+  'tabs.results': 'Results',
   'tabs.schedule': 'Room schedule',
   'tabs.equipment': 'Equipment',
   'overview.about': 'About',
@@ -62,6 +66,8 @@ const DEFAULT_TEXTS = {
   'schedule.description':
     'Current and upcoming bookings for this room, as published in the UTCN timetable.',
   'publications.noPublications': 'No publications found for this laboratory.',
+  'results.noResults': 'No results have been published for this laboratory yet.',
+  'results.attachments': 'Attachments',
   'themes.title': 'Research Themes',
 };
 
@@ -89,8 +95,11 @@ export default function LaboratoryDetailClient({
   pageData,
   teams = [],
   publications = [],
+  results = [],
+  initialTab = 'overview',
 }) {
-  const [activeTab, setActiveTab] = usePageState('tab', 'overview');
+  const [activeTab, setActiveTab] = usePageState('tab', initialTab);
+  const locale = useLocale();
 
   const t = (key) => {
     let val = DEFAULT_TEXTS[key] ?? key;
@@ -140,6 +149,12 @@ export default function LaboratoryDetailClient({
       label: t('tabs.publications'),
       icon: FaBook,
       count: publications.length,
+    },
+    {
+      id: 'results',
+      label: t('tabs.results'),
+      icon: FaCog,
+      count: results.length,
     },
     {
       id: 'schedule',
@@ -257,6 +272,7 @@ export default function LaboratoryDetailClient({
                 <button
                   key={tab.id}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                     isActive
@@ -638,6 +654,58 @@ export default function LaboratoryDetailClient({
                 })
               ) : (
                 <EmptyState>{t('publications.noPublications')}</EmptyState>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'results' && (
+            <motion.div
+              key="results"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              {results.length > 0 ? (
+                <div className="grid gap-4 md:grid-cols-2">
+                  {results.map((result) => {
+                    const attachmentCount = result.attachments.filter((file) => file.url).length;
+
+                    return (
+                      <ContentCard
+                        key={result.slug}
+                        href={`/research/results/${encodeURIComponent(result.slug)}`}
+                        title={result.title}
+                        description={result.description}
+                        className="block h-full focus-visible:ring-2 focus-visible:ring-blue-500"
+                        animate
+                        animationVariants={itemVariants}
+                      >
+                        {(result.publishedDate || attachmentCount > 0) && (
+                          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+                            {result.publishedDate && (
+                              <time dateTime={result.publishedDate.slice(0, 10)}>
+                                {new Date(result.publishedDate).toLocaleDateString(locale === 'ro' ? 'ro-RO' : 'en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  timeZone: 'UTC',
+                                })}
+                              </time>
+                            )}
+                            {attachmentCount > 0 && (
+                              <span className="inline-flex items-center gap-1.5">
+                                <FaPaperclip aria-hidden="true" />
+                                {t('results.attachments')} ({attachmentCount})
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </ContentCard>
+                    );
+                  })}
+                </div>
+              ) : (
+                <EmptyState>{t('results.noResults')}</EmptyState>
               )}
             </motion.div>
           )}

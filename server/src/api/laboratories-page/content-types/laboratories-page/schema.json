@@ -148,6 +148,15 @@
         }
       }
     },
+    "tabsResults": {
+      "type": "string",
+      "default": "Results",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
     "overviewAbout": {
       "type": "string",
       "default": "About",
@@ -232,6 +241,24 @@
     "publicationsNoPublications": {
       "type": "string",
       "default": "No publications found for this laboratory.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsNoResults": {
+      "type": "string",
+      "default": "No results have been published for this laboratory yet.",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
+    },
+    "resultsAttachments": {
+      "type": "string",
+      "default": "Attachments",
       "pluginOptions": {
         "i18n": {
           "localized": true

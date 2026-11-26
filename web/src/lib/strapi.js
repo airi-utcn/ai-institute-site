@@ -1165,6 +1165,30 @@ export async function getPartnerBySlug(slug, locale = null) {
   }
 }
 
+const RESULT_FIELDS = ['title', 'slug', 'description', 'publishedDate'];
+
+const RESULT_DETAIL_POPULATE = {
+  fields: RESULT_FIELDS,
+  populate: {
+    attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText', 'caption'] },
+    body: {
+      on: {
+        'shared.rich-text': { fields: ['body'] },
+        'shared.section': {
+          fields: ['heading', 'subheading', 'body'],
+          populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+        'shared.media': {
+          populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+        'shared.slider': {
+          populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+      },
+    },
+  },
+};
+
 const LABORATORY_POPULATE = {
   fields: [
     'title',
@@ -1366,6 +1390,33 @@ export async function getLaboratoryBySlug(slug, locale = null) {
   } catch (error) {
     console.error('Failed to fetch laboratory by slug:', error);
     return null;
+  }
+}
+
+/** Fetch the result summaries for the laboratory's Results tab. */
+export async function getLaboratoryResults(slug, locale = null) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      filters: { slug: { $eq: slug } },
+      locale,
+      fields: ['slug'],
+      populate: {
+        results: {
+          fields: RESULT_FIELDS,
+          populate: { attachments: { fields: ['url'] } },
+        },
+      },
+    });
+    let data = await fetchAPI(`/laboratories?${params.toString()}`);
+    if (!data.data?.length && !data.errorStatus && locale && locale !== 'en') {
+      params.set('locale', 'en');
+      data = await fetchAPI(`/laboratories?${params.toString()}`);
+    }
+    return data.data?.[0]?.results ?? [];
+  } catch (error) {
+    console.error('Failed to fetch laboratory results:', error);
+    return [];
   }
 }
 
@@ -1911,7 +1962,7 @@ export async function getResults(options = {}) {
     const params = createParams({
       sort: 'publishedDate:desc',
       locale,
-      fields: ['title', 'slug', 'description', 'publishedDate'],
+      fields: RESULT_FIELDS,
       populate: {
         attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats'] },
         projects: { fields: ['title', 'slug'] },
@@ -1937,31 +1988,11 @@ export async function getResultBySlug(slug, locale = null) {
     const params = createParams({
       filters: { slug: { $eq: slug } },
       locale,
-      fields: ['title', 'slug', 'description', 'publishedDate'],
+      fields: RESULT_DETAIL_POPULATE.fields,
       populate: {
-        attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText', 'caption'] },
+        ...RESULT_DETAIL_POPULATE.populate,
         projects: { fields: ['title', 'slug'] },
-        body: {
-          on: {
-            'shared.rich-text': { fields: ['body'] },
-            'shared.section': {
-              fields: ['heading', 'subheading', 'body'],
-              populate: {
-                media: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-            'shared.media': {
-              populate: {
-                file: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-            'shared.slider': {
-              populate: {
-                files: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-          },
-        },
+        laboratories: { fields: ['title', 'slug'] },
       },
     });
 
@@ -2624,6 +2655,11 @@ export function transformResultData(strapiResults) {
       };
     });
 
+    const laboratories = toArray(attributes.laboratories?.data ?? attributes.laboratories)
+      .map((laboratory) => laboratory?.attributes ?? laboratory)
+      .filter((laboratory) => laboratory?.slug)
+      .map(({ slug, title }) => ({ slug, title }));
+
     const body = normalizeBodyBlocks(attributes.body);
 
     const normalizeDate = (value) => {
@@ -2640,6 +2676,7 @@ export function transformResultData(strapiResults) {
       description: attributes.description || '',
       publishedDate: normalizeDate(attributes.publishedDate),
       projects,
+      laboratories,
       attachments,
       body,
       _strapi: result,

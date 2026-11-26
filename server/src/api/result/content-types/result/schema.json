@@ -73,6 +73,12 @@
       "relation": "manyToMany",
       "target": "api::project.project",
       "inversedBy": "results"
+    },
+    "laboratories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::laboratory.laboratory",
+      "mappedBy": "results"
     }
   }
 }

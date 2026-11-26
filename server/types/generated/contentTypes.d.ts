@@ -2794,6 +2794,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
       }> &
       Schema.Attribute.DefaultTo<'No publications found for this laboratory.'>;
     publishedAt: Schema.Attribute.DateTime;
+    resultsAttachments: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Attachments'>;
     resultsCount: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2808,6 +2815,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Found {count} laboratories'>;
+    resultsNoResults: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'No results have been published for this laboratory yet.'>;
     searchPlaceholder: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2849,6 +2863,13 @@ export interface ApiLaboratoriesPageLaboratoriesPage
         };
       }> &
       Schema.Attribute.DefaultTo<'Publications'>;
+    tabsResults: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }> &
+      Schema.Attribute.DefaultTo<'Results'>;
     themesTitle: Schema.Attribute.String &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
@@ -2941,6 +2962,7 @@ export interface ApiLaboratoryLaboratory extends Struct.CollectionTypeSchema {
       'manyToMany',
       'api::research-theme.research-theme'
     >;
+    results: Schema.Attribute.Relation<'manyToMany', 'api::result.result'>;
     roomNumber: Schema.Attribute.String;
     slug: Schema.Attribute.UID<'title'>;
     summary: Schema.Attribute.Text &
@@ -5540,6 +5562,10 @@ export interface ApiResultResult extends Struct.CollectionTypeSchema {
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 500;
       }>;
+    laboratories: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::laboratory.laboratory'
+    >;
     locale: Schema.Attribute.String;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::result.result'>;
     projects: Schema.Attribute.Relation<'manyToMany', 'api::project.project'>;

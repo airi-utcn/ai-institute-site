@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "graph_exclusions",
+  "info": {
+    "singularName": "graph-exclusion",
+    "pluralName": "graph-exclusions",
+    "displayName": "Graph Exclusion"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "openAlexId": {
+      "type": "string"
+    },
+    "doi": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "scope": {
+      "type": "enumeration",
+      "enum": [
+        "graphOnly",
+        "hideEverywhere"
+      ],
+      "default": "graphOnly",
+      "required": true
+    },
+    "reason": {
+      "type": "text"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

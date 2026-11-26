@@ -40,12 +40,24 @@ Common examples:
 python main.py
 python main.py --institution "Technical University of Cluj-Napoca"
 python main.py --person "Adrian Groza"
+python main.py --skip-pdf
+python main.py --dry-run --skip-pdf
+python main.py --graph-only
+python main.py --doctor
+```
+
+## Tests
+
+The reliability helpers have network-free unit tests:
+
+```bash
+python -m unittest discover -s tests
 ```
 
 ## Documentation
 
-- [docs/paper-graph-generation.md](/home/shumy/Projects/ai-institute-site/docs/paper-graph-generation.md): detailed explanation of embeddings, similarity computation, links, duplicates, and Louvain communities
-- [docs/paper-sync-cli-guide.md](/home/shumy/Projects/ai-institute-site/docs/paper-sync-cli-guide.md): option-by-option CLI guide, usage patterns, and current caveats
+- [docs/paper-graph-operations.md](../docs/paper-graph-operations.md): runbook for author identity, coverage, concurrency, PDFs, graph semantics, health checks, and environment variables
+- [docs/StrapiAuthorDocs/PAPER_GRAPH.md](../docs/StrapiAuthorDocs/PAPER_GRAPH.md): editor-facing guide to the graph fields
 
 ## Dependency fallback
 

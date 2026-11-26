@@ -30,8 +30,10 @@ export async function generateMetadata({ params }) {
   return { title: `ICIA – ${topicSlug} · ${communitySlug}`, alternates: canonical(`/research/paper-graph/${encodeURIComponent(communitySlug)}/${encodeURIComponent(topicSlug)}`) };
 }
 
-export default async function TopicPublicationsPage({ params }) {
+export default async function TopicPublicationsPage({ params, searchParams }) {
   const { communitySlug: macroSlug, topicSlug } = await params;
+  const resolvedSearchParams = (await searchParams) || {};
+  const scope = resolvedSearchParams.scope === "tagged" ? "tagged" : "primary";
 
   const [macrosRaw, publicationsRaw, linksRaw] = await Promise.all([
     getGraphMacros(),
@@ -53,17 +55,23 @@ export default async function TopicPublicationsPage({ params }) {
   const selectedTopic = mesoTopics.find((topic) => topic.slug === topicSlug);
   if (!selectedTopic) notFound();
 
-  const publications = filterPublicationsForMesoTopic(allPublications, selectedTopic);
+  const publications = filterPublicationsForMesoTopic(allPublications, selectedTopic, { scope });
   if (publications.length === 0) notFound();
 
-  // Build links scoped to visible publications only
+  // Build links scoped to visible publications only. Passing the whole global
+  // link set to the client made every meso page parse thousands of unrelated
+  // edges and could show zero links if the global fetch was truncated.
   const oaToId = {};
   publications.forEach((p) => { if (p.openAlexId) oaToId[p.openAlexId] = p.id; });
-  const links = transformGraphLinkData(linksRaw, oaToId);
+  const visibleIds = new Set(publications.map((p) => p.id));
+  const links = transformGraphLinkData(linksRaw, oaToId).filter(
+    (link) => visibleIds.has(link.sourceId) && visibleIds.has(link.targetId),
+  );
 
   const topicLabel = selectedTopic.label;
   const macroLabel = macro?.name || macroSlug;
   const macroColor = MACRO_COLORS[macroIndex % MACRO_COLORS.length];
+  const topicPath = `/research/paper-graph/${macroSlug}/${selectedTopic.slug}`;
 
   return (
     <main className="overflow-hidden" style={{ background: "#03070f" }}>
@@ -74,6 +82,15 @@ export default async function TopicPublicationsPage({ params }) {
         backLabel={macroLabel}
         topicLabel={topicLabel}
         accentColor={macroColor}
+        topicScope={scope}
+        topicScopeLinks={{
+          primary: topicPath,
+          tagged: `${topicPath}?scope=tagged`,
+        }}
+        topicScopeCounts={{
+          primary: selectedTopic.paperCount,
+          tagged: selectedTopic.taggedCount,
+        }}
       />
     </main>
   );

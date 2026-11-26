@@ -204,8 +204,6 @@ docker compose exec strapi npm run migrate:i18n
 docker compose -f compose.prod.yaml exec strapi npm run migrate:i18n
 ```
 
-For a complete guide on running this migration in production Docker environments, see [docs/i18n-production-migration.md](./docs/i18n-production-migration.md).
-
 ### Database Operations
 
 ```bash

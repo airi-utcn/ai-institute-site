@@ -26,6 +26,16 @@ def normalize_title(value):
     return re.sub(r"\s+", " ", raw)
 
 
+def normalize_person_name(value):
+    """Normalize a person name for order- and accent-insensitive comparison."""
+    text = unicodedata.normalize("NFD", str(value or ""))
+    text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+    text = text.lower()
+    tokens = re.findall(r"[a-z0-9]+", text)
+    tokens = [token for token in tokens if token not in {"dr", "prof", "mr", "ms"}]
+    return " ".join(sorted(tokens))
+
+
 def slugify(value):
     """Convert a string to a URL-friendly slug.
     

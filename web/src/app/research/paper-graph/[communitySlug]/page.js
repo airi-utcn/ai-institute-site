@@ -56,7 +56,10 @@ export default async function CommunityTopicsPage({ params }) {
   const topics = buildMesoTopics(publications);
   const oaToId = {};
   publications.forEach((p) => { if (p.openAlexId) oaToId[p.openAlexId] = p.id; });
-  const links = transformGraphLinkData(linksRaw, oaToId);
+  const visibleIds = new Set(publications.map((p) => p.id));
+  const links = transformGraphLinkData(linksRaw, oaToId).filter(
+    (link) => visibleIds.has(link.sourceId) && visibleIds.has(link.targetId),
+  );
   const mesoLinks = buildMesoLinks(publications, links, topics);
 
   return (

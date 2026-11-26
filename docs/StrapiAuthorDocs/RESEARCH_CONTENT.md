@@ -79,7 +79,7 @@ there may not stick; that guide explains how to exclude someone permanently.
 
 Leave the graph and embedding fields (**Graph Eligible**, **Community**, **Embedding**, **Graph
 Macro/Meso**…) alone unless you know what they do. They are explained in the
-[paper graph user manual](../../paper-graph-user-manual.md).
+[paper graph author guide](./PAPER_GRAPH.md).
 
 ## Results
 

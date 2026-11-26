@@ -391,7 +391,9 @@ export default function ConstellationClient({
 
         drawTextWithHalo(
           ctx,
-          `${topic.paperCount} papers`,
+          topic.taggedCount && topic.taggedCount !== topic.paperCount
+            ? `${topic.paperCount}/${topic.taggedCount} papers`
+            : `${topic.paperCount} papers`,
           pos.x,
           pos.y + r + 12,
           "8px monospace",
@@ -400,8 +402,27 @@ export default function ConstellationClient({
           2.2
         );
 
-        if (isH && topic.yearRange) {
-          drawTextWithHalo(ctx, topic.yearRange, pos.x, pos.y + r + 24, "8px monospace", color + "aa", "rgba(3,7,15,0.96)", 2);
+        if (isH) {
+          const detail = [
+            topic.taggedCount && topic.taggedCount !== topic.paperCount
+              ? `${topic.taggedCount} tagged`
+              : null,
+            topic.yearRange,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          if (detail) {
+            drawTextWithHalo(
+              ctx,
+              detail,
+              pos.x,
+              pos.y + r + 24,
+              "8px monospace",
+              color + "aa",
+              "rgba(3,7,15,0.96)",
+              2
+            );
+          }
         }
       });
 
@@ -467,7 +488,7 @@ export default function ConstellationClient({
           ◈ {communityLabel.toUpperCase()}
         </div>
         <div className="text-[10px] tracking-widest mt-0.5" style={{ color: color + "85", textShadow: "0 0 10px rgba(0,0,0,0.85)" }}>
-          CONSTELLATION &nbsp;·&nbsp; {topics.length} TOPICS &nbsp;·&nbsp; {totalPapers} PAPERS
+          CONSTELLATION &nbsp;·&nbsp; {topics.length} TOPICS &nbsp;·&nbsp; {totalPapers} PAPERS &nbsp;·&nbsp; NODE COUNTS PRIMARY/TAGGED
         </div>
       </div>
 

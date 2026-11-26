@@ -26,7 +26,18 @@ emit_cron_env() {
 {
 	emit_cron_env STRAPI_URL
 	emit_cron_env STRAPI_API_TOKEN
+	emit_cron_env STRAPI_HTTP_TIMEOUT
+	emit_cron_env STRAPI_HTTP_RETRIES
 	emit_cron_env OPENALEX_API_KEY
+	emit_cron_env OPENALEX_MAILTO
+	emit_cron_env OPENALEX_INSTITUTION_ID
+	emit_cron_env OPENALEX_HTTP_TIMEOUT
+	emit_cron_env OPENALEX_HTTP_RETRIES
+	emit_cron_env PAPER_IMPORT_OA_ONLY
+	emit_cron_env PAPER_IMPORT_TYPES
+	emit_cron_env PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES
+	emit_cron_env PAPER_SYNC_LOCK_PATH
+	emit_cron_env PDF_MAX_BYTES
 	emit_cron_env GRAPH_SIMILARITY_THRESHOLD
 	emit_cron_env GRAPH_DUPLICATE_THRESHOLD
 	emit_cron_env GRAPH_AI_MODEL

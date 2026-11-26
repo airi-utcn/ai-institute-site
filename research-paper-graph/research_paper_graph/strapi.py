@@ -1,6 +1,7 @@
 import ipaddress
 import logging
 import socket
+import time
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from io import BytesIO
@@ -8,11 +9,24 @@ from urllib.parse import quote, urljoin, urlparse
 
 import requests
 
-from .utils import normalize_doi, normalize_openalex_id, normalize_title, slugify
+from .import_scope import out_of_scope_reason
+from .utils import (
+    normalize_doi,
+    normalize_openalex_id,
+    normalize_person_name,
+    normalize_title,
+    slugify,
+)
 
 log = logging.getLogger(__name__)
 
 MAX_PDF_BYTES = 10 * 1024 * 1024
+PDF_USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+)
+RETRY_STATUS = {429, 500, 502, 503, 504}
+MESO_SLUG_PREFIX = "sc-"
 
 
 def _validate_public_https_url(url: str) -> None:
@@ -52,16 +66,42 @@ def _validate_public_https_url(url: str) -> None:
             )
 
 
-def _download_pdf(url: str) -> bytes:
+def _download_pdf(url: str, *, max_bytes=MAX_PDF_BYTES, timeout=30.0, retries=2) -> bytes:
     """Download a PDF without following redirects into private networks."""
+    if url.startswith("http://"):
+        # Most repositories serve the same object over TLS; the public-URL
+        # validation intentionally rejects plain HTTP.
+        url = "https://" + url[len("http://") :]
+
+    last_error = None
+    for attempt in range(retries + 1):
+        try:
+            return _download_pdf_once(url, max_bytes=max_bytes, timeout=timeout)
+        except ValueError:
+            raise
+        except requests.exceptions.RequestException as exc:
+            last_error = exc
+            if attempt >= retries:
+                break
+            time.sleep(0.5 * (2**attempt))
+    if last_error is not None:
+        raise last_error
+    raise ValueError("PDF download failed")
+
+
+def _download_pdf_once(url: str, *, max_bytes: int, timeout: float) -> bytes:
     current = url
-    for _ in range(4):
+    for _ in range(5):
         _validate_public_https_url(current)
         with requests.get(
             current,
-            timeout=15,
+            timeout=timeout,
             allow_redirects=False,
             stream=True,
+            headers={
+                "User-Agent": PDF_USER_AGENT,
+                "Accept": "application/pdf,application/octet-stream,*/*",
+            },
             # Do not let HTTP(S)_PROXY in the environment bypass the IP check.
             proxies={"http": None, "https": None},
         ) as response:
@@ -70,6 +110,8 @@ def _download_pdf(url: str) -> bytes:
                 if not location:
                     raise ValueError("PDF redirect has no Location header")
                 current = urljoin(current, location)
+                if current.startswith("http://"):
+                    current = "https://" + current[len("http://") :]
                 continue
 
             response.raise_for_status()
@@ -80,8 +122,8 @@ def _download_pdf(url: str) -> bytes:
                 if not chunk:
                     continue
                 total += len(chunk)
-                if total > MAX_PDF_BYTES:
-                    raise ValueError("PDF is larger than the 10 MB limit")
+                if total > max_bytes:
+                    raise ValueError(f"PDF is larger than the {max_bytes // (1024 * 1024)} MB limit")
                 chunks.append(chunk)
 
             content = b"".join(chunks)
@@ -94,9 +136,12 @@ def _download_pdf(url: str) -> bytes:
 
 
 class StrapiClient:
-    def __init__(self, base_url, token):
+    def __init__(self, base_url, token, *, timeout=60.0, retries=2, pdf_max_bytes=MAX_PDF_BYTES):
         self.base_url = base_url.rstrip("/")
         self.api_url = f"{self.base_url}/api"
+        self.timeout = float(timeout or 60.0)
+        self.retries = max(0, int(retries or 0))
+        self.pdf_max_bytes = int(pdf_max_bytes or MAX_PDF_BYTES)
         self.headers = {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
@@ -108,11 +153,46 @@ class StrapiClient:
         self._pub_by_oaid = {}
         self._pub_by_doi = {}
         self._pub_by_title = {}
+        self._pub_title_duplicates = set()
         self._pub_source_kind = {}
         self._pub_slug = {}
         self._pub_published = {}
+        self._pub_graph_eligible = {}
         self._pub_has_pdf = {}
+        self._pub_records = {}
+        self._graph_exclusions = []
         self._person_by_name = {}
+        self._person_by_oaid = {}
+        self.last_error = None
+
+    def _request(self, method, url, **kwargs):
+        """Perform an HTTP request with a timeout and bounded retries."""
+        kwargs.setdefault("timeout", self.timeout)
+        last_response = None
+        for attempt in range(self.retries + 1):
+            response = requests.request(method, url, **kwargs)
+            if response.status_code not in RETRY_STATUS or attempt >= self.retries:
+                return response
+            last_response = response
+            retry_after = response.headers.get("Retry-After")
+            delay = float(retry_after) if retry_after and retry_after.isdigit() else 0.5 * (2**attempt)
+            log.warning(
+                "Strapi %s %s returned %s; retrying in %.1fs (%s/%s)",
+                method,
+                url,
+                response.status_code,
+                delay,
+                attempt + 1,
+                self.retries,
+            )
+            time.sleep(delay)
+        return last_response
+
+    def _response_error(self, response):
+        return {
+            "status_code": getattr(response, "status_code", None),
+            "error": (getattr(response, "text", "") or "")[:2000],
+        }
 
     def _normalize_source_kind(self, source_kind):
         if source_kind in {"openAlexAutomated", "openalex", "merged"}:
@@ -220,6 +300,7 @@ class StrapiClient:
             "cited_by": paper_data.get("cited_by", 0),
             "abstract": paper_data.get("abstract"),
             "topics": paper_data.get("topics"),
+            "kind": paper_data.get("kind"),
             "lastImportedAt": imported_at,
             "rawImportMetadata": self._build_raw_import_metadata(paper_data, imported_at),
         }
@@ -239,20 +320,71 @@ class StrapiClient:
     def _fetch_all_pages(self, endpoint, params=None):
         """Paginate through all entries in a Strapi collection."""
         results = []
+        seen = set()
         page = 1
+        expected_total = 0
+        empty_retries = 0
         base_params = params or {}
         while True:
             paged = {**base_params, "pagination[page]": page, "pagination[pageSize]": 100}
-            response = requests.get(f"{self.api_url}/{endpoint}", headers=self.headers, params=paged)
+            response = self._request(
+                "GET", f"{self.api_url}/{endpoint}", headers=self.headers, params=paged
+            )
+            if not response.ok:
+                log.error(
+                    "Failed to fetch %s page %s: %s %s",
+                    endpoint,
+                    page,
+                    response.status_code,
+                    response.text[:1000],
+                )
             response.raise_for_status()
             payload = response.json()
-            data = payload.get("data", [])
-            results.extend(data)
+            data = payload.get("data", []) or []
             meta = payload.get("meta", {}).get("pagination", {})
-            if not meta.get("pageCount") or page >= meta["pageCount"]:
+
+            # A concurrent rebuild can make pageCount/total shrink between
+            # requests. Keep the largest total seen and stop on an empty page
+            # instead of trusting a possibly stale pageCount.
+            total = meta.get("total")
+            if isinstance(total, int) and total > expected_total:
+                expected_total = total
+
+            if not data:
+                if expected_total > len(results) and empty_retries < 3:
+                    empty_retries += 1
+                    time.sleep(0.15 * empty_retries)
+                    continue
+                break
+
+            empty_retries = 0
+            for row in data:
+                key = row.get("documentId") if isinstance(row, dict) else None
+                if key is not None:
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                results.append(row)
+
+            if expected_total and len(results) >= expected_total:
                 break
             page += 1
         return results
+
+    def _remember_title(self, normalized_title, document_id):
+        if not normalized_title:
+            return
+        existing = self._pub_by_title.get(normalized_title)
+        if existing and existing != document_id:
+            self._pub_title_duplicates.add(normalized_title)
+            log.warning(
+                "Duplicate publication title detected: %r (%s and %s); updates may be ambiguous",
+                normalized_title,
+                existing,
+                document_id,
+            )
+            return
+        self._pub_by_title[normalized_title] = document_id
 
     def _extract_relation_items(self, relation_value):
         """Normalize Strapi relation payloads across flattened and nested response shapes."""
@@ -308,11 +440,19 @@ class StrapiClient:
         return " ".join(parts).strip()
 
     def load_existing_publications(self):
-        """Pre-fetch all publications for dedup lookups."""
+        """Pre-fetch all publications, including drafts, for dedup lookups.
+
+        Strapi returns only published rows by default. Drafts must participate in
+        dedup too: otherwise an editorial unpublish is invisible to the sync, the
+        importer tries to re-create the work, and the create-conflict path can
+        update (and republish) the draft. ``status=all`` returns one draft-shaped
+        row per document, so a separate published-id query supplies the state.
+        """
         log.info("Loading existing publications from Strapi...")
         publications = self._fetch_all_pages(
             "publications",
             {
+                "status": "all",
                 "fields[0]": "openAlexId",
                 "fields[1]": "title",
                 "fields[2]": "doi",
@@ -320,26 +460,277 @@ class StrapiClient:
                 "fields[4]": "sourceKind",
                 "fields[5]": "slug",
                 "fields[6]": "publishedAt",
+                "fields[7]": "graphEligible",
+                "fields[8]": "kind",
+                "fields[9]": "abstract",
                 "populate[pdfFile][fields][0]": "id",
             },
         )
+        published = self._fetch_all_pages(
+            "publications",
+            {
+                "status": "published",
+                "fields[0]": "documentId",
+            },
+        )
+        published_ids = {
+            row.get("documentId") or row.get("id")
+            for row in published
+            if row.get("documentId") or row.get("id")
+        }
+
+        self._pub_by_oaid.clear()
+        self._pub_by_doi.clear()
+        self._pub_by_title.clear()
+        self._pub_title_duplicates.clear()
+        self._pub_source_kind.clear()
+        self._pub_slug.clear()
+        self._pub_published.clear()
+        self._pub_graph_eligible.clear()
+        self._pub_has_pdf.clear()
+        self._pub_records.clear()
+
         for publication in publications:
             attributes = publication.get("attributes", publication)
             document_id = publication.get("documentId") or publication.get("id")
             self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
             self._pub_slug[document_id] = attributes.get("slug") or ""
-            self._pub_published[document_id] = bool(attributes.get("publishedAt"))
+            self._pub_published[document_id] = document_id in published_ids
+            self._pub_graph_eligible[document_id] = bool(attributes.get("graphEligible"))
             self._pub_has_pdf[document_id] = bool(self._extract_relation_items(attributes.get("pdfFile")))
             normalized_oaid = normalize_openalex_id(attributes.get("openAlexId"))
             normalized_doi = normalize_doi(attributes.get("doi"))
             normalized_title = normalize_title(attributes.get("title"))
+            self._pub_records[document_id] = {
+                "openAlexId": normalized_oaid,
+                "doi": normalized_doi,
+                "title": normalized_title,
+                "rawTitle": attributes.get("title"),
+                "kind": attributes.get("kind"),
+                "abstract": attributes.get("abstract"),
+            }
             if normalized_oaid:
                 self._pub_by_oaid[normalized_oaid] = document_id
             if normalized_doi:
                 self._pub_by_doi[normalized_doi] = document_id
-            if normalized_title:
-                self._pub_by_title[normalized_title] = document_id
-        log.info(f"  Loaded {len(publications)} publications ({len(self._pub_by_oaid)} with openAlexId)")
+            self._remember_title(normalized_title, document_id)
+        log.info(
+            "  Loaded %s publications (%s published, %s with openAlexId, %s duplicate titles)",
+            len(publications),
+            len(published_ids),
+            len(self._pub_by_oaid),
+            len(self._pub_title_duplicates),
+        )
+
+    def load_graph_exclusions(self):
+        """Load active GraphExclusion records, tolerating a not-yet-migrated Strapi."""
+        try:
+            rows = self._fetch_all_pages(
+                "graph-exclusions",
+                {
+                    "filters[isActive][$eq]": "true",
+                    "fields[0]": "documentId",
+                    "fields[1]": "label",
+                    "fields[2]": "openAlexId",
+                    "fields[3]": "doi",
+                    "fields[4]": "title",
+                    "fields[5]": "scope",
+                    "fields[6]": "isActive",
+                },
+            )
+        except Exception as exc:  # pragma: no cover - depends on deployment state
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if status == 404:
+                log.warning(
+                    "GraphExclusion content type is not deployed yet; continuing without exclusions"
+                )
+            else:
+                log.warning("Could not load graph exclusions: %s", exc)
+            self._graph_exclusions = []
+            return []
+
+        exclusions = []
+        for row in rows:
+            attributes = row.get("attributes", row)
+            if attributes.get("isActive") is False:
+                continue
+            exclusion = {
+                "documentId": row.get("documentId") or row.get("id"),
+                "label": attributes.get("label") or "",
+                "openAlexId": normalize_openalex_id(attributes.get("openAlexId")),
+                "doi": normalize_doi(attributes.get("doi")),
+                "title": normalize_title(attributes.get("title")),
+                "scope": "hideEverywhere"
+                if attributes.get("scope") == "hideEverywhere"
+                else "graphOnly",
+            }
+            if not (exclusion["openAlexId"] or exclusion["doi"] or exclusion["title"]):
+                log.warning(
+                    "Graph exclusion %r has no OpenAlex ID, DOI, or title; ignoring",
+                    exclusion["label"] or exclusion["documentId"],
+                )
+                continue
+            exclusions.append(exclusion)
+
+        self._graph_exclusions = exclusions
+        log.info("Loaded %s active graph exclusion(s)", len(exclusions))
+        return exclusions
+
+    def match_graph_exclusion(self, *, openalex_id=None, doi=None, title=None):
+        """Return the first active exclusion matching a publication's identity keys."""
+        normalized_oaid = normalize_openalex_id(openalex_id)
+        normalized_doi = normalize_doi(doi)
+        normalized_title = normalize_title(title)
+
+        for exclusion in self._graph_exclusions:
+            if exclusion["openAlexId"] and normalized_oaid == exclusion["openAlexId"]:
+                return exclusion
+            if exclusion["doi"] and normalized_doi == exclusion["doi"]:
+                return exclusion
+            if exclusion["title"] and normalized_title == exclusion["title"]:
+                return exclusion
+        return None
+
+    def apply_graph_exclusions(self):
+        """Apply exclusions to existing publications before fetching or rebuilding."""
+        stats = {"matched": 0, "graph_updated": 0, "unpublished": 0, "failed": 0}
+        if not self._graph_exclusions:
+            return stats
+
+        if not self._pub_records:
+            self.load_existing_publications()
+
+        matched = {}
+        for exclusion in self._graph_exclusions:
+            for document_id, record in self._pub_records.items():
+                if exclusion["openAlexId"] and record.get("openAlexId") == exclusion["openAlexId"]:
+                    matched.setdefault(document_id, exclusion)
+                elif exclusion["doi"] and record.get("doi") == exclusion["doi"]:
+                    matched.setdefault(document_id, exclusion)
+                elif exclusion["title"] and record.get("title") == exclusion["title"]:
+                    matched.setdefault(document_id, exclusion)
+
+        for document_id, exclusion in matched.items():
+            stats["matched"] += 1
+
+            # Update first, then unpublish. A REST PUT on a draft-and-publish
+            # entry republishes it, so unpublishing before the graph flag update
+            # silently put hidden records back on the public site.
+            if self._pub_graph_eligible.get(document_id):
+                if self.update_publication(document_id, {"graphEligible": False}):
+                    stats["graph_updated"] += 1
+                    self._pub_graph_eligible[document_id] = False
+                else:
+                    stats["failed"] += 1
+
+            if (
+                exclusion["scope"] == "hideEverywhere"
+                and self._pub_published.get(document_id)
+            ):
+                if self.unpublish_publication(document_id):
+                    stats["unpublished"] += 1
+                else:
+                    stats["failed"] += 1
+
+        log.info(
+            "Graph exclusions: %s matched, %s removed from graph, %s unpublished, %s failed",
+            stats["matched"],
+            stats["graph_updated"],
+            stats["unpublished"],
+            stats["failed"],
+        )
+        return stats
+
+    def apply_import_scope(self, allowed_types=None, abstract_required_types=None):
+        """Remove automated records that no longer belong in the publication graph.
+
+        This is the durable counterpart to the import filter: when a previous
+        run imported book front matter or a work type that is now out of scope,
+        the record is taken off the public site and out of the graph instead of
+        lingering until someone cleans it by hand.
+        """
+        stats = {
+            "checked": 0,
+            "out_of_scope": 0,
+            "already_clean": 0,
+            "graph_updated": 0,
+            "unpublished": 0,
+            "failed": 0,
+        }
+
+        if not self._pub_records:
+            self.load_existing_publications()
+
+        for document_id, record in self._pub_records.items():
+            if self._pub_source_kind.get(document_id) != "openAlexAutomated":
+                continue
+            stats["checked"] += 1
+
+            openalex_id = record.get("openAlexId") or ""
+            doi = record.get("doi") or ""
+            title = record.get("rawTitle") or record.get("title") or ""
+            if self.match_graph_exclusion(
+                openalex_id=openalex_id,
+                doi=doi,
+                title=title,
+            ):
+                # Explicit editorial exclusions win; they have their own scope.
+                continue
+
+            paper = {
+                "title": title,
+                "kind": record.get("kind"),
+                "abstract": record.get("abstract"),
+            }
+            reason = out_of_scope_reason(
+                paper,
+                allowed_types=allowed_types,
+                abstract_required_types=abstract_required_types,
+            )
+            if not reason:
+                continue
+
+            needs_graph_update = bool(self._pub_graph_eligible.get(document_id))
+            needs_unpublish = bool(self._pub_published.get(document_id))
+            if not needs_graph_update and not needs_unpublish:
+                stats["already_clean"] += 1
+                continue
+
+            stats["out_of_scope"] += 1
+            log.info(
+                "  Out of import scope (%s): %s",
+                reason,
+                (title or document_id)[:80],
+            )
+
+            # Update first, then unpublish (see apply_graph_exclusions): a PUT
+            # republishes the entry, so the reverse order made the cleanup a
+            # no-op on the public site.
+            if self._pub_graph_eligible.get(document_id):
+                if self.update_publication(document_id, {"graphEligible": False}):
+                    stats["graph_updated"] += 1
+                    self._pub_graph_eligible[document_id] = False
+                else:
+                    stats["failed"] += 1
+
+            if self._pub_published.get(document_id):
+                if self.unpublish_publication(document_id):
+                    stats["unpublished"] += 1
+                    self._pub_published[document_id] = False
+                else:
+                    stats["failed"] += 1
+
+        log.info(
+            "Import scope: %s automated records checked, %s out of scope, "
+            "%s already clean, %s removed from graph, %s unpublished, %s failed",
+            stats["checked"],
+            stats["out_of_scope"],
+            stats["already_clean"],
+            stats["graph_updated"],
+            stats["unpublished"],
+            stats["failed"],
+        )
+        return stats
 
     def load_graph_eligible_publications(self):
         """Load all graph-eligible publications in a graph-builder friendly shape."""
@@ -372,6 +763,13 @@ class StrapiClient:
         for publication in publications:
             attributes = publication.get("attributes", publication)
             document_id = publication.get("documentId") or publication.get("id")
+            if self.match_graph_exclusion(
+                openalex_id=attributes.get("openAlexId"),
+                doi=attributes.get("doi"),
+                title=attributes.get("title"),
+            ):
+                log.debug("  Skipping excluded publication: %s", attributes.get("title"))
+                continue
             graph_id = attributes.get("openAlexId") or f"publication:{document_id}"
 
             authors = []
@@ -499,6 +897,12 @@ class StrapiClient:
     def is_publication_published(self, document_id):
         return bool(self._pub_published.get(document_id))
 
+    def _openalex_author_key(self, value):
+        normalized = normalize_openalex_id(value)
+        if not normalized:
+            return ""
+        return normalized.rstrip("/").split("/")[-1]
+
     def load_existing_people(self):
         """Pre-fetch all Person entries for author matching."""
         log.info("Loading existing people from Strapi...")
@@ -506,20 +910,39 @@ class StrapiClient:
             "people",
             {
                 "fields[0]": "fullName",
-                "fields[1]": "slug",
-                "fields[2]": "documentId",
+                "fields[1]": "firstName",
+                "fields[2]": "lastName",
+                "fields[3]": "slug",
+                "fields[4]": "documentId",
+                "fields[5]": "openAlexAuthorId",
+                "fields[6]": "orcid",
             },
         )
         for person in people:
             attributes = person.get("attributes", person)
             document_id = person.get("documentId") or person.get("id")
-            name = attributes.get("fullName", "")
-            if name:
-                self._person_by_name[name.lower().strip()] = {
-                    "documentId": document_id,
-                    "fullName": name,
-                }
-        log.info(f"  Loaded {len(self._person_by_name)} people")
+            name = attributes.get("fullName", "") or " ".join(
+                value
+                for value in (attributes.get("firstName"), attributes.get("lastName"))
+                if value
+            )
+            info = {
+                "documentId": document_id,
+                "fullName": name,
+                "openAlexAuthorId": attributes.get("openAlexAuthorId") or "",
+                "orcid": attributes.get("orcid") or "",
+            }
+            normalized_name = normalize_person_name(name)
+            if normalized_name:
+                self._person_by_name[normalized_name] = info
+            author_key = self._openalex_author_key(attributes.get("openAlexAuthorId"))
+            if author_key:
+                self._person_by_oaid[author_key] = info
+        log.info(
+            "  Loaded %s people (%s with OpenAlex author ids)",
+            len(self._person_by_name),
+            len(self._person_by_oaid),
+        )
 
     def load_import_people(self):
         """Load Strapi people that can be used as author import seeds."""
@@ -527,27 +950,31 @@ class StrapiClient:
         people = self._fetch_all_pages(
             "people",
             {
-                "fields[0]": "firstName",
-                "fields[1]": "lastName",
-                "fields[2]": "documentId",
-                "fields[3]": "slug",
-                "fields[4]": "type",
-                "fields[5]": "importEligible",
+                "fields[0]": "fullName",
+                "fields[1]": "firstName",
+                "fields[2]": "lastName",
+                "fields[3]": "documentId",
+                "fields[4]": "slug",
+                "fields[5]": "type",
+                "fields[6]": "importEligible",
+                "fields[7]": "openAlexAuthorId",
+                "fields[8]": "orcid",
             },
         )
 
         import_people = []
-        for person in people: 
+        for person in people:
             attributes = person.get("attributes", person)
             import_eligible = attributes.get("importEligible")
             if import_eligible is not True:
                 continue
 
             document_id = person.get("documentId") or person.get("id")
-            first = (attributes.get("firstName") or "").strip()
-            last = (attributes.get("lastName") or "").strip()
-            if first or last:
-                full_name = (f"{first} {last}".strip())
+            full_name = (attributes.get("fullName") or "").strip()
+            if not full_name:
+                first = (attributes.get("firstName") or "").strip()
+                last = (attributes.get("lastName") or "").strip()
+                full_name = f"{first} {last}".strip()
 
             if not full_name or not document_id:
                 continue
@@ -557,6 +984,8 @@ class StrapiClient:
                     "fullName": full_name,
                     "slug": attributes.get("slug"),
                     "type": attributes.get("type"),
+                    "openAlexAuthorId": attributes.get("openAlexAuthorId") or "",
+                    "orcid": attributes.get("orcid") or "",
                 }
             )
 
@@ -564,17 +993,81 @@ class StrapiClient:
         log.info(f"  Loaded {len(import_people)} importable people")
         return import_people
 
+    def update_person_author_id(self, document_id, author_id, orcid=None):
+        """Persist a resolved OpenAlex author id so the next run does not re-search.
+
+        Person records are draft-and-publish with required ``bio``/``portrait``
+        fields, and some imported rows have a null draft bio.  A partial PUT then
+        fails validation before it ever reaches our field, so fetch the current
+        values and include them in the update.
+        """
+        current = self._request(
+            "GET",
+            f"{self.api_url}/people/{document_id}",
+            headers=self.headers,
+            params={
+                "fields[0]": "bio",
+                "fields[1]": "publishedAt",
+                "populate[portrait][fields][0]": "id",
+            },
+        )
+        payload = {"openAlexAuthorId": author_id}
+        if orcid:
+            payload["orcid"] = orcid
+        status = None
+        if current.ok:
+            attrs = current.json().get("data") or {}
+            attrs = attrs.get("attributes", attrs)
+            if attrs.get("bio") is None:
+                payload["bio"] = ""
+            portrait = self._extract_relation_items(attrs.get("portrait"))
+            if portrait:
+                payload["portrait"] = portrait[0].get("id")
+            else:
+                log.warning(
+                    "Skipping author-id pin for person %s: portrait is required by the schema but missing",
+                    document_id,
+                )
+                return False
+            if attrs.get("publishedAt"):
+                status = "published"
+        return self.update_person(document_id, payload, status=status)
+
+    def update_person(self, document_id, payload, status=None):
+        url = f"{self.api_url}/people/{document_id}"
+        if status:
+            url = f"{url}?status={status}"
+        response = self._request(
+            "PUT",
+            url,
+            headers=self.headers,
+            json={"data": payload},
+        )
+        if not response.ok:
+            log.error(
+                "Failed to update person %s: %s %s",
+                document_id,
+                response.status_code,
+                response.text[:1000],
+            )
+            return False
+        return True
+
     def load_publication_author_ids(self, document_id):
         """Load current author relations for a publication so imports can merge additively."""
         try:
-            response = requests.get(
+            params = {
+                "populate[authors][fields][0]": "documentId",
+                "populate[authors][fields][1]": "id",
+                "populate[pdfFile][fields][0]": "id",
+            }
+            if self._pub_published.get(document_id) is False:
+                params["status"] = "draft"
+            response = self._request(
+                "GET",
                 f"{self.api_url}/publications/{document_id}",
                 headers=self.headers,
-                params={
-                    "populate[authors][fields][0]": "documentId",
-                    "populate[authors][fields][1]": "id",
-                    "populate[pdfFile][fields][0]": "id",
-                },
+                params=params,
             )
             response.raise_for_status()
             data = response.json().get("data", {})
@@ -613,6 +1106,11 @@ class StrapiClient:
             return self._pub_by_doi[normalized_doi], "doi"
 
         if normalized_title:
+            if normalized_title in self._pub_title_duplicates:
+                log.warning(
+                    "Title %r matches multiple publications; reusing the first match",
+                    normalized_title,
+                )
             if normalized_title in self._pub_by_title:
                 return self._pub_by_title[normalized_title], "title_exact"
             for existing_title, document_id in self._pub_by_title.items():
@@ -621,19 +1119,136 @@ class StrapiClient:
 
         return None, None
 
-    def match_authors(self, author_names):
-        """Map imported author names to existing Strapi Person document IDs."""
+    def find_publication_remote(self, openalex_id=None, doi=None, title=None):
+        """Look up a publication directly from Strapi, bypassing the local cache.
+
+        Used when a create races another sync (or a draft is invisible to the
+        cached snapshot): the record may already exist even though our in-memory
+        index did not contain it yet.
+        """
+        candidates = []
+        normalized_oaid = normalize_openalex_id(openalex_id)
+        normalized_doi = normalize_doi(doi)
+        normalized_title = normalize_title(title)
+        if normalized_oaid:
+            candidates.append(("openAlexId", normalized_oaid))
+        if normalized_doi:
+            candidates.append(("doi", normalized_doi))
+        if normalized_title:
+            candidates.append(("title", title))
+
+        for field, value in candidates:
+            for status in (None, "draft"):
+                params = {
+                    f"filters[{field}][$eq]": value,
+                    "pagination[pageSize]": 5,
+                    "fields[0]": "documentId",
+                    "fields[1]": "openAlexId",
+                    "fields[2]": "doi",
+                    "fields[3]": "title",
+                    "fields[4]": "sourceKind",
+                    "fields[5]": "slug",
+                    "fields[6]": "publishedAt",
+                    "fields[7]": "graphEligible",
+                }
+                if status:
+                    params["status"] = status
+                response = self._request(
+                    "GET",
+                    f"{self.api_url}/publications",
+                    headers=self.headers,
+                    params=params,
+                )
+                if not response.ok:
+                    continue
+                rows = response.json().get("data") or []
+                for row in rows:
+                    attributes = row.get("attributes", row)
+                    document_id = row.get("documentId") or row.get("id")
+                    if document_id:
+                        self._remember_remote_publication(document_id, attributes)
+                        log.info(
+                            "  Found existing publication remotely by %s%s",
+                            field,
+                            " (draft)" if status else "",
+                        )
+                        return document_id
+        return None
+
+    def _remember_remote_publication(self, document_id, attributes):
+        """Cache a publication discovered outside the bulk snapshot."""
+        self._pub_source_kind[document_id] = self._normalize_source_kind(attributes.get("sourceKind"))
+        self._pub_slug[document_id] = attributes.get("slug") or ""
+        self._pub_published[document_id] = bool(attributes.get("publishedAt"))
+        self._pub_graph_eligible[document_id] = bool(attributes.get("graphEligible"))
+        normalized_oaid = normalize_openalex_id(attributes.get("openAlexId"))
+        normalized_doi = normalize_doi(attributes.get("doi"))
+        normalized_title = normalize_title(attributes.get("title"))
+        if normalized_oaid:
+            self._pub_by_oaid[normalized_oaid] = document_id
+        if normalized_doi:
+            self._pub_by_doi[normalized_doi] = document_id
+        if normalized_title:
+            self._remember_title(normalized_title, document_id)
+
+    def match_authors(self, author_names, author_ids=None):
+        """Map imported authors to Person ids, preferring OpenAlex author ids."""
         matched = []
-        for name in author_names or []:
-            normalized_name = name.lower().strip()
-            if normalized_name in self._person_by_name:
-                matched.append(self._person_by_name[normalized_name]["documentId"])
-                continue
-            for existing_name, info in self._person_by_name.items():
-                if SequenceMatcher(None, normalized_name, existing_name).ratio() > 0.90:
+        names = list(author_names or [])
+        ids = list(author_ids or [])
+        paired = list(zip(ids, names))
+        if len(names) > len(ids):
+            paired.extend((None, name) for name in names[len(ids):])
+        paired.extend((raw_id, None) for raw_id in ids[len(names):])
+
+        for raw_id, name in paired:
+            if raw_id:
+                author_key = self._openalex_author_key(raw_id)
+                info = self._person_by_oaid.get(author_key)
+                if info:
+                    # An OpenAlex id is authoritative; do not also fuzzy-match
+                    # this author's name to a different person record.
                     matched.append(info["documentId"])
+                    continue
+
+            normalized_name = normalize_person_name(name)
+            if not normalized_name:
+                continue
+
+            info = self._person_by_name.get(normalized_name)
+            if info:
+                matched.append(info["documentId"])
+                continue
+
+            tokens = set(normalized_name.split())
+            best = None
+            best_ratio = 0.0
+            subset_match = None
+            for existing_name, candidate in self._person_by_name.items():
+                candidate_tokens = set(existing_name.split())
+                if min(len(tokens), len(candidate_tokens)) >= 2 and (
+                    tokens <= candidate_tokens or candidate_tokens <= tokens
+                ):
+                    subset_match = candidate
                     break
-        return matched
+                ratio = SequenceMatcher(None, normalized_name, existing_name).ratio()
+                if ratio > best_ratio:
+                    best_ratio = ratio
+                    best = candidate
+
+            if subset_match is not None:
+                matched.append(subset_match["documentId"])
+            elif best is not None and best_ratio >= 0.92:
+                matched.append(best["documentId"])
+            elif best is not None and best_ratio >= 0.88:
+                log.debug(
+                    "Ambiguous author match: %r ~ %r (%.2f)",
+                    name,
+                    best.get("fullName"),
+                    best_ratio,
+                )
+
+        return list(dict.fromkeys(matched))
 
     def upload_pdf_from_openalex(self, paper_data, filename):
         """Download a PDF URL from OpenAlex or synthesize from DOI, then upload to Strapi media library.
@@ -672,13 +1287,18 @@ class StrapiClient:
 
         # Download and upload the PDF
         try:
-            pdf_content = _download_pdf(result["pdf_url"])
+            pdf_content = _download_pdf(
+                result["pdf_url"],
+                max_bytes=self.pdf_max_bytes,
+                timeout=max(30.0, self.timeout / 2),
+            )
             result["downloaded"] = True
 
             files = {
                 "files": (filename, BytesIO(pdf_content), "application/pdf"),
             }
-            upload_response = requests.post(
+            upload_response = self._request(
+                "POST",
                 f"{self.api_url}/upload",
                 headers=self.upload_headers,
                 files=files,
@@ -691,8 +1311,28 @@ class StrapiClient:
             log.info(f"  Uploaded PDF to Strapi media library: {attachment_id}")
             return result
         except Exception as exc:
+            result["error"] = str(exc)
             log.warning(f"  PDF download/upload failed: {exc}")
             return result
+
+    def delete_media(self, attachment_id):
+        """Delete an orphaned media file after a failed publication write."""
+        if not attachment_id:
+            return True
+        response = self._request(
+            "DELETE",
+            f"{self.api_url}/upload/files/{attachment_id}",
+            headers=self.upload_headers,
+        )
+        if not response.ok:
+            log.warning(
+                "  Failed to clean up media %s: %s %s",
+                attachment_id,
+                response.status_code,
+                response.text[:500],
+            )
+            return False
+        return True
 
     def ensure_publication_pdf(self, paper_data, *, existing_document_id=None):
         """Ensure a publication has a PDF attachment, skipping work when one already exists."""
@@ -704,73 +1344,140 @@ class StrapiClient:
             self._build_pdf_filename(paper_data),
         )
 
-    def create_publication(self, paper_data, author_ids=None):
+    def create_publication(self, paper_data, author_ids=None, attachment_id=None):
         """Create a publication entry in Strapi from a processed paper."""
-        pdf_result = self.ensure_publication_pdf(paper_data)
-        attachment_id = pdf_result.get("attachment_id")
-
         payload = self.build_import_create_payload(
             paper_data,
             author_ids=author_ids,
             attachment_id=attachment_id,
         )
 
-        try:
-            response = requests.post(
-                f"{self.api_url}/publications",
-                headers=self.headers,
-                json={"data": payload},
+        response = self._request(
+            "POST",
+            f"{self.api_url}/publications",
+            headers=self.headers,
+            json={"data": payload},
+        )
+        self.last_error = None
+        if not response.ok:
+            self.last_error = self._response_error(response)
+            log.error(
+                "Failed to create publication '%s': %s %s",
+                paper_data.get("title", "?"),
+                response.status_code,
+                response.text[:2000],
             )
-            response.raise_for_status()
-            created = response.json().get("data", {})
-            document_id = created.get("documentId") or created.get("id")
-            if document_id:
-                self._pub_source_kind[document_id] = "openAlexAutomated"
-                self._pub_slug[document_id] = payload.get("slug") or ""
-                self._pub_published[document_id] = bool(payload.get("publishedAt"))
-                if attachment_id:
-                    self._pub_has_pdf[document_id] = True
-                normalized_oaid = normalize_openalex_id(paper_data.get("openAlexId"))
-                normalized_doi = normalize_doi(paper_data.get("doi"))
-                normalized_title = normalize_title(paper_data.get("title"))
-                if normalized_oaid:
-                    self._pub_by_oaid[normalized_oaid] = document_id
-                if normalized_doi:
-                    self._pub_by_doi[normalized_doi] = document_id
-                if normalized_title:
-                    self._pub_by_title[normalized_title] = document_id
-            return {
-                "document_id": document_id,
-                "pdf_result": pdf_result,
-            }
-        except requests.exceptions.RequestException as exc:
-            log.error(f"Failed to create publication '{paper_data.get('title', '?')}': {exc}")
             return {
                 "document_id": None,
-                "pdf_result": pdf_result,
+                "error": self.last_error,
             }
 
+        created = response.json().get("data", {})
+        document_id = created.get("documentId") or created.get("id")
+        if document_id:
+            self._pub_source_kind[document_id] = "openAlexAutomated"
+            self._pub_slug[document_id] = payload.get("slug") or ""
+            self._pub_published[document_id] = bool(payload.get("publishedAt"))
+            if attachment_id:
+                self._pub_has_pdf[document_id] = True
+            normalized_oaid = normalize_openalex_id(paper_data.get("openAlexId"))
+            normalized_doi = normalize_doi(paper_data.get("doi"))
+            normalized_title = normalize_title(paper_data.get("title"))
+            if normalized_oaid:
+                self._pub_by_oaid[normalized_oaid] = document_id
+            if normalized_doi:
+                self._pub_by_doi[normalized_doi] = document_id
+            self._remember_title(normalized_title, document_id)
+        else:
+            self.last_error = {"status_code": response.status_code, "error": "Response did not contain a document id"}
+            log.error(
+                "Created publication without a document id: %s",
+                response.text[:1000],
+            )
+        return {
+            "document_id": document_id,
+            "error": self.last_error,
+        }
+
+    def unpublish_publication(self, document_id):
+        """Unpublish a document through the custom content API route."""
+        response = self._request(
+            "POST",
+            f"{self.api_url}/publications/{document_id}/unpublish",
+            headers=self.headers,
+            json={},
+        )
+        if not response.ok:
+            self.last_error = self._response_error(response)
+            log.error(
+                "Failed to unpublish publication %s: %s %s",
+                document_id,
+                response.status_code,
+                response.text[:1000],
+            )
+            return False
+        self._pub_published[document_id] = False
+        return True
+
     def update_publication(self, document_id, update_data):
-        """Partial update of an existing publication."""
-        try:
-            response = requests.put(
+        """Partial update of an existing publication.
+
+        A 400 usually means a Strapi uniqueness check rejected the machine-owned
+        title or an author relation.  Retry without the conflicting field so the
+        rest of the machine metadata still lands, and report the partial update.
+        """
+        self.last_error = None
+        attempts = [("full", update_data)]
+        if "title" in update_data:
+            attempts.append(("without_title", {k: v for k, v in update_data.items() if k != "title"}))
+        if "authors" in update_data:
+            attempts.append(("without_title_authors", {
+                k: v for k, v in update_data.items() if k not in {"title", "authors"}
+            }))
+
+        last_response = None
+        for label, payload in attempts:
+            # A plain REST PUT republishes a draft-and-publish entry. Keep an
+            # editorially unpublished record draft, while published records still
+            # update their public version with the new metadata.
+            params = {"status": "draft"} if self._pub_published.get(document_id) is False else None
+            response = self._request(
+                "PUT",
                 f"{self.api_url}/publications/{document_id}",
                 headers=self.headers,
-                json={"data": update_data},
+                params=params,
+                json={"data": payload},
             )
-            response.raise_for_status()
-            if "sourceKind" in update_data:
-                self._pub_source_kind[document_id] = self._normalize_source_kind(update_data.get("sourceKind"))
-            if "slug" in update_data:
-                self._pub_slug[document_id] = update_data.get("slug") or ""
-            if "publishedAt" in update_data:
-                self._pub_published[document_id] = bool(update_data.get("publishedAt"))
-            if "pdfFile" in update_data:
-                self._pub_has_pdf[document_id] = bool(update_data.get("pdfFile"))
-            return True
-        except requests.exceptions.RequestException as exc:
-            log.error(f"Failed to update publication {document_id}: {exc}")
-            return False
+            last_response = response
+            if response.ok:
+                if label != "full":
+                    log.warning(
+                        "  Publication %s updated with fallback (%s) after a rejected field",
+                        document_id,
+                        label,
+                    )
+                if "sourceKind" in payload:
+                    self._pub_source_kind[document_id] = self._normalize_source_kind(payload.get("sourceKind"))
+                if "slug" in payload:
+                    self._pub_slug[document_id] = payload.get("slug") or ""
+                if "publishedAt" in payload:
+                    self._pub_published[document_id] = bool(payload.get("publishedAt"))
+                if "graphEligible" in payload:
+                    self._pub_graph_eligible[document_id] = bool(payload.get("graphEligible"))
+                if "pdfFile" in payload:
+                    self._pub_has_pdf[document_id] = bool(payload.get("pdfFile"))
+                return True
+            if response.status_code != 400:
+                break
+
+        self.last_error = self._response_error(last_response)
+        log.error(
+            "Failed to update publication %s: %s %s",
+            document_id,
+            getattr(last_response, "status_code", "?"),
+            getattr(last_response, "text", "")[:2000],
+        )
+        return False
 
     def build_graph_metadata_payload(
         self,
@@ -876,51 +1583,113 @@ class StrapiClient:
                 "isCrossCluster": is_cross_cluster,
             }
         }
-        try:
-            response = requests.post(
-                f"{self.api_url}/graph-links",
-                headers=self.headers,
-                json=payload,
+        response = self._request(
+            "POST", f"{self.api_url}/graph-links", headers=self.headers, json=payload
+        )
+        if not response.ok:
+            log.error(
+                "Failed to link publications: %s %s",
+                response.status_code,
+                response.text[:1000],
             )
-            response.raise_for_status()
-            return True
-        except requests.exceptions.RequestException as exc:
-            log.error(f"Failed to link publications: {exc}")
             return False
+        return True
 
     def create_graph_meso(self, payload):
         """Create a graph meso entry."""
         if "publishedAt" not in payload:
             payload = {**payload, "publishedAt": self._utc_now()}
-        try:
-            response = requests.post(
-                f"{self.api_url}/graph-mesos",
-                headers=self.headers,
-                json={"data": payload},
+        response = self._request(
+            "POST",
+            f"{self.api_url}/graph-mesos",
+            headers=self.headers,
+            json={"data": payload},
+        )
+        if not response.ok:
+            log.error(
+                "Failed to create graph meso %r: %s %s",
+                payload.get("name"),
+                response.status_code,
+                response.text[:1000],
             )
-            response.raise_for_status()
-            created = response.json().get("data", {})
-            return created.get("documentId") or created.get("id")
-        except requests.exceptions.RequestException as exc:
-            log.error(f"Failed to create graph meso: {exc}")
             return None
+        created = response.json().get("data", {})
+        return created.get("documentId") or created.get("id")
 
     def update_graph_meso(self, document_id, payload):
         """Update a graph meso entry."""
-        try:
-            response = requests.put(
-                f"{self.api_url}/graph-mesos/{document_id}",
-                headers=self.headers,
-                json={"data": payload},
+        response = self._request(
+            "PUT",
+            f"{self.api_url}/graph-mesos/{document_id}",
+            headers=self.headers,
+            json={"data": payload},
+        )
+        if not response.ok:
+            log.error(
+                "Failed to update graph meso %s: %s %s",
+                document_id,
+                response.status_code,
+                response.text[:1000],
             )
-            response.raise_for_status()
-            return True
-        except requests.exceptions.RequestException as exc:
-            log.error(f"Failed to update graph meso {document_id}: {exc}")
             return False
+        return True
 
-    def clear_graph_links(self):
-        """Delete all existing graph links so derived graph state can be rebuilt cleanly."""
+    def delete_graph_meso(self, document_id):
+        """Delete a pipeline-generated graph meso that is no longer used."""
+        response = self._request(
+            "DELETE",
+            f"{self.api_url}/graph-mesos/{document_id}",
+            headers=self.headers,
+        )
+        if not response.ok:
+            log.error(
+                "Failed to delete graph meso %s: %s %s",
+                document_id,
+                response.status_code,
+                response.text[:500],
+            )
+            return False
+        return True
+
+    def prune_stale_mesos(self, keep_ids, logger=None):
+        """Remove unused pipeline mesos so cluster churn does not leak rows."""
+        log = logger or logging.getLogger("paper-sync")
+        keep = set(keep_ids)
+        mesos = self._fetch_all_pages(
+            "graph-mesos",
+            {
+                "fields[0]": "documentId",
+                "fields[1]": "slug",
+                "fields[2]": "name",
+                "fields[3]": "keywords",
+                "populate[publications][fields][0]": "documentId",
+                "populate[publicationsPrimary][fields][0]": "documentId",
+            },
+        )
+        deleted = 0
+        for meso in mesos:
+            attrs = meso.get("attributes", meso)
+            document_id = meso.get("documentId") or meso.get("id")
+            slug = attrs.get("slug") or ""
+            if not document_id or document_id in keep:
+                continue
+            # Older runs used a name-based slug and left those rows behind when
+            # the pipeline switched to macro-scoped `sc-` slugs. They are still
+            # pipeline-generated when `keywords` is set, so prune them too.
+            if not slug.startswith(MESO_SLUG_PREFIX) and not (attrs.get("keywords") or "").strip():
+                continue
+            if self._extract_relation_items(attrs.get("publications")):
+                continue
+            if self._extract_relation_items(attrs.get("publicationsPrimary")):
+                continue
+            if self.delete_graph_meso(document_id):
+                deleted += 1
+        if deleted:
+            log.info("Pruned %s stale graph mesos", deleted)
+        return deleted
+
+    def load_graph_link_ids(self):
+        """Return the document ids of every current graph link."""
         graph_links = self._fetch_all_pages(
             "graph-links",
             {
@@ -928,16 +1697,32 @@ class StrapiClient:
                 "fields[1]": "id",
             },
         )
+        return [
+            graph_link.get("documentId") or graph_link.get("id")
+            for graph_link in graph_links
+            if graph_link.get("documentId") or graph_link.get("id")
+        ]
 
+    def delete_graph_links(self, document_ids):
+        """Delete graph links by document id and return the deleted count."""
         deleted = 0
-        for graph_link in graph_links:
-            document_id = graph_link.get("documentId") or graph_link.get("id")
-            try:
-                response = requests.delete(f"{self.api_url}/graph-links/{document_id}", headers=self.headers)
-                response.raise_for_status()
+        for document_id in document_ids:
+            response = self._request(
+                "DELETE", f"{self.api_url}/graph-links/{document_id}", headers=self.headers
+            )
+            if response.ok:
                 deleted += 1
-            except requests.exceptions.RequestException as exc:
-                log.error(f"Failed to delete graph link {document_id}: {exc}")
+            else:
+                log.error(
+                    "Failed to delete graph link %s: %s %s",
+                    document_id,
+                    response.status_code,
+                    response.text[:500],
+                )
+        return deleted
 
+    def clear_graph_links(self):
+        """Delete all existing graph links so derived graph state can be rebuilt cleanly."""
+        deleted = self.delete_graph_links(self.load_graph_link_ids())
         log.info(f"Cleared {deleted} graph links")
         return deleted

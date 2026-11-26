@@ -11,7 +11,6 @@ import { usePageState } from "@/lib/usePageState";
 const MAP_W = 2800;
 const MAP_H = 1800;
 const NODE_R = 18;
-const MIN_DIST = 160;
 const NODE_NAV_DRAG_TOLERANCE = 6;
 
 // ─── Seeded pseudo-random (LCG) ──────────────────────────────────────────────
@@ -24,56 +23,368 @@ function makeRng(seed) {
 }
 
 // ─── Build star field ────────────────────────────────────────────────────────
-function buildStars(count) {
+function buildStars(count, w, h) {
   const rng = makeRng(0xdeadbeef);
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    cx: rng() * MAP_W,
-    cy: rng() * MAP_H,
+    cx: rng() * w,
+    cy: rng() * h,
     r: rng() * 1.3 + 0.2,
     opacity: rng() * 0.7 + 0.15,
   }));
 }
-const STARS = buildStars(600);
 
-// ─── Position nodes with force relaxation ─────────────────────────────────────
-function buildPositions(items) {
-  const PAD = 140;
-  const rng = makeRng(0xc0ffee + items.length);
-  const pos = items.map(() => ({
-    x: PAD + rng() * (MAP_W - PAD * 2),
-    y: PAD + rng() * (MAP_H - PAD * 2),
-  }));
+// ─── Position nodes with a deterministic, link-aware force layout ────────────
+function buildPositions(items, links, width, height) {
+  const PAD = 160;
+  const EDGE = 32;
+  const n = items.length;
+  if (!n) return [];
 
-  for (let pass = 0; pass < 30; pass++) {
-    for (let i = 0; i < pos.length; i++) {
-      for (let j = i + 1; j < pos.length; j++) {
-        const dx = pos[j].x - pos[i].x;
-        const dy = pos[j].y - pos[i].y;
+  const rng = makeRng(0xc0ffee + n);
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const initialRadius = Math.min(width, height) * 0.30;
+  const positions = items.map(() => {
+    const angle = rng() * Math.PI * 2;
+    const radius = Math.sqrt(rng()) * initialRadius;
+    return {
+      x: centerX + Math.cos(angle) * radius,
+      y: centerY + Math.sin(angle) * radius,
+      dx: 0,
+      dy: 0,
+    };
+  });
+
+  const indexById = new Map();
+  items.forEach((item, index) => {
+    if (item.id != null) indexById.set(item.id, index);
+  });
+
+  const edges = [];
+  (links || []).forEach((link) => {
+    const source = indexById.get(link.sourceId);
+    const target = indexById.get(link.targetId);
+    if (source == null || target == null || source === target) return;
+    const score = Number.isFinite(link.score) ? link.score : 0.5;
+    edges.push([source, target, Math.max(0.25, score)]);
+  });
+
+  const degrees = new Array(n).fill(0);
+  edges.forEach(([source, target]) => {
+    degrees[source] += 1;
+    degrees[target] += 1;
+  });
+
+  // Importance drives the radial layout: heavily linked papers sit near the
+  // middle, while leaf papers orbit further out.
+  const maxDegree = Math.max(1, ...degrees);
+  const citations = items.map((item) => Number(item.cited_by) || 0);
+  const maxCitations = Math.max(1, ...citations);
+  const logCitations = Math.log1p(maxCitations);
+  const importance = degrees.map((degree, index) => {
+    const degreePart = degree / maxDegree;
+    const citationPart =
+      logCitations > 0 ? Math.log1p(citations[index]) / logCitations : 0;
+    return degreePart * 0.8 + citationPart * 0.2;
+  });
+
+  const usableW = width - PAD * 2;
+  const usableH = height - PAD * 2;
+  const area = usableW * usableH;
+  const ideal = Math.max(112, Math.sqrt(area / n) * 0.66);
+  const repulsionCutoff = ideal * 2.6;
+  const iterations = n > 180 ? 120 : 170;
+  const coreRadiusLimit = Math.min(width, height) * 0.29;
+
+  // Force pass: link attraction builds the core, repulsion keeps it legible,
+  // and a radial term pulls strong hubs toward the middle.
+  for (let iter = 0; iter < iterations; iter++) {
+    const progress = iter / iterations;
+    const temperature = Math.max(1.2, width * 0.06 * (1 - progress));
+
+    for (let i = 0; i < n; i++) {
+      positions[i].dx = 0;
+      positions[i].dy = 0;
+    }
+
+    // Local repulsion keeps distant papers from pushing the whole graph apart.
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        let dx = positions[j].x - positions[i].x;
+        let dy = positions[j].y - positions[i].y;
+        let d2 = dx * dx + dy * dy;
+        if (d2 > repulsionCutoff * repulsionCutoff) continue;
+        if (d2 < 0.01) {
+          dx = (rng() - 0.5) * 2;
+          dy = (rng() - 0.5) * 2;
+          d2 = dx * dx + dy * dy;
+        }
+        const d = Math.sqrt(d2);
+        const force = (ideal * ideal) / d;
+        const ux = dx / d;
+        const uy = dy / d;
+        positions[i].dx -= ux * force;
+        positions[i].dy -= uy * force;
+        positions[j].dx += ux * force;
+        positions[j].dy += uy * force;
+      }
+    }
+
+    // Attraction: related papers form islands, but hubs do not collapse.
+    edges.forEach(([source, target, score]) => {
+      const dx = positions[target].x - positions[source].x;
+      const dy = positions[target].y - positions[source].y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const hubDamping =
+        1 / Math.sqrt(Math.max(1, degrees[source], degrees[target]));
+      const force = ((d * d) / ideal) * (0.28 + score * 0.55) * hubDamping;
+      const ux = dx / d;
+      const uy = dy / d;
+      positions[source].dx += ux * force;
+      positions[source].dy += uy * force;
+      positions[target].dx -= ux * force;
+      positions[target].dy -= uy * force;
+    });
+
+    // Radial gravity: high-degree hubs stay central, leaf papers stay outside.
+    for (let i = 0; i < n; i++) {
+      const dx = positions[i].x - centerX;
+      const dy = positions[i].y - centerY;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const target =
+        coreRadiusLimit * (0.16 + 0.84 * Math.pow(1 - importance[i], 0.9));
+      const radial = (distance - target) * (0.05 + progress * 0.035);
+      positions[i].dx -= (dx / distance) * radial;
+      positions[i].dy -= (dy / distance) * radial;
+    }
+
+    for (let i = 0; i < n; i++) {
+      const dx = positions[i].dx;
+      const dy = positions[i].dy;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 0.01;
+      const step = Math.min(distance, temperature) / distance;
+      positions[i].x = Math.max(
+        PAD,
+        Math.min(width - PAD, positions[i].x + dx * step)
+      );
+      positions[i].y = Math.max(
+        PAD,
+        Math.min(height - PAD, positions[i].y + dy * step)
+      );
+    }
+  }
+
+  // Final collision pass so the core has breathing room even under many links.
+  const minDist = Math.max(96, Math.min(210, ideal * 1.02));
+  for (let pass = 0; pass < 18; pass++) {
+    let moved = false;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = positions[j].x - positions[i].x;
+        const dy = positions[j].y - positions[i].y;
         const d = Math.sqrt(dx * dx + dy * dy) || 0.001;
-        if (d < MIN_DIST) {
-          const f = ((MIN_DIST - d) / d) * 0.5;
-          pos[i].x -= dx * f;
-          pos[i].y -= dy * f;
-          pos[j].x += dx * f;
-          pos[j].y += dy * f;
-          pos[i].x = Math.max(PAD, Math.min(MAP_W - PAD, pos[i].x));
-          pos[i].y = Math.max(PAD, Math.min(MAP_H - PAD, pos[i].y));
-          pos[j].x = Math.max(PAD, Math.min(MAP_W - PAD, pos[j].x));
-          pos[j].y = Math.max(PAD, Math.min(MAP_H - PAD, pos[j].y));
+        if (d >= minDist) continue;
+        const force = ((minDist - d) / d) * 0.5;
+        positions[i].x -= dx * force;
+        positions[i].y -= dy * force;
+        positions[j].x += dx * force;
+        positions[j].y += dy * force;
+        moved = true;
+      }
+    }
+    if (!moved) break;
+    for (let i = 0; i < n; i++) {
+      positions[i].x = Math.max(PAD, Math.min(width - PAD, positions[i].x));
+      positions[i].y = Math.max(PAD, Math.min(height - PAD, positions[i].y));
+    }
+  }
+
+  // Connected components: the biggest one is the core; smaller components
+  // orbit it on concentric elliptical rings instead of sitting in rows below.
+  const adjacency = Array.from({ length: n }, () => []);
+  edges.forEach(([source, target]) => {
+    adjacency[source].push(target);
+    adjacency[target].push(source);
+  });
+
+  const visited = new Array(n).fill(false);
+  const components = [];
+  for (let i = 0; i < n; i++) {
+    if (visited[i]) continue;
+    const queue = [i];
+    const indices = [];
+    visited[i] = true;
+    while (queue.length) {
+      const current = queue.pop();
+      indices.push(current);
+      adjacency[current].forEach((neighbour) => {
+        if (!visited[neighbour]) {
+          visited[neighbour] = true;
+          queue.push(neighbour);
+        }
+      });
+    }
+    components.push({ indices });
+  }
+
+  components.sort((a, b) => b.indices.length - a.indices.length);
+
+  const spreadFor = (m, isCore) => {
+    if (m <= 1) return 0;
+    if (isCore) {
+      return Math.min(
+        Math.min(width, height) * 0.27,
+        ideal * Math.sqrt(m) * 0.52
+      );
+    }
+    return ideal * Math.sqrt(m) * 0.46;
+  };
+
+  const layoutComponent = (component, isCore) => {
+    const m = component.indices.length;
+    const rest = ideal * (isCore ? 1.12 : 1.06);
+
+    if (m === 1) return [{ x: 0, y: 0 }];
+    if (m === 2) {
+      return [
+        { x: -rest / 2, y: 0 },
+        { x: rest / 2, y: 0 },
+      ];
+    }
+    if (m === 3) {
+      const radius = rest / Math.sqrt(3);
+      return [0, 1, 2].map((index) => {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / 3;
+        return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      });
+    }
+    if (m === 4) {
+      const radius = rest / Math.sqrt(2);
+      return [0, 1, 2, 3].map((index) => {
+        const angle = Math.PI / 4 + (index * Math.PI) / 2;
+        return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      });
+    }
+
+    const points = component.indices.map((index) => positions[index]);
+    const cx = points.reduce((sum, point) => sum + point.x, 0) / m;
+    const cy = points.reduce((sum, point) => sum + point.y, 0) / m;
+    const local = points.map((point) => ({ x: point.x - cx, y: point.y - cy }));
+    const extent = Math.max(
+      ...local.map((point) => Math.hypot(point.x, point.y)),
+      1
+    );
+    const target = spreadFor(m, isCore);
+    const factor = target > 0 ? target / extent : 1;
+    return local.map((point) => ({ x: point.x * factor, y: point.y * factor }));
+  };
+
+  const core = components[0];
+  const coreLocal = layoutComponent(core, true);
+  const coreRadius = Math.max(
+    ...coreLocal.map((point) => Math.hypot(point.x, point.y)),
+    ideal * 0.6
+  );
+
+  core.indices.forEach((index, localIndex) => {
+    positions[index] = {
+      x: centerX + coreLocal[localIndex].x,
+      y: centerY + coreLocal[localIndex].y,
+    };
+  });
+
+  const satellites = components.slice(1).map((component) => {
+    const local = layoutComponent(component, false);
+    const radius = Math.max(
+      ...local.map((point) => Math.hypot(point.x, point.y)),
+      ideal * 0.26
+    );
+    return { component, local, radius };
+  });
+
+  satellites.sort((a, b) => b.radius - a.radius);
+
+  // Give every satellite an evenly spaced angle around the core. The largest
+  // islands are assigned the most horizontal slots (where there is room), and
+  // the smallest settle near the top and bottom. Each island's inner edge sits
+  // one gap outside the core, so the result reads as a concentric halo.
+  const count = satellites.length;
+  const placed = [{ x: centerX, y: centerY, r: coreRadius }];
+  const gap = ideal * 0.42;
+  const step = Math.max(8, ideal * 0.18);
+  const evenAngles = Array.from(
+    { length: count },
+    (_, index) => (index / Math.max(1, count)) * Math.PI * 2
+  );
+  const horizontalFirst = [...evenAngles].sort((a, b) => {
+    const sinDiff = Math.abs(Math.sin(a)) - Math.abs(Math.sin(b));
+    if (Math.abs(sinDiff) > 1e-6) return sinDiff;
+    return Math.cos(a) - Math.cos(b);
+  });
+
+  satellites.forEach((satellite, index) => {
+    const cr = satellite.radius;
+    const assignedAngle = horizontalFirst[index] ?? 0;
+    const startRadius = coreRadius + gap + cr;
+    let placement = null;
+
+    // Try the assigned angle first, then neighbours, then grow outwards.
+    const angleCandidates = [];
+    for (let offset = 0; offset < count; offset += 1) {
+      angleCandidates.push(horizontalFirst[(index + offset) % count]);
+    }
+    if (count === 0) angleCandidates.push(0);
+
+    for (let extra = 0; extra <= step * 90 && !placement; extra += step) {
+      const radius = startRadius + extra;
+      for (const angle of angleCandidates) {
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        if (
+          x - cr < EDGE ||
+          x + cr > width - EDGE ||
+          y - cr < EDGE ||
+          y + cr > height - EDGE
+        ) {
+          continue;
+        }
+        const collides = placed.some(
+          (other) => Math.hypot(x - other.x, y - other.y) < other.r + cr + gap
+        );
+        if (!collides) {
+          placement = { x, y };
+          break;
         }
       }
     }
-  }
-  return pos;
+
+    if (!placement) {
+      const angle = assignedAngle;
+      placement = {
+        x: centerX + Math.cos(angle) * Math.min(startRadius, width / 2 - cr),
+        y: centerY + Math.sin(angle) * Math.min(startRadius, height / 2 - cr),
+      };
+    }
+
+    placed.push({ x: placement.x, y: placement.y, r: cr });
+    satellite.component.indices.forEach((nodeIndex, localIndex) => {
+      positions[nodeIndex] = {
+        x: placement.x + satellite.local[localIndex].x,
+        y: placement.y + satellite.local[localIndex].y,
+      };
+    });
+  });
+
+  return positions.map(({ x, y }) => ({ x, y }));
 }
 
 // ─── Link visual style by score ──────────────────────────────────────────────
 function linkStyle(score, isCross) {
-  if (isCross) return { stroke: "#ffa500", width: 1.2, opacity: 0.55, dash: "6 4" };
-  if (score >= 0.8) return { stroke: "#ffe066", width: 2.2, opacity: 0.80, dash: "none" };
-  if (score >= 0.65) return { stroke: "#ff8c00", width: 1.5, opacity: 0.65, dash: "none" };
-  return { stroke: "#4d7fff", width: 0.9, opacity: 0.40, dash: "none" };
+  if (isCross) return { stroke: "#ffa500", width: 1.0, opacity: 0.38, dash: "6 4" };
+  if (score >= 0.8) return { stroke: "#ffe066", width: 1.9, opacity: 0.55, dash: "none" };
+  if (score >= 0.65) return { stroke: "#ff8c00", width: 1.2, opacity: 0.44, dash: "none" };
+  return { stroke: "#4d7fff", width: 0.85, opacity: 0.26, dash: "none" };
 }
 
 function drawTextWithHalo(ctx, text, x, y, font, fill, stroke = "rgba(3,7,15,0.95)", lineWidth = 4) {
@@ -92,18 +403,14 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function getVisibleGraphRect(tx, ty, scale, viewportW, viewportH) {
+function getVisibleGraphRect(tx, ty, scale, viewportW, viewportH, mapW, mapH) {
   return {
-    left: clamp((-tx) / scale, 0, MAP_W),
-    top: clamp((-ty) / scale, 0, MAP_H),
-    right: clamp((viewportW - tx) / scale, 0, MAP_W),
-    bottom: clamp((viewportH - ty) / scale, 0, MAP_H),
+    left: clamp((-tx) / scale, 0, mapW),
+    top: clamp((-ty) / scale, 0, mapH),
+    right: clamp((viewportW - tx) / scale, 0, mapW),
+    bottom: clamp((viewportH - ty) / scale, 0, mapH),
   };
 }
-
-// ─── Grid lines ──────────────────────────────────────────────────────────────
-const GRID_COLS = Array.from({ length: Math.ceil(MAP_W / 220) + 1 }, (_, i) => i * 220);
-const GRID_ROWS = Array.from({ length: Math.ceil(MAP_H / 220) + 1 }, (_, i) => i * 220);
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function PaperGraphClient({
@@ -113,6 +420,9 @@ export default function PaperGraphClient({
   backLabel,
   topicLabel,
   accentColor = "#4ecdc4",
+  topicScope = null,
+  topicScopeLinks = null,
+  topicScopeCounts = null,
 }) {
   const papers = publications;
   const router = useRouter();
@@ -137,6 +447,12 @@ export default function PaperGraphClient({
 
   // Hover state
   const [hovered, setHovered] = useState(null);
+  const [hoveredLinkId, setHoveredLinkId] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
 
   // ── Paper lookup ──────────────────────────────────────────────────────────
@@ -157,19 +473,223 @@ export default function PaperGraphClient({
     });
   }, [papers, links, minScore, showCrossCluster]);
 
-  // ── Citation-based node scaling ───────────────────────────────────────────
+  const connectedIds = useMemo(() => {
+    const ids = new Set();
+    visibleLinks.forEach((link) => {
+      ids.add(link.sourceId);
+      ids.add(link.targetId);
+    });
+    return ids;
+  }, [visibleLinks]);
+
+  // ── Dynamic canvas size and degree-aware sizing ────────────────────────────
+  const mapSize = useMemo(() => {
+    const count = Math.max(1, papers.length);
+    const width = Math.max(MAP_W, Math.round(Math.sqrt(count) * 310));
+    const height = Math.max(MAP_H, Math.round(width * (MAP_H / MAP_W)));
+    return { width, height };
+  }, [papers.length]);
+
+  const degreeById = useMemo(() => {
+    const degrees = {};
+    visibleLinks.forEach((link) => {
+      degrees[link.sourceId] = (degrees[link.sourceId] || 0) + 1;
+      degrees[link.targetId] = (degrees[link.targetId] || 0) + 1;
+    });
+    return degrees;
+  }, [visibleLinks]);
+
   const nodeRadius = useCallback((paper) => {
     const citations = paper.cited_by || 0;
-    return NODE_R * 0.8 + Math.min(12, Math.sqrt(citations) * 1.2);
-  }, []);
+    const degree = degreeById[paper.id] || 0;
+    return (
+      9 +
+      Math.min(14, Math.sqrt(degree) * 2.8) +
+      Math.min(3, Math.sqrt(citations) * 0.5)
+    );
+  }, [degreeById]);
+
+  const labelRank = useMemo(() => {
+    const ordered = [...papers].sort((a, b) => {
+      const degreeDiff = (degreeById[b.id] || 0) - (degreeById[a.id] || 0);
+      if (degreeDiff !== 0) return degreeDiff;
+      return (b.cited_by || 0) - (a.cited_by || 0);
+    });
+    const rank = {};
+    ordered.forEach((paper, index) => {
+      rank[paper.id] = index;
+    });
+    return rank;
+  }, [papers, degreeById]);
 
   // ── Paper positions ───────────────────────────────────────────────────────
   const paperPositions = useMemo(() => {
-    const posArray = buildPositions(papers);
+    const posArray = buildPositions(papers, links, mapSize.width, mapSize.height);
     const m = {};
     papers.forEach((p, i) => { m[p.id] = posArray[i]; });
     return m;
-  }, [papers]);
+  }, [papers, links, mapSize]);
+
+  const contentBounds = useMemo(() => {
+    const points = Object.values(paperPositions);
+    if (!points.length) {
+      return { left: 0, top: 0, right: mapSize.width, bottom: mapSize.height };
+    }
+    let minX = Number.POSITIVE_INFINITY;
+    let minY = Number.POSITIVE_INFINITY;
+    let maxX = Number.NEGATIVE_INFINITY;
+    let maxY = Number.NEGATIVE_INFINITY;
+    points.forEach((point) => {
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    });
+    const padding = 180;
+    return {
+      left: Math.max(0, minX - padding),
+      top: Math.max(0, minY - padding),
+      right: Math.min(mapSize.width, maxX + padding),
+      bottom: Math.min(mapSize.height, maxY + padding),
+    };
+  }, [paperPositions, mapSize]);
+
+  const stars = useMemo(
+    () => buildStars(600, mapSize.width, mapSize.height),
+    [mapSize]
+  );
+
+  const gridLines = useMemo(() => ({
+    cols: Array.from({ length: Math.ceil(mapSize.width / 220) + 1 }, (_, i) => i * 220),
+    rows: Array.from({ length: Math.ceil(mapSize.height / 220) + 1 }, (_, i) => i * 220),
+  }), [mapSize]);
+
+  // ── Label layout ──────────────────────────────────────────────────────────
+  // Labels appear progressively with zoom and are placed in whichever side of
+  // a node has room, so text never sits on top of another paper.
+  const labelLayout = useMemo(() => {
+    const layout = new Map();
+    if (!papers.length) return layout;
+    const invScale = 1 / Math.max(scale, 0.22);
+    const maxChars = scale < 0.8 ? 20 : scale < 1.2 ? 32 : 52;
+    const maxLabels =
+      scale < 0.78 ? 8 :
+      scale < 1.05 ? 14 :
+      scale < 1.4 ? 24 :
+      papers.length;
+    const pool = Math.min(papers.length, Math.max(maxLabels, maxLabels * 3));
+    const ordered = [...papers].sort(
+      (a, b) =>
+        (labelRank[a.id] ?? Number.MAX_SAFE_INTEGER) -
+        (labelRank[b.id] ?? Number.MAX_SAFE_INTEGER)
+    );
+    const nodeBoxes = papers
+      .map((paper) => {
+        const pos = paperPositions[paper.id];
+        if (!pos) return null;
+        return {
+          id: paper.id,
+          x: pos.x,
+          y: pos.y,
+          r: nodeRadius(paper) + 9 * invScale,
+        };
+      })
+      .filter(Boolean);
+    const placed = [];
+
+    for (const paper of ordered.slice(0, pool)) {
+      if (placed.length >= maxLabels) break;
+      const pos = paperPositions[paper.id];
+      if (!pos) continue;
+      const raw = String(paper.title || "").trim();
+      if (!raw) continue;
+      const text =
+        raw.length > maxChars ? `${raw.slice(0, maxChars - 1)}…` : raw;
+      const width = Math.min(250, Math.max(36, text.length * 6.2)) * invScale;
+      const height = 13 * invScale;
+      const gap = 8 * invScale;
+      const r = nodeRadius(paper);
+      const near = r + gap;
+      const far = near + 30 * invScale;
+      const far2 = far + 55 * invScale;
+      const candidates = [];
+
+      [near, far, far2].forEach((distance, ring) => {
+        const diagonal = distance * 0.72;
+        candidates.push(
+          { x: pos.x, y: pos.y + distance + height / 2, anchor: "middle", ring },
+          { x: pos.x, y: pos.y - distance - height / 2, anchor: "middle", ring },
+          { x: pos.x + distance, y: pos.y, anchor: "start", ring },
+          { x: pos.x - distance, y: pos.y, anchor: "end", ring },
+          { x: pos.x + diagonal, y: pos.y + diagonal, anchor: "start", ring },
+          { x: pos.x + diagonal, y: pos.y - diagonal, anchor: "start", ring },
+          { x: pos.x - diagonal, y: pos.y + diagonal, anchor: "end", ring },
+          { x: pos.x - diagonal, y: pos.y - diagonal, anchor: "end", ring }
+        );
+      });
+
+      for (const candidate of candidates) {
+        let left;
+        let right;
+        if (candidate.anchor === "start") {
+          left = candidate.x;
+          right = candidate.x + width;
+        } else if (candidate.anchor === "end") {
+          left = candidate.x - width;
+          right = candidate.x;
+        } else {
+          left = candidate.x - width / 2;
+          right = candidate.x + width / 2;
+        }
+        const rect = {
+          left,
+          right,
+          top: candidate.y - height / 2,
+          bottom: candidate.y + height / 2,
+        };
+        if (
+          rect.left < 8 ||
+          rect.right > mapSize.width - 8 ||
+          rect.top < 8 ||
+          rect.bottom > mapSize.height - 8
+        ) {
+          continue;
+        }
+        const hitsNode = nodeBoxes.some((node) => {
+          if (node.id === paper.id) return false;
+          const nearestX = clamp(node.x, rect.left, rect.right);
+          const nearestY = clamp(node.y, rect.top, rect.bottom);
+          const dx = node.x - nearestX;
+          const dy = node.y - nearestY;
+          return dx * dx + dy * dy < node.r * node.r;
+        });
+        if (hitsNode) continue;
+        const overlapsLabel = placed.some(
+          (other) =>
+            !(
+              rect.right < other.left ||
+              rect.left > other.right ||
+              rect.bottom < other.top ||
+              rect.top > other.bottom
+            )
+        );
+        if (overlapsLabel) continue;
+        placed.push(rect);
+        layout.set(paper.id, {
+          x: candidate.x,
+          y: candidate.y,
+          anchor: candidate.anchor,
+          text,
+          width,
+          height,
+          leader: candidate.ring > 0,
+        });
+        break;
+      }
+    }
+
+    return layout;
+  }, [papers, paperPositions, scale, labelRank, nodeRadius, mapSize]);
 
   // ── Link index ────────────────────────────────────────────────────────────
   const linksByPaper = useMemo(() => {
@@ -181,15 +701,30 @@ export default function PaperGraphClient({
     return idx;
   }, [visibleLinks]);
 
-  const connectedSet = useMemo(() => {
-    if (!hovered) return null;
-    const s = new Set([hovered]);
-    (linksByPaper[hovered] ?? []).forEach((l) => {
-      s.add(l.sourceId);
-      s.add(l.targetId);
+  const linkById = useMemo(() => {
+    const idx = {};
+    visibleLinks.forEach((l) => {
+      idx[l.id] = l;
     });
-    return s;
-  }, [hovered, linksByPaper]);
+    return idx;
+  }, [visibleLinks]);
+
+  const hoveredLink = hoveredLinkId ? linkById[hoveredLinkId] : null;
+
+  const connectedSet = useMemo(() => {
+    if (hovered) {
+      const s = new Set([hovered]);
+      (linksByPaper[hovered] ?? []).forEach((l) => {
+        s.add(l.sourceId);
+        s.add(l.targetId);
+      });
+      return s;
+    }
+    if (hoveredLink) {
+      return new Set([hoveredLink.sourceId, hoveredLink.targetId]);
+    }
+    return null;
+  }, [hovered, hoveredLink, linksByPaper]);
 
   const setCamera = useCallback((nextTx, nextTy, nextScale) => {
     txRef.current = nextTx;
@@ -213,6 +748,7 @@ export default function PaperGraphClient({
     if (!paperId) return;
     setHighlightedId(paperId);
     setHovered(paperId);
+    setHoveredLinkId(null);
 
     if (highlightTimeoutRef.current) {
       clearTimeout(highlightTimeoutRef.current);
@@ -260,9 +796,17 @@ export default function PaperGraphClient({
     const el = containerRef.current;
     if (!el) return;
     const { width: cw, height: ch } = el.getBoundingClientRect();
-    const s = Math.min(cw / MAP_W, ch / MAP_H) * 1.14;
-    setCamera((cw - MAP_W * s) / 2, (ch - MAP_H * s) / 2, s);
-  }, [setCamera]);
+    const contentWidth = Math.max(1, contentBounds.right - contentBounds.left);
+    const contentHeight = Math.max(1, contentBounds.bottom - contentBounds.top);
+    const s = Math.min(cw / contentWidth, ch / contentHeight) * 0.94;
+    const centerX = (contentBounds.left + contentBounds.right) / 2;
+    const centerY = (contentBounds.top + contentBounds.bottom) / 2;
+    setCamera(
+      cw / 2 - centerX * s,
+      ch / 2 - centerY * s,
+      Math.max(0.2, Math.min(4, s))
+    );
+  }, [setCamera, contentBounds]);
   useEffect(() => { fitToScreen(); }, [fitToScreen]);
 
   // ── Pan handlers ──────────────────────────────────────────────────────────
@@ -284,6 +828,7 @@ export default function PaperGraphClient({
       const moved = Math.hypot(e.clientX - panOrigin.current.mx, e.clientY - panOrigin.current.my);
       if (moved <= NODE_NAV_DRAG_TOLERANCE && !e.target.closest("[data-node]")) {
         setHighlightedId(null);
+        setHoveredLinkId(null);
         if (highlightTimeoutRef.current) {
           clearTimeout(highlightTimeoutRef.current);
         }
@@ -293,6 +838,12 @@ export default function PaperGraphClient({
     panOrigin.current = null;
     nodePressRef.current = null;
   }, []);
+
+  const onContainerMouseLeave = useCallback((e) => {
+    onMouseUp(e);
+    setHovered(null);
+    setHoveredLinkId(null);
+  }, [onMouseUp]);
 
   const onNodeMouseDown = useCallback((e, publicationId) => {
     if (e.button !== 0) return;
@@ -332,17 +883,17 @@ export default function PaperGraphClient({
       width: miniRect.width - 20,
       height: miniRect.height - 30,
     };
-    const miniScale = Math.min(miniInner.width / MAP_W, miniInner.height / MAP_H);
-    const miniOffsetX = miniInner.left + (miniInner.width - MAP_W * miniScale) / 2;
-    const miniOffsetY = miniInner.top + (miniInner.height - MAP_H * miniScale) / 2;
-    const clickX = clamp(e.clientX - miniRect.left, miniOffsetX, miniOffsetX + MAP_W * miniScale);
-    const clickY = clamp(e.clientY - miniRect.top, miniOffsetY, miniOffsetY + MAP_H * miniScale);
+    const miniScale = Math.min(miniInner.width / mapSize.width, miniInner.height / mapSize.height);
+    const miniOffsetX = miniInner.left + (miniInner.width - mapSize.width * miniScale) / 2;
+    const miniOffsetY = miniInner.top + (miniInner.height - mapSize.height * miniScale) / 2;
+    const clickX = clamp(e.clientX - miniRect.left, miniOffsetX, miniOffsetX + mapSize.width * miniScale);
+    const clickY = clamp(e.clientY - miniRect.top, miniOffsetY, miniOffsetY + mapSize.height * miniScale);
     const targetX = (clickX - miniOffsetX) / miniScale;
     const targetY = (clickY - miniOffsetY) / miniScale;
 
     const currentScale = scaleRef.current;
     setCamera(viewport.width / 2 - targetX * currentScale, viewport.height / 2 - targetY * currentScale, currentScale);
-  }, [setCamera]);
+  }, [setCamera, mapSize]);
 
   // ── Zoom on wheel ─────────────────────────────────────────────────────────
   useEffect(() => {
@@ -381,8 +932,8 @@ export default function PaperGraphClient({
   const macroTheme = tooltipData?.paper?.graphMacroPrimary?.name || tooltipData?.paper?.graphMacroPrimary?.slug || '';
   const viewportBox = containerRef.current?.getBoundingClientRect();
   const visibleGraphRect = viewportBox
-    ? getVisibleGraphRect(tx, ty, scale, viewportBox.width, viewportBox.height)
-    : { left: 0, top: 0, right: MAP_W, bottom: MAP_H };
+    ? getVisibleGraphRect(tx, ty, scale, viewportBox.width, viewportBox.height, mapSize.width, mapSize.height)
+    : { left: 0, top: 0, right: mapSize.width, bottom: mapSize.height };
   const minimapW = 188;
   const minimapH = 118;
   const minimapInner = {
@@ -391,9 +942,9 @@ export default function PaperGraphClient({
     width: minimapW - 20,
     height: minimapH - 30,
   };
-  const minimapScale = Math.min(minimapInner.width / MAP_W, minimapInner.height / MAP_H);
-  const minimapOffsetX = minimapInner.left + (minimapInner.width - MAP_W * minimapScale) / 2;
-  const minimapOffsetY = minimapInner.top + (minimapInner.height - MAP_H * minimapScale) / 2;
+  const minimapScale = Math.min(minimapInner.width / mapSize.width, minimapInner.height / mapSize.height);
+  const minimapOffsetX = minimapInner.left + (minimapInner.width - mapSize.width * minimapScale) / 2;
+  const minimapOffsetY = minimapInner.top + (minimapInner.height - mapSize.height * minimapScale) / 2;
   const minimapVisible = {
     x: minimapOffsetX + visibleGraphRect.left * minimapScale,
     y: minimapOffsetY + visibleGraphRect.top * minimapScale,
@@ -413,7 +964,7 @@ export default function PaperGraphClient({
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
+      onMouseLeave={onContainerMouseLeave}
     >
       {/* CRT scanlines */}
       <div
@@ -467,10 +1018,37 @@ export default function PaperGraphClient({
       )}
 
       {/* Top-left HUD */}
-      <div className="pointer-events-none absolute top-12 left-5 z-30 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.14)", backdropFilter: "blur(8px)" }}>
-        <div className="text-amber-300/65 text-[10px] tracking-widest">
-          {papers.length} PAPERS &nbsp;·&nbsp; {visibleLinks.length} LINKS
+      <div className="absolute top-12 left-5 z-30 rounded-2xl border px-3 py-2 font-mono" style={{ background: "rgba(4,10,20,0.5)", borderColor: "rgba(255,180,0,0.14)", backdropFilter: "blur(8px)" }}>
+        <div className="pointer-events-none text-amber-300/65 text-[10px] tracking-widest">
+          {papers.length} PAPERS &nbsp;·&nbsp; {connectedIds.size} LINKED &nbsp;·&nbsp;{" "}
+          {papers.length - connectedIds.size} UNLINKED &nbsp;·&nbsp; {visibleLinks.length} LINKS
         </div>
+        {topicScope && (
+          <div className="mt-2 flex items-center gap-1.5 text-[9px] tracking-widest">
+            <Link
+              href={topicScopeLinks?.primary || "#"}
+              className="rounded border px-2 py-0.5 transition-colors"
+              style={{
+                borderColor: topicScope === "primary" ? "rgba(255,210,100,0.65)" : "rgba(255,180,0,0.2)",
+                background: topicScope === "primary" ? "rgba(255,180,0,0.16)" : "transparent",
+                color: topicScope === "primary" ? "#ffe6a3" : "rgba(255,227,153,0.55)",
+              }}
+            >
+              PRIMARY {topicScopeCounts?.primary ?? papers.length}
+            </Link>
+            <Link
+              href={topicScopeLinks?.tagged || "#"}
+              className="rounded border px-2 py-0.5 transition-colors"
+              style={{
+                borderColor: topicScope === "tagged" ? "rgba(255,210,100,0.65)" : "rgba(255,180,0,0.2)",
+                background: topicScope === "tagged" ? "rgba(255,180,0,0.16)" : "transparent",
+                color: topicScope === "tagged" ? "#ffe6a3" : "rgba(255,227,153,0.55)",
+              }}
+            >
+              ALL TAGGED {topicScopeCounts?.tagged ?? papers.length}
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Top-right HUD */}
@@ -486,6 +1064,7 @@ export default function PaperGraphClient({
         onPointerDown={onMinimapPointerDown}
       >
         <div className="px-1 pb-1 text-[8px] tracking-[0.32em] text-amber-300/60">OVERVIEW</div>
+        {mounted && (
         <svg width={minimapW} height={minimapH} viewBox={`0 0 ${minimapW} ${minimapH}`} className="block overflow-visible">
           <defs>
             <linearGradient id="minimap-bg" x1="0" x2="0" y1="0" y2="1">
@@ -496,10 +1075,10 @@ export default function PaperGraphClient({
           <rect x="0" y="0" width={minimapW} height={minimapH} rx="14" fill="url(#minimap-bg)" stroke="rgba(255,180,0,0.1)" />
           <rect x={minimapInner.left} y={minimapInner.top} width={minimapInner.width} height={minimapInner.height} rx="10" fill="rgba(255,255,255,0.015)" stroke="rgba(118,169,255,0.08)" />
           <line
-            x1={minimapOffsetX + (MAP_W / 2) * minimapScale}
+            x1={minimapOffsetX + (mapSize.width / 2) * minimapScale}
             y1={minimapOffsetY}
-            x2={minimapOffsetX + (MAP_W / 2) * minimapScale}
-            y2={minimapOffsetY + MAP_H * minimapScale}
+            x2={minimapOffsetX + (mapSize.width / 2) * minimapScale}
+            y2={minimapOffsetY + mapSize.height * minimapScale}
             stroke="rgba(255,200,120,0.18)"
             strokeDasharray="4 5"
           />
@@ -528,6 +1107,7 @@ export default function PaperGraphClient({
             strokeWidth="1.2"
           />
         </svg>
+        )}
         <div className="mt-1 px-1 text-[7px] tracking-[0.22em] text-amber-200/35">CLICK TO RECENTER</div>
       </div>
 
@@ -538,7 +1118,7 @@ export default function PaperGraphClient({
           { color: "#4d7fff", label: "WEAK   0.50–0.65", w: 1 },
           { color: "#ff8c00", label: "MODERATE  0.65–0.80", w: 2 },
           { color: "#ffe066", label: "STRONG  0.80–1.00", w: 3 },
-          { color: "#ffa500", label: "CROSS-CLUSTER", w: 1.5, dash: true },
+          { color: "#ffa500", label: "CROSS-MACRO", w: 1.5, dash: true },
         ].map(({ color, label, w, dash }) => (
           <div key={label} className="flex items-center gap-2 mb-1">
             <svg width="24" height={w + 4}>
@@ -606,10 +1186,11 @@ export default function PaperGraphClient({
       </div>
 
       {/* SVG */}
+      {mounted && (
       <svg
         ref={svgRef}
-        width={MAP_W}
-        height={MAP_H}
+        width={mapSize.width}
+        height={mapSize.height}
         aria-label="Paper relationship map"
         style={{
           position: "absolute",
@@ -651,20 +1232,20 @@ export default function PaperGraphClient({
           </filter>
         </defs>
 
-        <rect width={MAP_W} height={MAP_H} fill="#03070f" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#nebula1)" />
-        <rect width={MAP_W} height={MAP_H} fill="url(#nebula2)" />
+        <rect width={mapSize.width} height={mapSize.height} fill="#03070f" />
+        <rect width={mapSize.width} height={mapSize.height} fill="url(#nebula1)" />
+        <rect width={mapSize.width} height={mapSize.height} fill="url(#nebula2)" />
 
-        {STARS.map((s) => (
+        {stars.map((s) => (
           <circle key={s.id} cx={s.cx} cy={s.cy} r={s.r} fill="white" opacity={s.opacity} />
         ))}
 
-        {GRID_COLS.map((x) => (
-          <line key={`gc${x}`} x1={x} y1={0} x2={x} y2={MAP_H}
+        {gridLines.cols.map((x) => (
+          <line key={`gc${x}`} x1={x} y1={0} x2={x} y2={mapSize.height}
             stroke="rgba(80,160,255,0.035)" strokeWidth="1" />
         ))}
-        {GRID_ROWS.map((y) => (
-          <line key={`gr${y}`} x1={0} y1={y} x2={MAP_W} y2={y}
+        {gridLines.rows.map((y) => (
+          <line key={`gr${y}`} x1={0} y1={y} x2={mapSize.width} y2={y}
             stroke="rgba(80,160,255,0.035)" strokeWidth="1" />
         ))}
 
@@ -674,18 +1255,50 @@ export default function PaperGraphClient({
           const b = paperPositions[l.targetId];
           if (!a || !b) return null;
           const { stroke, width, opacity, dash } = linkStyle(l.score, l.isCrossCluster);
-          const isActive = hovered && (l.sourceId === hovered || l.targetId === hovered);
-          const isDim = hovered && !isActive;
+          const isHoveredLink = hoveredLinkId === l.id;
+          const isActive =
+            isHoveredLink ||
+            (hovered != null && (l.sourceId === hovered || l.targetId === hovered));
+          const isDim =
+            (hovered != null || hoveredLinkId != null) && !isActive;
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const distance = Math.hypot(dx, dy) || 1;
+          const hash =
+            typeof l.id === "number"
+              ? l.id
+              : String(l.id)
+                  .split("")
+                  .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+          const bow =
+            Math.min(70, distance * 0.1) * (hash % 2 === 0 ? 1 : -1);
+          const mx = (a.x + b.x) / 2 - (dy / distance) * bow;
+          const my = (a.y + b.y) / 2 + (dx / distance) * bow;
+          const path = `M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`;
           return (
-            <line
-              key={l.id}
-              x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              stroke={stroke}
-              strokeWidth={isActive ? width * 3 : width}
-              strokeDasharray={dash}
-              opacity={isDim ? 0.04 : isActive ? 1 : opacity}
-              style={{ transition: "opacity 0.18s, stroke-width 0.18s" }}
-            />
+            <g key={l.id}>
+              <path
+                d={path}
+                fill="none"
+                stroke={stroke}
+                strokeWidth={isActive ? width * 2.6 : width}
+                strokeDasharray={dash}
+                opacity={isDim ? 0.03 : isActive ? 1 : opacity}
+                pointerEvents="none"
+                style={{ transition: "opacity 0.18s, stroke-width 0.18s" }}
+              />
+              <path
+                d={path}
+                fill="none"
+                stroke="transparent"
+                strokeWidth={Math.min(40, Math.max(8, 18 / Math.max(scale, 0.25)))}
+                style={{ pointerEvents: "stroke" }}
+                onMouseEnter={() => setHoveredLinkId(l.id)}
+                onMouseLeave={() =>
+                  setHoveredLinkId((current) => (current === l.id ? null : current))
+                }
+              />
+            </g>
           );
         })}
 
@@ -695,11 +1308,68 @@ export default function PaperGraphClient({
           if (!pos) return null;
           const isNavigable = !!paper.publicationHref;
           const isHighlighted = highlightedId === paper.id;
-          const isHot = hovered === paper.id || isHighlighted;
+          const isLinkEndpoint =
+            hoveredLink != null &&
+            (hoveredLink.sourceId === paper.id || hoveredLink.targetId === paper.id);
+          const isHot = hovered === paper.id || isHighlighted || isLinkEndpoint;
           const isNear = connectedSet?.has(paper.id) && !isHot;
-          const isDim = (hovered || highlightedId) && !isHot && !isNear;
+          const focusActive =
+            hovered != null || hoveredLinkId != null || highlightedId != null;
+          const isDim = focusActive && !isHot && !isNear;
           const r = nodeRadius(paper);
-          const showLabel = scale > 0.5 || isHot || isNear || isHighlighted;
+          const degree = degreeById[paper.id] || 0;
+          const isHub = degree >= 6;
+          const labelScale = Math.max(scale, 0.22);
+          const labelInfo = labelLayout.get(paper.id);
+          const rawLabel = String(paper.title || "");
+          const truncatedLabel =
+            rawLabel.length > 34 ? `${rawLabel.slice(0, 34)}…` : rawLabel;
+          const fallbackWidth =
+            Math.min(250, Math.max(36, truncatedLabel.length * 6.2)) / labelScale;
+          const label =
+            labelInfo ||
+            (isHot || isNear
+              ? {
+                  x: pos.x,
+                  y: pos.y + r + 12 / labelScale,
+                  anchor: "middle",
+                  text: truncatedLabel,
+                  width: fallbackWidth,
+                  height: 13 / labelScale,
+                  leader: false,
+                }
+              : null);
+          const showLabel = label != null;
+          const labelBox = label
+            ? {
+                x:
+                  label.anchor === "start"
+                    ? label.x - pos.x
+                    : label.anchor === "end"
+                      ? label.x - pos.x - label.width
+                      : label.x - pos.x - label.width / 2,
+                y: label.y - pos.y - label.height / 2,
+                width: label.width,
+                height: label.height,
+              }
+            : null;
+          let leader = null;
+          if (label?.leader) {
+            const lx = label.x - pos.x;
+            const ly = label.y - pos.y;
+            const distance = Math.hypot(lx, ly) || 1;
+            const startX = (lx / distance) * (r + 2);
+            const startY = (ly / distance) * (r + 2);
+            const endX =
+              label.anchor === "middle"
+                ? lx
+                : lx + (lx > 0 ? -label.width / 2 : label.width / 2);
+            const endY =
+              label.anchor === "middle"
+                ? ly + (ly > 0 ? -label.height / 2 : label.height / 2)
+                : ly;
+            leader = { startX, startY, endX, endY };
+          }
 
           return (
             <g
@@ -710,14 +1380,10 @@ export default function PaperGraphClient({
               role={isNavigable ? "link" : undefined}
               tabIndex={isNavigable ? 0 : undefined}
               aria-label={isNavigable ? `Open publication: ${paper.title}` : undefined}
-              onMouseEnter={() => setHovered(paper.id)}
-              onMouseLeave={() => setHovered(null)}
-              onMouseDown={(e) => onNodeMouseDown(e, paper.id)}
-              onMouseUp={(e) => onNodeMouseUp(e, paper)}
               onKeyDown={(e) => onNodeKeyDown(e, paper)}
             >
               {isHighlighted && (
-                <g className="sonar-beacon">
+                <g className="sonar-beacon" style={{ pointerEvents: "none" }}>
                   {/* Expanding pulsing radar rings */}
                   <circle r={r + 14} fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeDasharray="4 3">
                     <animate attributeName="r" values={`${r + 12};${r + 55}`} dur="1.8s" repeatCount="indefinite" />
@@ -741,69 +1407,100 @@ export default function PaperGraphClient({
                   r={r * 3.5}
                   fill={isHot ? "url(#ng-hot)" : "url(#ng)"}
                   opacity={isDim ? 0 : isHot ? 0.9 : 0.55}
+                  style={{ pointerEvents: "none" }}
+                />
+              )}
+              {(isHub || isHot || isNear) && (
+                <circle
+                  r={r + 7}
+                  fill="none"
+                  stroke={isHot ? "#ffe066" : isNear ? "#ff8c00" : "#2a5080"}
+                  strokeWidth={isHot ? 1.5 : 1}
+                  strokeDasharray={isHot ? "none" : "5 4"}
+                  opacity={isDim ? 0.08 : isHot ? 1 : isNear ? 0.7 : isHub ? 0.45 : 0.3}
+                  style={{ transition: "all 0.2s", pointerEvents: "none" }}
                 />
               )}
               <circle
-                r={r + 7}
-                fill="none"
-                stroke={isHot ? "#ffe066" : isNear ? "#ff8c00" : "#2a5080"}
-                strokeWidth={isHot ? 1.5 : 1}
-                strokeDasharray={isHot ? "none" : "5 4"}
-                opacity={isDim ? 0.08 : isHot ? 1 : isNear ? 0.7 : 0.35}
-                style={{ transition: "all 0.2s" }}
-              />
-              <circle
                 r={r}
-                fill={isHot ? "#152540" : "#0a1a30"}
-                stroke={isHot ? "#ffe066" : isNear ? "#ff8c00" : "#1e4d80"}
-                strokeWidth={isHot ? 2.5 : 1.5}
+                fill={isHot ? "#152540" : isHub ? "#0e2340" : "#0a1a30"}
+                stroke={isHot ? "#ffe066" : isNear ? "#ff8c00" : isHub ? "#2f6aa8" : "#1e4d80"}
+                strokeWidth={isHot ? 2.5 : isHub ? 1.9 : 1.5}
                 opacity={isDim ? 0.15 : 1}
                 filter={isHot ? "url(#glow-hot)" : isNear ? "url(#glow)" : undefined}
-                style={{ transition: "all 0.2s" }}
+                style={{ transition: "all 0.2s", pointerEvents: "none" }}
               />
-              <text
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={10.8}
-                fontFamily="monospace"
-                fill={isDim ? "#ffffff1a" : isHot ? "#fff2b8" : "#8ab4ea"}
-                style={{
-                  paintOrder: "stroke fill",
-                  stroke: "rgba(3,7,15,0.95)",
-                  strokeWidth: isHot ? 2.8 : 2.4,
-                  strokeLinejoin: "round",
-                  transition: "all 0.2s",
-                  userSelect: "none",
-                  pointerEvents: "none",
+              <circle
+                r={Math.max(1.8, r * 0.28)}
+                fill={isHot ? "#ffe066" : isNear ? "#ff8c00" : isHub ? "#4a97e0" : "#3b7fc4"}
+                opacity={isDim ? 0.12 : isHot ? 0.95 : isNear ? 0.8 : isHub ? 0.65 : 0.4}
+                style={{ transition: "all 0.2s", pointerEvents: "none" }}
+              />
+              {/* Tight invisible hit target: a few screen pixels of slop so tiny
+                  nodes stay clickable without borrowing a neighbour's area. */}
+              <circle
+                r={r + 2.5 / Math.max(scale, 0.25)}
+                fill="transparent"
+                style={{ pointerEvents: "all" }}
+                onMouseEnter={() => {
+                  setHovered(paper.id);
+                  setHoveredLinkId(null);
                 }}
-              >
-                {paper.year ?? "?"}
-              </text>
+                onMouseLeave={() => setHovered(null)}
+                onMouseDown={(e) => onNodeMouseDown(e, paper.id)}
+                onMouseUp={(e) => onNodeMouseUp(e, paper)}
+              />
+              {leader && (
+                <line
+                  x1={leader.startX}
+                  y1={leader.startY}
+                  x2={leader.endX}
+                  y2={leader.endY}
+                  stroke={isHot ? "rgba(255,224,102,0.55)" : "rgba(195,212,239,0.22)"}
+                  strokeWidth={0.9 / labelScale}
+                  strokeDasharray={`${3 / labelScale} ${3 / labelScale}`}
+                  style={{ pointerEvents: "none" }}
+                />
+              )}
+              {isHot && labelBox && (
+                <rect
+                  x={labelBox.x}
+                  y={labelBox.y}
+                  width={labelBox.width}
+                  height={labelBox.height}
+                  rx={3 / labelScale}
+                  fill="rgba(3,7,15,0.86)"
+                  stroke="rgba(255,180,0,0.22)"
+                  style={{ pointerEvents: "none" }}
+                />
+              )}
               {showLabel && (
                 <text
-                  y={r + 15}
-                  textAnchor="middle"
-                  fontSize={8.9}
+                  x={label.x - pos.x}
+                  y={label.y - pos.y}
+                  textAnchor={label.anchor}
+                  dominantBaseline="middle"
+                  fontSize={(isHot ? 11 : 10) / labelScale}
                   fontFamily="monospace"
-                  fill={isDim ? "#ffffff12" : isHot ? "#fff3c4" : "#c3d4ef"}
+                  fill={isDim ? "#ffffff12" : isHot ? "#fff3c4" : "#b3c6e2"}
                   style={{
                     paintOrder: "stroke fill",
                     stroke: "rgba(3,7,15,0.95)",
-                    strokeWidth: isHot ? 2.4 : 2.05,
+                    strokeWidth: (isHot ? 2.8 : 2.4) / labelScale,
                     strokeLinejoin: "round",
                     transition: "all 0.2s",
                     userSelect: "none",
                     pointerEvents: "none",
                   }}
                 >
-                  {(paper.title ?? "").slice(0, 24)}
-                  {(paper.title ?? "").length > 24 ? "…" : ""}
+                  {label.text}
                 </text>
               )}
             </g>
           );
         })}
       </svg>
+      )}
 
       {/* Intel tooltip */}
       {tooltipData && (
@@ -864,20 +1561,14 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
             ✦ {macroTheme}
           </div>
         )}
-        {paper.communityLabel && (
+        {paper.graphMesoPrimary?.name && (
           <div className="text-[9px] text-amber-300/60 mb-2 border border-amber-500/20 px-1.5 py-0.5 inline-block">
-            ◈ {paper.communityLabel}
+            ◇ {paper.graphMesoPrimary.name}
           </div>
         )}
-        {paper.secondaryClusters?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {paper.secondaryClusters.map((sc, idx) => (
-              <span key={`${sc.clusterId ?? "cluster"}-${sc.distance ?? "distance"}-${idx}`} className="text-purple-200/80 border border-purple-500/30 px-1.5 py-0.5 bg-purple-950/30"
-                style={{ fontSize: 8, letterSpacing: "0.05em" }}
-                title={`Distance: ${(sc.distance || 0).toFixed(3)}`}>
-                ⟡ {sc.clusterLabel || `Cluster ${sc.clusterId}`}
-              </span>
-            ))}
+        {paper.graphMacroPrimary?.name && paper.graphMacroPrimary.name !== macroTheme && (
+          <div className="text-[9px] text-amber-300/45 mb-2 border border-amber-500/15 px-1.5 py-0.5 inline-block">
+            ✦ {paper.graphMacroPrimary.name}
           </div>
         )}
         {paper.topics?.length > 0 && (
@@ -901,7 +1592,7 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
             {strong > 0 && <span style={{ color: "#ffe88a" }}>◆ {strong} strong</span>}
             {moderate > 0 && <span style={{ color: "#ff9d2f" }}>◆ {moderate} moderate</span>}
             {weak > 0 && <span style={{ color: "#6f8eff" }}>◆ {weak} weak</span>}
-            {cross > 0 && <span style={{ color: "#ffb74d" }}>◆ {cross} cross-cluster</span>}
+            {cross > 0 && <span style={{ color: "#ffb74d" }}>◆ {cross} cross-macro</span>}
           </div>
         )}
         {/* Cross-cluster connections section */}
@@ -922,7 +1613,7 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
           return (
             <div className="mt-2 pt-2 border-t border-orange-500/20">
               <div className="text-[8px] text-orange-300/75 tracking-wider mb-1.5">
-                ⟡ RELATED IN OTHER CLUSTERS
+                ⟡ RELATED IN OTHER MACROS
               </div>
               <div className="space-y-1">
                 {crossLinks.map(({ paper: p, score }, idx) => (
@@ -934,9 +1625,9 @@ function IntelPanel({ paper, links, paperById, macroTheme, sx, sy, scale }) {
                       <div className="text-orange-100/85 text-[8px] leading-tight truncate">
                         {p.title}
                       </div>
-                      {p.communityLabel && (
+                      {(p.graphMacroPrimary?.name || p.graphMesoPrimary?.name) && (
                         <div className="text-orange-200/50 text-[7px] truncate">
-                          in {p.communityLabel}
+                          in {p.graphMacroPrimary?.name || p.graphMesoPrimary?.name}
                         </div>
                       )}
                     </div>

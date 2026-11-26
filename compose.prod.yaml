@@ -174,8 +174,19 @@ services:
       # Strapi connection (inside Docker network)
       STRAPI_URL: ${STRAPI_INTERNAL_URL:-http://strapi:1337}
       STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      STRAPI_HTTP_TIMEOUT: ${STRAPI_HTTP_TIMEOUT:-60}
+      STRAPI_HTTP_RETRIES: ${STRAPI_HTTP_RETRIES:-2}
       # Optional: authenticates OpenAlex requests and raises rate limits
       OPENALEX_API_KEY: ${OPENALEX_API_KEY:-}
+      OPENALEX_MAILTO: ${OPENALEX_MAILTO:-}
+      OPENALEX_INSTITUTION_ID: ${OPENALEX_INSTITUTION_ID:-}
+      OPENALEX_HTTP_TIMEOUT: ${OPENALEX_HTTP_TIMEOUT:-30}
+      OPENALEX_HTTP_RETRIES: ${OPENALEX_HTTP_RETRIES:-3}
+      PAPER_IMPORT_OA_ONLY: ${PAPER_IMPORT_OA_ONLY:-false}
+      PAPER_IMPORT_TYPES: ${PAPER_IMPORT_TYPES:-}
+      PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES: ${PAPER_IMPORT_ABSTRACT_REQUIRED_TYPES:-}
+      PAPER_SYNC_LOCK_PATH: ${PAPER_SYNC_LOCK_PATH:-/var/run/paper-sync/sync.lock}
+      PDF_MAX_BYTES: ${PDF_MAX_BYTES:-10485760}
       # Cron schedule & timezone
       PAPER_SYNC_CRON: ${PAPER_SYNC_CRON:-0 0 * * 6}
       TZ: ${PAPER_SYNC_TZ:-UTC}
@@ -189,6 +200,8 @@ services:
       GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE: ${GRAPH_TOPIC_HDBSCAN_MIN_CLUSTER_SIZE:-3}
       GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES: ${GRAPH_TOPIC_HDBSCAN_MIN_SAMPLES:-2}
       GRAPH_TOP_K: ${GRAPH_TOP_K:-20}
+    volumes:
+      - paper-sync-state:/var/run/paper-sync
     depends_on:
       strapi:
         condition: service_healthy
@@ -253,3 +266,4 @@ volumes:
   pgdata:
   mysql-snipeit-data:
   snipeit-data:
+  paper-sync-state:

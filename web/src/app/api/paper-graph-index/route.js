@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getGraphPublications, transformGraphPublicationData } from '@/lib/strapi';
 import { buildMesoTopics, filterPublicationsForMesoTopic } from '@/app/research/paper-graph/meso';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const rawPubs = await getGraphPublications();

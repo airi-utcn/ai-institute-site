@@ -155,6 +155,12 @@
     "scholarId": {
       "type": "string"
     },
+    "openAlexAuthorId": {
+      "type": "string"
+    },
+    "orcid": {
+      "type": "string"
+    },
     "department": {
       "type": "relation",
       "relation": "manyToOne",

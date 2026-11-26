@@ -1,13 +1,14 @@
 import json
 import hashlib
 import logging
-import os
 import re
 from functools import lru_cache
 from collections import Counter, defaultdict
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
+
+from .utils import normalize_doi, normalize_openalex_id, normalize_title
 
 log = logging.getLogger(__name__)
 
@@ -237,11 +238,23 @@ def _build_cluster_label(community_id, papers, cluster_indices, topic_counter, e
     return label
 
 
+def _paper_text(paper):
+    """Text used for embeddings: abstract when present, otherwise title + topics."""
+    title = (paper.get("title") or "").strip()
+    abstract = (paper.get("abstract") or "").strip()
+    if abstract:
+        return f"{title} {abstract}".strip()
+    topics = [topic for topic in (paper.get("topics") or []) if isinstance(topic, str)]
+    if topics:
+        return f"{title} {' '.join(topics)}".strip()
+    return title
+
+
 def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
-    """Generate embeddings for papers that have abstracts, reusing stored vectors when valid."""
-    papers_with_text = [paper for paper in papers if paper.get("abstract")]
+    """Generate embeddings for papers that have any usable text, reusing stored vectors."""
+    papers_with_text = [paper for paper in papers if _paper_text(paper)]
     if len(papers_with_text) < 2:
-        log.warning("Not enough papers with abstracts to generate embeddings.")
+        log.warning("Not enough papers with text to generate embeddings.")
         return papers_with_text, np.array([])
 
     reused_count = 0
@@ -257,7 +270,7 @@ def build_embeddings(papers, model_name="all-MiniLM-L6-v2"):
             continue
 
         encode_positions.append(index)
-        encode_inputs.append(f"{paper['title']} {paper['abstract']}")
+        encode_inputs.append(_paper_text(paper))
 
     encoded_count = len(encode_inputs)
     if encoded_count:
@@ -292,6 +305,28 @@ def paper_identifier(paper):
     return paper.get("graphId") or paper.get("openAlexId")
 
 
+def _work_identity(paper):
+    keys = set()
+    graph_id = paper.get("graphId")
+    if graph_id:
+        keys.add(str(graph_id))
+    openalex_id = normalize_openalex_id(paper.get("openAlexId"))
+    if openalex_id:
+        keys.add(openalex_id)
+    doi = normalize_doi(paper.get("doi"))
+    if doi:
+        keys.add(f"doi:{doi}")
+    title = normalize_title(paper.get("title"))
+    if title:
+        keys.add(f"title:{title}")
+    return keys
+
+
+def _same_work(left, right):
+    """True only when two records describe the same work, not merely similar text."""
+    return bool(_work_identity(left) & _work_identity(right))
+
+
 def build_embedding_payloads(filtered_papers, embeddings, model_name, indexed_at):
     """Create Strapi-ready embedding metadata keyed by graph paper identifier."""
     if len(filtered_papers) == 0 or len(embeddings) == 0:
@@ -313,8 +348,7 @@ def build_embedding_payloads(filtered_papers, embeddings, model_name, indexed_at
 def embedding_source_hash(paper):
     raw = json.dumps(
         {
-            "title": paper.get("title") or "",
-            "abstract": paper.get("abstract") or "",
+            "text": _paper_text(paper),
         },
         sort_keys=True,
         ensure_ascii=True,
@@ -347,11 +381,37 @@ def _normalize_embeddings(embeddings):
     return embeddings / norms
 
 
+def cap_links_top_k(links, top_k):
+    """Keep a graph whose maximum degree is ``top_k``.
+
+    Sorting edges by score and greedily accepting an edge only when both
+    endpoints still have capacity guarantees the cap for every paper.  A simple
+    per-node top-k union does not: a low-degree neighbour can re-admit an edge
+    that the high-degree endpoint already rejected.
+    """
+    if not top_k or top_k <= 0 or not links:
+        return links
+
+    ordered = sorted(enumerate(links), key=lambda item: item[1].get("score", 0), reverse=True)
+    degree = defaultdict(int)
+    keep = set()
+    for index, link in ordered:
+        source = link["source_paper_id"]
+        target = link["target_paper_id"]
+        if degree[source] >= top_k or degree[target] >= top_k:
+            continue
+        degree[source] += 1
+        degree[target] += 1
+        keep.add(index)
+    return [link for index, link in enumerate(links) if index in keep]
+
+
 def generate_links(
     papers,
     similarity_threshold=0.5,
     duplicate_threshold=0.92,
     model_name="all-MiniLM-L6-v2",
+    top_k=0,
 ):
     """Compute similarity links between papers using brute-force similarity."""
     filtered_papers, embeddings = build_embeddings(papers, model_name)
@@ -361,6 +421,7 @@ def generate_links(
 
     links = []
     duplicate_pairs = []
+    near_duplicate_count = 0
 
     log.info("Computing full similarity matrix...")
     similarity_matrix = embeddings @ embeddings.T
@@ -371,7 +432,17 @@ def generate_links(
             if score < similarity_threshold:
                 continue
 
-            is_duplicate = score >= duplicate_threshold
+            # A high cosine score alone is not proof of a duplicate: different
+            # papers on the same topic routinely exceed 0.92. Only collapse the
+            # link when the records share an identity key (OpenAlex, DOI, title,
+            # or document id). Near-duplicates stay in the graph.
+            same_work = score >= duplicate_threshold and _same_work(
+                filtered_papers[source_index], filtered_papers[target_index]
+            )
+            if score >= duplicate_threshold and not same_work:
+                near_duplicate_count += 1
+
+            is_duplicate = same_work
             source_paper_id = paper_identifier(filtered_papers[source_index])
             target_paper_id = paper_identifier(filtered_papers[target_index])
             if is_duplicate:
@@ -399,8 +470,19 @@ def generate_links(
         if target_paper_id in duplicate_paper_ids:
             link["target_canonical_paper_id"] = canonical_by_duplicate[target_paper_id]
 
+    if top_k and top_k > 0 and links:
+        before = len(links)
+        links = cap_links_top_k(links, top_k)
+        log.info("Top-k link cap (k=%s): kept %s of %s links", top_k, len(links), before)
+
     duplicate_links = sum(1 for link in links if link["is_duplicate"])
-    log.info(f"Links: {len(links)} total | {len(links) - duplicate_links} clean | {duplicate_links} duplicates")
+    log.info(
+        "Links: %s total | %s clean | %s duplicate | %s high-similarity non-duplicates",
+        len(links),
+        len(links) - duplicate_links,
+        duplicate_links,
+        near_duplicate_count,
+    )
     log.info(f"Duplicate papers: {len(duplicate_paper_ids)}")
 
     return links, duplicate_paper_ids, filtered_papers, embeddings
@@ -752,8 +834,17 @@ def cluster_topics(topics, embeddings, min_cluster_size=None, min_samples=None):
     return topic_to_cluster, dict(clusters_to_topics)
 
 
-def label_topic_clusters(clusters_to_topics):
-    """Generate labels for topic superclusters from strongest topic phrases."""
+def label_topic_clusters(clusters_to_topics, topic_paper_counts=None):
+    """Generate labels for topic superclusters from their most common topics.
+
+    A supercluster is a set of topics, so every topic used to appear once in
+    ``clusters_to_topics``. Ranking by that set meant ties were resolved by
+    insertion order, which produced labels such as "Logic & Aging, Elder Care,
+    and Social Issues" for a cluster that is overwhelmingly about logic. Weight
+    each topic by the number of papers that carry it so the label follows the
+    actual content of the cluster.
+    """
+    topic_paper_counts = topic_paper_counts or {}
     labels = {}
     for cluster_id, topics in clusters_to_topics.items():
         if not topics:
@@ -764,12 +855,14 @@ def label_topic_clusters(clusters_to_topics):
         token_counts = Counter()
         for topic in topics:
             cleaned_topic = _sanitize_topic_phrase(topic)
-            if cleaned_topic:
-                phrase_counts[cleaned_topic] += 1
-                for token in _tokenize_text(cleaned_topic):
-                    if token in LABEL_STOPWORDS or token in LABEL_GENERIC_TOKENS:
-                        continue
-                    token_counts[token] += 1
+            if not cleaned_topic:
+                continue
+            weight = max(1, int(topic_paper_counts.get(topic, 1)))
+            phrase_counts[cleaned_topic] += weight
+            for token in _tokenize_text(cleaned_topic):
+                if token in LABEL_STOPWORDS or token in LABEL_GENERIC_TOKENS:
+                    continue
+                token_counts[token] += weight
 
         candidates = [(phrase, float(count) * 2.0) for phrase, count in phrase_counts.most_common(10)]
         for token, count in token_counts.most_common(6):
@@ -782,7 +875,7 @@ def label_topic_clusters(clusters_to_topics):
             selected = [topics[0][:40] if topics else f"Topic Group {cluster_id}"]
 
         labels[cluster_id] = " & ".join(selected[:LABEL_MAX_PARTS])
-    
+
     return labels
 
 
@@ -809,7 +902,12 @@ def build_topic_hierarchy(papers, model_name="all-MiniLM-L6-v2"):
     
     embeddings = generate_topic_embeddings(topics, model_name)
     topic_to_cluster, cluster_to_topics = cluster_topics(topics, embeddings)
-    cluster_labels = label_topic_clusters(cluster_to_topics)
+    topic_paper_counts = Counter()
+    for paper in papers:
+        for topic in set(paper.get("topics") or []):
+            if isinstance(topic, str) and topic:
+                topic_paper_counts[topic] += 1
+    cluster_labels = label_topic_clusters(cluster_to_topics, topic_paper_counts)
     
     log.info(f"Topic hierarchy: {len(topics)} topics -> {len(cluster_to_topics)} superclusters")
     for cid, label in sorted(cluster_labels.items()):
@@ -1103,26 +1201,3 @@ def compute_graph_quality_metrics(
         )
 
     return metrics
-
-
-def save_index(embeddings, papers, path):
-    """Persist embeddings and paper IDs for reuse."""
-    data = {
-        "paper_ids": [paper_identifier(paper) for paper in papers],
-        "embeddings": embeddings.tolist(),
-    }
-    with open(path, "w", encoding="utf-8") as handle:
-        json.dump(data, handle)
-    log.info(f"Saved index ({len(papers)} papers) to {path}")
-
-
-def load_index(path):
-    """Load a previously saved index."""
-    if not os.path.exists(path):
-        return None, None
-    with open(path, "r", encoding="utf-8") as handle:
-        data = json.load(handle)
-    paper_ids = data.get("paper_ids", data.get("openalex_ids", []))
-    embeddings = np.array(data.get("embeddings", []), dtype=np.float32)
-    log.info(f"Loaded existing index ({len(paper_ids)} papers) from {path}")
-    return paper_ids, embeddings

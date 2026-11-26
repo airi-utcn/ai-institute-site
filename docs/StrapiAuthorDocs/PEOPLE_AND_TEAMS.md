@@ -58,7 +58,7 @@ need to change their type.
 - **Publications**: the person's publications. Many are added automatically by the publication
   import.
 - **Scholar Id** and **Import Eligible**: used by the publication import. See the
-  [paper graph user manual](../../paper-graph-user-manual.md) before changing them.
+  [paper graph author guide](./PAPER_GRAPH.md) before changing them.
 
 ## Teams
 

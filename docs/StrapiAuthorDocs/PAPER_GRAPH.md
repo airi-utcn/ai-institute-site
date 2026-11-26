@@ -1,6 +1,6 @@
-# Research Paper Graph Author Guide
+# Paper Graph Author Guide
 
-This guide explains the graph-related Strapi fields introduced on this branch and how they are meant to be used by editors, authors, and maintainers.
+This guide explains the graph-related Strapi fields and how editors, authors, and maintainers should use them. It is part of the [Strapi author docs](./README.md).
 
 The key idea is simple:
 
@@ -32,11 +32,30 @@ Important:
 - This field does not control whether a person appears on the site.
 - It only controls whether the import pipeline treats the person as a valid source.
 
+### Person: `openAlexAuthorId` and `orcid`
+
+Location: `Person`
+
+What they do:
+
+- `openAlexAuthorId` pins the person to one OpenAlex author identity. Once set, the import pipeline uses it directly and never re-searches by name.
+- `orcid` is stored for reference and future matching.
+
+Use this for:
+
+- every researcher whose publications should be imported
+- anyone whose name is common enough that a name search could resolve to the wrong person
+
+Important:
+
+- If the field is empty, the pipeline searches OpenAlex by name and stores the result. Review the doctor report after a sync and correct the ID in Strapi if it resolved to the wrong person.
+- A person without a portrait cannot be pinned automatically because the Person schema requires a portrait; add one and rerun the sync.
+
 ### Publication: `graphEligible`
 
 Location: `Publication`
 
-Default: `true`
+Default: `false`
 
 What it does:
 
@@ -54,6 +73,64 @@ Important:
 - `graphEligible` is not the same as `sourceKind`.
 - A publication can be manual and still graph-eligible.
 - A publication can be graph-ineligible even if it is otherwise valid content.
+- The importer updates a draft without republishing it. If you unpublish a
+  paper, it stays unpublished until an editor republishes it.
+
+### Import scope
+
+The importer is deliberately narrower than OpenAlex. It keeps journal articles,
+conference papers, preprints, reviews, dissertations, and data papers even when
+OpenAlex has no abstract. Book chapters, books, editorials, conference
+abstracts, datasets, and similar records must have an abstract, and front/back
+matter titles such as `Contents`, `Preface`, or `Index` are always rejected.
+
+If an automated record is already in Strapi but no longer passes these rules,
+the next sync unpublishes it and removes it from the graph. This is automatic;
+you do not need to create an exclusion for ordinary book front matter. Use a
+`GraphExclusion` only when you need a durable, explicit exception or want to
+keep a record out even though it looks like a normal paper.
+
+### Graph Exclusion
+
+Location: `Graph Exclusion`
+
+Default: no exclusion
+
+What it does:
+
+- Keeps a paper out of the importer even after the publication record is
+  deleted.
+- `GraphExclusion` matches on exact OpenAlex ID, DOI, or normalized title.
+- `scope=graphOnly` removes the paper from graph rebuilds but keeps its
+  publication page.
+- `scope=hideEverywhere` also unpublishes it, so it disappears from the public
+  publication listing, detail page, author pages, project pages, and graph
+  search.
+- `isActive` lets you pause an exclusion without deleting the note.
+- Deactivating an exclusion does not republish a hidden record; republish it in
+  Strapi when it should return.
+
+Use this for:
+
+- placeholder records such as `Table of contents` or other papers with no real
+  content;
+- papers that must never be reimported;
+- papers that should be buried from the site entirely.
+
+Practical rule:
+
+- To hide an existing paper from the graph but keep its page, toggle
+  `graphEligible` off.
+- To remove a paper from the site and prevent the weekly import from bringing it
+  back, create a `GraphExclusion` with `scope=hideEverywhere` and then delete or
+  unpublish the publication.
+
+Important:
+
+- Exclusion matching is exact. Do not rely on partial titles or fuzzy names.
+- If a paper has no DOI or OpenAlex ID, use its exact stored title.
+- `hideEverywhere` unpublishes rather than hard-deletes, so editors can review
+  the draft later.
 
 ## 2. Ownership: Manual vs Automated
 
@@ -138,6 +215,14 @@ Pipeline rule:
 - For non-manual publications, these relations are regenerated on each global graph rebuild.
 - For manual publications, the pipeline is intended to leave editorial ownership alone.
 
+Reading the graph:
+
+- A meso node shows `primary / tagged` counts. `primary` is the paper's main
+  meso and forms a clean partition of the macro; `tagged` includes papers whose
+  secondary topics also match.
+- The meso detail page opens the primary set by default. Use the
+  `ALL TAGGED` toggle to see the wider membership.
+
 ## 4. Macro Taxonomy: `GraphMacro`
 
 Location: `GraphMacro`
@@ -208,6 +293,11 @@ What not to do:
 
 - do not use meso fields as a manual per-paper override mechanism
 - do not expect paper placement to stay fixed if the pipeline is rerun and the taxonomy changes
+
+Identity and cleanup:
+
+- a meso's identity is its macro-scoped slug (`sc-<macro>-<cluster>`), not its display name; the same label can legitimately appear under two macros
+- pipeline-generated mesos that end up with no tagged or primary publications are pruned after assignment
 
 ## 6. Recommended Editor Workflow
 

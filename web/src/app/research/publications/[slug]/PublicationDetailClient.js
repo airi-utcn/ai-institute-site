@@ -10,6 +10,7 @@ const PUBLICATION_DETAIL_DEFAULTS = {
   notFound: "Publication not found.",
   backToPublications: "← Back to publications",
   openPdf: "Open PDF",
+  openPublisher: "Open publisher page",
   downloadBibtex: "Download BibTeX",
   authors: "Authors",
   noAuthors: "No authors listed.",
@@ -54,7 +55,13 @@ export default function PublicationDetailClient({ publication }) {
     videoFile,
     videoUrl,
     slug,
+    doi,
+    openAlexId,
   } = publication;
+
+  const publisherUrl = doi
+    ? `https://doi.org/${encodeURIComponent(doi).replace(/%2F/gi, "/")}`
+    : openAlexId || null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-950 dark:to-slate-950">
@@ -84,6 +91,19 @@ export default function PublicationDetailClient({ publication }) {
             <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
               {description}
             </p>
+          ) : null}
+
+          {publisherUrl ? (
+            <div className="mt-5">
+              <a
+                href={publisherUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-gray-200 dark:border-gray-800 px-4 py-2 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                {t("openPublisher")} ↗
+              </a>
+            </div>
           ) : null}
 
           {(pdfFile?.url || bibFile?.url || bibtex) ? (

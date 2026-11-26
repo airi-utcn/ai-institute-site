@@ -16,6 +16,7 @@ import {
   FaImages,
   FaInfoCircle,
   FaBook,
+  FaCog,
   FaTags,
   FaFilePdf,
   FaBoxOpen,
@@ -29,6 +30,7 @@ import HeroHeader from '@/components/shared/HeroHeader';
 import { heroSizes } from '@/lib/media';
 import GallerySlideshow from '@/components/shared/GallerySlideshow';
 import DynamicZone from '@/components/shared/DynamicZone';
+import MediaAttachment from '@/components/shared/MediaAttachment';
 import PersonChip from '@/components/shared/PersonChip';
 import ContentCard from '@/components/ContentCard';
 import PeopleTeamsSection from '@/components/shared/PeopleTeamsSection';
@@ -43,6 +45,7 @@ const DEFAULT_TEXTS = {
   'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
+  'tabs.results': 'Results',
   'tabs.schedule': 'Room schedule',
   'tabs.equipment': 'Equipment',
   'overview.about': 'About',
@@ -62,6 +65,8 @@ const DEFAULT_TEXTS = {
   'schedule.description':
     'Current and upcoming bookings for this room, as published in the UTCN timetable.',
   'publications.noPublications': 'No publications found for this laboratory.',
+  'results.noResults': 'No results have been published for this laboratory yet.',
+  'results.attachments': 'Attachments',
   'themes.title': 'Research Themes',
 };
 
@@ -89,6 +94,7 @@ export default function LaboratoryDetailClient({
   pageData,
   teams = [],
   publications = [],
+  results = [],
 }) {
   const [activeTab, setActiveTab] = usePageState('tab', 'overview');
 
@@ -140,6 +146,12 @@ export default function LaboratoryDetailClient({
       label: t('tabs.publications'),
       icon: FaBook,
       count: publications.length,
+    },
+    {
+      id: 'results',
+      label: t('tabs.results'),
+      icon: FaCog,
+      count: results.length,
     },
     {
       id: 'schedule',
@@ -257,6 +269,7 @@ export default function LaboratoryDetailClient({
                 <button
                   key={tab.id}
                   type="button"
+                  aria-pressed={isActive}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${
                     isActive
@@ -638,6 +651,56 @@ export default function LaboratoryDetailClient({
                 })
               ) : (
                 <EmptyState>{t('publications.noPublications')}</EmptyState>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'results' && (
+            <motion.div
+              key="results"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+              className="space-y-10"
+            >
+              {results.length > 0 ? (
+                results.map((result) => {
+                  const attachments = result.attachments.filter((file) => file.url);
+                  return (
+                    <motion.article
+                      key={result.id}
+                      variants={itemVariants}
+                      className="space-y-6 border-b border-gray-200 pb-10 last:border-b-0 last:pb-0 dark:border-gray-800"
+                    >
+                      <header className="space-y-2">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          {result.title}
+                        </h2>
+                        {result.description && (
+                          <p className="text-gray-600 dark:text-gray-300">{result.description}</p>
+                        )}
+                      </header>
+                      {result.body.length > 0 && <DynamicZone blocks={result.body} />}
+                      {attachments.length > 0 && (
+                        <div className="space-y-3">
+                          <h3 className="text-lg font-semibold">{t('results.attachments')}</h3>
+                          {attachments.map((file) => (
+                            <MediaAttachment
+                              key={file.id ?? file.url}
+                              media={{ ...file, size: file.size * 1000 }}
+                              caption={file.caption}
+                              className="max-w-xl"
+                              download
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </motion.article>
+                  );
+                })
+              ) : (
+                <EmptyState>{t('results.noResults')}</EmptyState>
               )}
             </motion.div>
           )}

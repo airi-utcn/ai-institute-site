@@ -93,7 +93,7 @@ const safeDecode = (value) => {
   }
 };
 
-export default function MediaAttachment({ media, caption, className = '' }) {
+export default function MediaAttachment({ media, caption, className = '', download = false }) {
   const url = media?.url || '';
   if (!url) return null;
 
@@ -108,14 +108,15 @@ export default function MediaAttachment({ media, caption, className = '' }) {
   const name = rawName || fallbackName || 'Attachment';
 
   const sizeLabel = formatFileSize(media?.size);
-  const isPdf = extension === 'pdf' || media?.mime === 'application/pdf';
-  const actionLabel = isPdf ? 'Open PDF' : 'Download file';
-  const ActionIcon = isPdf ? FaExternalLinkAlt : FaDownload;
+  const opensPdf = !download && (extension === 'pdf' || media?.mime === 'application/pdf');
+  const actionLabel = opensPdf ? 'Open PDF' : 'Download file';
+  const ActionIcon = opensPdf ? FaExternalLinkAlt : FaDownload;
 
   return (
     <figure className={`${className || 'my-8'}`.trim()}>
       <a
         href={url}
+        download={download ? name : undefined}
         target="_blank"
         rel="noopener noreferrer"
         className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-500/60"

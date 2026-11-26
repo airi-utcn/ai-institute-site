@@ -1131,6 +1131,28 @@ export async function getPartnerBySlug(slug, locale = null) {
   }
 }
 
+const RESULT_DETAIL_POPULATE = {
+  fields: ['title', 'slug', 'description', 'publishedDate'],
+  populate: {
+    attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText', 'caption'] },
+    body: {
+      on: {
+        'shared.rich-text': { fields: ['body'] },
+        'shared.section': {
+          fields: ['heading', 'subheading', 'body'],
+          populate: { media: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+        'shared.media': {
+          populate: { file: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+        'shared.slider': {
+          populate: { files: { fields: DYNAMIC_MEDIA_FIELDS } },
+        },
+      },
+    },
+  },
+};
+
 const LABORATORY_POPULATE = {
   fields: [
     'title',
@@ -1332,6 +1354,28 @@ export async function getLaboratoryBySlug(slug, locale = null) {
   } catch (error) {
     console.error('Failed to fetch laboratory by slug:', error);
     return null;
+  }
+}
+
+/** Fetch result content separately to keep the laboratory detail query short. */
+export async function getLaboratoryResults(slug, locale = null) {
+  try {
+    if (!slug) return [];
+    const params = createParams({
+      filters: { slug: { $eq: slug } },
+      locale,
+      fields: ['slug'],
+      populate: { results: RESULT_DETAIL_POPULATE },
+    });
+    let data = await fetchAPI(`/laboratories?${params.toString()}`);
+    if (!data.data?.length && !data.errorStatus && locale && locale !== 'en') {
+      params.set('locale', 'en');
+      data = await fetchAPI(`/laboratories?${params.toString()}`);
+    }
+    return data.data?.[0]?.results ?? [];
+  } catch (error) {
+    console.error('Failed to fetch laboratory results:', error);
+    return [];
   }
 }
 
@@ -1900,31 +1944,10 @@ export async function getResultBySlug(slug, locale = null) {
     const params = createParams({
       filters: { slug: { $eq: slug } },
       locale,
-      fields: ['title', 'slug', 'description', 'publishedDate'],
+      fields: RESULT_DETAIL_POPULATE.fields,
       populate: {
-        attachments: { fields: ['url', 'name', 'mime', 'ext', 'size', 'formats', 'alternativeText', 'caption'] },
+        ...RESULT_DETAIL_POPULATE.populate,
         projects: { fields: ['title', 'slug'] },
-        body: {
-          on: {
-            'shared.rich-text': { fields: ['body'] },
-            'shared.section': {
-              fields: ['heading', 'subheading', 'body'],
-              populate: {
-                media: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-            'shared.media': {
-              populate: {
-                file: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-            'shared.slider': {
-              populate: {
-                files: { fields: DYNAMIC_MEDIA_FIELDS },
-              },
-            },
-          },
-        },
       },
     });
 

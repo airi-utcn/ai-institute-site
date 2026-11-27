@@ -1753,6 +1753,139 @@ export function transformGraphLinkData(strapiLinks, oaToIdMap = {}) {
 }
 
 /**
+ * Minimal data source for the derived knowledge graph.
+ *
+ * The knowledge graph is a query-time projection, not a stored collection. Keep
+ * this payload lean: abstracts, descriptions, embeddings, and media are fetched
+ * by the pages that actually render them. Graph topology only needs ids,
+ * labels, years, authorship, lab membership, project membership, and topics.
+ *
+ * Topic and publication labels intentionally come from Strapi's default locale.
+ * Graph topology must not disappear for a locale that only has partial
+ * translations; detail links still resolve through the localized pages.
+ *
+ * @returns {Promise<{people: Array, publications: Array, laboratories: Array, teams: Array, projects: Array, links: Array, exclusions: Array}>}
+ */
+export async function getKnowledgeGraphSource() {
+  const relationPerson = {
+    fields: ['firstName', 'lastName', 'fullName', 'slug', 'type', 'title'],
+  };
+  const relationTopic = { fields: ['name', 'slug'] };
+
+  try {
+    const [people, publications, laboratories, teams, projects, links, exclusions] =
+      await Promise.all([
+      fetchAllEntries(
+        '/people',
+        {
+          fields: ['firstName', 'lastName', 'fullName', 'slug', 'type', 'title'],
+          sort: 'lastName:asc,firstName:asc',
+          populate: {
+            department: { fields: ['name', 'slug'] },
+          },
+        },
+        100,
+      ),
+      fetchAllEntries(
+        '/publications',
+        {
+          fields: [
+            'slug',
+            'title',
+            'year',
+            'cited_by',
+            'kind',
+            'graphEligible',
+            'openAlexId',
+            'doi',
+          ],
+          sort: ['year:desc'],
+          populate: {
+            authors: relationPerson,
+            domain: { fields: ['name', 'slug'] },
+            projects: { fields: ['title', 'slug'] },
+            laboratories: { fields: ['title', 'slug'] },
+            graphMacroPrimary: relationTopic,
+            graphMacroTags: relationTopic,
+            graphMesoPrimary: relationTopic,
+            graphMesoTags: relationTopic,
+          },
+        },
+        100,
+      ),
+      fetchAllEntries(
+        '/laboratories',
+        {
+          fields: ['title', 'slug'],
+          sort: 'title:asc',
+          populate: {
+            coordinator: relationPerson,
+            coCoordinator: relationPerson,
+            researchers: relationPerson,
+            departments: { fields: ['name', 'slug'] },
+            publications: { fields: ['slug', 'title'] },
+          },
+        },
+        100,
+      ),
+      fetchAllEntries(
+        '/teams',
+        {
+          fields: ['name', 'slug'],
+          sort: 'name:asc',
+          populate: {
+            laboratory: { fields: ['title', 'slug'] },
+            members: { populate: { person: relationPerson } },
+          },
+        },
+        100,
+      ),
+      fetchAllEntries(
+        '/projects',
+        {
+          fields: ['title', 'slug', 'startDate', 'endDate'],
+          sort: 'title:asc',
+          populate: {
+            individualContributors: { populate: { person: relationPerson } },
+          },
+        },
+        100,
+      ),
+      getGraphLinks(),
+      fetchAllEntries(
+        '/graph-exclusions',
+        {
+          filters: { isActive: { $eq: true } },
+          fields: ['label', 'openAlexId', 'doi', 'title', 'scope'],
+        },
+        100,
+      ),
+    ]);
+
+    return {
+      people,
+      publications,
+      laboratories,
+      teams,
+      projects,
+      links,
+      exclusions,
+    };
+  } catch (error) {
+    console.error('Failed to fetch knowledge graph source:', error);
+    return {
+      people: [],
+      publications: [],
+      laboratories: [],
+      teams: [],
+      projects: [],
+      links: [],
+      exclusions: [],
+    };
+  }
+}
+
+/**
  * Get all publications from Strapi
  * @returns {Promise<Array>} Array of publications
  */

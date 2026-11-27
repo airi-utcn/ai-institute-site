@@ -847,8 +847,11 @@ export default function KnowledgeGraphView({
               {data?.stats?.matchCount || 0} matches
             </div>
             {data?.truncated && (
-              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                view truncated
+              <span
+                title="Large result sets are bounded. Open a node and choose Scope to see all links."
+                className="text-[10px] font-medium text-amber-600 dark:text-amber-400"
+              >
+                view limited
               </span>
             )}
           </div>
@@ -1014,6 +1017,21 @@ export default function KnowledgeGraphView({
             )}
           </div>
       </div>
+
+      <p className="mt-2 px-1 text-[11px] leading-relaxed text-gray-500 dark:text-slate-400">
+        Large result sets are bounded, so some links may be outside this view.{" "}
+        {fixedScope ? (
+          "Clear filters to widen the graph."
+        ) : (
+          <>
+            Open a node and choose{" "}
+            <span className="font-medium text-gray-600 dark:text-slate-300">
+              Scope to see all links
+            </span>
+            , or clear filters to widen the graph.
+          </>
+        )}
+      </p>
     </section>
   );
 }
@@ -1190,9 +1208,10 @@ function NodePanel({
           <button
             type="button"
             onClick={() => onScope(node)}
+            title="Rebuild the graph around this node and prioritise its direct connections."
             className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
           >
-            Scope to this
+            Scope to see all links
           </button>
         )}
       </div>

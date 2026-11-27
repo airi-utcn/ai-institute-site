@@ -412,8 +412,10 @@ function resolveNodeRef(index, rawValue, scope) {
   return null;
 }
 
-function findPath(index, scope, fromId, toId) {
-  if (!fromId || !toId) return { found: false, nodes: [], edges: [], steps: [] };
+function findPath(index, scope, fromId, toId, nodeFilter = () => true) {
+  if (!fromId || !toId || !nodeFilter(fromId) || !nodeFilter(toId)) {
+    return { found: false, nodes: [], edges: [], steps: [] };
+  }
   if (fromId === toId) {
     return {
       found: true,
@@ -435,6 +437,7 @@ function findPath(index, scope, fromId, toId) {
     for (const edge of edges) {
       if (!scope.edgeIds.has(edge.id)) continue;
       const other = edge.source === current ? edge.target : edge.source;
+      if (!nodeFilter(other)) continue;
       if (previous.has(other)) continue;
 
       previous.set(other, { from: current, edge });
@@ -490,6 +493,8 @@ const EDGE_PRIORITY = {
   [EDGE_TYPES.TAGGED_WITH]: 3,
   [EDGE_TYPES.CONTRIBUTES_TO]: 4,
   [EDGE_TYPES.TEAM_MEMBER]: 4,
+  [EDGE_TYPES.PROJECT_TEAM]: 4,
+  [EDGE_TYPES.BELONGS_TO]: 3,
   [EDGE_TYPES.IN_DEPARTMENT]: 5,
   [EDGE_TYPES.SIMILAR_TO]: 9,
 };
@@ -696,12 +701,54 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       .map((node) => node.id),
   );
 
+  const typeFilter = options.types?.length ? new Set(options.types) : null;
+  const nodePassesTypeFilter = (node) =>
+    !typeFilter || (node ? typeFilter.has(node.type) : false);
+
+  const usePublicationFilters = hasPublicationFilters(options);
+
+  const nodePassesFilters = (node) => {
+    if (node.type === NODE_TYPES.PUBLICATION) {
+      return passingPublicationIds.has(node.id);
+    }
+
+    if (!usePublicationFilters) return true;
+
+    if (options.lab && node.type === NODE_TYPES.LABORATORY) {
+      return node.slug === options.lab;
+    }
+    if (options.department && node.type === NODE_TYPES.DEPARTMENT) {
+      return node.slug === options.department;
+    }
+    if (options.project && node.type === NODE_TYPES.PROJECT) {
+      return node.slug === options.project;
+    }
+    if (options.team && node.type === NODE_TYPES.TEAM) {
+      return node.slug === options.team;
+    }
+    if (options.topic && node.type === NODE_TYPES.TOPIC) {
+      return node.slug === options.topic;
+    }
+
+    return (index.edgesByNode.get(node.id) || []).some((edge) => {
+      const other = edge.source === node.id ? edge.target : edge.source;
+      return passingPublicationIds.has(other);
+    });
+  };
+
+  const nodeIsVisible = (node) =>
+    Boolean(node) && nodePassesFilters(node) && nodePassesTypeFilter(node);
+  const idIsVisible = (nodeId) =>
+    nodeIsVisible(index.nodeById.get(nodeId));
+
   if (options.mode === 'path') {
     const fromId = resolveNodeRef(index, options.from, scope);
     const toId = resolveNodeRef(index, options.to, scope);
-    const path = findPath(index, scope, fromId, toId);
+    const path = findPath(index, scope, fromId, toId, idIsVisible);
     const keptIds = new Set(path.nodes);
-    if (scope.rootNodeId) keptIds.add(scope.rootNodeId);
+    if (scope.rootNodeId && idIsVisible(scope.rootNodeId)) {
+      keptIds.add(scope.rootNodeId);
+    }
 
     const nodes = Array.from(keptIds)
       .map((id) => index.nodeById.get(id))
@@ -737,7 +784,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       message: path.found
         ? ''
         : fromId && toId
-          ? 'No connection was found with the current scope and edge types.'
+          ? 'No connection was found with the current scope, filters, or visible node types.'
           : 'Pick two entities inside the current scope to find a connection.',
       truncated: false,
       stats: {
@@ -750,38 +797,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
     };
   }
 
-  const typeFilter = options.types?.length ? new Set(options.types) : null;
-  const usePublicationFilters = hasPublicationFilters(options);
   const normalizedQuery = normalizeText(options.q);
-
-  const nodePassesFilters = (node) => {
-    if (node.type === NODE_TYPES.PUBLICATION) {
-      return passingPublicationIds.has(node.id);
-    }
-
-    if (!usePublicationFilters) return true;
-
-    if (options.lab && node.type === NODE_TYPES.LABORATORY) {
-      return node.slug === options.lab;
-    }
-    if (options.department && node.type === NODE_TYPES.DEPARTMENT) {
-      return node.slug === options.department;
-    }
-    if (options.project && node.type === NODE_TYPES.PROJECT) {
-      return node.slug === options.project;
-    }
-    if (options.team && node.type === NODE_TYPES.TEAM) {
-      return node.slug === options.team;
-    }
-    if (options.topic && node.type === NODE_TYPES.TOPIC) {
-      return node.slug === options.topic;
-    }
-
-    return (index.edgesByNode.get(node.id) || []).some((edge) => {
-      const other = edge.source === node.id ? edge.target : edge.source;
-      return passingPublicationIds.has(other);
-    });
-  };
 
   const matches = [];
   const facetNodeIds = new Set();
@@ -793,7 +809,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
 
     facetNodeIds.add(node.id);
 
-    if (typeFilter && !typeFilter.has(node.type)) return;
+    if (!nodePassesTypeFilter(node)) return;
 
     matches.push({
       node,
@@ -816,7 +832,10 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
     Array.from(matchIds).slice(0, Math.min(matchIds.size, seedLimit)),
   );
 
-  if (scope.rootNodeId) resultIds.add(scope.rootNodeId);
+  if (scope.rootNodeId) {
+    const rootNode = index.nodeById.get(scope.rootNodeId);
+    if (nodeIsVisible(rootNode)) resultIds.add(scope.rootNodeId);
+  }
 
   const addPublicationsForPerson = (personId) => {
     (index.edgesByNode.get(personId) || []).forEach((authoredEdge) => {
@@ -828,7 +847,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
           ? authoredEdge.target
           : authoredEdge.source;
       const publication = index.nodeById.get(publicationId);
-      if (publication && nodePassesFilters(publication)) {
+      if (publication && nodeIsVisible(publication)) {
         resultIds.add(publicationId);
       }
     });
@@ -884,7 +903,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       const otherId = edge.source === nodeId ? edge.target : edge.source;
       const other = index.nodeById.get(otherId);
       if (!other) return;
-      if (nodePassesFilters(other)) resultIds.add(otherId);
+      if (nodeIsVisible(other)) resultIds.add(otherId);
     });
   });
 
@@ -902,17 +921,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
     resultIds.add(match.node.id);
   }
 
-  const keptIds = new Set(Array.from(resultIds).slice(0, options.limit));
-  const truncated = totalMatches > keptIds.size;
-
-  const visibleMatches = matches
-    .filter((match) => keptIds.has(match.node.id))
-    .slice(0, MAX_MATCHES)
-    .map((match) => ({
-      nodeId: match.node.id,
-      score: match.score,
-      reason: match.reason,
-    }));
+  let keptIds = new Set(Array.from(resultIds).slice(0, options.limit));
 
   const candidateEdges = graph.edges
     .filter(
@@ -928,10 +937,47 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       return (b.weight || 0) - (a.weight || 0);
     });
 
+  // When the view has links, drop nodes that ended up disconnected. This keeps
+  // type filters honest (for example, topics lose every link when publications
+  // are hidden) without turning a deliberately isolated selection into an
+  // empty canvas. Explicit text matches and scope roots stay visible.
+  if (candidateEdges.length > 0) {
+    const connected = new Set();
+    candidateEdges.forEach((edge) => {
+      connected.add(edge.source);
+      connected.add(edge.target);
+    });
+    const focusIds = new Set();
+    if (normalizedQuery) matchIds.forEach((id) => focusIds.add(id));
+    if (scope.rootNodeId) focusIds.add(scope.rootNodeId);
+    keptIds = new Set(
+      Array.from(keptIds).filter(
+        (id) => connected.has(id) || focusIds.has(id),
+      ),
+    );
+  }
+
+  const visibleMatchCandidates = matches.filter((match) =>
+    keptIds.has(match.node.id),
+  );
+  const matchCount = visibleMatchCandidates.length;
+
   const edges = candidateEdges.slice(
     0,
     Math.max(20, Math.min(options.maxEdges || DEFAULT_MAX_EDGES, 5000)),
   );
+  const truncated =
+    matchCount < totalMatches ||
+    matchCount > MAX_MATCHES ||
+    edges.length < candidateEdges.length;
+
+  const visibleMatches = visibleMatchCandidates
+    .slice(0, MAX_MATCHES)
+    .map((match) => ({
+      nodeId: match.node.id,
+      score: match.score,
+      reason: match.reason,
+    }));
   const nodes = Array.from(keptIds)
     .map((id) => index.nodeById.get(id))
     .filter(Boolean)
@@ -949,13 +995,13 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
     facets,
     path: null,
     message: '',
-    truncated: truncated || edges.length < candidateEdges.length,
+    truncated,
     stats: {
       scopedNodes: scope.nodeIds.size,
       scopedEdges: scope.edgeIds.size,
       returnedNodes: nodes.length,
       returnedEdges: edges.length,
-      matchCount: totalMatches,
+      matchCount,
     },
   };
 }

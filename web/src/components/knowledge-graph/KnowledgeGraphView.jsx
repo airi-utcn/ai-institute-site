@@ -40,11 +40,17 @@ const EDGE_META = {
   taggedWith: { label: "Topic", color: "#f783ac", priority: 3 },
   contributesTo: { label: "Contributes to", color: "#69db7c", priority: 4 },
   teamMember: { label: "Team member", color: "#38d9a9", priority: 4 },
+  projectTeam: { label: "Team project", color: "#38d9a9", priority: 4 },
+  belongsTo: { label: "Belongs to", color: "#ffd43b", priority: 3 },
   inDepartment: { label: "Department", color: "#b197fc", priority: 5 },
   similarTo: { label: "Similar paper", color: "#c084fc", priority: 9 },
 };
 
 const TYPE_ORDER = ["person", "publication", "laboratory", "project", "team", "department", "topic"];
+
+const isAllTypes = (types) =>
+  types?.length === TYPE_ORDER.length &&
+  TYPE_ORDER.every((type) => types.includes(type));
 
 const getId = (value) =>
   value && typeof value === "object" ? value.id : value;
@@ -105,7 +111,9 @@ function buildRequestParams(state) {
   const params = new URLSearchParams();
   if (state.q) params.set("q", state.q);
   if (state.scope) params.set("scope", state.scope);
-  if (state.types?.length) params.set("types", state.types.join(","));
+  if (state.types?.length && !isAllTypes(state.types)) {
+    params.set("types", state.types.join(","));
+  }
   if (state.mode === "path") {
     params.set("mode", "path");
     if (state.from) params.set("from", state.from);
@@ -129,6 +137,13 @@ function initialList(value) {
   if (Array.isArray(value)) return value;
   if (typeof value === "string" && value) return value.split(",").filter(Boolean);
   return [];
+}
+
+function initialTypes(value) {
+  const list = initialList(value).filter((type) => TYPE_ORDER.includes(type));
+  return list.length
+    ? TYPE_ORDER.filter((type) => list.includes(type))
+    : [...TYPE_ORDER];
 }
 
 export default function KnowledgeGraphView({
@@ -159,7 +174,7 @@ export default function KnowledgeGraphView({
   const [query, setQuery] = useState(queryDefaults.q || "");
   const deferredQuery = useDeferredValue(query);
   const [scope, setScope] = useState(defaultScope);
-  const [types, setTypes] = useState(initialList(queryDefaults.types));
+  const [types, setTypes] = useState(() => initialTypes(queryDefaults.types));
   const [yearMin, setYearMin] = useState(selectValue(queryDefaults.yearMin));
   const [yearMax, setYearMax] = useState(selectValue(queryDefaults.yearMax));
   const [lab, setLab] = useState(queryDefaults.lab || "");
@@ -576,7 +591,7 @@ export default function KnowledgeGraphView({
   };
 
   const clearFilters = () => {
-    setTypes([]);
+    setTypes([...TYPE_ORDER]);
     setYearMin("");
     setYearMax("");
     setLab("");
@@ -589,11 +604,13 @@ export default function KnowledgeGraphView({
   };
 
   const toggleType = (type) => {
-    setTypes((current) =>
-      current.includes(type)
+    setTypes((current) => {
+      const next = current.includes(type)
         ? current.filter((value) => value !== type)
-        : [...current, type],
-    );
+        : [...current, type];
+      if (!next.length) return current;
+      return TYPE_ORDER.filter((entry) => next.includes(entry));
+    });
   };
 
   const scopeOptions = useMemo(() => {
@@ -609,7 +626,7 @@ export default function KnowledgeGraphView({
   }, [data?.graphOptions?.labs, facets.labs]);
 
   const activeFilterCount =
-    types.length +
+    (isAllTypes(types) ? 0 : 1) +
     (yearMin ? 1 : 0) +
     (yearMax ? 1 : 0) +
     (lab ? 1 : 0) +
@@ -772,6 +789,14 @@ export default function KnowledgeGraphView({
                   );
                 })}
               </div>
+
+              {!types.includes("publication") && (
+                <p className="text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+                  Publications are hidden. Remaining links come from membership,
+                  projects, teams, and departments; topics need publications to
+                  appear, so they stay out of this view.
+                </p>
+              )}
 
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">

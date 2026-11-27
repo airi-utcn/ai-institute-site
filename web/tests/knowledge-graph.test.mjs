@@ -206,20 +206,65 @@ test('text search returns matches plus connected context', () => {
   );
 });
 
-test('type filters keep the graph context', () => {
+test('type filters restrict the graph to the selected types', () => {
   const graph = buildKnowledgeGraph(makeSource());
   const result = runKnowledgeGraphQuery(
     graph,
     parseGraphQuery({ q: 'Alice', types: 'person' }),
   );
 
-  const nodeTypes = new Set(result.nodes.map((node) => node.type));
-  assert.ok(nodeTypes.has(NODE_TYPES.PERSON));
-  assert.ok(nodeTypes.has(NODE_TYPES.PUBLICATION));
-  assert.ok(result.matches.every((match) => {
-    const node = result.nodes.find((entry) => entry.id === match.nodeId);
-    return node?.type === NODE_TYPES.PERSON;
-  }));
+  assert.ok(result.nodes.length > 0);
+  assert.ok(result.nodes.every((node) => node.type === NODE_TYPES.PERSON));
+  assert.ok(
+    result.matches.every((match) => {
+      const node = result.nodes.find((entry) => entry.id === match.nodeId);
+      return node?.type === NODE_TYPES.PERSON;
+    }),
+  );
+});
+
+test('hiding publications leaves a connected organisational graph', () => {
+  const graph = buildKnowledgeGraph(makeSource());
+  const types = Object.values(NODE_TYPES)
+    .filter((type) => type !== NODE_TYPES.PUBLICATION)
+    .join(',');
+  const result = runKnowledgeGraphQuery(graph, parseGraphQuery({ types }));
+
+  assert.ok(result.nodes.length > 0);
+  assert.ok(!result.nodes.some((node) => node.type === NODE_TYPES.PUBLICATION));
+  assert.ok(result.nodes.some((node) => node.type === NODE_TYPES.PERSON));
+  assert.ok(result.nodes.some((node) => node.type === NODE_TYPES.LABORATORY));
+  assert.ok(result.nodes.some((node) => node.type === NODE_TYPES.PROJECT));
+  assert.ok(result.nodes.some((node) => node.type === NODE_TYPES.TEAM));
+  assert.ok(result.nodes.some((node) => node.type === NODE_TYPES.DEPARTMENT));
+  assert.ok(result.edges.length > 0, 'membership and project links remain');
+  assert.ok(!result.nodes.some((node) => node.type === NODE_TYPES.TOPIC));
+});
+
+test('path mode does not route through hidden node types', () => {
+  const graph = buildKnowledgeGraph(makeSource());
+  const hidden = runKnowledgeGraphQuery(
+    graph,
+    parseGraphQuery({
+      mode: 'path',
+      scope: 'laboratory:lab-one',
+      from: 'person:alice',
+      to: 'person:carol',
+      types: 'person',
+    }),
+  );
+  assert.equal(hidden.path.found, false);
+
+  const visible = runKnowledgeGraphQuery(
+    graph,
+    parseGraphQuery({
+      mode: 'path',
+      scope: 'laboratory:lab-one',
+      from: 'person:alice',
+      to: 'person:carol',
+    }),
+  );
+  assert.equal(visible.path.found, true);
 });
 
 test('year filters narrow lab papers and their context', () => {

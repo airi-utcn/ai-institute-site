@@ -359,8 +359,18 @@ the Python pipeline. It joins:
 - people to publications through `Publication.authors`;
 - people to laboratories, teams, projects, and departments through the existing
   relations;
+- projects to departments through `Project.domains`, and projects to teams
+  through `Project.teams`;
+- teams to their department and, when set, their laboratory;
 - publications to macros and mesos through the graph relations;
 - publications to one another through `GraphLink`.
+
+The explorer's node-type chips filter the graph itself, not only the result
+list. Turning **Publications** off leaves the organisational projection: people
+linked to laboratories, projects, teams, and departments through membership,
+contribution, and affiliation. Topics are derived from publication tags, so they
+are left out of a view that hides publications. Connection queries follow the
+same rule and cannot route through a hidden node type.
 
 This means an editor's existing work is enough: there is no separate knowledge
 graph collection to maintain.

@@ -13,20 +13,6 @@ const MAX_MATCHES = 80;
 
 const KNOWN_TYPES = new Set(Object.values(NODE_TYPES));
 
-const TYPE_ALIASES = {
-  lab: NODE_TYPES.LABORATORY,
-  laboratory: NODE_TYPES.LABORATORY,
-  person: NODE_TYPES.PERSON,
-  people: NODE_TYPES.PERSON,
-  publication: NODE_TYPES.PUBLICATION,
-  paper: NODE_TYPES.PUBLICATION,
-  topic: NODE_TYPES.TOPIC,
-  project: NODE_TYPES.PROJECT,
-  department: NODE_TYPES.DEPARTMENT,
-  dept: NODE_TYPES.DEPARTMENT,
-  team: NODE_TYPES.TEAM,
-};
-
 const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
 
 const clean = (value) =>
@@ -99,15 +85,10 @@ export function parseGraphQuery(input) {
     Math.min(Number.isFinite(limitValue) ? limitValue : DEFAULT_LIMIT, MAX_LIMIT),
   );
 
-  const mode = readValue(input, 'mode') === 'path' ? 'path' : 'search';
-
   return {
     q: clean(readValue(input, 'q')).slice(0, 160),
     scope: clean(readValue(input, 'scope')) || 'global',
     types,
-    mode,
-    from: clean(readValue(input, 'from')),
-    to: clean(readValue(input, 'to')),
     yearMin: readNumber(input, 'yearMin'),
     yearMax: readNumber(input, 'yearMax'),
     lab: clean(readValue(input, 'lab')),
@@ -365,127 +346,6 @@ function cloneNode(node, scope) {
   };
 }
 
-function resolveNodeRef(index, rawValue, scope) {
-  const value = clean(rawValue);
-  if (!value) return null;
-
-  if (scope.nodeIds.has(value)) return value;
-
-  const separator = value.indexOf(':');
-  if (separator > 0) {
-    const typeAlias = value.slice(0, separator).toLowerCase();
-    const key = value.slice(separator + 1).trim();
-    const type = TYPE_ALIASES[typeAlias];
-    if (type) {
-      const normalized = normalizeText(key);
-      for (const nodeId of scope.nodeIds) {
-        const node = index.nodeById.get(nodeId);
-        if (!node || node.type !== type) continue;
-        if (
-          node.slug === key ||
-          node.key === key ||
-          node.id === value ||
-          node.label === key ||
-          normalizeText(node.label) === normalized
-        ) {
-          return node.id;
-        }
-      }
-    }
-  }
-
-  const normalized = normalizeText(value);
-  for (const nodeId of scope.nodeIds) {
-    const node = index.nodeById.get(nodeId);
-    if (!node) continue;
-    if (
-      node.slug === value ||
-      node.key === value ||
-      node.id === value ||
-      node.label === value ||
-      normalizeText(node.label) === normalized
-    ) {
-      return node.id;
-    }
-  }
-
-  return null;
-}
-
-function findPath(index, scope, fromId, toId, nodeFilter = () => true) {
-  if (!fromId || !toId || !nodeFilter(fromId) || !nodeFilter(toId)) {
-    return { found: false, nodes: [], edges: [], steps: [] };
-  }
-  if (fromId === toId) {
-    return {
-      found: true,
-      nodes: [fromId],
-      edges: [],
-      steps: [],
-    };
-  }
-
-  const previous = new Map([[fromId, null]]);
-  const queue = [fromId];
-  let head = 0;
-
-  while (head < queue.length) {
-    const current = queue[head];
-    head += 1;
-
-    const edges = index.adjacency.get(current) || [];
-    for (const edge of edges) {
-      if (!scope.edgeIds.has(edge.id)) continue;
-      const other = edge.source === current ? edge.target : edge.source;
-      if (!nodeFilter(other)) continue;
-      if (previous.has(other)) continue;
-
-      previous.set(other, { from: current, edge });
-      if (other === toId) {
-        head = queue.length;
-        break;
-      }
-      queue.push(other);
-    }
-  }
-
-  if (!previous.has(toId)) {
-    return { found: false, nodes: [], edges: [], steps: [] };
-  }
-
-  const steps = [];
-  const nodeIds = [toId];
-  const edgeIds = [];
-  let cursor = toId;
-
-  while (cursor !== fromId) {
-    const entry = previous.get(cursor);
-    if (!entry) break;
-    steps.push({
-      from: entry.from,
-      to: cursor,
-      edgeId: entry.edge.id,
-      type: entry.edge.type,
-      label: entry.edge.label,
-      provenance: entry.edge.provenance,
-    });
-    edgeIds.push(entry.edge.id);
-    nodeIds.push(entry.from);
-    cursor = entry.from;
-  }
-
-  steps.reverse();
-  edgeIds.reverse();
-  nodeIds.reverse();
-
-  return {
-    found: true,
-    nodes: nodeIds,
-    edges: edgeIds,
-    steps,
-  };
-}
-
 const EDGE_PRIORITY = {
   [EDGE_TYPES.AUTHORED]: 0,
   [EDGE_TYPES.LAB_PUBLICATION]: 1,
@@ -606,9 +466,6 @@ function publicQuery(options) {
     q: options.q,
     scope: options.scope,
     types: options.types,
-    mode: options.mode,
-    from: options.from,
-    to: options.to,
     yearMin: options.yearMin,
     yearMax: options.yearMax,
     lab: options.lab,
@@ -663,9 +520,6 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
     q: '',
     scope: 'global',
     types: [],
-    mode: 'search',
-    from: '',
-    to: '',
     yearMin: null,
     yearMax: null,
     lab: '',
@@ -738,64 +592,6 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
 
   const nodeIsVisible = (node) =>
     Boolean(node) && nodePassesFilters(node) && nodePassesTypeFilter(node);
-  const idIsVisible = (nodeId) =>
-    nodeIsVisible(index.nodeById.get(nodeId));
-
-  if (options.mode === 'path') {
-    const fromId = resolveNodeRef(index, options.from, scope);
-    const toId = resolveNodeRef(index, options.to, scope);
-    const path = findPath(index, scope, fromId, toId, idIsVisible);
-    const keptIds = new Set(path.nodes);
-    if (scope.rootNodeId && idIsVisible(scope.rootNodeId)) {
-      keptIds.add(scope.rootNodeId);
-    }
-
-    const nodes = Array.from(keptIds)
-      .map((id) => index.nodeById.get(id))
-      .filter(Boolean)
-      .map((node) => cloneNode(node, scope));
-
-    const pathEdges = new Set(path.edges);
-    const edges = graph.edges.filter(
-      (edge) =>
-        pathEdges.has(edge.id) &&
-        keptIds.has(edge.source) &&
-        keptIds.has(edge.target),
-    );
-
-    const nodeById = new Map(nodes.map((node) => [node.id, node]));
-
-    return {
-      query: publicQuery(options),
-      scope: publicScope(scope),
-      graphOptions,
-      nodes,
-      edges,
-      matches: [],
-      facets: { types: [], years: [], labs: [], departments: [], topics: [] },
-      path: {
-        ...path,
-        steps: path.steps.map((step) => ({
-          ...step,
-          fromLabel: nodeById.get(step.from)?.label || step.from,
-          toLabel: nodeById.get(step.to)?.label || step.to,
-        })),
-      },
-      message: path.found
-        ? ''
-        : fromId && toId
-          ? 'No connection was found with the current scope, filters, or visible node types.'
-          : 'Pick two entities inside the current scope to find a connection.',
-      truncated: false,
-      stats: {
-        scopedNodes: scope.nodeIds.size,
-        scopedEdges: scope.edgeIds.size,
-        returnedNodes: nodes.length,
-        returnedEdges: edges.length,
-        matchCount: 0,
-      },
-    };
-  }
 
   const normalizedQuery = normalizeText(options.q);
 

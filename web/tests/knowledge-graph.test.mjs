@@ -311,32 +311,6 @@ test('hiding publications leaves a connected organisational graph', () => {
   assert.ok(!result.nodes.some((node) => node.type === NODE_TYPES.TOPIC));
 });
 
-test('path mode does not route through hidden node types', () => {
-  const graph = buildKnowledgeGraph(makeSource());
-  const hidden = runKnowledgeGraphQuery(
-    graph,
-    parseGraphQuery({
-      mode: 'path',
-      scope: 'laboratory:lab-one',
-      from: 'person:alice',
-      to: 'person:carol',
-      types: 'person',
-    }),
-  );
-  assert.equal(hidden.path.found, false);
-
-  const visible = runKnowledgeGraphQuery(
-    graph,
-    parseGraphQuery({
-      mode: 'path',
-      scope: 'laboratory:lab-one',
-      from: 'person:alice',
-      to: 'person:carol',
-    }),
-  );
-  assert.equal(visible.path.found, true);
-});
-
 test('year filters narrow lab papers and their context', () => {
   const graph = buildKnowledgeGraph(makeSource());
   const result = runKnowledgeGraphQuery(
@@ -349,27 +323,6 @@ test('year filters narrow lab papers and their context', () => {
     .map((node) => node.id);
   assert.deepEqual(publicationIds.sort(), ['publication:p1']);
   assert.ok(result.nodes.some((node) => node.id === 'person:alice'));
-});
-
-test('path mode finds a route through shared membership', () => {
-  const graph = buildKnowledgeGraph(makeSource());
-  const result = runKnowledgeGraphQuery(
-    graph,
-    parseGraphQuery({
-      mode: 'path',
-      scope: 'laboratory:lab-one',
-      from: 'person:alice',
-      to: 'person:carol',
-    }),
-  );
-
-  assert.equal(result.path.found, true);
-  assert.ok(result.path.steps.length > 0);
-  assert.ok(result.path.nodes.includes('person:alice'));
-  assert.ok(result.path.nodes.includes('person:carol'));
-  result.edges.forEach((edge) => {
-    assert.ok(result.path.edges.includes(edge.id));
-  });
 });
 
 test('laboratory-side publications relation also creates explicit links', () => {

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Knowledge graph query interface and laboratory graph**:
   - `/search/knowledge-graph` is now a faceted, URL-shareable explorer over people, publications, laboratories, projects, teams, departments, and research topics.
   - Supports text search, type/year/lab/department/project/topic filters, node inspection, and scope narrowing.
-  - Node-type filters now control the graph itself; hiding publications shows the membership, project, team, and department network, and the query API's connection paths cannot route through hidden types.
+  - Node-type filters now control the graph itself; hiding publications shows the membership, project, team, and department network, and removed types are also left out of the context added around each match.
   - New `GET /api/knowledge-graph` returns a bounded, cached projection with published content only; preview sessions bypass the shared cache.
   - Laboratory pages have a new **Graph** tab showing the union of explicitly linked publications and papers authored by the laboratory's members, with optional similarity and external co-author overlays.
 - **Richer publication details and author credits**:

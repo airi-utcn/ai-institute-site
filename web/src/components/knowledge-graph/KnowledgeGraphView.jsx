@@ -114,11 +114,6 @@ function buildRequestParams(state) {
   if (state.types?.length && !isAllTypes(state.types)) {
     params.set("types", state.types.join(","));
   }
-  if (state.mode === "path") {
-    params.set("mode", "path");
-    if (state.from) params.set("from", state.from);
-    if (state.to) params.set("to", state.to);
-  }
   if (state.yearMin !== "" && state.yearMin != null) params.set("yearMin", state.yearMin);
   if (state.yearMax !== "" && state.yearMax != null) params.set("yearMax", state.yearMax);
   if (state.lab) params.set("lab", state.lab);
@@ -183,9 +178,6 @@ export default function KnowledgeGraphView({
   const [topic, setTopic] = useState(queryDefaults.topic || "");
   const [includeSimilarity, setIncludeSimilarity] = useState(defaultSimilarity);
   const [includeCoauthors, setIncludeCoauthors] = useState(defaultCoauthors);
-  const [mode, setMode] = useState(queryDefaults.mode === "path" ? "path" : "search");
-  const [pathFrom, setPathFrom] = useState(queryDefaults.from || null);
-  const [pathTo, setPathTo] = useState(queryDefaults.to || null);
 
   const [data, setData] = useState(initialData || null);
   const [loading, setLoading] = useState(!initialData);
@@ -207,9 +199,6 @@ export default function KnowledgeGraphView({
       q: deferredQuery.trim(),
       scope: fixedScope || scope,
       types,
-      mode: mode === "path" && pathFrom && pathTo ? "path" : "search",
-      from: mode === "path" ? pathFrom : "",
-      to: mode === "path" ? pathTo : "",
       yearMin,
       yearMax,
       lab,
@@ -225,9 +214,6 @@ export default function KnowledgeGraphView({
       fixedScope,
       scope,
       types,
-      mode,
-      pathFrom,
-      pathTo,
       yearMin,
       yearMax,
       lab,
@@ -361,16 +347,6 @@ export default function KnowledgeGraphView({
     [data],
   );
 
-  const pathEdgeIds = useMemo(
-    () => new Set(data?.path?.edges || []),
-    [data],
-  );
-
-  const pathNodeIds = useMemo(
-    () => new Set(data?.path?.nodes || []),
-    [data],
-  );
-
   const selectedNode = selectedId ? nodeById.get(selectedId) : null;
 
   const selectedNeighbors = useMemo(() => {
@@ -399,23 +375,8 @@ export default function KnowledgeGraphView({
       };
     }
 
-    if (pathNodeIds.size) {
-      return {
-        nodes: pathNodeIds,
-        edges: pathEdgeIds,
-      };
-    }
-
     return null;
-  }, [
-    hoverLink,
-    hoverId,
-    selectedId,
-    neighborIds,
-    edgesByNode,
-    pathNodeIds,
-    pathEdgeIds,
-  ]);
+  }, [hoverLink, hoverId, selectedId, neighborIds, edgesByNode]);
 
   const graphData = useMemo(() => ({ nodes, links: edges }), [nodes, edges]);
 
@@ -427,10 +388,9 @@ export default function KnowledgeGraphView({
     const dim = highlight != null && !highlight.nodes.has(node.id);
     const isSelected = node.id === selectedId;
     const isHovered = node.id === hoverId;
-    const isPath = pathNodeIds.has(node.id);
     const isMatch = matchIds.has(node.id);
 
-    if (!dim && (isSelected || isHovered || isPath)) {
+    if (!dim && (isSelected || isHovered)) {
       const gradient = context.createRadialGradient(
         node.x,
         node.y,
@@ -474,7 +434,6 @@ export default function KnowledgeGraphView({
       !dim &&
       (isSelected ||
         isHovered ||
-        isPath ||
         node.type === "laboratory" ||
         node.type === "department" ||
         globalScale >= 2.1 ||
@@ -538,45 +497,9 @@ export default function KnowledgeGraphView({
     }
   };
 
-  const handleNodeClick = (node) => {
-    if (mode === "path") {
-      if (!pathFrom) {
-        setPathFrom(node.id);
-        setPathTo(null);
-        setSelectedId(node.id);
-        return;
-      }
-      if (node.id === pathFrom) {
-        setPathFrom(null);
-        setPathTo(null);
-        return;
-      }
-      setPathTo(node.id);
-      setSelectedId(node.id);
-      return;
-    }
-    focusNode(node);
-  };
-
-  const startPath = (node) => {
-    if (!node) return;
-    setMode("path");
-    setPathFrom(node.id);
-    setPathTo(null);
-    setSelectedId(node.id);
-  };
-
-  const clearPath = () => {
-    setPathFrom(null);
-    setPathTo(null);
-    setMode("search");
-  };
-
   const applyScope = (nextScope) => {
     setScope(nextScope);
     setSelectedId(null);
-    setPathFrom(null);
-    setPathTo(null);
     setLab("");
     setDepartment("");
     setProject("");
@@ -712,35 +635,6 @@ export default function KnowledgeGraphView({
                 )}
               </select>
             )}
-
-            <div className="flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 dark:border-gray-700 dark:bg-slate-900">
-              <button
-                type="button"
-                onClick={() => {
-                  setMode("search");
-                  setPathFrom(null);
-                  setPathTo(null);
-                }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                  mode === "search"
-                    ? "bg-blue-600 text-white dark:bg-yellow-500 dark:text-slate-950"
-                    : "text-gray-600 hover:bg-white dark:text-gray-300 dark:hover:bg-slate-800"
-                }`}
-              >
-                Explore
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("path")}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                  mode === "path"
-                    ? "bg-blue-600 text-white dark:bg-yellow-500 dark:text-slate-950"
-                    : "text-gray-600 hover:bg-white dark:text-gray-300 dark:hover:bg-slate-800"
-                }`}
-              >
-                Connect
-              </button>
-            </div>
 
             <button
               type="button"
@@ -941,33 +835,6 @@ export default function KnowledgeGraphView({
           )}
         </div>
 
-        {mode === "path" && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200">
-            <FaProjectDiagram />
-            <span className="font-semibold">Connection mode:</span>
-            <span>
-              From{" "}
-              <strong>
-                {pathFrom ? nodeById.get(pathFrom)?.label || pathFrom : "click a node"}
-              </strong>
-            </span>
-            <span aria-hidden="true">→</span>
-            <span>
-              To{" "}
-              <strong>
-                {pathTo ? nodeById.get(pathTo)?.label || pathTo : "click another node"}
-              </strong>
-            </span>
-            <button
-              type="button"
-              onClick={clearPath}
-              className="ml-auto rounded-md border border-amber-300 px-2 py-1 font-semibold hover:bg-amber-100 dark:border-amber-500/30 dark:hover:bg-amber-500/20"
-            >
-              Exit connection mode
-            </button>
-          </div>
-        )}
-
         {error && (
           <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
             {error}
@@ -977,11 +844,7 @@ export default function KnowledgeGraphView({
         <div className="border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between px-4 py-2.5">
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              {mode === "path"
-                ? data?.path?.found
-                  ? `${data.path.steps.length} hops`
-                  : "Connection"
-                : `${data?.stats?.matchCount || 0} matches`}
+              {data?.stats?.matchCount || 0} matches
             </div>
             {data?.truncated && (
               <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
@@ -991,21 +854,12 @@ export default function KnowledgeGraphView({
           </div>
 
           <div className="px-2 pb-2">
-            {mode === "path" ? (
-              <PathPanel
-                data={data}
-                nodeById={nodeById}
-                onSelect={focusNode}
-                message={data?.message}
-              />
-            ) : (
-              <ResultList
-                data={data}
-                nodeById={nodeById}
-                onSelect={focusNode}
-                selectedId={selectedId}
-              />
-            )}
+            <ResultList
+              data={data}
+              nodeById={nodeById}
+              onSelect={focusNode}
+              selectedId={selectedId}
+            />
           </div>
         </div>
 
@@ -1028,7 +882,7 @@ export default function KnowledgeGraphView({
                   linkCurvature={0.08}
                   onNodeHover={(node) => setHoverId(node ? node.id : null)}
                   onLinkHover={(link) => setHoverLink(link || null)}
-                  onNodeClick={handleNodeClick}
+                  onNodeClick={focusNode}
                   onBackgroundClick={() => {
                     setSelectedId(null);
                     setHoverId(null);
@@ -1145,7 +999,6 @@ export default function KnowledgeGraphView({
                 neighbors={selectedNeighbors}
                 onClose={() => setSelectedId(null)}
                 onSelectNeighbor={focusNode}
-                onStartPath={startPath}
                 onScope={(node) => {
                   const type = node.type === "topic" ? "topic" : node.type;
                   if (node.slug) applyScope(`${type}:${node.slug}`);
@@ -1250,81 +1103,11 @@ function ResultList({ data, nodeById, onSelect, selectedId }) {
   );
 }
 
-function PathPanel({ data, nodeById, onSelect, message }) {
-  if (!data) return null;
-  const path = data.path;
-  if (!path?.found) {
-    return (
-      <div className="p-5 text-center text-sm text-gray-500 dark:text-gray-400">
-        <p>{message || "Pick two entities to find a connection."}</p>
-      </div>
-    );
-  }
-
-  if (!path.steps.length) {
-    return (
-      <div className="p-5 text-center text-sm text-gray-500 dark:text-gray-400">
-        These are the same entity, so there are no hops to show.
-      </div>
-    );
-  }
-
-  return (
-    <ol className="flex items-stretch gap-2 overflow-x-auto pb-1">
-      {path.steps.map((step, index) => {
-        const fromNode = nodeById.get(step.from);
-        const toNode = nodeById.get(step.to);
-        const meta = EDGE_META[step.type] || EDGE_META.authored;
-        return (
-          <li
-            key={`${step.edgeId}-${index}`}
-            className="flex shrink-0 items-center gap-2"
-          >
-            <div className="w-64 rounded-lg border border-gray-200 p-2.5 dark:border-gray-800 sm:w-72">
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-                Step {index + 1} · {meta.label}
-              </div>
-              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm">
-                <button
-                  type="button"
-                  onClick={() => fromNode && onSelect(fromNode)}
-                  className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
-                >
-                  {step.fromLabel || fromNode?.label || step.from}
-                </button>
-                <span className="text-gray-400">→</span>
-                <button
-                  type="button"
-                  onClick={() => toNode && onSelect(toNode)}
-                  className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
-                >
-                  {step.toLabel || toNode?.label || step.to}
-                </button>
-              </div>
-              {(step.provenance || []).length > 0 && (
-                <div className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
-                  {step.provenance.join(" · ")}
-                </div>
-              )}
-            </div>
-            {index < path.steps.length - 1 && (
-              <span aria-hidden="true" className="text-lg text-gray-300 dark:text-gray-600">
-                →
-              </span>
-            )}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
 function NodePanel({
   node,
   neighbors,
   onClose,
   onSelectNeighbor,
-  onStartPath,
   onScope,
   canScope,
 }) {
@@ -1396,13 +1179,6 @@ function NodePanel({
             Open page
           </Link>
         )}
-        <button
-          type="button"
-          onClick={() => onStartPath(node)}
-          className="rounded-md border border-white/20 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10"
-        >
-          Connect from here
-        </button>
         {canScope && (
           <button
             type="button"

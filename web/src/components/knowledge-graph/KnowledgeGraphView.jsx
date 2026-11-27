@@ -500,6 +500,7 @@ export default function KnowledgeGraphView({
   const applyScope = (nextScope) => {
     setScope(nextScope);
     setSelectedId(null);
+    didFitRef.current = false;
     setLab("");
     setDepartment("");
     setProject("");
@@ -511,6 +512,15 @@ export default function KnowledgeGraphView({
       setIncludeCoauthors(true);
       setIncludeSimilarity(true);
     }
+  };
+
+  const clearScope = () => {
+    if (fixedScope) return;
+    setScope("global");
+    setSelectedId(null);
+    didFitRef.current = false;
+    setIncludeSimilarity(true);
+    setIncludeCoauthors(true);
   };
 
   const clearFilters = () => {
@@ -536,18 +546,6 @@ export default function KnowledgeGraphView({
     });
   };
 
-  const scopeOptions = useMemo(() => {
-    const options = [{ value: "global", label: "Whole institute" }];
-    const labs = data?.graphOptions?.labs || facets.labs || [];
-    labs.forEach((entry) => {
-      options.push({
-        value: `laboratory:${entry.value}`,
-        label: entry.label || entry.value,
-      });
-    });
-    return options;
-  }, [data?.graphOptions?.labs, facets.labs]);
-
   const activeFilterCount =
     (isAllTypes(types) ? 0 : 1) +
     (yearMin ? 1 : 0) +
@@ -557,7 +555,8 @@ export default function KnowledgeGraphView({
     (project ? 1 : 0) +
     (topic ? 1 : 0);
 
-  const scopeLabel = data?.scope?.label || "Whole institute";
+  const scopeLabel =
+    scope === "global" ? "Whole institute" : data?.scope?.label || "Loading…";
   const graphHeight = compact ? "min-h-[560px] h-[64vh]" : "min-h-[620px] h-[calc(100vh-15rem)]";
 
   return (
@@ -572,9 +571,6 @@ export default function KnowledgeGraphView({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-600 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-300">
-            {scopeLabel}
-          </span>
           {data?.scope?.kind === "laboratory" && (
             <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-gray-600 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-300">
               {data.scope.meta?.memberCount || 0} members ·{" "}
@@ -618,24 +614,6 @@ export default function KnowledgeGraphView({
               )}
             </label>
 
-            {!fixedScope && (
-              <select
-                value={scope}
-                onChange={(event) => applyScope(event.target.value)}
-                className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-700 outline-none dark:border-gray-700 dark:bg-slate-900 dark:text-gray-200"
-                aria-label="Graph scope"
-              >
-                {scopeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-                {!scopeOptions.some((option) => option.value === scope) && (
-                  <option value={scope}>{scopeLabel}</option>
-                )}
-              </select>
-            )}
-
             <button
               type="button"
               onClick={() => setShowFilters((current) => !current)}
@@ -654,6 +632,24 @@ export default function KnowledgeGraphView({
                 </span>
               )}
             </button>
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-gray-500 dark:text-gray-400">Scope</span>
+            <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 font-medium text-gray-700 dark:border-gray-700 dark:bg-slate-900 dark:text-gray-200">
+              <span className="truncate">{scopeLabel}</span>
+              {!fixedScope && scope !== "global" && (
+                <button
+                  type="button"
+                  onClick={clearScope}
+                  className="rounded-full p-0.5 text-gray-400 transition hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-slate-800 dark:hover:text-gray-100"
+                  aria-label="Clear scope"
+                  title="Clear scope"
+                >
+                  <FaTimes className="text-[10px]" />
+                </button>
+              )}
+            </span>
           </div>
 
           {showFilters && (
@@ -802,31 +798,48 @@ export default function KnowledgeGraphView({
                 </label>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-600 dark:text-gray-400">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={includeSimilarity}
-                    onChange={(event) => setIncludeSimilarity(event.target.checked)}
-                    className="h-3.5 w-3.5 rounded border-gray-300"
-                  />
-                  Related papers (similarity)
-                </label>
-                {(fixedScope || scope.startsWith("laboratory:")) && (
-                  <label className="inline-flex items-center gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-5 gap-y-3 text-xs text-gray-600 dark:text-gray-400">
+                <div className="flex flex-col gap-2">
+                  <label className="inline-flex max-w-lg items-start gap-2">
                     <input
                       type="checkbox"
-                      checked={includeCoauthors}
-                      onChange={(event) => setIncludeCoauthors(event.target.checked)}
-                      className="h-3.5 w-3.5 rounded border-gray-300"
+                      checked={includeSimilarity}
+                      onChange={(event) => setIncludeSimilarity(event.target.checked)}
+                      className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300"
                     />
-                    External co-authors
+                    <span>
+                      <span className="font-medium text-gray-700 dark:text-gray-200">
+                        Similar papers
+                      </span>
+                      <span className="block text-[11px] leading-snug text-gray-500 dark:text-gray-400">
+                        Add links between papers with related content, even when
+                        they share no authors or topics.
+                      </span>
+                    </span>
                   </label>
-                )}
+                  {(fixedScope || scope.startsWith("laboratory:")) && (
+                    <label className="inline-flex max-w-lg items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={includeCoauthors}
+                        onChange={(event) => setIncludeCoauthors(event.target.checked)}
+                        className="mt-0.5 h-3.5 w-3.5 rounded border-gray-300"
+                      />
+                      <span>
+                        <span className="font-medium text-gray-700 dark:text-gray-200">
+                          External co-authors
+                        </span>
+                        <span className="block text-[11px] leading-snug text-gray-500 dark:text-gray-400">
+                          Include authors from outside this laboratory.
+                        </span>
+                      </span>
+                    </label>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="font-semibold text-blue-600 hover:underline dark:text-yellow-400"
+                  className="self-start font-semibold text-blue-600 hover:underline dark:text-yellow-400"
                 >
                   Clear filters
                 </button>

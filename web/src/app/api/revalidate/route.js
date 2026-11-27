@@ -74,7 +74,12 @@ const MODEL_PATH_MAP = {
   "api::departments-page.departments-page": ["/research/departments"],
   "api::laboratories-page.laboratories-page": ["/research/laboratories"],
   "api::projects-page.projects-page": ["/research/projects"],
-  "api::search-page.search-page": ["/search"],
+  "api::search-page.search-page": [
+    "/search",
+    "/search/classic",
+    "/search/chatbot",
+    "/search/knowledge-graph",
+  ],
   "api::equipment-page.equipment-page": ["/equipment"],
 };
 

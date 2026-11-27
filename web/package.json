@@ -10,6 +10,7 @@
     "lint": "next lint",
     "test:publication-details": "node --experimental-default-type=module --test tests/publication.test.mjs",
     "test:paper-graph": "node --experimental-default-type=module --test tests/paper-graph-meso.test.mjs",
+    "test:knowledge-graph": "node --experimental-default-type=module --test tests/knowledge-graph.test.mjs",
     "test:virtual-tour": "node --experimental-default-type=module --test tests/matterport.test.mjs",
     "test:timetable": "node --experimental-default-type=module --test tests/timetable.test.mjs"
   },

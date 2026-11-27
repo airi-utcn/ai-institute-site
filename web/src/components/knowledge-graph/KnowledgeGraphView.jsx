@@ -949,43 +949,42 @@ export default function KnowledgeGraphView({
           </div>
         )}
 
-        <div className={`grid lg:grid-cols-[360px_1fr] ${graphHeight}`}>
-          <aside className="flex min-h-0 flex-col border-b border-gray-200 lg:border-b-0 lg:border-r dark:border-gray-800">
-            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-2.5 dark:border-gray-800">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                {mode === "path"
-                  ? data?.path?.found
-                    ? `${data.path.steps.length} hops`
-                    : "Connection"
-                  : `${data?.stats?.matchCount || 0} matches`}
-              </div>
-              {data?.truncated && (
-                <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
-                  view truncated
-                </span>
-              )}
+        <div className="border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between px-4 py-2.5">
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {mode === "path"
+                ? data?.path?.found
+                  ? `${data.path.steps.length} hops`
+                  : "Connection"
+                : `${data?.stats?.matchCount || 0} matches`}
             </div>
+            {data?.truncated && (
+              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                view truncated
+              </span>
+            )}
+          </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
-              {mode === "path" ? (
-                <PathPanel
-                  data={data}
-                  nodeById={nodeById}
-                  onSelect={focusNode}
-                  message={data?.message}
-                />
-              ) : (
-                <ResultList
-                  data={data}
-                  nodeById={nodeById}
-                  onSelect={focusNode}
-                  selectedId={selectedId}
-                />
-              )}
-            </div>
-          </aside>
+          <div className="px-2 pb-2">
+            {mode === "path" ? (
+              <PathPanel
+                data={data}
+                nodeById={nodeById}
+                onSelect={focusNode}
+                message={data?.message}
+              />
+            ) : (
+              <ResultList
+                data={data}
+                nodeById={nodeById}
+                onSelect={focusNode}
+                selectedId={selectedId}
+              />
+            )}
+          </div>
+        </div>
 
-          <div className="relative min-h-[420px] overflow-hidden" style={{ background: BG_COLOR }}>
+        <div className={`relative overflow-hidden ${graphHeight}`} style={{ background: BG_COLOR }}>
             <div ref={containerRef} className="absolute inset-0">
               {size.width > 0 && nodes.length > 0 && (
                 <ForceGraph2D
@@ -1136,7 +1135,6 @@ export default function KnowledgeGraphView({
               />
             )}
           </div>
-        </div>
       </div>
     </section>
   );
@@ -1145,11 +1143,11 @@ export default function KnowledgeGraphView({
 function ResultList({ data, nodeById, onSelect, selectedId }) {
   if (!data) {
     return (
-      <div className="space-y-2 p-2">
+      <div className="flex gap-2">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="h-14 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-900"
+            className="h-16 w-64 shrink-0 animate-pulse rounded-lg bg-gray-100 dark:bg-slate-900 sm:w-72"
           />
         ))}
       </div>
@@ -1166,21 +1164,21 @@ function ResultList({ data, nodeById, onSelect, selectedId }) {
   }
 
   return (
-    <ul className="space-y-1">
+    <ul className="flex gap-2 overflow-x-auto pb-1">
       {matches.map((match) => {
         const node = nodeById.get(match.nodeId);
         if (!node) return null;
         const meta = NODE_META[node.type] || NODE_META.publication;
         const active = node.id === selectedId;
         return (
-          <li key={node.id}>
+          <li key={node.id} className="w-72 shrink-0 sm:w-80">
             <button
               type="button"
               onClick={() => onSelect(node)}
-              className={`flex w-full items-start gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
+              className={`flex h-full w-full items-start gap-2 rounded-lg border px-2.5 py-2 text-left transition ${
                 active
                   ? "border-blue-300 bg-blue-50 dark:border-yellow-500/40 dark:bg-yellow-500/10"
-                  : "border-transparent hover:border-gray-200 hover:bg-gray-50 dark:hover:border-gray-800 dark:hover:bg-slate-900"
+                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:bg-slate-900"
               }`}
             >
               <span
@@ -1189,14 +1187,14 @@ function ResultList({ data, nodeById, onSelect, selectedId }) {
               />
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2">
-                  <span className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <span className="line-clamp-2 min-w-0 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {node.label}
                   </span>
                   <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-gray-500 dark:bg-slate-800 dark:text-gray-400">
                     {meta.singular}
                   </span>
                 </span>
-                <span className="mt-0.5 block truncate text-xs text-gray-500 dark:text-gray-400">
+                <span className="mt-0.5 line-clamp-2 block text-xs text-gray-500 dark:text-gray-400">
                   {node.subtitle}
                 </span>
                 {match.reason && (
@@ -1247,37 +1245,47 @@ function PathPanel({ data, nodeById, onSelect, message }) {
   }
 
   return (
-    <ol className="space-y-2 p-2">
+    <ol className="flex items-stretch gap-2 overflow-x-auto pb-1">
       {path.steps.map((step, index) => {
         const fromNode = nodeById.get(step.from);
         const toNode = nodeById.get(step.to);
         const meta = EDGE_META[step.type] || EDGE_META.authored;
         return (
-          <li key={`${step.edgeId}-${index}`} className="rounded-lg border border-gray-200 p-2.5 dark:border-gray-800">
-            <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
-              Step {index + 1} · {meta.label}
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm">
-              <button
-                type="button"
-                onClick={() => fromNode && onSelect(fromNode)}
-                className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
-              >
-                {step.fromLabel || fromNode?.label || step.from}
-              </button>
-              <span className="text-gray-400">→</span>
-              <button
-                type="button"
-                onClick={() => toNode && onSelect(toNode)}
-                className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
-              >
-                {step.toLabel || toNode?.label || step.to}
-              </button>
-            </div>
-            {(step.provenance || []).length > 0 && (
-              <div className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
-                {step.provenance.join(" · ")}
+          <li
+            key={`${step.edgeId}-${index}`}
+            className="flex shrink-0 items-center gap-2"
+          >
+            <div className="w-64 rounded-lg border border-gray-200 p-2.5 dark:border-gray-800 sm:w-72">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                Step {index + 1} · {meta.label}
               </div>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-sm">
+                <button
+                  type="button"
+                  onClick={() => fromNode && onSelect(fromNode)}
+                  className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
+                >
+                  {step.fromLabel || fromNode?.label || step.from}
+                </button>
+                <span className="text-gray-400">→</span>
+                <button
+                  type="button"
+                  onClick={() => toNode && onSelect(toNode)}
+                  className="font-medium text-blue-700 hover:underline dark:text-yellow-400"
+                >
+                  {step.toLabel || toNode?.label || step.to}
+                </button>
+              </div>
+              {(step.provenance || []).length > 0 && (
+                <div className="mt-1 text-[10px] text-gray-400 dark:text-gray-500">
+                  {step.provenance.join(" · ")}
+                </div>
+              )}
+            </div>
+            {index < path.steps.length - 1 && (
+              <span aria-hidden="true" className="text-lg text-gray-300 dark:text-gray-600">
+                →
+              </span>
             )}
           </li>
         );

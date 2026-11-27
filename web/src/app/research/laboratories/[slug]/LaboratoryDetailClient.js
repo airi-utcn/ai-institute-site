@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FaArrowLeft,
@@ -21,6 +22,7 @@ import {
   FaTags,
   FaFilePdf,
   FaBoxOpen,
+  FaSitemap,
 } from 'react-icons/fa';
 import VideoShowcase from '@/components/laboratory/VideoShowcase';
 import SponsorPlaque from '@/components/laboratory/SponsorPlaque';
@@ -46,6 +48,7 @@ const DEFAULT_TEXTS = {
   'tabs.people': 'People',
   'tabs.projects': 'Projects',
   'tabs.publications': 'Publications',
+  'tabs.graph': 'Graph',
   'tabs.results': 'Results',
   'tabs.schedule': 'Room schedule',
   'tabs.equipment': 'Equipment',
@@ -66,6 +69,8 @@ const DEFAULT_TEXTS = {
   'schedule.description':
     'Current and upcoming bookings for this room, as published in the UTCN timetable.',
   'publications.noPublications': 'No publications found for this laboratory.',
+  'graph.description':
+    'Connections between this laboratory’s people, their publications, and the topics they work on. Papers linked directly to the laboratory and papers authored by its members are both included.',
   'results.noResults': 'No results have been published for this laboratory yet.',
   'results.attachments': 'Attachments',
   'themes.title': 'Research Themes',
@@ -88,6 +93,18 @@ const EmptyState = ({ children }) => (
   <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-800 p-10 text-center text-sm text-gray-500 dark:text-gray-400">
     {children}
   </div>
+);
+
+const KnowledgeGraphView = dynamic(
+  () => import('@/components/knowledge-graph/KnowledgeGraphView'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[560px] items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 text-sm text-gray-500 dark:border-gray-800 dark:bg-slate-900 dark:text-gray-400">
+        Loading the laboratory graph…
+      </div>
+    ),
+  },
 );
 
 export default function LaboratoryDetailClient({
@@ -149,6 +166,11 @@ export default function LaboratoryDetailClient({
       label: t('tabs.publications'),
       icon: FaBook,
       count: publications.length,
+    },
+    {
+      id: 'graph',
+      label: t('tabs.graph'),
+      icon: FaSitemap,
     },
     {
       id: 'results',
@@ -655,6 +677,27 @@ export default function LaboratoryDetailClient({
               ) : (
                 <EmptyState>{t('publications.noPublications')}</EmptyState>
               )}
+            </motion.div>
+          )}
+
+          {activeTab === 'graph' && (
+            <motion.div
+              key="graph"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              exit={{ opacity: 0 }}
+            >
+              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                {t('graph.description')}
+              </p>
+              <KnowledgeGraphView
+                fixedScope={`laboratory:${lab.slug}`}
+                compact
+                syncUrl={false}
+                title={`${lab.title} research graph`}
+                subtitle="Lab members, their publications, and the topics that connect them."
+              />
             </motion.div>
           )}
 

@@ -346,16 +346,19 @@ function cloneNode(node, scope) {
   };
 }
 
+// Structural links outrank topic tags. Topic hubs can account for most of a
+// publication-heavy graph, and letting them fill the edge budget first leaves
+// departments, teams, and projects with no visible links at all.
 const EDGE_PRIORITY = {
   [EDGE_TYPES.AUTHORED]: 0,
   [EDGE_TYPES.LAB_PUBLICATION]: 1,
   [EDGE_TYPES.MEMBER_OF]: 2,
-  [EDGE_TYPES.TAGGED_WITH]: 3,
-  [EDGE_TYPES.CONTRIBUTES_TO]: 4,
-  [EDGE_TYPES.TEAM_MEMBER]: 4,
-  [EDGE_TYPES.PROJECT_TEAM]: 4,
-  [EDGE_TYPES.BELONGS_TO]: 3,
-  [EDGE_TYPES.IN_DEPARTMENT]: 5,
+  [EDGE_TYPES.CONTRIBUTES_TO]: 3,
+  [EDGE_TYPES.TEAM_MEMBER]: 3,
+  [EDGE_TYPES.PROJECT_TEAM]: 3,
+  [EDGE_TYPES.IN_DEPARTMENT]: 4,
+  [EDGE_TYPES.BELONGS_TO]: 4,
+  [EDGE_TYPES.TAGGED_WITH]: 5,
   [EDGE_TYPES.SIMILAR_TO]: 9,
 };
 
@@ -689,10 +692,7 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
 
   seedIds.forEach((nodeId) => resultIds.add(nodeId));
 
-  // Add one hop of context so a matching person shows their papers and a
-  // matching paper shows its authors. Keep only nodes that survive the same
-  // filters; this prevents a lab-year filter from pulling in unrelated work.
-  seedIds.forEach((nodeId) => {
+  const addNeighbours = (nodeId) => {
     (index.edgesByNode.get(nodeId) || []).forEach((edge) => {
       if (resultIds.size >= options.limit) return;
       if (!scope.edgeIds.has(edge.id)) return;
@@ -701,7 +701,15 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       if (!other) return;
       if (nodeIsVisible(other)) resultIds.add(otherId);
     });
-  });
+  };
+
+  // Add one hop of context so a matching person shows their papers and a
+  // matching paper shows its authors. Keep only nodes that survive the same
+  // filters; this prevents a lab-year filter from pulling in unrelated work.
+  // The scope root goes first: its direct neighbours define the scoped view,
+  // and a large root should not be crowded out of its own graph by the limit.
+  if (scope.rootNodeId) addNeighbours(scope.rootNodeId);
+  seedIds.forEach(addNeighbours);
 
   // Computed containers (labs, teams, projects, departments) need their
   // members' papers; a person is handled by their own authored edges above.
@@ -719,6 +727,11 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
 
   let keptIds = new Set(Array.from(resultIds).slice(0, options.limit));
 
+  const maxEdges = Math.max(
+    20,
+    Math.min(options.maxEdges || DEFAULT_MAX_EDGES, 5000),
+  );
+
   const candidateEdges = graph.edges
     .filter(
       (edge) =>
@@ -733,13 +746,47 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
       return (b.weight || 0) - (a.weight || 0);
     });
 
-  // When the view has links, drop nodes that ended up disconnected. This keeps
-  // type filters honest (for example, topics lose every link when publications
-  // are hidden) without turning a deliberately isolated selection into an
-  // empty canvas. Explicit text matches and scope roots stay visible.
-  if (candidateEdges.length > 0) {
-    const connected = new Set();
+  // Select edges with guaranteed coverage before filling the remaining budget
+  // in priority order. Without this a high-degree scope root (or any node
+  // whose links all rank late) can lose every edge to the cap and float alone
+  // on the canvas even though its neighbours are present.
+  const edges = [];
+  const selectedEdgeIds = new Set();
+  const addEdge = (edge) => {
+    if (!edge || edges.length >= maxEdges || selectedEdgeIds.has(edge.id)) {
+      return;
+    }
+    selectedEdgeIds.add(edge.id);
+    edges.push(edge);
+  };
+
+  // 1. Keep the scope root attached to the graph it defines.
+  if (scope.rootNodeId) {
     candidateEdges.forEach((edge) => {
+      if (edge.source === scope.rootNodeId || edge.target === scope.rootNodeId) {
+        addEdge(edge);
+      }
+    });
+  }
+
+  // 2. Give every remaining node its strongest edge so nothing is orphaned by
+  // the cap alone.
+  const bestEdgeByNode = new Map();
+  candidateEdges.forEach((edge) => {
+    if (!bestEdgeByNode.has(edge.source)) bestEdgeByNode.set(edge.source, edge);
+    if (!bestEdgeByNode.has(edge.target)) bestEdgeByNode.set(edge.target, edge);
+  });
+  Array.from(keptIds).forEach((nodeId) => addEdge(bestEdgeByNode.get(nodeId)));
+
+  // 3. Spend the rest of the budget on the highest-priority links.
+  candidateEdges.forEach(addEdge);
+
+  // Prune against the edges that survived the cap, not the full candidate set.
+  // Otherwise nodes whose links were all truncated stay in the payload as
+  // isolated dots. Explicit text matches and scope roots stay visible.
+  if (edges.length > 0) {
+    const connected = new Set();
+    edges.forEach((edge) => {
       connected.add(edge.source);
       connected.add(edge.target);
     });
@@ -758,10 +805,6 @@ export function runKnowledgeGraphQuery(graph, rawOptions = {}) {
   );
   const matchCount = visibleMatchCandidates.length;
 
-  const edges = candidateEdges.slice(
-    0,
-    Math.max(20, Math.min(options.maxEdges || DEFAULT_MAX_EDGES, 5000)),
-  );
   const truncated =
     matchCount < totalMatches ||
     matchCount > MAX_MATCHES ||

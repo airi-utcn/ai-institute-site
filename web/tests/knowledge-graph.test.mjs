@@ -311,6 +311,40 @@ test('hiding publications leaves a connected organisational graph', () => {
   assert.ok(!result.nodes.some((node) => node.type === NODE_TYPES.TOPIC));
 });
 
+test('edge cap keeps the scope root and every kept node connected', () => {
+  const source = makeSource();
+  const ai = { documentId: 'macro-ai', name: 'Artificial Intelligence', slug: 'ai' };
+  source.publications.push(
+    ...Array.from({ length: 12 }, (_, index) =>
+      publication(`extra-${index}`, `Extra Paper ${index}`, 2024, [source.people[0]], {
+        macro: ai,
+        domain: source.people[0].department.data,
+      }),
+    ),
+  );
+
+  const graph = buildKnowledgeGraph(source);
+  const result = runKnowledgeGraphQuery(graph, {
+    ...parseGraphQuery({ scope: 'department:ai' }),
+    maxEdges: 20,
+  });
+
+  const department = result.nodes.find((node) => node.id === 'department:ai');
+  assert.ok(department, 'scope root is present');
+  assert.ok(
+    result.edges.some(
+      (edge) => edge.source === department.id || edge.target === department.id,
+    ),
+    'scope root keeps at least one link when the edge budget is tight',
+  );
+
+  const connected = new Set(
+    result.edges.flatMap((edge) => [edge.source, edge.target]),
+  );
+  const isolated = result.nodes.filter((node) => !connected.has(node.id));
+  assert.equal(isolated.length, 0, 'no node survives the cap without a link');
+});
+
 test('year filters narrow lab papers and their context', () => {
   const graph = buildKnowledgeGraph(makeSource());
   const result = runKnowledgeGraphQuery(

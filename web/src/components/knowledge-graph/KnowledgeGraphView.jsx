@@ -1154,7 +1154,7 @@ function NodePanel({
       </div>
 
       <div className="grid grid-cols-2 gap-2 border-b border-white/10 p-4 text-center">
-        <Stat label="Connections" value={node.metrics?.degree || 0} />
+        <Stat label="Connections" value={neighbors.length} />
         {node.type === "person" ? (
           <Stat label="Publications" value={node.metrics?.publicationCount || 0} />
         ) : node.type === "publication" ? (
@@ -1169,6 +1169,13 @@ function NodePanel({
           <Stat label="Graph" value={node.meta?.graphEligible ? "eligible" : "reference"} />
         )}
       </div>
+
+      {node.metrics?.degree > neighbors.length && (
+        <p className="border-b border-white/10 px-4 py-2 text-[11px] text-white/40">
+          {node.metrics.degree} connections in the full graph · showing{" "}
+          {neighbors.length} in this view
+        </p>
+      )}
 
       <div className="flex flex-wrap gap-2 border-b border-white/10 p-4">
         {node.href && (

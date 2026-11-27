@@ -350,4 +350,38 @@ This means the graph is always based on the current eligible Strapi corpus, not 
 - `graphMesoPrimary`: the main mid-level topic assignment.
 - `graphMesoTags`: additional mid-level matches.
 
+## 10. Knowledge Graph and Laboratory Graph
+
+The knowledge graph at `/search/knowledge-graph` is a read-only projection of
+the same Strapi records. It does not store another graph and it is not rebuilt by
+the Python pipeline. It joins:
+
+- people to publications through `Publication.authors`;
+- people to laboratories, teams, projects, and departments through the existing
+  relations;
+- publications to macros and mesos through the graph relations;
+- publications to one another through `GraphLink`.
+
+This means an editor's existing work is enough: there is no separate knowledge
+graph collection to maintain.
+
+The laboratory **Graph** tab uses the same projection with a laboratory scope.
+It shows the union of:
+
+1. publications explicitly linked in `Laboratory.publications`, and
+2. published papers authored by the laboratory's coordinator, co-coordinator,
+   researchers, or team members.
+
+Because of rule 2, the graph can show papers that are not present in the
+laboratory's Publications tab. The graph labels these as `member-authored` so
+the difference is visible. If you want a paper removed from a laboratory graph,
+change the authorship or the laboratory membership. `graphEligible=false`
+removes a paper from the paper-graph rebuild; an active `GraphExclusion` removes
+it from every graph view, including the knowledge graph and laboratory graph,
+while still keeping the publication page when `scope=graphOnly`.
+
+The laboratory graph can optionally show external co-authors and paper-to-paper
+similarity edges. Both are off by default because they can make a small lab
+graph noisy.
+
 If you want, the next step can be a shorter editor-facing version for non-technical users, or a companion appendix that lists every graph-related field in table form.

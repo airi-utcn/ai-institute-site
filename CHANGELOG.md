@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `/search/knowledge-graph` is now a faceted, URL-shareable explorer over people, publications, laboratories, projects, teams, departments, and research topics.
   - Supports text search, type/year/lab/department/project/topic filters, node inspection, and scope narrowing.
   - The current scope is shown below the search bar and can be cleared from there; the similarity and external co-author toggles explain what they add.
+  - Dense views stay readable: publications use square markers and only show their labels on hover, while people use a distinct colour and structural anchors and macro topics keep their labels.
   - Node-type filters now control the graph itself; hiding publications shows the membership, project, team, and department network, and removed types are also left out of the context added around each match.
   - Bounded graph views keep the scope root and every visible node connected: structural links outrank topic tags when the edge limit is reached, department scopes include their affiliated teams, projects, and laboratories, and the inspector distinguishes visible from total connections.
   - New `GET /api/knowledge-graph` returns a bounded, cached projection with published content only; preview sessions bypass the shared cache.

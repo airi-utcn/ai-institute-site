@@ -24,7 +24,7 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 const BG_COLOR = "#070b14";
 
 const NODE_META = {
-  person: { label: "People", singular: "Person", color: "#4ecdc4", icon: FaUser },
+  person: { label: "People", singular: "Person", color: "#ff922b", icon: FaUser },
   publication: { label: "Publications", singular: "Publication", color: "#74c0fc", icon: FaBook },
   laboratory: { label: "Laboratories", singular: "Laboratory", color: "#ffd43b", icon: FaFlask },
   project: { label: "Projects", singular: "Project", color: "#69db7c", icon: FaProjectDiagram },
@@ -95,6 +95,31 @@ const nodeRadius = (node) => {
       : 0;
 
   return base + Math.sqrt(degree) * 0.7 + citationBoost;
+};
+
+// Shape is a second channel alongside colour: publications are numerous and
+// close in hue to people, so squares and diamonds read faster than recolouring
+// everything.
+const traceNodeShape = (context, node, radius) => {
+  const { x, y } = node;
+  context.beginPath();
+
+  if (node.type === "publication") {
+    const half = radius * 0.9;
+    context.rect(x - half, y - half, half * 2, half * 2);
+    return;
+  }
+
+  if (node.type === "topic") {
+    context.moveTo(x, y - radius);
+    context.lineTo(x + radius, y);
+    context.lineTo(x, y + radius);
+    context.lineTo(x - radius, y);
+    context.closePath();
+    return;
+  }
+
+  context.arc(x, y, radius, 0, 2 * Math.PI);
 };
 
 const emptyFacets = {
@@ -407,8 +432,7 @@ export default function KnowledgeGraphView({
       context.fill();
     }
 
-    context.beginPath();
-    context.arc(node.x, node.y, radius, 0, 2 * Math.PI);
+    traceNodeShape(context, node, radius);
     context.fillStyle = hexToRgba(meta.color, dim ? 0.12 : 0.92);
     context.fill();
 
@@ -423,26 +447,42 @@ export default function KnowledgeGraphView({
     }
 
     if (isSelected || isHovered) {
-      context.beginPath();
-      context.arc(node.x, node.y, radius + 3 / globalScale, 0, 2 * Math.PI);
+      traceNodeShape(context, node, radius + 3 / globalScale);
       context.lineWidth = 2 / globalScale;
       context.strokeStyle = hexToRgba("#ffffff", 0.85);
       context.stroke();
     }
 
+    // Publications are the densest layer, so their labels only appear on
+    // hover/selection. Structural anchors and macro topics stay labelled, and
+    // other hubs earn a label as the view zooms in.
+    const degree = node.metrics?.degree || 0;
+    const labelThreshold =
+      globalScale >= 2.5 ? 18 : globalScale >= 1.6 ? 30 : 50;
+    const isTopic =
+      node.type === "topic" &&
+      (node.meta?.kind === "macro" || globalScale >= 1.6);
+    const isHub =
+      (node.type === "person" ||
+        node.type === "project" ||
+        node.type === "team") &&
+      degree >= labelThreshold;
     const shouldLabel =
       !dim &&
       (isSelected ||
         isHovered ||
         node.type === "laboratory" ||
         node.type === "department" ||
-        globalScale >= 2.1 ||
-        (node.metrics?.degree || 0) >= 12);
+        isTopic ||
+        isHub);
 
     if (shouldLabel) {
       const fontSize = Math.max(9, 11 / Math.max(globalScale, 0.9));
+      const labelLimit = node.type === "topic" ? 30 : 46;
       const label =
-        node.label.length > 46 ? `${node.label.slice(0, 43)}...` : node.label;
+        node.label.length > labelLimit
+          ? `${node.label.slice(0, labelLimit - 3)}...`
+          : node.label;
       context.font = `${fontSize}px ui-sans-serif, system-ui, sans-serif`;
       context.textAlign = "center";
       context.textBaseline = "top";
@@ -939,7 +979,7 @@ export default function KnowledgeGraphView({
             <div className="pointer-events-none absolute left-4 top-3 z-10 hidden max-w-sm text-white/80 sm:block">
               <div className="text-sm font-semibold">{scopeLabel}</div>
               <div className="text-[11px] text-white/45">
-                Drag to pan · scroll to zoom · click a node to inspect it
+                Drag to pan · scroll to zoom · hover for labels · click to inspect
               </div>
             </div>
 
@@ -984,7 +1024,13 @@ export default function KnowledgeGraphView({
                     {TYPE_ORDER.map((type) => (
                       <li key={type} className="flex items-center gap-2">
                         <span
-                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          className={`inline-block h-2.5 w-2.5 shrink-0 ${
+                            type === "publication"
+                              ? "rounded-[1px]"
+                              : type === "topic"
+                                ? "rotate-45"
+                                : "rounded-full"
+                          }`}
                           style={{ backgroundColor: NODE_META[type].color }}
                         />
                         {NODE_META[type].label}

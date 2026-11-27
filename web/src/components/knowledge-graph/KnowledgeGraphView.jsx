@@ -1207,8 +1207,8 @@ function NodePanel({
 
       {neighbors.length > 0 && (
         <Section title={`Connected (${neighbors.length})`}>
-          <ul className="space-y-1">
-            {neighbors.slice(0, 12).map((neighbor) => {
+          <ul className="max-h-80 space-y-1 overflow-y-auto pr-1">
+            {neighbors.map((neighbor) => {
               const neighborMeta = NODE_META[neighbor.type] || NODE_META.publication;
               return (
                 <li key={neighbor.id}>

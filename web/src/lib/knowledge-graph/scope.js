@@ -392,17 +392,28 @@ export function resolveScope(graph, index, rawScope, options = {}) {
     const departmentId = parsed.seeds[0];
     addAll(nodeIds, departmentId);
 
-    const people = new Set(
-      nodesOfType(index, NODE_TYPES.PERSON)
+    const affiliated = (type) =>
+      nodesOfType(index, type)
         .filter((node) =>
           neighbours(index, node.id, EDGE_TYPES.IN_DEPARTMENT, 'out').includes(
             departmentId,
           ),
         )
-        .map((node) => node.id),
-    );
+        .map((node) => node.id);
+
+    const people = new Set(affiliated(NODE_TYPES.PERSON));
     addAll(nodeIds, people);
     memberCount = people.size;
+
+    // Teams, projects, laboratories, and publications declare their department
+    // directly. Include them so the department's own links are in scope.
+    addAll(nodeIds, affiliated(NODE_TYPES.TEAM));
+    addAll(nodeIds, affiliated(NODE_TYPES.PROJECT));
+    addAll(nodeIds, affiliated(NODE_TYPES.LABORATORY));
+    affiliated(NODE_TYPES.PUBLICATION).forEach((publicationId) => {
+      publicationIds.add(publicationId);
+      nodeIds.add(publicationId);
+    });
 
     people.forEach((personId) => {
       neighbours(index, personId, EDGE_TYPES.AUTHORED, 'out').forEach(

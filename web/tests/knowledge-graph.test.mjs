@@ -258,6 +258,14 @@ test('non-laboratory scopes include their related nodes', () => {
   assert.ok(projectScope.nodeIds.has('person:alice'));
   assert.ok(projectScope.nodeIds.has('team:team-one'));
   assert.ok(projectScope.nodeIds.has('department:ai'));
+
+  const departmentScope = resolveScope(graph, index, 'department:ai');
+  assert.ok(departmentScope.nodeIds.has('department:ai'));
+  assert.ok(departmentScope.nodeIds.has('person:alice'));
+  assert.ok(departmentScope.nodeIds.has('team:team-one'));
+  assert.ok(departmentScope.nodeIds.has('project:project-one'));
+  assert.ok(departmentScope.nodeIds.has('laboratory:lab-one'));
+  assert.equal(departmentScope.meta.memberCount, 2);
 });
 
 test('text search returns matches plus connected context', () => {

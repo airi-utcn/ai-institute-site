@@ -372,6 +372,14 @@ contribution, and affiliation. Topics are derived from publication tags, so they
 are left out of a view that hides publications. The same filters apply to the
 context added around each match.
 
+Graph views are bounded. When the edge budget is reached, structural links
+(authorship, membership, department, project, and team relations) are kept
+ahead of topic tags, the scope root keeps its links, and every visible node
+retains at least one link. The node inspector reports how many of an entity's
+full-graph connections are shown in the current view. A department scope also
+includes the teams, projects, laboratories, and publications that declare that
+department.
+
 This means an editor's existing work is enough: there is no separate knowledge
 graph collection to maintain.
 

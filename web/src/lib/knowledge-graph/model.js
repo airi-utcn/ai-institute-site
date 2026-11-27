@@ -27,6 +27,8 @@ export const EDGE_TYPES = {
   MEMBER_OF: 'memberOf',
   CONTRIBUTES_TO: 'contributesTo',
   TEAM_MEMBER: 'teamMember',
+  PROJECT_TEAM: 'projectTeam',
+  BELONGS_TO: 'belongsTo',
   IN_DEPARTMENT: 'inDepartment',
   TAGGED_WITH: 'taggedWith',
   SIMILAR_TO: 'similarTo',
@@ -518,6 +520,23 @@ export function buildKnowledgeGraph(source = {}) {
         lookups.laboratories.get(laboratory.documentId)
       : null;
 
+    if (laboratoryId) {
+      connect(teamId, laboratoryId, EDGE_TYPES.BELONGS_TO, {
+        label: 'laboratory',
+        provenance: ['team laboratory'],
+      });
+    }
+
+    const departmentEntry = relation(entry.department)[0] ?? entry.department;
+    const department = attrs(departmentEntry);
+    const departmentId = ensureDepartment(department.slug, department.name);
+    if (departmentId) {
+      connect(teamId, departmentId, EDGE_TYPES.IN_DEPARTMENT, {
+        label: 'department',
+        provenance: ['team department'],
+      });
+    }
+
     relation(entry.members).forEach((member) => {
       const personRecord =
         relation(member?.person)[0] ?? member?.person ?? member;
@@ -549,6 +568,31 @@ export function buildKnowledgeGraph(source = {}) {
         connect(personId, projectId, EDGE_TYPES.CONTRIBUTES_TO, {
           label: 'contributes to',
           provenance: ['project contributor'],
+        });
+      }
+    });
+
+    relation(entry.domains).forEach((domain) => {
+      const domainEntry = attrs(domain);
+      const departmentId = ensureDepartment(domainEntry.slug, domainEntry.name);
+      if (departmentId) {
+        connect(projectId, departmentId, EDGE_TYPES.IN_DEPARTMENT, {
+          label: 'department',
+          provenance: ['project domain'],
+        });
+      }
+    });
+
+    relation(entry.teams).forEach((team) => {
+      const teamEntry = attrs(team);
+      const teamId = teamEntry.slug
+        ? lookups.teams.get(teamEntry.slug) ??
+          lookups.teams.get(teamEntry.documentId)
+        : null;
+      if (teamId) {
+        connect(projectId, teamId, EDGE_TYPES.PROJECT_TEAM, {
+          label: 'team project',
+          provenance: ['project team'],
         });
       }
     });

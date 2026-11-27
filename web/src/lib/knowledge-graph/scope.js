@@ -19,7 +19,11 @@ const SCOPE_ALIASES = {
   team: 'team',
 };
 
-const toArray = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+const toArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (value instanceof Set) return Array.from(value);
+  return value ? [value] : [];
+};
 
 const addAll = (target, values) => {
   toArray(values).forEach((value) => {
@@ -247,6 +251,16 @@ export function resolveScope(graph, index, rawScope, options = {}) {
     };
 
     neighbours(index, laboratoryId, EDGE_TYPES.MEMBER_OF, 'in').forEach(addMember);
+
+    addAll(nodeIds, neighbours(index, laboratoryId, EDGE_TYPES.IN_DEPARTMENT, 'out'));
+    const laboratoryTeams = new Set(
+      neighbours(index, laboratoryId, EDGE_TYPES.BELONGS_TO, 'in'),
+    );
+    addAll(nodeIds, laboratoryTeams);
+    laboratoryTeams.forEach((teamId) => {
+      addAll(nodeIds, neighbours(index, teamId, EDGE_TYPES.PROJECT_TEAM, 'in'));
+    });
+
     neighbours(index, laboratoryId, EDGE_TYPES.LAB_PUBLICATION, 'out').forEach(
       (publicationId) => {
         explicitPublicationIds.add(publicationId);
@@ -341,7 +355,21 @@ export function resolveScope(graph, index, rawScope, options = {}) {
     const people = new Set(
       neighbours(index, projectId, EDGE_TYPES.CONTRIBUTES_TO, 'in'),
     );
+
+    const projectTeams = new Set(
+      neighbours(index, projectId, EDGE_TYPES.PROJECT_TEAM, 'out'),
+    );
+    addAll(nodeIds, projectTeams);
+    projectTeams.forEach((teamId) => {
+      neighbours(index, teamId, EDGE_TYPES.TEAM_MEMBER, 'in').forEach(
+        (personId) => people.add(personId),
+      );
+      addAll(nodeIds, neighbours(index, teamId, EDGE_TYPES.BELONGS_TO, 'out'));
+      addAll(nodeIds, neighbours(index, teamId, EDGE_TYPES.IN_DEPARTMENT, 'out'));
+    });
+
     addAll(nodeIds, people);
+    addAll(nodeIds, neighbours(index, projectId, EDGE_TYPES.IN_DEPARTMENT, 'out'));
     memberCount = people.size;
 
     people.forEach((personId) => {
@@ -394,6 +422,16 @@ export function resolveScope(graph, index, rawScope, options = {}) {
   if (parsed.kind === 'team') {
     const teamId = parsed.seeds[0];
     addAll(nodeIds, teamId);
+
+    addAll(nodeIds, neighbours(index, teamId, EDGE_TYPES.BELONGS_TO, 'out'));
+    addAll(nodeIds, neighbours(index, teamId, EDGE_TYPES.IN_DEPARTMENT, 'out'));
+    const teamProjects = new Set(
+      neighbours(index, teamId, EDGE_TYPES.PROJECT_TEAM, 'in'),
+    );
+    addAll(nodeIds, teamProjects);
+    teamProjects.forEach((projectId) => {
+      addAll(nodeIds, neighbours(index, projectId, EDGE_TYPES.IN_DEPARTMENT, 'out'));
+    });
 
     const people = new Set(
       neighbours(index, teamId, EDGE_TYPES.TEAM_MEMBER, 'in'),

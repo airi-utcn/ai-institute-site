@@ -1835,6 +1835,7 @@ export async function getKnowledgeGraphSource() {
           sort: 'name:asc',
           populate: {
             laboratory: { fields: ['title', 'slug'] },
+            department: { fields: ['name', 'slug'] },
             members: { populate: { person: relationPerson } },
           },
         },
@@ -1846,6 +1847,8 @@ export async function getKnowledgeGraphSource() {
           fields: ['title', 'slug', 'startDate', 'endDate'],
           sort: 'title:asc',
           populate: {
+            domains: { fields: ['name', 'slug'] },
+            teams: { fields: ['name', 'slug'] },
             individualContributors: { populate: { person: relationPerson } },
           },
         },

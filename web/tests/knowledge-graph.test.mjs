@@ -85,6 +85,7 @@ function makeSource() {
     name: 'Team One',
     slug: 'team-one',
     laboratory: { data: { documentId: 'lab1', title: 'Lab One', slug: 'lab-one' } },
+    department: { data: alice.department.data },
     members: { data: [{ person: { data: alice } }, { person: { data: carol } }] },
   };
 
@@ -92,6 +93,10 @@ function makeSource() {
     documentId: 'project1',
     title: 'Project One',
     slug: 'project-one',
+    domains: { data: [alice.department.data] },
+    teams: {
+      data: [{ documentId: 'team1', name: 'Team One', slug: 'team-one' }],
+    },
     individualContributors: { data: [{ person: { data: alice } }] },
   };
 
@@ -128,6 +133,44 @@ test('builds namespaced nodes and typed edges without dangling endpoints', () =>
   assert.ok(members.some((edge) => edge.source === 'person:alice' && edge.target === 'laboratory:lab-one'));
   assert.ok(members.some((edge) => edge.source === 'person:bob' && edge.target === 'laboratory:lab-one'));
   assert.ok(members.some((edge) => edge.source === 'person:carol' && edge.target === 'laboratory:lab-one'));
+
+  const organisational = graph.edges.filter(
+    (edge) =>
+      edge.type === EDGE_TYPES.PROJECT_TEAM ||
+      edge.type === EDGE_TYPES.BELONGS_TO,
+  );
+  assert.ok(
+    organisational.some(
+      (edge) =>
+        edge.source === 'project:project-one' &&
+        edge.target === 'team:team-one' &&
+        edge.type === EDGE_TYPES.PROJECT_TEAM,
+    ),
+  );
+  assert.ok(
+    organisational.some(
+      (edge) =>
+        edge.source === 'team:team-one' &&
+        edge.target === 'laboratory:lab-one' &&
+        edge.type === EDGE_TYPES.BELONGS_TO,
+    ),
+  );
+
+  const projectDepartment = graph.edges.find(
+    (edge) =>
+      edge.source === 'project:project-one' &&
+      edge.target === 'department:ai' &&
+      edge.type === EDGE_TYPES.IN_DEPARTMENT,
+  );
+  assert.ok(projectDepartment);
+  assert.ok(
+    graph.edges.some(
+      (edge) =>
+        edge.source === 'team:team-one' &&
+        edge.target === 'department:ai' &&
+        edge.type === EDGE_TYPES.IN_DEPARTMENT,
+    ),
+  );
 
   const similarity = graph.edges.filter((edge) => edge.type === EDGE_TYPES.SIMILAR_TO);
   assert.equal(similarity.length, 1);
@@ -188,6 +231,33 @@ test('laboratory scope can include external co-authors and similarity edges', ()
     (edge) => edge.type === EDGE_TYPES.SIMILAR_TO && scope.edgeIds.has(edge.id),
   );
   assert.equal(similarity.length, 1);
+});
+
+test('non-laboratory scopes include their related nodes', () => {
+  const graph = buildKnowledgeGraph(makeSource());
+  const index = indexGraph(graph);
+
+  const personScope = resolveScope(graph, index, 'person:alice');
+  assert.ok(personScope.nodeIds.has('publication:p1'));
+  assert.ok(personScope.nodeIds.has('publication:p3'));
+  assert.ok(personScope.nodeIds.has('laboratory:lab-one'));
+  assert.ok(personScope.nodeIds.has('team:team-one'));
+  assert.ok(personScope.nodeIds.has('project:project-one'));
+
+  const teamScope = resolveScope(graph, index, 'team:team-one');
+  assert.ok(teamScope.nodeIds.has('team:team-one'));
+  assert.ok(teamScope.nodeIds.has('person:alice'));
+  assert.ok(teamScope.nodeIds.has('person:carol'));
+  assert.ok(teamScope.nodeIds.has('laboratory:lab-one'));
+  assert.ok(teamScope.nodeIds.has('department:ai'));
+  assert.ok(teamScope.nodeIds.has('project:project-one'));
+  assert.equal(teamScope.meta.memberCount, 2);
+
+  const projectScope = resolveScope(graph, index, 'project:project-one');
+  assert.ok(projectScope.nodeIds.has('project:project-one'));
+  assert.ok(projectScope.nodeIds.has('person:alice'));
+  assert.ok(projectScope.nodeIds.has('team:team-one'));
+  assert.ok(projectScope.nodeIds.has('department:ai'));
 });
 
 test('text search returns matches plus connected context', () => {
